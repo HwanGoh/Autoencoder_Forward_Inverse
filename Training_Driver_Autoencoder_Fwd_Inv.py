@@ -68,7 +68,7 @@ if __name__ == "__main__":
     ########################
     #   Train Autoencoder  #
     ########################
-    ae = AutoencoderFwdInv(run_options,parameter_true,state_data)
+    NN = AutoencoderFwdInv(run_options,parameter_true,state_data)
      
      
      

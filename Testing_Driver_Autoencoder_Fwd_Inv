@@ -16,8 +16,9 @@ from gaussian_field import make_cov_chol
 
 import numpy as np
 import matplotlib.pyplot as plt
-from Autoencoder_Fwd_Inv_NN import AutoencoderFwdInv
+from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from parameter_generator import ParameterGeneratorNineValues, ConvertArraytoDolfinFunction
+import tensorflow as tf
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -47,6 +48,16 @@ class RunOptions:
 #                                  Driver                                     #
 ###############################################################################
 if __name__ == "__main__":
+    
+    run_options = RunOptions()
+    
+    ####################################
+    #   Import Trained Neural Network  #
+    ####################################
+    with tf.Session() as sess:
+        new_saver = tf.train.import_meta_graph(run_options.savefilename + '.meta')
+        new_saver.restore(sess, tf.train.latest_checkpoint(run_options.savefilepath))
+            
     V = get_space(40)
     solver = Fin(V) 
     

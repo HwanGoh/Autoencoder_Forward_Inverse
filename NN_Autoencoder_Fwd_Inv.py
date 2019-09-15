@@ -132,13 +132,6 @@ class AutoencoderFwdInv:
             if epoch % 1000 == 0:
                 self.saver.save(self.sess, self.run_options.savefilename, write_meta_graph=False)
 
-    def predict(self, X_star):        
-        tf_dict = {self.x_data_tf: X_star[:, 0:1], self.t_data_tf: X_star[:, 1:2],
-                   self.x_phys_tf: X_star[:, 0:1], self.t_phys_tf: X_star[:, 1:2]}        
-        u_star = self.sess.run(self.u_pred, tf_dict)
-        f_star = self.sess.run(self.f_pred, tf_dict)        
-        return u_star, f_star
-
     def forward_problem_prediction(self, parameter_input):           
         prediction = self.sess.run(self.forward_pred, feed_dict = {self.parameter_input_tf: parameter_input})      
         return prediction
