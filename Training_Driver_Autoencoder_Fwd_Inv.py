@@ -102,7 +102,8 @@ if __name__ == "__main__":
     #   Train Autoencoder  #
     ########################          
     with tf.Session() as sess:
-        sess.run(tf.initialize_all_variables())       
+        sess.run(tf.initialize_all_variables()) 
+        
         # Save neural network
         if not os.path.exists(run_options.savefilepath):
             os.makedirs(run_options.savefilepath)

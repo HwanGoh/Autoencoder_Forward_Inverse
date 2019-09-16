@@ -60,11 +60,3 @@ class AutoencoderFwdInv:
         layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, self.weights['decoder_w2']),
                                        self.biases['decoder_b2']))
         return layer_2
-     
-    def forward_problem_prediction(self, parameter_input):           
-        prediction = self.sess.run(self.forward_pred, feed_dict = {self.parameter_input_tf: parameter_input})      
-        return prediction
-    
-    def inverse_problem_prediction(self, state_input):               
-        prediction = self.sess.run(self.inverse_pred, feed_dict = {self.state_input_tf: state_input})      
-        return prediction
