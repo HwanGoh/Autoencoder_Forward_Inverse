@@ -5,16 +5,18 @@ Created on Sat Sep 14 14:35:58 2019
 
 @author: Hwan Goh
 """
+
+
 import sys
 sys.path.append('../')
 
+import tensorflow as tf
 from forward_solve import Fin
 from thermal_fin import get_space
 from parameter_generator import ParameterGeneratorNineValues
-
 import numpy as np
 import pandas as pd
-import tensorflow as tf
+
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from random_mini_batches import random_mini_batches
 import time
@@ -67,6 +69,7 @@ if __name__ == "__main__":
     # Generating Data
     if not os.path.exists('Data'):
         os.makedirs('Data')
+        
     if os.path.isfile(run_options.data_savefilepath + '.csv'):
         print('Loading Data')
         df = pd.read_csv(run_options.data_savefilepath + '.csv')
@@ -80,7 +83,7 @@ if __name__ == "__main__":
             # Randomly generate piecewise constant true parameter with 9 values
             parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
             # Solve PDE for state variable
-            state_data_dl, _, _, _, _ = solver.forward(parameter_true_dl)
+            state_data_dl, _ = solver.forward(parameter_true_dl)
             state_data[m,:] = state_data_dl.vector().get_local()           
         # Saving Parameters and State Data
         data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
