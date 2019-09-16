@@ -10,7 +10,7 @@ Created on Sat Sep 14 14:35:58 2019
 import sys
 sys.path.append('../')
 
-import tensorflow as tf
+import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 from forward_solve import Fin
 from thermal_fin import get_space
 from parameter_generator import ParameterGeneratorNineValues
@@ -32,7 +32,7 @@ sys.path.insert(0, '../../Utilities/')
 np.random.seed(1234)
 
 ###############################################################################
-#                               Parameters                                    #
+#                               Run Options                                   #
 ###############################################################################
 class RunOptions:
     num_hidden_nodes = 200
@@ -52,8 +52,6 @@ class RunOptions:
 #                                  Driver                                     #
 ###############################################################################
 if __name__ == "__main__":
-    
-    print('Training Time!')
     
     run_options = RunOptions()
     
