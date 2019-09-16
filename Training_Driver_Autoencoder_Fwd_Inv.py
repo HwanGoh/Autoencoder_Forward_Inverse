@@ -35,7 +35,7 @@ np.random.seed(1234)
 class RunOptions:
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 10000
+    num_training_data = 5000
     batch_size = 10000
     num_batches = int(num_training_data/batch_size)
     num_epochs = 50000
