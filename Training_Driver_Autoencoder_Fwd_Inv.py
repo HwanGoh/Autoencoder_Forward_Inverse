@@ -65,6 +65,8 @@ if __name__ == "__main__":
     state_data = np.zeros((run_options.num_training_data,V.dim()))
     
     # Generating Data
+    if not os.path.exists('Data'):
+        os.makedirs('Data')
     if os.path.isfile(run_options.data_savefilepath + '.csv'):
         print('Loading Data')
         df = pd.read_csv(run_options.data_savefilepath + '.csv')
