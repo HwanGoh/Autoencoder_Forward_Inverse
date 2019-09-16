@@ -47,6 +47,13 @@ class RunOptions:
     NN_savefile_directory = 'Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
     NN_savefile_name = NN_savefile_directory + '/' + filename # The file path and name for the four files
     data_savefilepath = 'Data/' + filename
+    
+    # Creating Directories
+    if not os.path.exists(NN_savefile_directory):
+        os.makedirs(NN_savefile_directory)
+    
+    if not os.path.exists('Data'):
+        os.makedirs('Data')
    
 ###############################################################################
 #                                  Driver                                     #
@@ -126,8 +133,6 @@ if __name__ == "__main__":
         sess.run(tf.initialize_all_variables()) 
         
         # Save neural network
-        if not os.path.exists(run_options.NN_savefile_directory):
-            os.makedirs(run_options.NN_savefile_directory)
         saver = tf.train.Saver()
         saver.save(sess, run_options.NN_savefile_name)
         
