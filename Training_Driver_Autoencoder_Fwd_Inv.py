@@ -35,10 +35,10 @@ np.random.seed(1234)
 class RunOptions:
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 50
-    batch_size = 50
+    num_training_data = 15
+    batch_size = 15
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 10
+    num_epochs = 1000
     gpu    = '0'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -69,22 +69,22 @@ if __name__ == "__main__":
         print('Loading Data')
         df = pd.read_csv(run_options.data_savefilepath + '.csv')
         data = df.to_numpy()
-        parameter_true = data[:,0].reshape((run_options.num_training_data,1446))
-        state_data = data[:,1].reshape((run_options.num_training_data,1446))
+        parameter_true = data[:,0].reshape((run_options.num_training_data,V.dim()))
+        state_data = data[:,1].reshape((run_options.num_training_data,V.dim()))
     else:
         for m in range(run_options.num_training_data): 
             print('\nGenerating Parameters and Data Set %d of %d' %(m+1,run_options.num_training_data))
-            print(run_options.filename[:-3])
+            print(run_options.filename)
             # Randomly generate piecewise constant true parameter with 9 values
             parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
             # Solve PDE for state variable
             state_data_dl, _, _, _, _ = solver.forward(parameter_true_dl)
-            state_data[m,:] = state_data_dl.vector().get_local()
-    
-            # Saving Parameters and State Data
-            data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
-            df = pd.DataFrame(data)   
-            df.to_csv(run_options.data_savefilepath + '.csv', mode='a', index=False)     
+            state_data[m,:] = state_data_dl.vector().get_local()           
+        # Saving Parameters and State Data
+        data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
+        df = pd.DataFrame(data)   
+        df.to_csv(run_options.data_savefilepath + '.csv', index=False)  
+        
     
     ###########################
     #   Training Properties   #
