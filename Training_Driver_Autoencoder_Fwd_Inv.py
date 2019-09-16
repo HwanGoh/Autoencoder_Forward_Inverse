@@ -35,10 +35,10 @@ np.random.seed(1234)
 class RunOptions:
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 5000
-    batch_size = 10000
+    num_training_data = 50
+    batch_size = 50
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 50000
+    num_epochs = 10
     gpu    = '0'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
