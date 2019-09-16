@@ -65,7 +65,7 @@ if __name__ == "__main__":
         # Randomly generate piecewise constant true parameter with 9 values
         parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
         # Solve PDE for state variable
-        state_data_dl,_, _, _,_ = solver.forward(parameter_true_dl)
+        state_data_dl, _, _, _, _ = solver.forward(parameter_true_dl)
         state_data[m,:] = state_data_dl.vector().get_local()
     
     ###########################
@@ -134,7 +134,11 @@ if __name__ == "__main__":
             # save every 1000 epochs
             if epoch % 1000 == 0:
                 saver.save(sess, run_options.savefilename, write_meta_graph=False)
-                
+        
+        # Optimize with LBFGS
+        print('Optimizing with LBFGS\n')        
+        lbfgs.minimize(sess, feed_dict=tf_dict)
+        saver.save(sess, run_options.savefilename, write_meta_graph=False)        
     
      
      

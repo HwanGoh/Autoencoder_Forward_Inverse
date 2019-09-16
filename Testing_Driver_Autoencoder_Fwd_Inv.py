@@ -55,7 +55,7 @@ if __name__ == "__main__":
     V = get_space(40)
     solver = Fin(V) 
     parameter_test, parameter_test_dl = ParameterGeneratorNineValues(V,solver) 
-    state_test_dl,_, _, _,_ = solver.forward(parameter_test_dl)
+    state_test_dl, _, _, _, _ = solver.forward(parameter_test_dl)
     state_test = state_test_dl.vector().get_local()
     
     ####################################
