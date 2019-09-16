@@ -39,8 +39,8 @@ class RunOptions:
     gpu    = '0'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
-    savefilepath = 'Models/' + filename
-    savefilename = savefilepath + '/' + filename
+    NN_savefile_directory = 'Trained_NNs/' + filename
+    NN_savefile_name = NN_savefile_directory + '/' + filename
    
 ###############################################################################
 #                                  Driver                                     #
@@ -66,8 +66,8 @@ if __name__ == "__main__":
     
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables()) 
-        new_saver = tf.train.import_meta_graph(run_options.savefilename + '.meta')
-        new_saver.restore(sess, tf.train.latest_checkpoint(run_options.savefilepath))
+        new_saver = tf.train.import_meta_graph(run_options.NN_savefile_name + '.meta')
+        new_saver.restore(sess, tf.train.latest_checkpoint(run_options.NN_savefile_directory))
     
         #######################
         #   Form Predictions  #

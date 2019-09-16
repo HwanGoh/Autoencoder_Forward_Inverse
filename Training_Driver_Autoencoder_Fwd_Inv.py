@@ -13,6 +13,7 @@ from thermal_fin import get_space
 from parameter_generator import ParameterGeneratorNineValues
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from random_mini_batches import random_mini_batches
@@ -41,8 +42,9 @@ class RunOptions:
     gpu    = '0'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
-    savefilepath = 'Models/' + filename
-    savefilename = savefilepath + '/' + filename
+    NN_savefile_directory = 'Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+    NN_savefile_name = NN_savefile_directory + '/' + filename # The file path and name for the four files
+    data_savefilepath = 'Data/' + filename
    
 ###############################################################################
 #                                  Driver                                     #
@@ -53,20 +55,34 @@ if __name__ == "__main__":
     
     ###################################
     #   Generate Parameters and Data  #
-    ###################################  following "test_thermal_fin_gradient.py" code
+    ###################################  following Sheroze's "test_thermal_fin_gradient.py" code
     V = get_space(40)
     solver = Fin(V) 
     
-    parameter_true = np.zeros((run_options.num_training_data,1446))
-    state_data = np.zeros((run_options.num_training_data,1446))
+    parameter_true = np.zeros((run_options.num_training_data,V.dim()))
+    state_data = np.zeros((run_options.num_training_data,V.dim()))
     
-    for m in range(run_options.num_training_data): 
-        print(run_options.filename[:-3])
-        # Randomly generate piecewise constant true parameter with 9 values
-        parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
-        # Solve PDE for state variable
-        state_data_dl, _, _, _, _ = solver.forward(parameter_true_dl)
-        state_data[m,:] = state_data_dl.vector().get_local()
+    # Generating Data
+    if os.path.isfile(run_options.data_savefilepath + '.csv'):
+        print('Loading Data')
+        df = pd.read_csv(run_options.data_savefilepath + '.csv')
+        data = df.to_numpy()
+        parameter_true = data[:,0].reshape((run_options.num_training_data,1446))
+        state_data = data[:,1].reshape((run_options.num_training_data,1446))
+    else:
+        for m in range(run_options.num_training_data): 
+            print('\nGenerating Parameters and Data Set %d of %d' %(m+1,run_options.num_training_data))
+            print(run_options.filename[:-3])
+            # Randomly generate piecewise constant true parameter with 9 values
+            parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
+            # Solve PDE for state variable
+            state_data_dl, _, _, _, _ = solver.forward(parameter_true_dl)
+            state_data[m,:] = state_data_dl.vector().get_local()
+    
+            # Saving Parameters and State Data
+            data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
+            df = pd.DataFrame(data)   
+            df.to_csv(run_options.data_savefilepath + '.csv', mode='a', index=False)     
     
     ###########################
     #   Training Properties   #
@@ -105,10 +121,10 @@ if __name__ == "__main__":
         sess.run(tf.initialize_all_variables()) 
         
         # Save neural network
-        if not os.path.exists(run_options.savefilepath):
-            os.makedirs(run_options.savefilepath)
+        if not os.path.exists(run_options.NN_savefile_directory):
+            os.makedirs(run_options.NN_savefile_directory)
         saver = tf.train.Saver()
-        saver.save(sess, run_options.savefilename)
+        saver.save(sess, run_options.NN_savefile_name)
         
         # Train neural network
         print('Beginning Training\n')
@@ -133,12 +149,12 @@ if __name__ == "__main__":
                 
             # save every 1000 epochs
             if epoch % 1000 == 0:
-                saver.save(sess, run_options.savefilename, write_meta_graph=False)
+                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
         
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')        
         lbfgs.minimize(sess, feed_dict=tf_dict)
-        saver.save(sess, run_options.savefilename, write_meta_graph=False)        
+        saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
      
      
