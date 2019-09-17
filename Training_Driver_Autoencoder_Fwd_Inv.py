@@ -38,8 +38,8 @@ np.random.seed(1234)
 class RunOptions:
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 20
-    batch_size = 20
+    num_training_data = 5000
+    batch_size = 5000
     num_batches = int(num_training_data/batch_size)
     num_epochs = 50000
     gpu    = '1'
@@ -173,7 +173,7 @@ if __name__ == "__main__":
         
             # Optimize with LBFGS
             print('Optimizing with LBFGS\n')        
-            #lbfgs.minimize(sess, feed_dict=tf_dict)
+            lbfgs.minimize(sess, feed_dict=tf_dict)
             saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
      
