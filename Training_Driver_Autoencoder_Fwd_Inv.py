@@ -11,6 +11,7 @@ import sys
 sys.path.append('../')
 
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
+tf.reset_default_graph()
 from forward_solve import Fin
 from thermal_fin import get_space
 from parameter_generator import ParameterGeneratorNineValues
@@ -41,7 +42,7 @@ class RunOptions:
     batch_size = 2500
     num_batches = int(num_training_data/batch_size)
     num_epochs = 50000
-    gpu    = '0'
+    gpu    = '2'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
     NN_savefile_directory = 'Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
