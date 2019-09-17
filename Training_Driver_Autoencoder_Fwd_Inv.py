@@ -38,10 +38,10 @@ np.random.seed(1234)
 class RunOptions:
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 200
-    batch_size = 200
+    num_training_data = 20
+    batch_size = 20
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 50000
+    num_epochs = 1000
     gpu    = '1'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -104,8 +104,9 @@ if __name__ == "__main__":
     NN = AutoencoderFwdInv(run_options,parameter_true.shape[1],state_data.shape[1])
     
     # Loss functional
-    loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2), 2) + \
-           NN.run_options.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2), 2)
+    with tf.name_scope('loss') as scope:
+        loss = tf.add(tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2), \
+               run_options.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2), name="loss")
                 
     # Set optimizers
     optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001)
@@ -126,6 +127,9 @@ if __name__ == "__main__":
                             intra_op_parallelism_threads=4,
                             inter_op_parallelism_threads=2,
                             gpu_options= gpu_options)
+    
+    # Tensorboard: type "tensorboard --logdir=tensorboard_graphs" into terminal and click the link
+    writer = tf.summary.FileWriter('./tensorboard_graphs', tf.get_default_graph())
 
     ########################
     #   Train Autoencoder  #
@@ -138,38 +142,39 @@ if __name__ == "__main__":
         saver.save(sess, run_options.NN_savefile_name)
         
         # Train neural network
-        print('Beginning Training\n')
-        start_time = time.time()
-        loss_value = 1000
-        for epoch in range(run_options.num_epochs):
-            if run_options.num_batches == 1:
-                parameter_true_batch = parameter_true
-                state_data_btach = state_data
-            else:
-                minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
-            for batch_num in range(run_options.num_batches):
-                parameter_true_batch = minibatches[batch_num][0].T
-                state_data_batch = minibatches[batch_num][1].T
-                tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
-                sess.run(train_op_Adam, tf_dict)   
-                
-            # print to monitor results
-            if epoch % 100 == 0:
-                elapsed = time.time() - start_time
-                loss_value = sess.run(loss, tf_dict)
-                print(run_options.filename)
-                print('GPU: ' + run_options.gpu)
-                print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
-                start_time = time.time()     
-                
-            # save every 1000 epochs
-            if epoch % 1000 == 0:
-                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
+        with tf.name_scope('Training') as scope:
+            print('Beginning Training\n')
+            start_time = time.time()
+            loss_value = 1000
+            for epoch in range(run_options.num_epochs):
+                if run_options.num_batches == 1:
+                    tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
+                    sess.run(train_op_Adam, tf_dict)   
+                else:
+                    minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
+                    for batch_num in range(run_options.num_batches):
+                        parameter_true_batch = minibatches[batch_num][0].T
+                        state_data_batch = minibatches[batch_num][1].T
+                        tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
+                        sess.run(train_op_Adam, tf_dict)   
+                    
+                # print to monitor results
+                if epoch % 100 == 0:
+                    elapsed = time.time() - start_time
+                    loss_value = sess.run(loss, tf_dict)
+                    print(run_options.filename)
+                    print('GPU: ' + run_options.gpu)
+                    print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
+                    start_time = time.time()     
+                    
+                # save every 1000 epochs
+                if epoch % 1000 == 0:
+                    saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
         
-        # Optimize with LBFGS
-        print('Optimizing with LBFGS\n')        
-        lbfgs.minimize(sess, feed_dict=tf_dict)
-        saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
+            # Optimize with LBFGS
+            print('Optimizing with LBFGS\n')        
+            #lbfgs.minimize(sess, feed_dict=tf_dict)
+            saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
      
      
