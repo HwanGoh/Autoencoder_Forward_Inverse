@@ -122,7 +122,7 @@ if __name__ == "__main__":
     gpu_options = tf.GPUOptions(visible_device_list= run_options.gpu,
                                 allow_growth=True)
     
-    config = tf.ConfigProto(allow_soft_placement=True,
+    run_config = tf.ConfigProto(allow_soft_placement=True,
                             log_device_placement=True,
                             intra_op_parallelism_threads=4,
                             inter_op_parallelism_threads=2,
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     ########################
     #   Train Autoencoder  #
     ########################          
-    with tf.Session() as sess:
+    with tf.Session(config=run_config) as sess:
         sess.run(tf.initialize_all_variables()) 
         
         # Save neural network
