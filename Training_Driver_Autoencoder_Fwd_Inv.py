@@ -38,8 +38,8 @@ np.random.seed(1234)
 class RunOptions:
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 2500
-    batch_size = 2500
+    num_training_data = 200
+    batch_size = 200
     num_batches = int(num_training_data/batch_size)
     num_epochs = 50000
     gpu    = '2'
