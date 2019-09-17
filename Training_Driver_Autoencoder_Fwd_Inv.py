@@ -41,7 +41,7 @@ class RunOptions:
     num_training_data = 20
     batch_size = 20
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 1000
+    num_epochs = 50000
     gpu    = '1'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
