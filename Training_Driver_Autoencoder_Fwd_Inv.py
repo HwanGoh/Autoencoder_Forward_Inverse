@@ -122,7 +122,7 @@ if __name__ == "__main__":
     gpu_options = tf.GPUOptions(visible_device_list= run_options.gpu,
                                 allow_growth=True)
     
-    run_config = tf.ConfigProto(allow_soft_placement=True,
+    gpu_config = tf.ConfigProto(allow_soft_placement=True,
                             log_device_placement=True,
                             intra_op_parallelism_threads=4,
                             inter_op_parallelism_threads=2,
