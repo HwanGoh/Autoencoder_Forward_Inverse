@@ -134,7 +134,7 @@ if __name__ == "__main__":
     ########################
     #   Train Autoencoder  #
     ########################          
-    with tf.Session(config=run_config) as sess:
+    with tf.Session(config=gpu_config) as sess:
         sess.run(tf.initialize_all_variables()) 
         
         # Save neural network
