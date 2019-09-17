@@ -109,9 +109,8 @@ if __name__ == "__main__":
                run_options.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2), name="loss")
                 
     # Set optimizers
-    optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001)
-    train_op_Adam = optimizer_Adam.minimize(loss)
-    lbfgs = tf.contrib.opt.ScipyOptimizerInterface(loss,
+    optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
+    optimizer_LBFGS = tf.contrib.opt.ScipyOptimizerInterface(loss,
                                                    method='L-BFGS-B',
                                                    options={'maxiter':10000,
                                                             'maxfun':50000,
@@ -149,14 +148,14 @@ if __name__ == "__main__":
             for epoch in range(run_options.num_epochs):
                 if run_options.num_batches == 1:
                     tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
-                    sess.run(train_op_Adam, tf_dict)   
+                    sess.run(optimizer_Adam, tf_dict)   
                 else:
                     minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
                     for batch_num in range(run_options.num_batches):
                         parameter_true_batch = minibatches[batch_num][0].T
                         state_data_batch = minibatches[batch_num][1].T
                         tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
-                        sess.run(train_op_Adam, tf_dict)   
+                        sess.run(optimizer_Adam, tf_dict)   
                     
                 # print to monitor results
                 if epoch % 100 == 0:
@@ -173,7 +172,7 @@ if __name__ == "__main__":
         
             # Optimize with LBFGS
             print('Optimizing with LBFGS\n')        
-            lbfgs.minimize(sess, feed_dict=tf_dict)
+            optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
             saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
      
