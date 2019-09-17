@@ -37,8 +37,8 @@ np.random.seed(1234)
 class RunOptions:
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 5000
-    batch_size = 5000
+    num_training_data = 2500
+    batch_size = 2500
     num_batches = int(num_training_data/batch_size)
     num_epochs = 50000
     gpu    = '0'
@@ -140,13 +140,17 @@ if __name__ == "__main__":
         print('Beginning Training\n')
         start_time = time.time()
         loss_value = 1000
-        for epoch in range(run_options.num_epochs): 
-            minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
+        for epoch in range(run_options.num_epochs):
+            if run_options.num_batches == 1:
+                parameter_true_batch = parameter_true
+                state_data_btach = state_data
+            else:
+                minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
             for batch_num in range(run_options.num_batches):
                 parameter_true_batch = minibatches[batch_num][0].T
                 state_data_batch = minibatches[batch_num][1].T
                 tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
-                sess.run(train_op_Adam, tf_dict)     
+                sess.run(train_op_Adam, tf_dict)   
                 
             # print to monitor results
             if epoch % 100 == 0:
