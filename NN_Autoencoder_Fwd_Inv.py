@@ -34,6 +34,8 @@ class AutoencoderFwdInv:
                 for l in range(0, run_options.truncation_layer - 1):
                     W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
                     b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
+                    tf.summary.histogram("weights" + str(l+1), W)
+                    tf.summary.histogram("biases" + str(l+1), b)
                     self.weights.append(W)
                     self.biases.append(b)
                 self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
@@ -42,6 +44,8 @@ class AutoencoderFwdInv:
                 for l in range(run_options.truncation_layer -1, num_layers -1):
                     W = tf.get_variable("W" + str(l), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
                     b = tf.get_variable("b" + str(l), shape = [1, self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
+                    tf.summary.histogram("weights" + str(l+1), W)
+                    tf.summary.histogram("biases" + str(l+1), b)
                     self.weights.append(W)
                     self.biases.append(b)
                 self.inverse_pred = self.inverse_problem(self.state_input_tf, run_options.truncation_layer, len(self.layers))   

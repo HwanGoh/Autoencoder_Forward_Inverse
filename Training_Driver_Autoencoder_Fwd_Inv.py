@@ -39,11 +39,11 @@ class RunOptions:
     num_hidden_layers = 1
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
-    penalty = 1
+    penalty = 20
     num_training_data = 10
     batch_size = 10
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 1000
+    num_epochs = 5000
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -107,18 +107,24 @@ if __name__ == "__main__":
 
     # Loss functional
     with tf.variable_scope('loss') as scope:
-        loss = tf.add(tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2), \
-               run_options.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2), name="loss")
+        auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
+        fwd_loss = run_options.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2)
+        loss = tf.add(auto_encoder_loss, fwd_loss, name="loss")
+        tf.summary.scalar("auto_encoder_loss",auto_encoder_loss)
+        tf.summary.scalar("fwd_loss",fwd_loss)
+        tf.summary.scalar("loss",loss)
                 
     # Set optimizers
-    optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
-    optimizer_LBFGS = tf.contrib.opt.ScipyOptimizerInterface(loss,
-                                                   method='L-BFGS-B',
-                                                   options={'maxiter':10000,
-                                                            'maxfun':50000,
-                                                            'maxcor':50,
-                                                            'maxls':50,
-                                                            'ftol':1.0 * np.finfo(float).eps})            
+    with tf.variable_scope('Training') as scope:
+        optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001, name = 'adam_opt').minimize(loss)
+        optimizer_LBFGS = tf.contrib.opt.ScipyOptimizerInterface(loss,
+                                                       method='L-BFGS-B',
+                                                       options={'maxiter':10000,
+                                                                'maxfun':50000,
+                                                                'maxcor':50,
+                                                                'maxls':50,
+                                                                'ftol':1.0 * np.finfo(float).eps},
+                                                        name = 'LBFGS_opt')            
     # Set GPU configuration options
     gpu_options = tf.GPUOptions(visible_device_list= run_options.gpu,
                                 allow_growth=True)
@@ -129,55 +135,59 @@ if __name__ == "__main__":
                             inter_op_parallelism_threads=2,
                             gpu_options= gpu_options)
     
-    # Tensorboard: type "tensorboard --logdir=tensorboard_graphs" into terminal and click the link
-    writer = tf.summary.FileWriter('./tensorboard_graphs', tf.get_default_graph())
-    
-    pdb.set_trace()
+    # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
+    summ = tf.summary.merge_all()
+    writer = tf.summary.FileWriter('Tensorboard/' + run_options.filename)
     
     ########################
     #   Train Autoencoder  #
     ########################          
     with tf.Session(config=gpu_config) as sess:
         sess.run(tf.initialize_all_variables()) 
+        writer.add_graph(sess.graph)
         
         # Save neural network
         saver = tf.train.Saver()
         saver.save(sess, run_options.NN_savefile_name)
         
         # Train neural network
-        with tf.variable_scope('Training') as scope:
-            print('Beginning Training\n')
-            start_time = time.time()
-            loss_value = 1000
-            for epoch in range(run_options.num_epochs):
-                if run_options.num_batches == 1:
-                    tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
+        print('Beginning Training\n')
+        start_time = time.time()
+        loss_value = 1000
+        for epoch in range(run_options.num_epochs):
+            if run_options.num_batches == 1:
+                tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
+                sess.run(optimizer_Adam, tf_dict)   
+            else:
+                minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
+                for batch_num in range(run_options.num_batches):
+                    parameter_true_batch = minibatches[batch_num][0].T
+                    state_data_batch = minibatches[batch_num][1].T
+                    tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
                     sess.run(optimizer_Adam, tf_dict)   
-                else:
-                    minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
-                    for batch_num in range(run_options.num_batches):
-                        parameter_true_batch = minibatches[batch_num][0].T
-                        state_data_batch = minibatches[batch_num][1].T
-                        tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
-                        sess.run(optimizer_Adam, tf_dict)   
-                    
-                # print to monitor results
-                if epoch % 100 == 0:
-                    elapsed = time.time() - start_time
-                    loss_value = sess.run(loss, tf_dict)
-                    print(run_options.filename)
-                    print('GPU: ' + run_options.gpu)
-                    print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
-                    start_time = time.time()     
-                    
-                # save every 1000 epochs
-                if epoch % 1000 == 0:
-                    saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
+                
+            # print to monitor results
+            if epoch % 100 == 0:
+                elapsed = time.time() - start_time
+                [loss_value, s] = sess.run([loss,summ], tf_dict)
+                writer.add_summary(s,epoch)
+                print(run_options.filename)
+                print('GPU: ' + run_options.gpu)
+                print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
+                start_time = time.time()     
+                
+            # save every 1000 epochs
+            if epoch % 1000 == 0:
+                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
         
-            # Optimize with LBFGS
-            print('Optimizing with LBFGS\n')        
-            optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
-            saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
+        # Optimize with LBFGS
+        print('Optimizing with LBFGS\n')        
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        [loss_value, s] = sess.run([loss,summ], tf_dict)
+        writer.add_summary(s,run_options.num_epochs)
+        
+        # Save final model
+        saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
      
      
