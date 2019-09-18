@@ -39,7 +39,7 @@ class RunOptions:
     num_hidden_layers = 1
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
-    penalty = 20
+    penalty = 10
     num_training_data = 5000
     batch_size = 5000
     num_batches = int(num_training_data/batch_size)
@@ -57,6 +57,8 @@ class RunOptions:
     
     if not os.path.exists('Data'):
         os.makedirs('Data')
+    
+    pdb.set_trace()
    
 ###############################################################################
 #                                  Driver                                     #
