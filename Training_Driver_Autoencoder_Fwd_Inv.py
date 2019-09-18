@@ -57,8 +57,6 @@ class RunOptions:
     
     if not os.path.exists('Data'):
         os.makedirs('Data')
-    
-    pdb.set_trace()
    
 ###############################################################################
 #                                  Driver                                     #
