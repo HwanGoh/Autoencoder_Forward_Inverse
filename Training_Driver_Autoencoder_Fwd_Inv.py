@@ -36,6 +36,7 @@ np.random.seed(1234)
 #                               Run Options                                   #
 ###############################################################################
 class RunOptions:
+    num_hidden_layers = 3
     num_hidden_nodes = 200
     penalty = 1
     num_training_data = 5000
