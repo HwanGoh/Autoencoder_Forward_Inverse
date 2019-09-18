@@ -7,57 +7,59 @@ Created on Sun Sep 15 14:29:36 2019
 """
 
 import tensorflow as tf
+import numpy as np
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 tf.set_random_seed(1234)
 
 class AutoencoderFwdInv:
     def __init__(self, run_options, parameter_dimension, state_dimension):
-        self.run_options =  run_options      
-              
+        
         # Initialize placeholders
         self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
         self.state_input_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_input_tf")
         self.state_data_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_data_tf") # This is needed for batching during training, else can just use state_data
         
-        # Autoencoder
-        self.weights, self.biases = self.autoencoder_architecture(parameter_dimension, self.run_options.num_hidden_nodes, state_dimension)
-        self.forward_pred = self.forward_problem(self.parameter_input_tf)
-        self.autoencoder_pred = self.inverse_problem(self.forward_pred) # To be used in the loss function
-        self.inverse_pred = self.inverse_problem(self.state_input_tf)
-    
-    def autoencoder_architecture(self, parameter_dimension, num_hidden_nodes, state_dimension):
-        weights = {
-            'encoder_w1': tf.Variable(tf.random_normal([parameter_dimension, num_hidden_nodes]), name = "encoder_w1"),
-            'encoder_w2': tf.Variable(tf.random_normal([num_hidden_nodes, state_dimension]), name = "encoder_w2"),
-            'decoder_w1': tf.Variable(tf.random_normal([state_dimension, num_hidden_nodes]), name = "decoder_w1"),
-            'decoder_w2': tf.Variable(tf.random_normal([num_hidden_nodes, parameter_dimension]), name = "decoder_w2"),
-        }
-        biases = {
-            'encoder_b1': tf.Variable(tf.random_normal([num_hidden_nodes]), name = "encoder_b1"),
-            'encoder_b2': tf.Variable(tf.random_normal([state_dimension]), name = "encoder_b2"),
-            'decoder_b1': tf.Variable(tf.random_normal([num_hidden_nodes]), name = "decoder_b1"),
-            'decoder_b2': tf.Variable(tf.random_normal([parameter_dimension]), name = "decoder_b2"),
-        }     
-        return weights, biases
+        # Initialize weights and biases
+        self.layers = [parameter_dimension] + [run_options.num_hidden_nodes]*run_options.num_hidden_layers + [parameter_dimension]
+        self.layers[run_options.truncation_layer-1] = state_dimension # Sets where the forward problem ends and the inverse problem begins
+        print(self.layers)
+        self.weights = [] # This will be a list of tensorflow variables
+        self.biases = [] # This will be a list of tensorflow variables
+        num_layers = len(self.layers)
+        for l in range(0, num_layers - 1):
+            W = self.xavier_init(size=[self.layers[l], self.layers[l + 1]])
+            b = tf.Variable(tf.zeros([1, self.layers[l + 1]], dtype=tf.float32), dtype=tf.float32)
+            self.weights.append(W)
+            self.biases.append(b)
         
-    def forward_problem(self,parameter_input):
-        with tf.name_scope('Fwd_Problem') as scope:
-            # Encoder Hidden layer with sigmoid activation #1
-            layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(parameter_input, self.weights['encoder_w1']),
-                                           self.biases['encoder_b1']), name = "Fwd_Layer_1")
-            # Encoder Hidden layer with sigmoid activation #2
-            layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, self.weights['encoder_w2']),
-                                           self.biases['encoder_b2']), name = "Fwd_Layer_1")
-            
-            return layer_2
+        # Network Propagation
+        self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
+        self.autoencoder_pred = self.inverse_problem(self.forward_pred, run_options.truncation_layer, len(self.layers)) # To be used in the loss function
+        self.inverse_pred = self.inverse_problem(self.state_input_tf, run_options.truncation_layer, len(self.layers))
+    
+    def xavier_init(self, size):
+        in_dim = size[0]
+        out_dim = size[1]
+        xavier_stddev = np.sqrt(2 / (in_dim + out_dim))
+        return tf.Variable(tf.truncated_normal([in_dim, out_dim], stddev=xavier_stddev), dtype=tf.float32)
 
-    def inverse_problem(self,state_input):
-        with tf.name_scope('Inv_Problem') as scope:
-            # Decoder Hidden layer with sigmoid activation #1
-            layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(state_input, self.weights['decoder_w1']),
-                                           self.biases['decoder_b1']), name = "Inv_Layer_1")
-            # Decoder Hidden layer with sigmoid activation #2
-            layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, self.weights['decoder_w2']),
-                                           self.biases['decoder_b2']), name = "Inv_Layer_1")
-            return layer_2
+    def forward_problem(self, X, truncation_layer):       
+        for l in range(0, truncation_layer - 2):
+            W = self.weights[l]
+            b = self.biases[l]
+            X = tf.tanh(tf.add(tf.matmul(X, W), b))
+        W = self.weights[truncation_layer - 2]
+        b = self.biases[truncation_layer - 2]
+        output = tf.add(tf.matmul(X, W), b)
+        return output
+    
+    def inverse_problem(self, X, truncation_layer, num_layers):       
+        for l in range(truncation_layer-1, num_layers - 2):
+            W = self.weights[l]
+            b = self.biases[l]
+            X = tf.tanh(tf.add(tf.matmul(X, W), b))
+        W = self.weights[-1]
+        b = self.biases[-1]
+        output = tf.add(tf.matmul(X, W), b)
+        return output

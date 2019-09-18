@@ -36,13 +36,14 @@ np.random.seed(1234)
 #                               Run Options                                   #
 ###############################################################################
 class RunOptions:
-    num_hidden_layers = 3
+    num_hidden_layers = 1
+    truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 5000
-    batch_size = 5000
+    num_training_data = 5
+    batch_size = 5
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 50000
+    num_epochs = 1000
     gpu    = '1'
     
     filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -173,7 +174,7 @@ if __name__ == "__main__":
         
             # Optimize with LBFGS
             print('Optimizing with LBFGS\n')        
-            optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+            #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
             saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
      
