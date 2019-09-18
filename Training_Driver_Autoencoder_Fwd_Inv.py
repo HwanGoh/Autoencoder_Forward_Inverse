@@ -40,8 +40,8 @@ class RunOptions:
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 50
-    batch_size = 50
+    num_training_data = 5000
+    batch_size = 5000
     num_batches = int(num_training_data/batch_size)
     num_epochs = 1e7
     gpu    = '3'
