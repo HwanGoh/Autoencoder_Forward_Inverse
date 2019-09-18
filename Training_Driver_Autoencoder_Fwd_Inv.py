@@ -87,7 +87,7 @@ if __name__ == "__main__":
     else:
         for m in range(run_options.num_training_data): 
             print('\nGenerating Parameters and Data Set %d of %d' %(m+1,run_options.num_training_data))
-            print(run_options.filename)
+            print(run_options.data_savefilepath)
             # Randomly generate piecewise constant true parameter with 9 values
             parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
             # Solve PDE for state variable
