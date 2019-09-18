@@ -1,0 +1,2 @@
+model_checkpoint_path: "hnodes200_pen1_data5000_batch5000_epochs50000"
+all_model_checkpoint_paths: "hnodes200_pen1_data5000_batch5000_epochs50000"
