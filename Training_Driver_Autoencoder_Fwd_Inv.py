@@ -49,7 +49,7 @@ class RunOptions:
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
     NN_savefile_directory = 'Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
     NN_savefile_name = NN_savefile_directory + '/' + filename # The file path and name for the four files
-    data_savefilepath = 'Data/' + filename
+    data_savefilepath = 'Data/' + 'data_%d' %(num_training_data)
     
     # Creating Directories
     if not os.path.exists(NN_savefile_directory):
