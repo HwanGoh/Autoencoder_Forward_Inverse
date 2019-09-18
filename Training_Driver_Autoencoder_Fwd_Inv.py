@@ -40,10 +40,10 @@ class RunOptions:
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 5000
-    batch_size = 5000
+    num_training_data = 10
+    batch_size = 10
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 1e7
+    num_epochs = 1000
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -104,9 +104,9 @@ if __name__ == "__main__":
     ###########################   
     # Neural network
     NN = AutoencoderFwdInv(run_options,parameter_true.shape[1],state_data.shape[1])
-    
+
     # Loss functional
-    with tf.name_scope('loss') as scope:
+    with tf.variable_scope('loss') as scope:
         loss = tf.add(tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2), \
                run_options.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2), name="loss")
                 
@@ -131,7 +131,9 @@ if __name__ == "__main__":
     
     # Tensorboard: type "tensorboard --logdir=tensorboard_graphs" into terminal and click the link
     writer = tf.summary.FileWriter('./tensorboard_graphs', tf.get_default_graph())
-
+    
+    pdb.set_trace()
+    
     ########################
     #   Train Autoencoder  #
     ########################          
@@ -143,7 +145,7 @@ if __name__ == "__main__":
         saver.save(sess, run_options.NN_savefile_name)
         
         # Train neural network
-        with tf.name_scope('Training') as scope:
+        with tf.variable_scope('Training') as scope:
             print('Beginning Training\n')
             start_time = time.time()
             loss_value = 1000
