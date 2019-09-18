@@ -21,11 +21,10 @@ class AutoencoderFwdInv:
         self.state_data_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_data_tf") # This is needed for batching during training, else can just use state_data
         
         # Autoencoder
-        with tf.name_scope('NN_Feed_Forward') as scope:
-            self.weights, self.biases = self.autoencoder_architecture(parameter_dimension, self.run_options.num_hidden_nodes, state_dimension)
-            self.forward_pred = self.forward_problem(self.parameter_input_tf)
-            self.autoencoder_pred = self.inverse_problem(self.forward_pred) # To be used in the loss function
-            self.inverse_pred = self.inverse_problem(self.state_input_tf)
+        self.weights, self.biases = self.autoencoder_architecture(parameter_dimension, self.run_options.num_hidden_nodes, state_dimension)
+        self.forward_pred = self.forward_problem(self.parameter_input_tf)
+        self.autoencoder_pred = self.inverse_problem(self.forward_pred) # To be used in the loss function
+        self.inverse_pred = self.inverse_problem(self.state_input_tf)
     
     def autoencoder_architecture(self, parameter_dimension, num_hidden_nodes, state_dimension):
         weights = {
