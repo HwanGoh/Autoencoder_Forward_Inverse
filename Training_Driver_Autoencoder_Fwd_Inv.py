@@ -40,13 +40,13 @@ class RunOptions:
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 1
-    num_training_data = 5
-    batch_size = 5
+    num_training_data = 5000
+    batch_size = 5000
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 1000
+    num_epochs = 50000
     gpu    = '1'
     
-    filename = f'hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
+    filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
     NN_savefile_directory = 'Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
     NN_savefile_name = NN_savefile_directory + '/' + filename # The file path and name for the four files
     data_savefilepath = 'Data/' + filename
@@ -174,7 +174,7 @@ if __name__ == "__main__":
         
             # Optimize with LBFGS
             print('Optimizing with LBFGS\n')        
-            #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+            optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
             saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
      
