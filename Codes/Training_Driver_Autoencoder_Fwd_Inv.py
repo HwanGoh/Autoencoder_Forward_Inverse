@@ -42,7 +42,6 @@ class RunOptions:
     penalty = 10
     num_training_data = 5000
     batch_size = 5000
-    num_batches = int(num_training_data/batch_size)
     num_epochs = 50000
     gpu    = '3'
     
@@ -61,9 +60,7 @@ class RunOptions:
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
-if __name__ == "__main__":
-    
-    run_options = RunOptions()
+def trainer(run_options):
     
     ###################################
     #   Generate Parameters and Data  #
@@ -154,13 +151,14 @@ if __name__ == "__main__":
         print('Beginning Training\n')
         start_time = time.time()
         loss_value = 1000
+        num_batches = int(run_options.num_training_data/run_options.batch_size)
         for epoch in range(run_options.num_epochs):
             if run_options.num_batches == 1:
                 tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
                 sess.run(optimizer_Adam, tf_dict)   
             else:
                 minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
-                for batch_num in range(run_options.num_batches):
+                for batch_num in range(num_batches):
                     parameter_true_batch = minibatches[batch_num][0].T
                     state_data_batch = minibatches[batch_num][1].T
                     tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
@@ -189,10 +187,12 @@ if __name__ == "__main__":
         # Save final model
         saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
     
-     
-     
-     
-     
+###############################################################################
+#                                   Executor                                  #
+###############################################################################     
+if __name__ == "__main__":     
+    run_options = RunOptions()
+    trainer(run_options) 
      
      
      
