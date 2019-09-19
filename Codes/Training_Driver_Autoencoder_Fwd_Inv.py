@@ -40,10 +40,10 @@ class RunOptions:
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 10
-    num_training_data = 10
-    batch_size = 10
+    num_training_data = 5000
+    batch_size = 5000
     num_batches = int(num_training_data/batch_size)
-    num_epochs = 1000
+    num_epochs = 50000
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -182,7 +182,7 @@ if __name__ == "__main__":
         
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')        
-        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,run_options.num_epochs)
         
