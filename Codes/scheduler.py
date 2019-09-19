@@ -162,12 +162,12 @@ if __name__ == '__main__':
         #########################   
         hyper_p = RunOptions()
             
-        hyper_p.num_hidden_layers = [1, 3, 5]
-        hyper_p.truncation_layer = [2, 3, 4] # Indexing includes input and output layer
+        hyper_p.num_hidden_layers = [1]
+        hyper_p.truncation_layer = [2] # Indexing includes input and output layer
         hyper_p.num_hidden_nodes = [200]
-        hyper_p.penalty = [10, 20, 30, 40]
-        hyper_p.num_training_data = [5000, 10000]
-        hyper_p.batch_size = [5000, 10000]
+        hyper_p.penalty = [1, 10, 20, 30, 40]
+        hyper_p.num_training_data = [20, 200, 2000]
+        hyper_p.batch_size = [20]
         hyper_p.num_epochs = [50000]
         
         scenarios = get_scenarios_list(hyper_p)        

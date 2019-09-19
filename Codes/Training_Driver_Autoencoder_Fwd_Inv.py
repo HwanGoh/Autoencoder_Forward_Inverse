@@ -42,7 +42,7 @@ class RunOptions:
     penalty = 10
     num_training_data = 20
     batch_size = 20
-    num_epochs = 2000
+    num_epochs = 5
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -61,6 +61,8 @@ class RunOptions:
 #                                  Driver                                     #
 ###############################################################################
 def trainer(run_options):
+    
+    run_options.batch_size = run_options.num_training_data
     
     ###################################
     #   Generate Parameters and Data  #
