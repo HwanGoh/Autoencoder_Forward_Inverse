@@ -7,7 +7,6 @@ Created on Sun Sep 15 14:29:36 2019
 """
 
 import tensorflow as tf
-import numpy as np
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 tf.set_random_seed(1234)
