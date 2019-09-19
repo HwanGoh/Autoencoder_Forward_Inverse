@@ -11,6 +11,7 @@ sys.path.append('../')
 
 import tensorflow as tf
 tf.reset_default_graph()
+import pandas as pd
 import dolfin as dl
 from forward_solve import Fin
 from thermal_fin import get_space
@@ -35,9 +36,9 @@ class RunOptions:
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 10
-    num_training_data = 50
-    batch_size = 50
-    num_epochs = 2000
+    num_training_data = 20
+    batch_size = 20
+    num_epochs = 50000
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -48,6 +49,7 @@ class RunOptions:
     figures_savefile_name_state_test = figures_savefile_directory + '/' + 'state_test'
     figures_savefile_name_parameter_pred = figures_savefile_directory + '/' + 'parameter_pred'
     figures_savefile_name_state_pred = figures_savefile_directory + '/' + 'state_pred'
+    test_data_savefilepath = 'Data/' + 'test_data'
     if not os.path.exists(figures_savefile_directory):
         os.makedirs(figures_savefile_directory)
    
@@ -57,15 +59,29 @@ class RunOptions:
 if __name__ == "__main__":
     
     run_options = RunOptions()
-    
+           
     #####################################
     #   Form Test Parameters and State  #
     #####################################
     V = get_space(40)
     solver = Fin(V) 
-    parameter_test, parameter_test_dl = ParameterGeneratorNineValues(V,solver) 
-    state_test_dl, _ = solver.forward(parameter_test_dl)
-    state_test = state_test_dl.vector().get_local()
+    
+    if os.path.isfile(run_options.test_data_savefilepath + '.csv'):
+        print('Loading Test Data')
+        df = pd.read_csv(run_options.test_data_savefilepath + '.csv')
+        test_data = df.to_numpy()
+        parameter_test = test_data[:,0]
+        state_test = test_data[:,1]
+    else:
+        # Randomly generate piecewise constant true parameter with 9 values
+        parameter_test, parameter_test_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
+        # Solve PDE for state variable
+        state_test_dl, _ = solver.forward(parameter_test_dl)
+        state_test = state_test_dl.vector().get_local()           
+        # Saving Parameters and State Data
+        test_data = {'parameter_test': parameter_test.flatten(), 'state_test': state_test.flatten()}
+        df = pd.DataFrame(test_data)   
+        df.to_csv(run_options.test_data_savefilepath + '.csv', index=False)  
     
     ####################################
     #   Import Trained Neural Network  #
@@ -108,10 +124,13 @@ if __name__ == "__main__":
         plt.savefig(run_options.figures_savefile_name_parameter_pred, dpi=300)
         print('Figure saved to ' + run_options.figures_savefile_name_parameter_pred) 
         plt.show()
+        parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)
+        print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[0]))}))
         
         s_pred_fig = dl.plot(state_pred_dl)
         s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
         plt.savefig(run_options.figures_savefile_name_state_pred, dpi=300)
         print('Figure saved to ' + run_options.figures_savefile_name_state_pred) 
         plt.show()
-     
+        state_pred_error = tf.norm(state_pred - state_test,2)
+        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[0]))}))
