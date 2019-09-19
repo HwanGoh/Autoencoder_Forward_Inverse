@@ -180,8 +180,8 @@ def trainer(run_options):
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
         optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
-        #[loss_value, s] = sess.run([loss,summ], tf_dict)
-        #writer.add_summary(s,run_options.num_epochs)
+        [loss_value, s] = sess.run([loss,summ], tf_dict)
+        writer.add_summary(s,run_options.num_epochs)
         
         # Save final model
         saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
