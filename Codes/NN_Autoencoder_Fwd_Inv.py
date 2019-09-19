@@ -28,8 +28,8 @@ class AutoencoderFwdInv:
         self.biases = [] # This will be a list of tensorflow variables
         num_layers = len(self.layers)
         
-        if construct_flag == 1: # Initialize weights
-            with tf.variable_scope("autoencoder", reuse = tf.AUTO_REUSE) as scope:
+        if construct_flag == 1:
+            with tf.variable_scope("autoencoder") as scope:
                 # Forward Problem
                 with tf.variable_scope("forward_problem") as scope:
                     for l in range(0, run_options.truncation_layer - 1):                    
@@ -40,7 +40,8 @@ class AutoencoderFwdInv:
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)
                             self.biases.append(b)
-                              
+                    self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
+                             
                 # Inverse Problem
                 with tf.variable_scope("inverse_problem") as scope:
                     for l in range(run_options.truncation_layer -1, num_layers -1):
@@ -51,8 +52,12 @@ class AutoencoderFwdInv:
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)
                             self.biases.append(b)
-                
-        if construct_flag == 0: # Load weights
+                    self.inverse_pred = self.inverse_problem(self.state_input_tf, run_options.truncation_layer, len(self.layers))   
+                    
+                self.autoencoder_pred = self.inverse_problem(self.forward_pred, run_options.truncation_layer, len(self.layers)) # To be used in the loss function
+                    
+        # Load trained model  
+        if construct_flag == 0: 
             graph = tf.get_default_graph()
             for l in range(0, run_options.truncation_layer - 1):
                 W = graph.get_tensor_by_name("autoencoder/forward_problem/W" + str(l+1) + ':0')
@@ -64,8 +69,8 @@ class AutoencoderFwdInv:
                 b = graph.get_tensor_by_name("autoencoder/inverse_problem/b" + str(l+1) + ':0')
                 self.weights.append(W)
                 self.biases.append(b)
-        
-        
+                
+        # Network Propagation
         self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
         self.inverse_pred = self.inverse_problem(self.state_input_tf, run_options.truncation_layer, len(self.layers))   
         self.autoencoder_pred = self.inverse_problem(self.forward_pred, run_options.truncation_layer, len(self.layers)) # To be used in the loss function
