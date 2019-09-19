@@ -1,0 +1,2 @@
+model_checkpoint_path: "hlayers1_tlayer2_hnodes200_pen10_data20_batch20_epochs2000"
+all_model_checkpoint_paths: "hlayers1_tlayer2_hnodes200_pen10_data20_batch20_epochs2000"
