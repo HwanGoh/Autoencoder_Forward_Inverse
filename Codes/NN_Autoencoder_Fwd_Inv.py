@@ -28,45 +28,49 @@ class AutoencoderFwdInv:
         self.biases = [] # This will be a list of tensorflow variables
         num_layers = len(self.layers)
         
-        with tf.variable_scope("autoencoder", reuse = tf.AUTO_REUSE) as scope:
-            # Forward Problem
-            with tf.variable_scope("forward_problem", reuse = tf.AUTO_REUSE) as scope:
-                for l in range(0, run_options.truncation_layer - 1):                    
-                    if construct_flag == 1: # Initialize weights
-                        W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.constant_initializer(1.0))
-                        b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(1.0))      
-                    else: # Get weights
-                        graph = tf.get_default_graph()
-                        W = graph.get_tensor_by_name("autoencoder/forward_problem/W" + str(l+1) + ':0')
-                        b = graph.get_tensor_by_name("autoencoder/forward_problem/b" + str(l+1) + ':0')
-                        
-                    tf.summary.histogram("weights" + str(l+1), W)
-                    tf.summary.histogram("biases" + str(l+1), b)
-                    self.weights.append(W)
-                    self.biases.append(b)
-                    
-                self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
-           
-            # Inverse Problem
-            with tf.variable_scope("inverse_problem", reuse = tf.AUTO_REUSE) as scope:
-                for l in range(run_options.truncation_layer -1, num_layers -1):
-                    if construct_flag == 1: # Initialize weights
-                        W = tf.get_variable("W" + str(l), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.constant_initializer(1.0))
-                        b = tf.get_variable("b" + str(l), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(1.0))
-                    else: # Get weights
-                        graph = tf.get_default_graph()
-                        W = graph.get_tensor_by_name("autoencoder/inverse_problem/W" + str(l) + ':0')
-                        b = graph.get_tensor_by_name("autoencoder/inverse_problem/b" + str(l) + ':0')
-                     
-                    tf.summary.histogram("weights" + str(l+1), W)
-                    tf.summary.histogram("biases" + str(l+1), b)
-                    self.weights.append(W)
-                    self.biases.append(b)
-                self.inverse_pred = self.inverse_problem(self.state_input_tf, run_options.truncation_layer, len(self.layers))   
-            
-            self.autoencoder_pred = self.inverse_problem(self.forward_pred, run_options.truncation_layer, len(self.layers)) # To be used in the loss function
+        if construct_flag == 1: # Initialize weights
+            with tf.variable_scope("autoencoder", reuse = tf.AUTO_REUSE) as scope:
+                # Forward Problem
+                with tf.variable_scope("forward_problem") as scope:
+                    for l in range(0, run_options.truncation_layer - 1):                    
+                            W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]])
+                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]])      
+                            
+                            tf.summary.histogram("weights" + str(l+1), W)
+                            tf.summary.histogram("biases" + str(l+1), b)
+                            self.weights.append(W)
+                            self.biases.append(b)
+                              
+                # Inverse Problem
+                with tf.variable_scope("inverse_problem") as scope:
+                    for l in range(run_options.truncation_layer -1, num_layers -1):
+                            W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]])
+                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]])
 
+                            tf.summary.histogram("weights" + str(l+1), W)
+                            tf.summary.histogram("biases" + str(l+1), b)
+                            self.weights.append(W)
+                            self.biases.append(b)
+                
+        if construct_flag == 0: # Load weights
+            graph = tf.get_default_graph()
+            for l in range(0, run_options.truncation_layer - 1):
+                W = graph.get_tensor_by_name("autoencoder/forward_problem/W" + str(l+1) + ':0')
+                b = graph.get_tensor_by_name("autoencoder/forward_problem/b" + str(l+1) + ':0')
+                self.weights.append(W)
+                self.biases.append(b)
+            for l in range(run_options.truncation_layer -1, num_layers -1):
+                W = graph.get_tensor_by_name("autoencoder/inverse_problem/W" + str(l+1) + ':0')
+                b = graph.get_tensor_by_name("autoencoder/inverse_problem/b" + str(l+1) + ':0')
+                self.weights.append(W)
+                self.biases.append(b)
+        
+        
+        self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
+        self.inverse_pred = self.inverse_problem(self.state_input_tf, run_options.truncation_layer, len(self.layers))   
+        self.autoencoder_pred = self.inverse_problem(self.forward_pred, run_options.truncation_layer, len(self.layers)) # To be used in the loss function
 
+    
     def forward_problem(self, X, truncation_layer):  
         with tf.variable_scope("forward_problem") as scope:
             for l in range(0, truncation_layer - 2):

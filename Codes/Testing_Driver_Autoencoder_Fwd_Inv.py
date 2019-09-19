@@ -76,9 +76,7 @@ if __name__ == "__main__":
         
         # Labelling loaded variables as a class
         NN = AutoencoderFwdInv(run_options,parameter_test.shape[0],state_test.shape[0], construct_flag = 0) 
-        
-        sess.run(tf.initialize_all_variables())
-        
+                
         #######################
         #   Form Predictions  #
         #######################        
