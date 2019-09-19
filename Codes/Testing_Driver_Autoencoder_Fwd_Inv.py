@@ -9,6 +9,8 @@ Created on Sun Sep 15 15:34:49 2019
 import sys
 sys.path.append('../')
 
+import tensorflow as tf
+tf.reset_default_graph()
 import dolfin as dl
 from forward_solve import Fin
 from thermal_fin import get_space
@@ -16,7 +18,6 @@ from thermal_fin import get_space
 import matplotlib.pyplot as plt
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from parameter_generator import ParameterGeneratorNineValues, ConvertArraytoDolfinFunction
-import tensorflow as tf
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -33,12 +34,11 @@ class RunOptions:
     num_hidden_layers = 1
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
-    penalty = 1
-    num_training_data = 5
-    batch_size = 5
-    num_batches = int(num_training_data/batch_size)
+    penalty = 10
+    num_training_data = 20
+    batch_size = 20
     num_epochs = 1000
-    gpu    = '1'
+    gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
     NN_savefile_directory = 'Trained_NNs/' + filename
@@ -69,15 +69,16 @@ if __name__ == "__main__":
     
     ####################################
     #   Import Trained Neural Network  #
-    ####################################
-    # Neural network
-    NN = AutoencoderFwdInv(run_options,parameter_test.shape[0],state_test.shape[0])
-    
-    with tf.Session() as sess:
-        sess.run(tf.initialize_all_variables()) 
+    ####################################        
+    with tf.Session() as sess:        
         new_saver = tf.train.import_meta_graph(run_options.NN_savefile_name + '.meta')
-        new_saver.restore(sess, tf.train.latest_checkpoint(run_options.NN_savefile_directory))
-    
+        new_saver.restore(sess, tf.train.latest_checkpoint(run_options.NN_savefile_directory))        
+        
+        # Labelling loaded variables as a class
+        NN = AutoencoderFwdInv(run_options,parameter_test.shape[0],state_test.shape[0], construct_flag = 0) 
+        
+        sess.run(tf.initialize_all_variables())
+        
         #######################
         #   Form Predictions  #
         #######################        

@@ -7,12 +7,13 @@ Created on Sun Sep 15 14:29:36 2019
 """
 
 import tensorflow as tf
+import numpy as np
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 tf.set_random_seed(1234)
 
 class AutoencoderFwdInv:
-    def __init__(self, run_options, parameter_dimension, state_dimension):
+    def __init__(self, run_options, parameter_dimension, state_dimension, construct_flag):
         
         # Initialize placeholders
         self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
@@ -27,22 +28,36 @@ class AutoencoderFwdInv:
         self.biases = [] # This will be a list of tensorflow variables
         num_layers = len(self.layers)
         
-        with tf.variable_scope("autoencoder") as scope:
+        with tf.variable_scope("autoencoder", reuse = tf.AUTO_REUSE) as scope:
             # Forward Problem
-            with tf.variable_scope("forward_problem") as scope:
-                for l in range(0, run_options.truncation_layer - 1):
-                    W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]])
-                    b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]])
+            with tf.variable_scope("forward_problem", reuse = tf.AUTO_REUSE) as scope:
+                for l in range(0, run_options.truncation_layer - 1):                    
+                    if construct_flag == 1: # Initialize weights
+                        W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.constant_initializer(1.0))
+                        b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(1.0))      
+                    else: # Get weights
+                        graph = tf.get_default_graph()
+                        W = graph.get_tensor_by_name("autoencoder/forward_problem/W" + str(l+1) + ':0')
+                        b = graph.get_tensor_by_name("autoencoder/forward_problem/b" + str(l+1) + ':0')
+                        
                     tf.summary.histogram("weights" + str(l+1), W)
                     tf.summary.histogram("biases" + str(l+1), b)
                     self.weights.append(W)
                     self.biases.append(b)
+                    
                 self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
            
-            with tf.variable_scope("inverse_problem") as scope:
+            # Inverse Problem
+            with tf.variable_scope("inverse_problem", reuse = tf.AUTO_REUSE) as scope:
                 for l in range(run_options.truncation_layer -1, num_layers -1):
-                    W = tf.get_variable("W" + str(l), shape = [self.layers[l], self.layers[l + 1]])
-                    b = tf.get_variable("b" + str(l), shape = [1, self.layers[l + 1]])
+                    if construct_flag == 1: # Initialize weights
+                        W = tf.get_variable("W" + str(l), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.constant_initializer(1.0))
+                        b = tf.get_variable("b" + str(l), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(1.0))
+                    else: # Get weights
+                        graph = tf.get_default_graph()
+                        W = graph.get_tensor_by_name("autoencoder/inverse_problem/W" + str(l) + ':0')
+                        b = graph.get_tensor_by_name("autoencoder/inverse_problem/b" + str(l) + ':0')
+                     
                     tf.summary.histogram("weights" + str(l+1), W)
                     tf.summary.histogram("biases" + str(l+1), b)
                     self.weights.append(W)

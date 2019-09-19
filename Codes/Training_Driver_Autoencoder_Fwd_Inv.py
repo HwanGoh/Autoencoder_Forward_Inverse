@@ -100,7 +100,7 @@ def trainer(run_options):
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(run_options,parameter_true.shape[1],state_data.shape[1])
+    NN = AutoencoderFwdInv(run_options,parameter_true.shape[1],state_data.shape[1], construct_flag = 1)
 
     # Loss functional
     with tf.variable_scope('loss') as scope:
@@ -115,13 +115,12 @@ def trainer(run_options):
     with tf.variable_scope('Training') as scope:
         optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001, name = 'adam_opt').minimize(loss)
         optimizer_LBFGS = tf.contrib.opt.ScipyOptimizerInterface(loss,
-                                                       method='L-BFGS-B',
-                                                       options={'maxiter':10000,
-                                                                'maxfun':50000,
-                                                                'maxcor':50,
-                                                                'maxls':50,
-                                                                'ftol':1.0 * np.finfo(float).eps},
-                                                        name = 'LBFGS_opt')            
+                                                                 method='L-BFGS-B',
+                                                                 options={'maxiter':10000,
+                                                                          'maxfun':50000,
+                                                                          'maxcor':50,
+                                                                          'maxls':50,
+                                                                          'ftol':1.0 * np.finfo(float).eps})            
     # Set GPU configuration options
     gpu_options = tf.GPUOptions(visible_device_list= run_options.gpu,
                                 allow_growth=True)
@@ -153,7 +152,7 @@ def trainer(run_options):
         loss_value = 1000
         num_batches = int(run_options.num_training_data/run_options.batch_size)
         for epoch in range(run_options.num_epochs):
-            if run_options.num_batches == 1:
+            if num_batches == 1:
                 tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
                 sess.run(optimizer_Adam, tf_dict)   
             else:
@@ -179,10 +178,10 @@ def trainer(run_options):
                 saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
         
         # Optimize with LBFGS
-        print('Optimizing with LBFGS\n')        
+        print('Optimizing with LBFGS\n')   
         optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
-        [loss_value, s] = sess.run([loss,summ], tf_dict)
-        writer.add_summary(s,run_options.num_epochs)
+        #[loss_value, s] = sess.run([loss,summ], tf_dict)
+        #writer.add_summary(s,run_options.num_epochs)
         
         # Save final model
         saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        

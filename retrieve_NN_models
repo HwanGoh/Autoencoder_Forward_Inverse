@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Trained_NNs . 
+rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Codes/Trained_NNs . 
