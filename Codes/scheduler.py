@@ -10,7 +10,6 @@ from Training_Driver_Autoencoder_Fwd_Inv import RunOptions
 import nvidia_smi
 import copy
 import subprocess
-import os
 from mpi4py import MPI
 from time import sleep
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -79,7 +78,7 @@ def get_combinations(hyper_p, hyper_p_list):
 ###############################################################################
 def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
     scenarios_left = len(scenarios)
-    print(str(scenarios_left) + ' total runs')
+    print(str(scenarios_left) + ' total runs left')
     
     # initialize available processes
     available_processes = list(range(1, nprocs))
@@ -157,8 +156,7 @@ if __name__ == '__main__':
     nprocs = comm.Get_size()
     rank   = comm.Get_rank()
 
-    if rank == 0:
-        
+    if rank == 0:       
         #########################
         #   Get Scenarios List  #
         #########################   
@@ -172,10 +170,8 @@ if __name__ == '__main__':
         hyper_p.batch_size = [5000, 10000]
         hyper_p.num_epochs = [50000]
         
-        scenarios = get_scenarios_list(hyper_p)
-        
-        schedule_runs(scenarios, nprocs, comm)
-    
+        scenarios = get_scenarios_list(hyper_p)        
+        schedule_runs(scenarios, nprocs, comm)  
     else:
         while True:
             status = MPI.Status()
@@ -184,7 +180,7 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Abgrall_ADMM.py', f'{data.N_u}', f'{data.N_f}', f'{data.rho}', f'{int(data.epochs)}', f'{data.gpu}'])
+            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.N_u}', f'{data.N_f}', f'{data.rho}', f'{int(data.epochs)}', f'{data.gpu}'])
             proc.wait()
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
