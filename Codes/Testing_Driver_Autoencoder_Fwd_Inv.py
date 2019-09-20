@@ -36,20 +36,20 @@ class RunOptions:
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 10
-    num_training_data = 2000
-    batch_size = 2000
-    num_epochs = 50000
+    num_training_data = 20
+    batch_size = 20
+    num_epochs = 2000
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
-    NN_savefile_directory = 'Trained_NNs/' + filename
+    NN_savefile_directory = '../Trained_NNs/' + filename
     NN_savefile_name = NN_savefile_directory + '/' + filename
-    figures_savefile_directory = 'Figures/' + filename
+    figures_savefile_directory = '../Figures/' + filename
     figures_savefile_name_parameter_test = figures_savefile_directory + '/' + 'parameter_test'
     figures_savefile_name_state_test = figures_savefile_directory + '/' + 'state_test'
     figures_savefile_name_parameter_pred = figures_savefile_directory + '/' + 'parameter_pred'
     figures_savefile_name_state_pred = figures_savefile_directory + '/' + 'state_pred'
-    test_data_savefilepath = 'Data/' + 'test_data'
+    test_data_savefilepath = '../Data/' + 'test_data'
     if not os.path.exists(figures_savefile_directory):
         os.makedirs(figures_savefile_directory)
    
