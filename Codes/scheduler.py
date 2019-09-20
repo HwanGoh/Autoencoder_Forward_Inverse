@@ -13,7 +13,7 @@ import subprocess
 from mpi4py import MPI
 from time import sleep
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-   pdb.set_trace()
+pdb.set_trace()
 from Training_Driver_Autoencoder_Fwd_Inv import RunOptions
 
 
