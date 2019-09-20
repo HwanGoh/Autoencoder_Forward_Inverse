@@ -6,7 +6,6 @@ Created on Wed Sep 18 20:53:06 2019
 @author: Jon Wittmer
 """
 
-
 import nvidia_smi
 import copy
 import subprocess
@@ -79,6 +78,9 @@ def get_combinations(hyper_p, hyper_p_list):
 #                            Schedule and Run                                 #
 ###############################################################################
 def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
+    
+    nvidia_smi.nvmlInit()
+    
     scenarios_left = len(scenarios)
     print(str(scenarios_left) + ' total runs left')
     
