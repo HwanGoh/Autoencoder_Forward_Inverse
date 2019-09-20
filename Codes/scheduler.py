@@ -185,9 +185,8 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
             
-            pdb.set_trace()
-            
             proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{hyper_p.num_hidden_layers}', f'{hyper_p.truncation_layer}', f'{hyper_p.num_hidden_nodes}', f'{int(hyper_p.penalty)}', f'{hyper_p.num_training_data}', f'{hyper_p.batch_size}', f'{hyper_p.num_epochs}'])
+            pdb.set_trace()
             proc.wait()
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
