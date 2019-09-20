@@ -197,6 +197,15 @@ def trainer(run_options, filenames):
 ###############################################################################     
 if __name__ == "__main__":     
     run_options = RunOptions()
+    if len(sys.argv) > 1:
+            run_options.num_hidden_layers = int(sys.argv[1])
+            run_options.truncation_layer = int(sys.argv[2])
+            run_options.num_hidden_nodes = int(sys.argv[3])
+            run_options.penalty = int(sys.argv[4])
+            run_options.num_training_data = int(sys.argv[5])
+            run_options.batch_size = int(sys.argv[6])
+            run_options.num_epochs = int(sys.argv[7])
+        
     filenames = FileNames(run_options)
     trainer(run_options, filenames) 
     

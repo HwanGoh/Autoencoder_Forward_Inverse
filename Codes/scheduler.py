@@ -174,17 +174,16 @@ if __name__ == '__main__':
         hyper_p.num_epochs = [50000]
         
         scenarios = get_scenarios_list(hyper_p)      
-        pdb.set_trace()
         schedule_runs(scenarios, nprocs, comm)  
     else:  # This is the worker processes' action
         while True:
             status = MPI.Status()
-            data = comm.recv(source=0, status=status)
+            hyper_p = comm.recv(source=0, status=status)
             
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.N_u}', f'{data.N_f}', f'{data.rho}', f'{int(data.epochs)}', f'{data.gpu}'])
+            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{hyper_p.num_hidden_layers}', f'{hyper_p.truncation_layer}', f'{hyper_p.num_hidden_nodes}', f'{int(hyper_p.penalty)}', f'{hyper_p.num_training_data}', f'{hyper_p.batch_size}', f'{hyper_p.num_epochs}'])
             proc.wait()
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
