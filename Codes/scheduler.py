@@ -92,7 +92,7 @@ def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
     # start running tasks
     while scenarios_left > 0:
         
-        # check for returning processes
+        # check worker processes for returning processes
         s = MPI.Status()
         comm.Iprobe(status=s)
         if s.tag == flags.RUN_FINISHED:
@@ -118,7 +118,7 @@ def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
             
             # block here to make sure the process starts before moving on so we don't overwrite buffer
             print('current process: ' + str(curr_process))
-            req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN) # curr_scenario is the data
+            req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN)
             req.wait() # effectively makes it a synchronous call
             
         elif len(available_processes) > 0 and len(scenarios) == 0:
@@ -153,7 +153,7 @@ def print_scenario(p):
 ###############################################################################
 if __name__ == '__main__':
     
-    # To run this code "mpirun -n <number> python3 scheduler.py" in command line
+    # To run this code "mpirun -n <number> ./scheduler.py" in command line
     
     # mpi stuff
     comm   = MPI.COMM_WORLD
@@ -161,6 +161,7 @@ if __name__ == '__main__':
     rank   = comm.Get_rank()
 
     
+    # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action 
         #########################
         #   Get Scenarios List  #
@@ -180,12 +181,12 @@ if __name__ == '__main__':
     else:  # This is the worker processes' action
         while True:
             status = MPI.Status()
-            hyper_p = comm.recv(source=0, status=status)
+            data = comm.recv(source=0, status=status)
             
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{hyper_p.num_hidden_layers}', f'{hyper_p.truncation_layer}', f'{hyper_p.num_hidden_nodes}', f'{int(hyper_p.penalty)}', f'{hyper_p.num_training_data}', f'{hyper_p.batch_size}', f'{hyper_p.num_epochs}'])
+            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{int(data.penalty)}', f'{data.num_training_data}', f'{data.batch_size}', f'{data.num_epochs}'])
             proc.wait()
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
