@@ -38,7 +38,7 @@ class RunOptions:
     penalty = 10
     num_training_data = 20
     batch_size = 20
-    num_epochs = 50000
+    num_epochs = 5
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -86,7 +86,7 @@ if __name__ == "__main__":
     ####################################
     #   Import Trained Neural Network  #
     ####################################        
-    with tf.Session() as sess:        
+    with tf.Session() as sess:    
         new_saver = tf.train.import_meta_graph(run_options.NN_savefile_name + '.meta')
         new_saver.restore(sess, tf.train.latest_checkpoint(run_options.NN_savefile_directory))        
         
@@ -103,6 +103,9 @@ if __name__ == "__main__":
         #  Plotting  #
         ##############
         #=== Plotting test parameter and test state ===#
+        parameter_test_dl = ConvertArraytoDolfinFunction(V,parameter_test)
+        state_test_dl = ConvertArraytoDolfinFunction(V,state_test)
+        
         p_test_fig = dl.plot(parameter_test_dl)
         p_test_fig.ax.set_title('True Parameter', fontsize=18)  
         plt.savefig(run_options.figures_savefile_name_parameter_test, dpi=300)

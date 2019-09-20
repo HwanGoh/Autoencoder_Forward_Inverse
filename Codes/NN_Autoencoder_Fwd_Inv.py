@@ -41,8 +41,7 @@ class AutoencoderFwdInv:
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)
                             self.biases.append(b)
-                    self.forward_pred = self.forward_problem(self.parameter_input_tf, run_options.truncation_layer)
-                             
+                                                 
                 # Inverse Problem
                 with tf.variable_scope("inverse_problem") as scope:
                     for l in range(run_options.truncation_layer -1, num_layers -1):
@@ -53,10 +52,9 @@ class AutoencoderFwdInv:
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)
                             self.biases.append(b)
-                    self.inverse_pred = self.inverse_problem(self.state_input_tf, run_options.truncation_layer, len(self.layers))   
-                    
-                self.autoencoder_pred = self.inverse_problem(self.forward_pred, run_options.truncation_layer, len(self.layers)) # To be used in the loss function
-                    
+                            
+            self.saver_autoencoder = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "autoencoder")
+        
         # Load trained model  
         if construct_flag == 0: 
             graph = tf.get_default_graph()

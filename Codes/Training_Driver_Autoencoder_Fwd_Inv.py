@@ -103,7 +103,7 @@ def trainer(run_options):
     ###########################   
     # Neural network
     NN = AutoencoderFwdInv(run_options,parameter_true.shape[1],state_data.shape[1], construct_flag = 1)
-
+    
     # Loss functional
     with tf.variable_scope('loss') as scope:
         auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
@@ -145,7 +145,7 @@ def trainer(run_options):
         writer.add_graph(sess.graph)
         
         # Save neural network
-        saver = tf.train.Saver()
+        saver = tf.train.Saver(NN.saver_autoencoder)
         saver.save(sess, run_options.NN_savefile_name)
         
         # Train neural network
@@ -194,6 +194,7 @@ def trainer(run_options):
 if __name__ == "__main__":     
     run_options = RunOptions()
     trainer(run_options) 
+    
      
      
      
