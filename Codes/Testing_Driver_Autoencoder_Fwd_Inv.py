@@ -36,9 +36,9 @@ class RunOptions:
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
     penalty = 10
-    num_training_data = 20
-    batch_size = 20
-    num_epochs = 5
+    num_training_data = 2000
+    batch_size = 2000
+    num_epochs = 50000
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
@@ -127,7 +127,7 @@ if __name__ == "__main__":
         plt.savefig(run_options.figures_savefile_name_parameter_pred, dpi=300)
         print('Figure saved to ' + run_options.figures_savefile_name_parameter_pred) 
         plt.show()
-        parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)
+        parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)/tf.norm(parameter_test,2)
         print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[0]))}))
         
         s_pred_fig = dl.plot(state_pred_dl)
@@ -135,5 +135,5 @@ if __name__ == "__main__":
         plt.savefig(run_options.figures_savefile_name_state_pred, dpi=300)
         print('Figure saved to ' + run_options.figures_savefile_name_state_pred) 
         plt.show()
-        state_pred_error = tf.norm(state_pred - state_test,2)
+        state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
         print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[0]))}))

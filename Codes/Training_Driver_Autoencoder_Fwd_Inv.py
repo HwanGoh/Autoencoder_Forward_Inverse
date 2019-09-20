@@ -42,20 +42,20 @@ class RunOptions:
     penalty = 10
     num_training_data = 20
     batch_size = 20
-    num_epochs = 5
+    num_epochs = 2000
     gpu    = '3'
     
     filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
-    NN_savefile_directory = 'Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+    NN_savefile_directory = '../Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
     NN_savefile_name = NN_savefile_directory + '/' + filename # The file path and name for the four files
-    data_savefilepath = 'Data/' + 'data_%d' %(num_training_data)
+    data_savefilepath = '../Data/' + 'data_%d' %(num_training_data)
     
     # Creating Directories
     if not os.path.exists(NN_savefile_directory):
         os.makedirs(NN_savefile_directory)
     
-    if not os.path.exists('Data'):
-        os.makedirs('Data')
+    if not os.path.exists('../Data'):
+        os.makedirs('../Data')
    
 ###############################################################################
 #                                  Driver                                     #
@@ -73,10 +73,7 @@ def trainer(run_options):
     parameter_true = np.zeros((run_options.num_training_data,V.dim()))
     state_data = np.zeros((run_options.num_training_data,V.dim()))
     
-    # Generating Data
-    if not os.path.exists('Data'):
-        os.makedirs('Data')
-        
+    # Generating Data        
     if os.path.isfile(run_options.data_savefilepath + '.csv'):
         print('Loading Data')
         df = pd.read_csv(run_options.data_savefilepath + '.csv')
@@ -135,7 +132,7 @@ def trainer(run_options):
     
     # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
     summ = tf.summary.merge_all()
-    writer = tf.summary.FileWriter('Tensorboard/' + run_options.filename)
+    writer = tf.summary.FileWriter('../Tensorboard/' + run_options.filename)
     
     ########################
     #   Train Autoencoder  #
@@ -145,8 +142,8 @@ def trainer(run_options):
         writer.add_graph(sess.graph)
         
         # Save neural network
-#        saver = tf.train.Saver(NN.saver_autoencoder)
-#        saver.save(sess, run_options.NN_savefile_name)
+        saver = tf.train.Saver(NN.saver_autoencoder)
+        saver.save(sess, run_options.NN_savefile_name)
         
         # Train neural network
         print('Beginning Training\n')
@@ -183,11 +180,15 @@ def trainer(run_options):
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
         #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
-        #[loss_value, s] = sess.run([loss,summ], tf_dict)
-        #writer.add_summary(s,run_options.num_epochs)
+        [loss_value, s] = sess.run([loss,summ], tf_dict)
+        print('LBFGS Optimization Complete\n') 
+        elapsed = time.time() - start_time
+        print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
+        writer.add_summary(s,run_options.num_epochs)
         
         # Save final model
-        saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)        
+        saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)   
+        print('Final Model Saved')  
     
 ###############################################################################
 #                                   Executor                                  #
