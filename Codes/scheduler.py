@@ -95,22 +95,20 @@ def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
         comm.Iprobe(status=s)
         if s.tag == flags.RUN_FINISHED:
             print('Run ended. Starting new thread.')
-            data = comm.recv()
+            data = comm.recv() 
             scenarios_left -= 1
             if len(scenarios) == 0:
                 comm.send([], s.source, flags.EXIT)
             else: 
-                available_processes.append(s.source)
+                available_processes.append(s.source) 
 
         # assign training to process
-        available_gpus = available_GPUs(total_gpus)
-        print(available_gpus)
-        print(available_processes)
+        available_gpus = available_GPUs(total_gpus) # check which GPUs have available memory or computation space
 
         if len(available_gpus) > 0 and len(available_processes) > 0 and len(scenarios) > 0:
-            curr_process = available_processes.pop(0)
+            curr_process = available_processes.pop(0) # rank of the process to send to
             curr_scenario = scenarios.pop(0)
-            curr_scenario.gpu = str(available_gpus.pop(0))
+            curr_scenario.gpu = str(available_gpus.pop(0)) # which GPU we want to run the process on. Note that the extra "gpu" field is created here as well
             
             print('Beginning Training of NN:')
             print_scenario(curr_scenario)
@@ -118,25 +116,25 @@ def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
             
             # block here to make sure the process starts before moving on so we don't overwrite buffer
             print('current process: ' + str(curr_process))
-            req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN)
-            req.wait()
+            req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN) # curr_scenario is the data
+            req.wait() # effectively makes it a synchronous call
             
         elif len(available_processes) > 0 and len(scenarios) == 0:
             while len(available_processes) > 0:
-                proc = available_processes.pop(0)
+                proc = available_processes.pop(0) # removes all leftover processes in the event that al scenarios are complete
                 comm.send([], proc, flags.EXIT)
 
-        sleep(30)           
+        sleep(30) # Tensorflow environment takes a while to fill up the GPU. This sleep command gives tensorflow time to fill up the GPU before checking if its available       
     
 def available_GPUs(total_gpus):
-    available = []
+    available_gpus = []
     for i in range(total_gpus):
         handle  = nvidia_smi.nvmlDeviceGetHandleByIndex(i)
         res     = nvidia_smi.nvmlDeviceGetUtilizationRates(handle)
         mem_res = nvidia_smi.nvmlDeviceGetMemoryInfo(handle)
-        if res.gpu < 30 and (mem_res.used / mem_res.total *100) < 30:
-            available.append(i)
-    return available 
+        if res.gpu < 30 and (mem_res.used / mem_res.total *100) < 30: # Jon heuristically defines what it means for a GPU to be available
+            available_gpus.append(i)
+    return available_gpus
 
 def print_scenario(p):
     print()
@@ -153,12 +151,15 @@ def print_scenario(p):
 ###############################################################################
 if __name__ == '__main__':
     
+    # To run this code "mpirun -n <number> python3 scheduler.py" in command line
+    
     # mpi stuff
     comm   = MPI.COMM_WORLD
     nprocs = comm.Get_size()
     rank   = comm.Get_rank()
+
     
-    if rank == 0:       
+    if rank == 0: # This is the master processes' action 
         #########################
         #   Get Scenarios List  #
         #########################   
@@ -172,9 +173,10 @@ if __name__ == '__main__':
         hyper_p.batch_size = [20]
         hyper_p.num_epochs = [50000]
         
-        scenarios = get_scenarios_list(hyper_p)        
+        scenarios = get_scenarios_list(hyper_p)      
+        pdb.set_trace()
         schedule_runs(scenarios, nprocs, comm)  
-    else:
+    else:  # This is the worker processes' action
         while True:
             status = MPI.Status()
             data = comm.recv(source=0, status=status)

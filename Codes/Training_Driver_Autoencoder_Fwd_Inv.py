@@ -43,24 +43,26 @@ class RunOptions:
     num_training_data = 20
     batch_size = 20
     num_epochs = 2000
-    gpu    = '3'
     
-    filename = f'hlayers{num_hidden_layers}_tlayer{truncation_layer}_hnodes{num_hidden_nodes}_pen{penalty}_data{num_training_data}_batch{batch_size}_epochs{num_epochs}'
-    NN_savefile_directory = '../Trained_NNs/' + filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
-    NN_savefile_name = NN_savefile_directory + '/' + filename # The file path and name for the four files
-    data_savefilepath = '../Data/' + 'data_%d' %(num_training_data)
-    
-    # Creating Directories
-    if not os.path.exists(NN_savefile_directory):
-        os.makedirs(NN_savefile_directory)
-    
-    if not os.path.exists('../Data'):
-        os.makedirs('../Data')
+class FileNames:
+    def __init__(self,run_options):
+        self.gpu    = '0'
+        self.filename = f'hlayers{run_options.num_hidden_layers}_tlayer{run_options.truncation_layer}_hnodes{run_options.num_hidden_nodes}_pen{run_options.penalty}_data{run_options.num_training_data}_batch{run_options.batch_size}_epochs{run_options.num_epochs}'
+        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
+        self.data_savefilepath = '../Data/' + 'data_%d' %(run_options.num_training_data)
+        
+        # Creating Directories
+        if not os.path.exists(self.NN_savefile_directory):
+            os.makedirs(self.NN_savefile_directory)
+        
+        if not os.path.exists('../Data'):
+            os.makedirs('../Data')
    
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
-def trainer(run_options):
+def trainer(run_options, filenames):
     
     run_options.batch_size = run_options.num_training_data
     
@@ -74,16 +76,16 @@ def trainer(run_options):
     state_data = np.zeros((run_options.num_training_data,V.dim()))
     
     # Generating Data        
-    if os.path.isfile(run_options.data_savefilepath + '.csv'):
+    if os.path.isfile(filenames.data_savefilepath + '.csv'):
         print('Loading Data')
-        df = pd.read_csv(run_options.data_savefilepath + '.csv')
+        df = pd.read_csv(filenames.data_savefilepath + '.csv')
         data = df.to_numpy()
         parameter_true = data[:,0].reshape((run_options.num_training_data,V.dim()))
         state_data = data[:,1].reshape((run_options.num_training_data,V.dim()))
     else:
         for m in range(run_options.num_training_data): 
             print('\nGenerating Parameters and Data Set %d of %d' %(m+1,run_options.num_training_data))
-            print(run_options.data_savefilepath)
+            print(filenames.data_savefilepath)
             # Randomly generate piecewise constant true parameter with 9 values
             parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
             # Solve PDE for state variable
@@ -92,7 +94,7 @@ def trainer(run_options):
         # Saving Parameters and State Data
         data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
         df = pd.DataFrame(data)   
-        df.to_csv(run_options.data_savefilepath + '.csv', index=False)  
+        df.to_csv(filenames.data_savefilepath + '.csv', index=False)  
         
     
     ###########################
@@ -121,7 +123,7 @@ def trainer(run_options):
                                                                           'maxls':50,
                                                                           'ftol':1.0 * np.finfo(float).eps})            
     # Set GPU configuration options
-    gpu_options = tf.GPUOptions(visible_device_list= run_options.gpu,
+    gpu_options = tf.GPUOptions(visible_device_list= filenames.gpu,
                                 allow_growth=True)
     
     gpu_config = tf.ConfigProto(allow_soft_placement=True,
@@ -132,7 +134,7 @@ def trainer(run_options):
     
     # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
     summ = tf.summary.merge_all()
-    writer = tf.summary.FileWriter('../Tensorboard/' + run_options.filename)
+    writer = tf.summary.FileWriter('../Tensorboard/' + filenames.filename)
     
     ########################
     #   Train Autoencoder  #
@@ -143,7 +145,7 @@ def trainer(run_options):
         
         # Save neural network
         saver = tf.train.Saver(NN.saver_autoencoder)
-        saver.save(sess, run_options.NN_savefile_name)
+        saver.save(sess, filenames.NN_savefile_name)
         
         # Train neural network
         print('Beginning Training\n')
@@ -167,14 +169,14 @@ def trainer(run_options):
                 elapsed = time.time() - start_time
                 [loss_value, s] = sess.run([loss,summ], tf_dict)
                 writer.add_summary(s,epoch)
-                print(run_options.filename)
+                print(filenames.filename)
                 print('GPU: ' + run_options.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
                 start_time = time.time()     
                 
             # save every 1000 epochs
             if epoch % 1000 == 0:
-                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
+                saver.save(sess, filenames.NN_savefile_name, write_meta_graph=False)
                 
         
         # Optimize with LBFGS
@@ -187,7 +189,7 @@ def trainer(run_options):
         writer.add_summary(s,run_options.num_epochs)
         
         # Save final model
-        saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)   
+        saver.save(sess, filenames.NN_savefile_name, write_meta_graph=False)   
         print('Final Model Saved')  
     
 ###############################################################################
@@ -195,7 +197,8 @@ def trainer(run_options):
 ###############################################################################     
 if __name__ == "__main__":     
     run_options = RunOptions()
-    trainer(run_options) 
+    filenames = FileNames(run_options)
+    trainer(run_options, filenames) 
     
      
      
