@@ -145,8 +145,8 @@ def trainer(run_options):
         writer.add_graph(sess.graph)
         
         # Save neural network
-        saver = tf.train.Saver(NN.saver_autoencoder)
-        saver.save(sess, run_options.NN_savefile_name)
+#        saver = tf.train.Saver(NN.saver_autoencoder)
+#        saver.save(sess, run_options.NN_savefile_name)
         
         # Train neural network
         print('Beginning Training\n')
@@ -178,6 +178,7 @@ def trainer(run_options):
             # save every 1000 epochs
             if epoch % 1000 == 0:
                 saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
+                
         
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
