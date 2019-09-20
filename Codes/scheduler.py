@@ -8,12 +8,12 @@ Created on Wed Sep 18 20:53:06 2019
 
 from Training_Driver_Autoencoder_Fwd_Inv import RunOptions
 import nvidia_smi
-pdb.set_trace()
 import copy
 import subprocess
 from mpi4py import MPI
 from time import sleep
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+pdb.set_trace()
 
 class FLAGS:
     RECEIVED = 1
