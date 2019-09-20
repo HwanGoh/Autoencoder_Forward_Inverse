@@ -6,13 +6,16 @@ Created on Wed Sep 18 20:53:06 2019
 @author: Jon Wittmer
 """
 
-from Training_Driver_Autoencoder_Fwd_Inv import RunOptions
+
 import nvidia_smi
 import copy
 import subprocess
 from mpi4py import MPI
 from time import sleep
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+   pdb.set_trace()
+from Training_Driver_Autoencoder_Fwd_Inv import RunOptions
+
 
 class FLAGS:
     RECEIVED = 1
@@ -155,8 +158,6 @@ if __name__ == '__main__':
     comm   = MPI.COMM_WORLD
     nprocs = comm.Get_size()
     rank   = comm.Get_rank()
-    
-    pdb.set_trace()
     
     if rank == 0:       
         #########################
