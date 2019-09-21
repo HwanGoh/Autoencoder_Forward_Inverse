@@ -96,7 +96,7 @@ def trainer(hyper_p, filenames):
                                                                           'maxls':50,
                                                                           'ftol':1.0 * np.finfo(float).eps})            
     # Set GPU configuration options
-    gpu_options = tf.GPUOptions(visible_device_list= hyper_p.gpu,
+    gpu_options = tf.GPUOptions(visible_device_list=hyper_p.gpu,
                                 allow_growth=True)
     
     gpu_config = tf.ConfigProto(allow_soft_placement=True,

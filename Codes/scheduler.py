@@ -187,3 +187,5 @@ if __name__ == '__main__':
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
             req.wait()
+    
+    print('All scenarios computed')
