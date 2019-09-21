@@ -64,6 +64,8 @@ def trainer(hyper_p, filenames):
     
     hyper_p.batch_size = hyper_p.num_training_data
     
+    pdb.set_trace()
+    
     # Generating Data        
     if os.path.isfile(filenames.data_savefilepath + '.csv'):
         print('Loading Data')
