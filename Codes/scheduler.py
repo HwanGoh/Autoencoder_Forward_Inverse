@@ -138,6 +138,7 @@ def print_scenario(p):
     print()
     print(f'    p.num_hidden_layers:   {p.num_hidden_layers}')
     print(f'    p.truncation_layer:    {p.truncation_layer}')
+    print(f'    p.num_hidden_nodes:    {p.num_hidden_nodes}')
     print(f'    p.penalty:             {p.penalty}')
     print(f'    p.num_training_data:   {p.num_training_data}')
     print(f'    p.batch_size:          {p.batch_size}')
