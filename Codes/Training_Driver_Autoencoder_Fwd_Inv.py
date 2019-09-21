@@ -154,7 +154,7 @@ def trainer(hyper_p, filenames):
         
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
-        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         print('LBFGS Optimization Complete\n') 
         elapsed = time.time() - start_time
