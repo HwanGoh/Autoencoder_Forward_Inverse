@@ -77,7 +77,6 @@ def trainer(hyper_p, filenames):
         df = pd.DataFrame(true_data)   
         df.to_csv(filenames.data_savefilepath + '.csv', index=False)  
         
-    
     ###########################
     #   Training Properties   #
     ###########################   

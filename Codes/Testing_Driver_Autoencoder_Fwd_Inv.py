@@ -74,15 +74,15 @@ if __name__ == "__main__":
         print('Loading Test Data')
         df = pd.read_csv(filenames.test_data_savefilepath + '.csv')
         test_data = df.to_numpy()
-        parameter_test = test_data[:,0]
-        state_test = test_data[:,1]
+        parameter_test = test_data[:,0].reshape((1, V.dim()))
+        state_test = test_data[:,1].reshape((1, V.dim()))
     else:
-        parameter_test, state_test = generate_thermal_fin_data(1)
+        parameter_test, state_test= generate_thermal_fin_data(1)
         # Saving Parameters and State Data
         test_data = {'parameter_test': parameter_test.flatten(), 'state_test': state_test.flatten()}
         df = pd.DataFrame(test_data)   
         df.to_csv(filenames.test_data_savefilepath + '.csv', index=False)  
-    
+        
     ####################################
     #   Import Trained Neural Network  #
     ####################################        
@@ -91,13 +91,13 @@ if __name__ == "__main__":
         new_saver.restore(sess, tf.train.latest_checkpoint(filenames.NN_savefile_directory))        
         
         # Labelling loaded variables as a class
-        NN = AutoencoderFwdInv(hyper_p,parameter_test.shape[0],state_test.shape[0], construct_flag = 0) 
+        NN = AutoencoderFwdInv(hyper_p,parameter_test.shape[1],state_test.shape[1], construct_flag = 0) 
                 
         #######################
         #   Form Predictions  #
         #######################        
-        state_pred = sess.run(NN.forward_pred, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[0]))})  
-        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[0]))})    
+        state_pred = sess.run(NN.forward_pred, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[1]))})  
+        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[1]))})    
         
         ##############
         #  Plotting  #
@@ -128,7 +128,7 @@ if __name__ == "__main__":
         print('Figure saved to ' + filenames.figures_savefile_name_parameter_pred) 
         plt.show()
         parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)/tf.norm(parameter_test,2)
-        print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[0]))}))
+        print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[1]))}))
         
         s_pred_fig = dl.plot(state_pred_dl)
         s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
@@ -136,4 +136,4 @@ if __name__ == "__main__":
         print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
         plt.show()
         state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
-        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[0]))}))
+        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[1]))}))

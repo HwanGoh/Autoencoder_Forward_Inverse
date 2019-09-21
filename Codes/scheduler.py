@@ -32,20 +32,16 @@ def get_scenarios_list(hyper_p):
         
     scenarios = []
     for vals in scenarios_list:
-        p                   = RunOptions()
-        p.num_hidden_layers = vals[0]
-        p.truncation_layer  = vals[1]
-        p.num_hidden_nodes  = vals[2]
-        p.penalty           = vals[3]
-        p.num_training_data = vals[4]
-        p.batch_size        = vals[5]
-        p.num_epochs        = vals[6]
+        hyper_p                   = HyperParameters()
+        hyper_p.num_hidden_layers = vals[0]
+        hyper_p.truncation_layer  = vals[1]
+        hyper_p.num_hidden_nodes  = vals[2]
+        hyper_p.penalty           = vals[3]
+        hyper_p.num_training_data = vals[4]
+        hyper_p.batch_size        = vals[5]
+        hyper_p.num_epochs        = vals[6]
         
-        p.N_u    = vals[0]
-        p.N_f    = vals[1]
-        p.rho    = vals[2]
-        p.epochs = vals[3]
-        scenarios.append(copy.deepcopy(p))
+        scenarios.append(copy.deepcopy(hyper_p))
 
     return scenarios
 
