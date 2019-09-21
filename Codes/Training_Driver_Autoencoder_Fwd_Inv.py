@@ -57,9 +57,7 @@ class FileNames:
 #                                  Driver                                     #
 ###############################################################################
 def trainer(hyper_p, filenames):
-    
-    hyper_p.batch_size = hyper_p.num_training_data
-    
+        
     # Loading Data        
     if os.path.isfile(filenames.data_savefilepath + '.csv'):
         print('Loading Data')
