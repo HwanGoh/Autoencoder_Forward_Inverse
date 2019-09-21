@@ -69,11 +69,11 @@ def trainer(hyper_p, filenames):
         print('Loading Data')
         df = pd.read_csv(filenames.data_savefilepath + '.csv')
         true_data = df.to_numpy()
-        parameter_true = true_data[:,0].reshape((hyper_p.num_training_data, V.dim()))
-        state_data = true_data[:,1].reshape((hyper_p.num_training_data, V.dim()))
+        parameter_data = true_data[:,0].reshape((hyper_p.num_training_data, 1446))
+        state_data = true_data[:,1].reshape((hyper_p.num_training_data, 1446))
     else:
-        parameter_true, state_true = generate_thermal_fin_data(hyper_p.num_training_data)
-        true_data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
+        parameter_data, state_data = generate_thermal_fin_data(hyper_p.num_training_data)
+        true_data = {'parameter_data': parameter_data.flatten(), 'state_data': state_data.flatten()}
         df = pd.DataFrame(true_data)   
         df.to_csv(filenames.data_savefilepath + '.csv', index=False)  
         
@@ -82,7 +82,7 @@ def trainer(hyper_p, filenames):
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(hyper_p,parameter_true.shape[1],state_data.shape[1], construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p,parameter_data.shape[1],state_data.shape[1], construct_flag = 1)
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
@@ -135,14 +135,14 @@ def trainer(hyper_p, filenames):
         num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
-                tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
+                tf_dict = {NN.parameter_input_tf: parameter_data, NN.state_data_tf: state_data} 
                 sess.run(optimizer_Adam, tf_dict)   
             else:
-                minibatches = random_mini_batches(parameter_true.T, state_data.T, hyper_p.batch_size, 1234)
+                minibatches = random_mini_batches(parameter_data.T, state_data.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
-                    parameter_true_batch = minibatches[batch_num][0].T
+                    parameter_data_batch = minibatches[batch_num][0].T
                     state_data_batch = minibatches[batch_num][1].T
-                    tf_dict = {NN.parameter_input_tf: parameter_true_batch, NN.state_data_tf: state_data_batch} 
+                    tf_dict = {NN.parameter_input_tf: parameter_data_batch, NN.state_data_tf: state_data_batch} 
                     sess.run(optimizer_Adam, tf_dict)   
                 
             # print to monitor results
