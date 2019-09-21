@@ -155,10 +155,10 @@ def trainer(hyper_p, filenames):
         print('Optimizing with LBFGS\n')   
         optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
+        writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 
         elapsed = time.time() - start_time
         print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
-        writer.add_summary(s,hyper_p.num_epochs)
         
         # Save final model
         saver.save(sess, filenames.NN_savefile_name, write_meta_graph=False)   
