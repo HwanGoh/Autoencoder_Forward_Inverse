@@ -18,7 +18,7 @@ from thermal_fin import get_space
 
 import matplotlib.pyplot as plt
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from Generate_Thermal_Fin_Data import generate_thermal_fin_data, convert_array_to_dolfin_function
+from Generate_and_Save_Thermal_Fin_Data import generate_thermal_fin_data, convert_array_to_dolfin_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -43,6 +43,7 @@ class HyperParameters:
 class FileNames:
     def __init__(self,hyper_p):
         self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+        self.test_data_savefilepath = '../Data/' + 'test_data'
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
         self.figures_savefile_directory = '../Figures/' + self.filename
@@ -50,9 +51,10 @@ class FileNames:
         self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test'
         self.figures_savefile_name_parameter_pred = self.figures_savefile_directory + '/' + 'parameter_pred'
         self.figures_savefile_name_state_pred = self.figures_savefile_directory + '/' + 'state_pred'
-        self.test_data_savefilepath = '../Data/' + 'test_data'
         
         # Creating Directories
+        if not os.path.exists('../Data'):
+            os.makedirs('../Data')
         if not os.path.exists(self.figures_savefile_directory):
             os.makedirs(self.figures_savefile_directory)
        

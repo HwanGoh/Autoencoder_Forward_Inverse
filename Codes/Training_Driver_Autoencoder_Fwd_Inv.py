@@ -12,7 +12,6 @@ sys.path.append('../')
 
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
-from Generate_Thermal_Fin_Data import generate_thermal_fin_data
 import numpy as np
 import pandas as pd
 
@@ -53,9 +52,6 @@ class FileNames:
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
-        
-        if not os.path.exists('../Data'):
-            os.makedirs('../Data')
    
 ###############################################################################
 #                                  Driver                                     #
@@ -64,9 +60,7 @@ def trainer(hyper_p, filenames):
     
     hyper_p.batch_size = hyper_p.num_training_data
     
-    pdb.set_trace()
-    
-    # Generating Data        
+    # Loading Data        
     if os.path.isfile(filenames.data_savefilepath + '.csv'):
         print('Loading Data')
         df = pd.read_csv(filenames.data_savefilepath + '.csv')
@@ -74,10 +68,7 @@ def trainer(hyper_p, filenames):
         parameter_data = true_data[:,0].reshape((hyper_p.num_training_data, 1446))
         state_data = true_data[:,1].reshape((hyper_p.num_training_data, 1446))
     else:
-        parameter_data, state_data = generate_thermal_fin_data(hyper_p.num_training_data)
-        true_data = {'parameter_data': parameter_data.flatten(), 'state_data': state_data.flatten()}
-        df = pd.DataFrame(true_data)   
-        df.to_csv(filenames.data_savefilepath + '.csv', index=False)  
+        raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
         
     ###########################
     #   Training Properties   #
