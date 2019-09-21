@@ -27,7 +27,7 @@ class AutoencoderFwdInv:
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
         num_layers = len(self.layers)
-        init_value = 0.3
+        init_value = 0.05
         
         if construct_flag == 1:
             with tf.variable_scope("autoencoder") as scope:
