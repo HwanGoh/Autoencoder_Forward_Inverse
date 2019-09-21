@@ -165,7 +165,7 @@ if __name__ == '__main__':
         hyper_p = HyperParameters()
             
         hyper_p.num_hidden_layers = [3]
-        hyper_p.truncation_layer = [2] # Indexing includes input and output layer
+        hyper_p.truncation_layer = [3] # Indexing includes input and output layer
         hyper_p.num_hidden_nodes = [200]
         hyper_p.penalty = [1, 10, 20, 30, 40]
         hyper_p.num_training_data = [20, 200, 2000]
