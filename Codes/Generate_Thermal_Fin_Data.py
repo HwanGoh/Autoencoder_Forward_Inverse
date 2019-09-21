@@ -19,6 +19,8 @@ def generate_thermal_fin_data(num_data):
     V = get_space(40)
     solver = Fin(V) 
     
+    print(V.dim())
+    
     parameter = np.zeros((num_data, V.dim()))
     state = np.zeros((num_data, V.dim()))
     
