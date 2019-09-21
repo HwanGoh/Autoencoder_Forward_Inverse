@@ -87,7 +87,7 @@ def trainer(hyper_p, filenames):
                 
     # Set optimizers
     with tf.variable_scope('Training') as scope:
-        optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001, name = 'adam_opt').minimize(loss)
+        optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
         optimizer_LBFGS = tf.contrib.opt.ScipyOptimizerInterface(loss,
                                                                  method='L-BFGS-B',
                                                                  options={'maxiter':10000,
@@ -123,7 +123,6 @@ def trainer(hyper_p, filenames):
         # Train neural network
         print('Beginning Training\n')
         start_time = time.time()
-        loss_value = 1000
         num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
