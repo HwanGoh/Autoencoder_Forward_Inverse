@@ -30,7 +30,7 @@ sys.path.insert(0, '../../Utilities/')
 np.random.seed(1234)
 
 ###############################################################################
-#                               Run Options                                   #
+#                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 1
