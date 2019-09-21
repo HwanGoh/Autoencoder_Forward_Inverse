@@ -12,9 +12,7 @@ sys.path.append('../')
 
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
-from forward_solve import Fin
-from thermal_fin import get_space
-from parameter_generator import ParameterGeneratorNineValues
+from Generate_Thermal_Fin_Data import generate_thermal_fin_data
 import numpy as np
 import pandas as pd
 
@@ -35,7 +33,7 @@ np.random.seed(1234)
 ###############################################################################
 #                               Run Options                                   #
 ###############################################################################
-class RunOptions:
+class HyperParameters:
     num_hidden_layers = 1
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
@@ -45,12 +43,12 @@ class RunOptions:
     num_epochs = 2000
     
 class FileNames:
-    def __init__(self,run_options):
+    def __init__(self,hyper_p):
         self.gpu    = '0'
-        self.filename = f'hlayers{run_options.num_hidden_layers}_tlayer{run_options.truncation_layer}_hnodes{run_options.num_hidden_nodes}_pen{run_options.penalty}_data{run_options.num_training_data}_batch{run_options.batch_size}_epochs{run_options.num_epochs}'
+        self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-        self.data_savefilepath = '../Data/' + 'data_%d' %(run_options.num_training_data)
+        self.data_savefilepath = '../Data/' + 'data_%d' %(hyper_p.num_training_data)
         
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
@@ -62,38 +60,21 @@ class FileNames:
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
-def trainer(run_options, filenames):
+def trainer(hyper_p, filenames):
     
-    run_options.batch_size = run_options.num_training_data
-    
-    ###################################
-    #   Generate Parameters and Data  #
-    ###################################  following Sheroze's "test_thermal_fin_gradient.py" code
-    V = get_space(40)
-    solver = Fin(V) 
-    
-    parameter_true = np.zeros((run_options.num_training_data,V.dim()))
-    state_data = np.zeros((run_options.num_training_data,V.dim()))
+    hyper_p.batch_size = hyper_p.num_training_data
     
     # Generating Data        
     if os.path.isfile(filenames.data_savefilepath + '.csv'):
         print('Loading Data')
         df = pd.read_csv(filenames.data_savefilepath + '.csv')
-        data = df.to_numpy()
-        parameter_true = data[:,0].reshape((run_options.num_training_data,V.dim()))
-        state_data = data[:,1].reshape((run_options.num_training_data,V.dim()))
+        true_data = df.to_numpy()
+        parameter_true = true_data[:,0].reshape((hyper_p.num_training_data, V.dim()))
+        state_data = true_data[:,1].reshape((hyper_p.num_training_data, V.dim()))
     else:
-        for m in range(run_options.num_training_data): 
-            print('\nGenerating Parameters and Data Set %d of %d' %(m+1,run_options.num_training_data))
-            print(filenames.data_savefilepath)
-            # Randomly generate piecewise constant true parameter with 9 values
-            parameter_true[m,:], parameter_true_dl = ParameterGeneratorNineValues(V,solver) # True conductivity values       
-            # Solve PDE for state variable
-            state_data_dl, _ = solver.forward(parameter_true_dl)
-            state_data[m,:] = state_data_dl.vector().get_local()           
-        # Saving Parameters and State Data
-        data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
-        df = pd.DataFrame(data)   
+        parameter_true, state_true = generate_thermal_fin_data(hyper_p.num_training_data)
+        true_data = {'parameter_true': parameter_true.flatten(), 'state_data': state_data.flatten()}
+        df = pd.DataFrame(true_data)   
         df.to_csv(filenames.data_savefilepath + '.csv', index=False)  
         
     
@@ -101,12 +82,12 @@ def trainer(run_options, filenames):
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(run_options,parameter_true.shape[1],state_data.shape[1], construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p,parameter_true.shape[1],state_data.shape[1], construct_flag = 1)
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
         auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
-        fwd_loss = run_options.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2)
+        fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2)
         loss = tf.add(auto_encoder_loss, fwd_loss, name="loss")
         tf.summary.scalar("auto_encoder_loss",auto_encoder_loss)
         tf.summary.scalar("fwd_loss",fwd_loss)
@@ -151,13 +132,13 @@ def trainer(run_options, filenames):
         print('Beginning Training\n')
         start_time = time.time()
         loss_value = 1000
-        num_batches = int(run_options.num_training_data/run_options.batch_size)
-        for epoch in range(run_options.num_epochs):
+        num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
+        for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
                 tf_dict = {NN.parameter_input_tf: parameter_true, NN.state_data_tf: state_data} 
                 sess.run(optimizer_Adam, tf_dict)   
             else:
-                minibatches = random_mini_batches(parameter_true.T, state_data.T, run_options.batch_size, 1234)
+                minibatches = random_mini_batches(parameter_true.T, state_data.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
                     parameter_true_batch = minibatches[batch_num][0].T
                     state_data_batch = minibatches[batch_num][1].T
@@ -170,7 +151,7 @@ def trainer(run_options, filenames):
                 [loss_value, s] = sess.run([loss,summ], tf_dict)
                 writer.add_summary(s,epoch)
                 print(filenames.filename)
-                print('GPU: ' + run_options.gpu)
+                print('GPU: ' + filenames.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
                 start_time = time.time()     
                 
@@ -186,7 +167,7 @@ def trainer(run_options, filenames):
         print('LBFGS Optimization Complete\n') 
         elapsed = time.time() - start_time
         print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
-        writer.add_summary(s,run_options.num_epochs)
+        writer.add_summary(s,hyper_p.num_epochs)
         
         # Save final model
         saver.save(sess, filenames.NN_savefile_name, write_meta_graph=False)   
@@ -196,18 +177,18 @@ def trainer(run_options, filenames):
 #                                   Executor                                  #
 ###############################################################################     
 if __name__ == "__main__":     
-    run_options = RunOptions()
+    hyper_p = HyperParameters()
     if len(sys.argv) > 1:
-            run_options.num_hidden_layers = int(sys.argv[1])
-            run_options.truncation_layer = int(sys.argv[2])
-            run_options.num_hidden_nodes = int(sys.argv[3])
-            run_options.penalty = int(sys.argv[4])
-            run_options.num_training_data = int(sys.argv[5])
-            run_options.batch_size = int(sys.argv[6])
-            run_options.num_epochs = int(sys.argv[7])
+            hyper_p.num_hidden_layers = int(sys.argv[1])
+            hyper_p.truncation_layer = int(sys.argv[2])
+            hyper_p.num_hidden_nodes = int(sys.argv[3])
+            hyper_p.penalty = int(sys.argv[4])
+            hyper_p.num_training_data = int(sys.argv[5])
+            hyper_p.batch_size = int(sys.argv[6])
+            hyper_p.num_epochs = int(sys.argv[7])
         
-    filenames = FileNames(run_options)
-    trainer(run_options, filenames) 
+    filenames = FileNames(hyper_p)
+    trainer(hyper_p, filenames) 
     
      
      

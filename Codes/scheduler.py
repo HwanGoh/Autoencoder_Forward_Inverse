@@ -11,7 +11,7 @@ import copy
 import subprocess
 from mpi4py import MPI
 from time import sleep
-from Training_Driver_Autoencoder_Fwd_Inv import RunOptions
+from Training_Driver_Autoencoder_Fwd_Inv import HyperParameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 
@@ -166,7 +166,7 @@ if __name__ == '__main__':
         #########################
         #   Get Scenarios List  #
         #########################   
-        hyper_p = RunOptions()
+        hyper_p = HyperParameters()
             
         hyper_p.num_hidden_layers = [1]
         hyper_p.truncation_layer = [2] # Indexing includes input and output layer
