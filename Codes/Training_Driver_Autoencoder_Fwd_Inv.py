@@ -34,16 +34,16 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 1
-    truncation_layer = 2 # Indexing includes input and output layer
-    num_hidden_nodes = 200
-    penalty = 10
+    truncation_layer  = 2 # Indexing includes input and output layer
+    num_hidden_nodes  = 200
+    penalty           = 10
     num_training_data = 20
-    batch_size = 20
-    num_epochs = 2000
+    batch_size        = 20
+    num_epochs        = 2000
+    gpu               = '0'
     
 class FileNames:
-    def __init__(self,hyper_p):
-        self.gpu    = '0'
+    def __init__(self,hyper_p):        
         self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
@@ -96,14 +96,14 @@ def trainer(hyper_p, filenames):
                                                                           'maxls':50,
                                                                           'ftol':1.0 * np.finfo(float).eps})            
     # Set GPU configuration options
-    gpu_options = tf.GPUOptions(visible_device_list= filenames.gpu,
+    gpu_options = tf.GPUOptions(visible_device_list= hyper_p.gpu,
                                 allow_growth=True)
     
     gpu_config = tf.ConfigProto(allow_soft_placement=True,
-                            log_device_placement=True,
-                            intra_op_parallelism_threads=4,
-                            inter_op_parallelism_threads=2,
-                            gpu_options= gpu_options)
+                                log_device_placement=True,
+                                intra_op_parallelism_threads=4,
+                                inter_op_parallelism_threads=2,
+                                gpu_options= gpu_options)
     
     # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
     summ = tf.summary.merge_all()
@@ -172,12 +172,13 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     if len(sys.argv) > 1:
             hyper_p.num_hidden_layers = int(sys.argv[1])
-            hyper_p.truncation_layer = int(sys.argv[2])
-            hyper_p.num_hidden_nodes = int(sys.argv[3])
-            hyper_p.penalty = int(sys.argv[4])
+            hyper_p.truncation_layer  = int(sys.argv[2])
+            hyper_p.num_hidden_nodes  = int(sys.argv[3])
+            hyper_p.penalty           = int(sys.argv[4])
             hyper_p.num_training_data = int(sys.argv[5])
-            hyper_p.batch_size = int(sys.argv[6])
-            hyper_p.num_epochs = int(sys.argv[7])
+            hyper_p.batch_size        = int(sys.argv[6])
+            hyper_p.num_epochs        = int(sys.argv[7])
+            hyper_p.gpu               = str(sys.argv[8])
         
     filenames = FileNames(hyper_p)
     trainer(hyper_p, filenames) 
