@@ -143,7 +143,7 @@ def trainer(hyper_p, filenames):
                 [loss_value, s] = sess.run([loss,summ], tf_dict)
                 writer.add_summary(s,epoch)
                 print(filenames.filename)
-                print('GPU: ' + filenames.gpu)
+                print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
                 start_time = time.time()     
                 
