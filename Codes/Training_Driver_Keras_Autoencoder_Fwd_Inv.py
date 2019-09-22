@@ -16,7 +16,7 @@ from tensorflow.python.keras.callbacks import TensorBoard
 import numpy as np
 import pandas as pd
 
-from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from NN_Keras_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from random_mini_batches import random_mini_batches
 import time
 
@@ -34,7 +34,7 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 1
+    num_hidden_layers = 3
     truncation_layer  = 2 # Indexing includes input and output layer
     num_hidden_nodes  = 200
     penalty           = 10
@@ -53,6 +53,28 @@ class FileNames:
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
+            
+###############################################################################
+#                                  Driver                                     #
+###############################################################################
+def trainer(hyper_p, filenames):
+    
+    # Loading Data        
+    if os.path.isfile(filenames.data_savefilepath + '.csv'):
+        print('Loading Data')
+        df = pd.read_csv(filenames.data_savefilepath + '.csv')
+        true_data = df.to_numpy()
+        parameter_data = true_data[:,0].reshape((hyper_p.num_training_data, 1446))
+        state_data = true_data[:,1].reshape((hyper_p.num_training_data, 1446))
+    else:
+        raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
+        
+    ###########################
+    #   Training Properties   #
+    ###########################   
+    # Neural network
+    NN = AutoencoderFwdInv(hyper_p,parameter_data.shape[1],state_data.shape[1], construct_flag = 1)
+
             
 ###############################################################################
 #                                   Executor                                  #
