@@ -9,6 +9,7 @@ Created on Sun Sep 22 11:59:31 2019
 from mpi4py import MPI
 import nvidia_smi
 from time import sleep
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class FLAGS:
     RECEIVED = 1
@@ -66,6 +67,8 @@ def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
     
     # initialize available processes
     available_processes = list(range(1, nprocs))
+    print(available_processes)
+    pdb.set_trace()
     
     flags = FLAGS()
     
