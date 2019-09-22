@@ -114,12 +114,12 @@ def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
             
             # block here to make sure the process starts before moving on so we don't overwrite buffer
             print('current process: ' + str(curr_process))
-            req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN)
-            req.wait() # effectively makes it a synchronous call
+            req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN) # master process sending out new run
+            req.wait() # without this, the message sent by comm.isend might get lost when this process hasn't been probed. With this, it essentially continues to message until its probe
             
         elif len(available_processes) > 0 and len(scenarios) == 0:
             while len(available_processes) > 0:
-                proc = available_processes.pop(0) # removes all leftover processes in the event that al scenarios are complete
+                proc = available_processes.pop(0) # removes all leftover processes in the event that all scenarios are complete
                 comm.send([], proc, flags.EXIT)
 
         sleep(30) # Tensorflow environment takes a while to fill up the GPU. This sleep command gives tensorflow time to fill up the GPU before checking if its available       
@@ -156,7 +156,6 @@ if __name__ == '__main__':
     comm   = MPI.COMM_WORLD
     nprocs = comm.Get_size()
     rank   = comm.Get_rank()
-
     
     # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action 
@@ -165,8 +164,8 @@ if __name__ == '__main__':
         #########################   
         hyper_p = HyperParameters()
             
-        hyper_p.num_hidden_layers = [1]
-        hyper_p.truncation_layer = [2] # Indexing includes input and output layer
+        hyper_p.num_hidden_layers = [3]
+        hyper_p.truncation_layer = [3] # Indexing includes input and output layer
         hyper_p.num_hidden_nodes = [200]
         hyper_p.penalty = [1, 10, 20, 30, 40]
         hyper_p.num_training_data = [20, 200, 2000]
@@ -184,9 +183,9 @@ if __name__ == '__main__':
                 break
             
             proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{int(data.penalty)}', f'{data.num_training_data}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
-            proc.wait()
+            proc.wait() # without this, the process will detach itself once the python code is done running
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
-            req.wait()
+            req.wait() # without this, the message sent by comm.isend might get lost when this process hasn't been probed. With this, it essentially continues to message until its probe
     
     print('All scenarios computed')
