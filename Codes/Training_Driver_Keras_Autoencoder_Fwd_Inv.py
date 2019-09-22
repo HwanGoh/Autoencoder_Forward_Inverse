@@ -59,6 +59,8 @@ class FileNames:
 ###############################################################################
 def trainer(hyper_p, filenames):
     
+    hyper_p.batch_size = hyper_p.num_training_data
+    
     # Loading Data        
     if os.path.isfile(filenames.data_savefilepath + '.csv'):
         print('Loading Data')
@@ -68,13 +70,23 @@ def trainer(hyper_p, filenames):
         state_data = true_data[:,1].reshape((hyper_p.num_training_data, 1446))
     else:
         raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
-        
+    
+    pdb.set_trace()
+    
     ###########################
     #   Training Properties   #
     ###########################   
     # Neural network
     NN = AutoencoderFwdInv(hyper_p,parameter_data.shape[1],state_data.shape[1], construct_flag = 1)
 
+    NN.autoencoder_pred.compile(optimizer='adadelta', loss='binary_crossentropy')
+
+    NN.autoencoder_pred.fit(x_train, x_train,
+                            epochs=hyper_p.epochs,
+                            batch_size=hyper_p.batchsize,
+                            shuffle=True,
+                            validation_data=(x_test, x_test),
+                            callbacks=[TensorBoard(log_dir='../Tensorboard/')])) # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
             
 ###############################################################################
 #                                   Executor                                  #
