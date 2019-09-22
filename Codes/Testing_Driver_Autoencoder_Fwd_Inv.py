@@ -35,10 +35,10 @@ class HyperParameters:
     num_hidden_layers = 1
     truncation_layer = 2 # Indexing includes input and output layer
     num_hidden_nodes = 200
-    penalty = 10
-    num_training_data = 20
+    penalty = 40
+    num_training_data = 2000
     batch_size = 20
-    num_epochs = 2000
+    num_epochs = 50000
     
 class FileNames:
     def __init__(self,hyper_p):
