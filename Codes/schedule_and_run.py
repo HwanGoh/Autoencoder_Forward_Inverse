@@ -67,8 +67,6 @@ def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
     
     # initialize available processes
     available_processes = list(range(1, nprocs))
-    print(available_processes)
-    pdb.set_trace()
     
     flags = FLAGS()
     
