@@ -6,7 +6,7 @@ Created on Wed Sep 18 20:53:06 2019
 @author: Jon Wittmer
 """
 
-import nvidia_smi
+#import nvidia_smi
 import copy
 import subprocess
 from mpi4py import MPI
@@ -24,39 +24,36 @@ class FLAGS:
 ###############################################################################
 #                        Generate List of Scenarios                           #
 ###############################################################################
-def get_scenarios_list(hyper_p):
-    hyper_p_list = [hyper_p.num_hidden_layers, hyper_p.truncation_layer,  hyper_p.num_hidden_nodes, \
-                    hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs]
+def get_scenarios(hyper_p):
     
-    scenarios_list = assemble_parameters(hyper_p_list)
-        
-    scenarios = []
-    for vals in scenarios_list:
-        hyper_p                   = HyperParameters()
-        hyper_p.num_hidden_layers = vals[0]
-        hyper_p.truncation_layer  = vals[1]
-        hyper_p.num_hidden_nodes  = vals[2]
-        hyper_p.penalty           = vals[3]
-        hyper_p.num_training_data = vals[4]
-        hyper_p.batch_size        = vals[5]
-        hyper_p.num_epochs        = vals[6]
-        
-        scenarios.append(copy.deepcopy(hyper_p))
+    # Create list of hyperparameters and list of scenarios
+    hyper_p_dict = hyper_p.__dict__ # convert into dictionary
+    hyper_p_keys = list(hyper_p_dict.keys())
+    hyper_p_dict_list = list(hyper_p_dict.values())           
+    scenarios_list = assemble_permutations(hyper_p_dict_list) # list of lists containing all permutations of the hyperparameters
+    
+    # Convert each list in scenarios_list into class attributes
+    scenarios_class_instances = []
+    for scenario_values in scenarios_list: 
+        hyper_p_scenario = HyperParameters()
+        for i in range(0, len(scenario_values)):
+            setattr(hyper_p_scenario, hyper_p_keys[i], scenario_values[i])
+        scenarios_class_instances.append(copy.deepcopy(hyper_p_scenario))
 
-    return scenarios
+    return scenarios_class_instances
 
-def assemble_parameters(hyper_p_list):
+def assemble_permutations(hyper_p_dict_list):
     # params is a list of lists, with each inner list representing
     # a different model parameter. This function constructs the combinations
-    return get_combinations(hyper_p_list[0], hyper_p_list[1:])
+    return get_combinations(hyper_p_dict_list[0], hyper_p_dict_list[1:])
     
-def get_combinations(hyper_p, hyper_p_list):
+def get_combinations(hyper_p, hyper_p_dict_list):
     # assign here in case this is the last list item
-    combos = hyper_p_list[0]
+    combos = hyper_p_dict_list[0]
     
     # reassign when it is not the last item - recursive algorithm
-    if len(hyper_p_list) > 1:
-        combos = get_combinations(hyper_p_list[0], hyper_p_list[1:])
+    if len(hyper_p_dict_list) > 1:
+        combos = get_combinations(hyper_p_dict_list[0], hyper_p_dict_list[1:])
         
     # concatenate the output into a list of lists
     output = []
@@ -150,6 +147,23 @@ def print_scenario(p):
 ###############################################################################
 if __name__ == '__main__':
     
+    hyper_p = HyperParameters()
+        
+    hyper_p.num_hidden_layers = [1]
+    hyper_p.truncation_layer = [2] # Indexing includes input and output layer
+    hyper_p.num_hidden_nodes = [200]
+    hyper_p.penalty = [1, 10, 20, 30, 40]
+    hyper_p.num_training_data = [20, 200, 2000]
+    hyper_p.batch_size = [20]
+    hyper_p.num_epochs = [50000]
+    
+    scenarios = get_scenarios(hyper_p) 
+    
+
+    
+    
+    
+    
     # To run this code "mpirun -n <number> ./scheduler.py" in command line
     
     # mpi stuff
@@ -172,7 +186,7 @@ if __name__ == '__main__':
         hyper_p.batch_size = [20]
         hyper_p.num_epochs = [50000]
         
-        scenarios = get_scenarios_list(hyper_p)      
+        scenarios = get_scenarios(hyper_p)      
         schedule_runs(scenarios, nprocs, comm)  
     else:  # This is the worker processes' action
         while True:
