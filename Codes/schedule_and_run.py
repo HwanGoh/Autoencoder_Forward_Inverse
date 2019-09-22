@@ -1,19 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 18 20:53:06 2019
+Created on Sun Sep 22 11:59:31 2019
 
 @author: Jon Wittmer
 """
 
-#import nvidia_smi
-import copy
-import subprocess
 from mpi4py import MPI
+import nvidia_smi
 from time import sleep
-from Training_Driver_Autoencoder_Fwd_Inv import HyperParameters
-import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
 
 class FLAGS:
     RECEIVED = 1
@@ -31,16 +26,8 @@ def get_scenarios(hyper_p):
     hyper_p_keys = list(hyper_p_dict.keys())
     hyper_p_dict_list = list(hyper_p_dict.values())           
     scenarios_list = assemble_permutations(hyper_p_dict_list) # list of lists containing all permutations of the hyperparameters
-    
-    # Convert each list in scenarios_list into class attributes
-    scenarios_class_instances = []
-    for scenario_values in scenarios_list: 
-        hyper_p_scenario = HyperParameters()
-        for i in range(0, len(scenario_values)):
-            setattr(hyper_p_scenario, hyper_p_keys[i], scenario_values[i])
-        scenarios_class_instances.append(copy.deepcopy(hyper_p_scenario))
 
-    return scenarios_class_instances
+    return scenarios_list, hyper_p_keys
 
 def assemble_permutations(hyper_p_dict_list):
     # params is a list of lists, with each inner list representing
@@ -70,7 +57,7 @@ def get_combinations(hyper_p, hyper_p_dict_list):
 ###############################################################################
 #                            Schedule and Run                                 #
 ###############################################################################
-def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
+def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
     
     nvidia_smi.nvmlInit()
     
@@ -106,7 +93,6 @@ def schedule_runs(scenarios, nproc, comm, total_gpus = 4):
             curr_scenario.gpu = str(available_gpus.pop(0)) # which GPU we want to run the process on. Note that the extra "gpu" field is created here as well
             
             print('Beginning Training of NN:')
-            print_scenario(curr_scenario)
             print()
             
             # block here to make sure the process starts before moving on so we don't overwrite buffer
@@ -130,76 +116,3 @@ def available_GPUs(total_gpus):
         if res.gpu < 30 and (mem_res.used / mem_res.total *100) < 30: # Jon heuristically defines what it means for a GPU to be available
             available_gpus.append(i)
     return available_gpus
-
-def print_scenario(p):
-    print()
-    print(f'    p.num_hidden_layers:   {p.num_hidden_layers}')
-    print(f'    p.truncation_layer:    {p.truncation_layer}')
-    print(f'    p.num_hidden_nodes:    {p.num_hidden_nodes}')
-    print(f'    p.penalty:             {p.penalty}')
-    print(f'    p.num_training_data:   {p.num_training_data}')
-    print(f'    p.batch_size:          {p.batch_size}')
-    print(f'    p.num_epochs:          {p.num_epochs}')
-    print()
-
-###############################################################################
-#                                   Executor                                  #
-###############################################################################
-if __name__ == '__main__':
-    
-    hyper_p = HyperParameters()
-        
-    hyper_p.num_hidden_layers = [1]
-    hyper_p.truncation_layer = [2] # Indexing includes input and output layer
-    hyper_p.num_hidden_nodes = [200]
-    hyper_p.penalty = [1, 10, 20, 30, 40]
-    hyper_p.num_training_data = [20, 200, 2000]
-    hyper_p.batch_size = [20]
-    hyper_p.num_epochs = [50000]
-    
-    scenarios = get_scenarios(hyper_p) 
-    
-
-    
-    
-    
-    
-    # To run this code "mpirun -n <number> ./scheduler.py" in command line
-    
-    # mpi stuff
-    comm   = MPI.COMM_WORLD
-    nprocs = comm.Get_size()
-    rank   = comm.Get_rank()
-    
-    # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
-    if rank == 0: # This is the master processes' action 
-        #########################
-        #   Get Scenarios List  #
-        #########################   
-        hyper_p = HyperParameters()
-            
-        hyper_p.num_hidden_layers = [1]
-        hyper_p.truncation_layer = [2] # Indexing includes input and output layer
-        hyper_p.num_hidden_nodes = [200]
-        hyper_p.penalty = [1, 10, 20, 30, 40]
-        hyper_p.num_training_data = [20, 200, 2000]
-        hyper_p.batch_size = [20]
-        hyper_p.num_epochs = [50000]
-        
-        scenarios = get_scenarios(hyper_p)      
-        schedule_runs(scenarios, nprocs, comm)  
-    else:  # This is the worker processes' action
-        while True:
-            status = MPI.Status()
-            data = comm.recv(source=0, status=status)
-            
-            if status.tag == FLAGS.EXIT:
-                break
-            
-            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{int(data.penalty)}', f'{data.num_training_data}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
-            proc.wait() # without this, the process will detach itself once the python code is done running
-            
-            req = comm.isend([], 0, FLAGS.RUN_FINISHED)
-            req.wait() # without this, the message sent by comm.isend might get lost when this process hasn't been probed. With this, it essentially continues to message until its probe
-    
-    print('All scenarios computed')
