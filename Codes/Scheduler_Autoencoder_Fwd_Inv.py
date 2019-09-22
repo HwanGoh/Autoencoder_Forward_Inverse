@@ -47,6 +47,7 @@ if __name__ == '__main__':
         hyper_p.num_epochs = [50000]
         
         scenarios_list, hyper_p_keys = get_scenarios(hyper_p) 
+        print('scenarios_list generated')
     
         # Convert each list in scenarios_list into class attributes
         scenarios_class_instances = []
