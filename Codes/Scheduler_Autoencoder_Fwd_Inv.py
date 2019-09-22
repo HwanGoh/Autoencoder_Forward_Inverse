@@ -9,7 +9,7 @@ Created on Wed Sep 18 20:53:06 2019
 import subprocess
 from mpi4py import MPI
 import copy
-from schedule_and_run import get_scenarios, schedule_runs
+from schedule_and_run import get_hyperparameter_permutations, schedule_runs
 from Training_Driver_Autoencoder_Fwd_Inv import HyperParameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -36,8 +36,9 @@ if __name__ == '__main__':
         #########################
         #   Get Scenarios List  #
         #########################   
-        hyper_p = HyperParameters()
-            
+        hyper_p = HyperParameters() # Assign instance attributes below, DO NOT assign an instance attribute to 
+        
+        # assign instance attributes for hyper_p
         hyper_p.num_hidden_layers = [1]
         hyper_p.truncation_layer = [2] # Indexing includes input and output layer
         hyper_p.num_hidden_nodes = [200]
@@ -46,17 +47,17 @@ if __name__ == '__main__':
         hyper_p.batch_size = [20]
         hyper_p.num_epochs = [50000]
         
-        scenarios_list, hyper_p_keys = get_scenarios(hyper_p) 
-        print('scenarios_list generated')
+        permutations_list, hyper_p_keys = get_hyperparameter_permutations(hyper_p) 
+        print('permutations_list generated')
     
-        # Convert each list in scenarios_list into class attributes
+        # Convert each list in permutations_list into class attributes
         scenarios_class_instances = []
-        for scenario_values in scenarios_list: 
+        for scenario_values in permutations_list: 
             hyper_p_scenario = HyperParameters()
             for i in range(0, len(scenario_values)):
                 setattr(hyper_p_scenario, hyper_p_keys[i], scenario_values[i])
             scenarios_class_instances.append(copy.deepcopy(hyper_p_scenario))
-        
+
         # Schedule and run processes
         schedule_runs(scenarios_class_instances, nprocs, comm)  
         

@@ -33,12 +33,12 @@ sys.path.insert(0, '../../Utilities/')
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 1
-    truncation_layer = 2 # Indexing includes input and output layer
+    truncation_layer = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes = 200
-    penalty = 40
-    num_training_data = 2000
+    penalty = 10
+    num_training_data = 20
     batch_size = 20
-    num_epochs = 50000
+    num_epochs = 2000
     
 class FileNames:
     def __init__(self,hyper_p):

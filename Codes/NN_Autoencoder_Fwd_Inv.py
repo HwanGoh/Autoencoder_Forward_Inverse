@@ -22,19 +22,19 @@ class AutoencoderFwdInv:
         
         # Initialize weights and biases
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
-        self.layers[hyper_p.truncation_layer-1] = state_dimension # Sets where the forward problem ends and the inverse problem begins
+        self.layers[hyper_p.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
         print(self.layers)
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
         num_layers = len(self.layers)
         weights_init_value = 0.05
-        biases_init_value = 0
-        
+        biases_init_value = 0       
+
         if construct_flag == 1:
             with tf.variable_scope("autoencoder") as scope:
                 # Forward Problem
                 with tf.variable_scope("forward_problem") as scope:
-                    for l in range(0, hyper_p.truncation_layer - 1):                    
+                    for l in range(0, hyper_p.truncation_layer): 
                             W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
                             b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
                             tf.summary.histogram("weights" + str(l+1), W)
@@ -44,7 +44,7 @@ class AutoencoderFwdInv:
                                                  
                 # Inverse Problem
                 with tf.variable_scope("inverse_problem") as scope:
-                    for l in range(hyper_p.truncation_layer -1, num_layers -1):
+                    for l in range(hyper_p.truncation_layer, num_layers-1):
                             W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
                             b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))
                             tf.summary.histogram("weights" + str(l+1), W)
@@ -58,12 +58,12 @@ class AutoencoderFwdInv:
         # Load trained model  
         if construct_flag == 0: 
             graph = tf.get_default_graph()
-            for l in range(0, hyper_p.truncation_layer - 1):
+            for l in range(0, hyper_p.truncation_layer):
                 W = graph.get_tensor_by_name("autoencoder/forward_problem/W" + str(l+1) + ':0')
                 b = graph.get_tensor_by_name("autoencoder/forward_problem/b" + str(l+1) + ':0')
                 self.weights.append(W)
                 self.biases.append(b)
-            for l in range(hyper_p.truncation_layer -1, num_layers -1):
+            for l in range(hyper_p.truncation_layer, num_layers-1):
                 W = graph.get_tensor_by_name("autoencoder/inverse_problem/W" + str(l+1) + ':0')
                 b = graph.get_tensor_by_name("autoencoder/inverse_problem/b" + str(l+1) + ':0')
                 self.weights.append(W)
@@ -77,18 +77,18 @@ class AutoencoderFwdInv:
     
     def forward_problem(self, X, truncation_layer):  
         with tf.variable_scope("forward_problem") as scope:
-            for l in range(0, truncation_layer - 2):
+            for l in range(0, truncation_layer - 1):
                 W = self.weights[l]
                 b = self.biases[l]
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))
-            W = self.weights[truncation_layer - 2]
-            b = self.biases[truncation_layer - 2]
+            W = self.weights[truncation_layer - 1]
+            b = self.biases[truncation_layer - 1]
             output = tf.add(tf.matmul(X, W), b)
             return output
     
     def inverse_problem(self, X, truncation_layer, num_layers):   
         with tf.variable_scope("inverse_problem") as scope:
-            for l in range(truncation_layer-1, num_layers - 2):
+            for l in range(truncation_layer, num_layers - 2):
                 W = self.weights[l]
                 b = self.biases[l]
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))

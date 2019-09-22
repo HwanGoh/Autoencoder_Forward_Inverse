@@ -20,15 +20,15 @@ class FLAGS:
 ###############################################################################
 #                        Generate List of Scenarios                           #
 ###############################################################################
-def get_scenarios(hyper_p):
+def get_hyperparameter_permutations(hyper_p):
     
     # Create list of hyperparameters and list of scenarios
-    hyper_p_dict = hyper_p.__dict__ # convert into dictionary
+    hyper_p_dict = hyper_p.__dict__ # converts all instance attributes into dictionary. Note that it does not include class attributes! In our case, this is GPU
     hyper_p_keys = list(hyper_p_dict.keys())
     hyper_p_dict_list = list(hyper_p_dict.values())           
-    scenarios_list = assemble_permutations(hyper_p_dict_list) # list of lists containing all permutations of the hyperparameters
+    permutations_list = assemble_permutations(hyper_p_dict_list) # list of lists containing all permutations of the hyperparameters
 
-    return scenarios_list, hyper_p_keys
+    return permutations_list, hyper_p_keys
 
 def assemble_permutations(hyper_p_dict_list):
     # params is a list of lists, with each inner list representing

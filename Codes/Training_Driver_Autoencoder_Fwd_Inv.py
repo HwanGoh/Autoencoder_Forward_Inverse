@@ -34,7 +34,7 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 1
-    truncation_layer  = 2 # Indexing includes input and output layer
+    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 200
     penalty           = 10
     num_training_data = 20
@@ -153,7 +153,7 @@ def trainer(hyper_p, filenames):
         
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 
