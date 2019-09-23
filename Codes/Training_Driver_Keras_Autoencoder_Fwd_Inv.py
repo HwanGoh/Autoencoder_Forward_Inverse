@@ -12,11 +12,12 @@ sys.path.append('../')
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
 from tensorflow.python.keras.callbacks import TensorBoard
+import tensorflow.keras.backend as K
+import tensorflow.keras.losses
 import numpy as np
 import pandas as pd
 
 from NN_Keras_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from random_mini_batches import random_mini_batches
 import time
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -53,15 +54,20 @@ class FileNames:
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
+            
 ###############################################################################
 #                                  Functions                                  #
 ###############################################################################
-def custom_loss(NN):
-    auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
-    fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2)
-    loss = tf.add(auto_encoder_loss, fwd_loss, name="loss")
-    
-    return loss
+# This setup follows https://stackoverflow.com/questions/45961428/make-a-custom-loss-function-in-keras
+def autoencoder_fwd_inv_loss(y_true, y_pred, state_data): 
+    auto_encoder_loss = tf.pow(tf.norm(y_true - y_pred[:,1], 2), 2)
+    fwd_loss = hyper_p.penalty*tf.pow(tf.norm(state_data - y_pred[:,0], 2), 2)  
+    return K.sum(auto_encoder_loss, fwd_loss)
+
+def loss_wrapper(state_data): # Wrapper so allow additional arguments NN and state_data as well as the desired y_true and y_pred requirements of Keras
+    def custom_loss(y_true, y_pred):
+        return autoencoder_fwd_inv_loss(y_true, y_pred, state_data)
+    return custom_loss
            
 ###############################################################################
 #                                  Driver                                     #
@@ -97,7 +103,7 @@ def trainer(hyper_p, filenames):
     NN = AutoencoderFwdInv(hyper_p,parameter_data.shape[1], state_data.shape[1], construct_flag = 1)
     
     # Training
-    NN.autoencoder_pred.compile(optimizer='adadelta', loss=custom_loss(NN))
+    NN.autoencoder_pred.compile(loss=loss_wrapper(state_data), optimizer='adadelta')
 
     NN.autoencoder_pred.fit(parameter_data, parameter_data,
                             epochs=hyper_p.epochs,
