@@ -79,12 +79,12 @@ def convert_array_to_dolfin_function(V, nodal_values):
 if __name__ == "__main__":  
     
     # Select parameter type
-    generate_nine_parameters = 0
-    generate_full_domain = 1
+    generate_nine_parameters = 1
+    generate_full_domain = 0
     
     # Select true or test set
-    generate_true_data = 0
-    generate_test_data = 1
+    generate_true_data = 1
+    generate_test_data = 0
     
     # Defining filenames and creating directories
     num_training_data = 20
