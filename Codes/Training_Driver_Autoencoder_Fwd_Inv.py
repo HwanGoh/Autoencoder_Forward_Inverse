@@ -69,7 +69,7 @@ def trainer(hyper_p, filenames):
         state_data = true_data[:,1].reshape((hyper_p.num_training_data, 1446))
     else:
         raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
-        
+    
     ###########################
     #   Training Properties   #
     ###########################   

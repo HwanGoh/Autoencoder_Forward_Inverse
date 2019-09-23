@@ -39,7 +39,8 @@ class AutoencoderFwdInv:
         
         # Forward and Autoencoder Predictions          
         self.forward_pred = Model(self.parameter_input, self.encoded, name = 'forward_problem')
-        self.autoencoder_pred = Model(self.parameter_input, [self.encoded, self.decoded], name = 'autoencoder')
+        #self.autoencoder_pred = Model(self.parameter_input, self.decoded, name = 'autoencoder')
+        self.autoencoder_pred = Model([self.parameter_input, self.state_input], [self.encoded, self.decoded], name = 'autoencoder')
         
         # Inverse Problem (must be defined after full encoder has been defined)    
         self.state_input = Input(shape=(state_dimension,), name = 'state_input')
