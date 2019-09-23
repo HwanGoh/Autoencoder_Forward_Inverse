@@ -35,8 +35,8 @@ class AutoencoderFwdInv:
                 # Forward Problem
                 with tf.variable_scope("forward_problem") as scope:
                     for l in range(0, hyper_p.truncation_layer): 
-                            W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
-                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
+                            W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
+                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.random_normal_initializer())                                  
                             tf.summary.histogram("weights" + str(l+1), W)
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)
