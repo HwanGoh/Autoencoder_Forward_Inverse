@@ -18,29 +18,47 @@ class AutoencoderFwdInv:
         print(self.layers)
         num_layers = len(self.layers)
         activation = 'tanh'
-        activations = ['linear'] + [activation]*hyper_p.num_hidden_layers + [activation]
-        activations[hyper_p.truncation_layer] = 'linear' # This is the identity activation
+        self.activations = ['linear'] + [activation]*hyper_p.num_hidden_layers + ['linear']
+        self.activations[hyper_p.truncation_layer] = 'linear' # This is the identity activation
         
         if construct_flag == 1:
-        # Forward Problem
-            parameter_input = Input(shape=(parameter_dimension,))
+        # Encoder/Forward Problem
+            self.parameter_input = Input(shape=(parameter_dimension,), name = 'parameter_input')
             for l in range(1, hyper_p.truncation_layer):
                 if l == 1:
-                    self.encoded = Dense(self.layers[l], activation=activations[l])(parameter_input)
+                    self.encoded = Dense(self.layers[l], activation=self.activations[l], name = 'forward_layer_1')(self.parameter_input)
                 else:
-                    self.encoded = Dense(self.layers[l], activation=activation[l])(self.encoded)
-                               
-        # Inverse Problem
-            for l in range(hyper_p.truncation_layer, num_layers -1):
+                    self.encoded = Dense(self.layers[l], activation=self.activations[l], name = 'forward_layer_' + str(l))(self.encoded)
+           
+        # Decoder
+            for l in range(hyper_p.truncation_layer, num_layers):
                 if l == hyper_p.truncation_layer:
-                    self.decoded = Dense(self.layers[l], activation=activation)(self.encoded)
+                    self.decoded = Dense(self.layers[l], activation=self.activations[l], name = 'state_input')(self.encoded)
                 else:
-                    self.decoded = Dense(self.layers[l], activation=activation)(self.decoded)
-
-        self.forward_pred = Model(parameter_input, self.encoded)
-        self.inverse_pred = Model(self.encoded, self.decoded)
-        self.autoencoder_pred = Model(parameter_input, self.decoded)
-
+                    self.decoded = Dense(self.layers[l], activation=self.activations[l], name = 'inverse_layer_' + str(l))(self.decoded)
+        
+        # Forward and Autoencoder Predictions          
+        self.forward_pred = Model(self.parameter_input, self.encoded, name = 'forward_problem')
+        self.autoencoder_pred = Model(self.parameter_input, self.decoded, name = 'autoencoder')
+        
+        self.forward_pred.summary()
+        self.autoencoder_pred.summary()
+        pdb.set_trace()
+        
+        # Inverse Problem (must be defined after full encoder has been defined)    
+        self.state_input = Input(shape=(state_dimension,))
+        for l in range(hyper_p.truncation_layer, num_layers):
+            if l == hyper_p.truncation_layer+1:
+                self.inverse = self.autoencoder_pred.layers[l](self.state_input)
+            else:
+                self.inverse = self.autoencoder_pred.layers[l](self.inverse)
+        
+        self.inverse_pred = Model(self.state_input, self.inverse, name = 'inverse_problem')
+        
+        self.forward_pred.summary()
+        self.autoencoder_pred.summary()
+        self.inverse_pred.summary()
+        pdb.set_trace()
 
 
 

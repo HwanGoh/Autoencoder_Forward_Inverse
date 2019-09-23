@@ -49,11 +49,21 @@ class FileNames:
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
         self.data_savefilepath = '../Data/' + 'data_%d' %(hyper_p.num_training_data)
+        self.test_savefilepath = '../Data/' + 'test_%d' %(hyper_p.num_training_data)
         
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
-            
+###############################################################################
+#                                  Functions                                  #
+###############################################################################
+def custom_loss(NN):
+    auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
+    fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2)
+    loss = tf.add(auto_encoder_loss, fwd_loss, name="loss")
+    
+    return loss
+           
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
@@ -70,23 +80,31 @@ def trainer(hyper_p, filenames):
         state_data = true_data[:,1].reshape((hyper_p.num_training_data, 1446))
     else:
         raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
-    
-    pdb.set_trace()
+        
+    # Loading Test Set        
+    if os.path.isfile(filenames.test_savefilepath + '.csv'):
+        print('Loading Test Set')
+        df = pd.read_csv(filenames.test_savefilepath + '.csv')
+        test_data = df.to_numpy()
+        parameter_test = test_data[:,0].reshape((hyper_p.num_training_data, 1446))
+        #state_test = test_data[:,1].reshape((hyper_p.num_training_data, 1446))
+    else:
+        raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
     
     ###########################
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(hyper_p,parameter_data.shape[1],state_data.shape[1], construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p,parameter_data.shape[1], state_data.shape[1], construct_flag = 1)
 
-    NN.autoencoder_pred.compile(optimizer='adadelta', loss='binary_crossentropy')
+    NN.autoencoder_pred.compile(optimizer='adadelta', loss=custom_loss(NN))
 
-    NN.autoencoder_pred.fit(x_train, x_train,
+    NN.autoencoder_pred.fit(parameter_data, parameter_data,
                             epochs=hyper_p.epochs,
                             batch_size=hyper_p.batchsize,
                             shuffle=True,
-                            validation_data=(x_test, x_test),
-                            callbacks=[TensorBoard(log_dir='../Tensorboard/')])) # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
+                            validation_data=(parameter_test, parameter_test),
+                            callbacks=[TensorBoard(log_dir='../Tensorboard/')]) # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
             
 ###############################################################################
 #                                   Executor                                  #

@@ -14,7 +14,6 @@ import dolfin as dl
 from gaussian_field import make_cov_chol
 from forward_solve import Fin
 from thermal_fin import get_space
-
 import os
 
 def generate_thermal_fin_data(num_data):
@@ -61,7 +60,8 @@ def convert_array_to_dolfin_function(V, nodal_values):
 if __name__ == "__main__":  
     
     num_training_data = 20
-    data_savefilepath = '../Data/' + 'data_%d' %(num_training_data)    
+    data_savefilepath = '../Data/' + 'data_%d' %(num_training_data) 
+    test_savefilepath = '../Data/' + 'test_%d' %(num_training_data) 
     if not os.path.exists('../Data'):
             os.makedirs('../Data')
     
@@ -69,5 +69,11 @@ if __name__ == "__main__":
     true_data = {'parameter_data': parameter_data.flatten(), 'state_data': state_data.flatten()}
     df = pd.DataFrame(true_data)   
     df.to_csv(data_savefilepath + '.csv', index=False)  
+    print('\nData Saved')
+    
+    parameter_test, state_test = generate_thermal_fin_data(num_training_data)
+    test_data = {'parameter_test': parameter_test.flatten(), 'state_test': state_test.flatten()}
+    df = pd.DataFrame(test_data)   
+    df.to_csv(test_savefilepath + '.csv', index=False)  
     print('\nData Saved')
     
