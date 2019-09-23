@@ -6,10 +6,6 @@ Created on Sat Sep 14 14:35:58 2019
 @author: Hwan Goh
 """
 
-
-import sys
-sys.path.append('../')
-
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
 import numpy as np
@@ -40,7 +36,7 @@ class HyperParameters:
     num_training_data = 20
     batch_size        = 20
     num_epochs        = 2000
-    gpu               = '0'
+    gpu               = '1'
     
 class FileNames:
     def __init__(self,hyper_p):        
@@ -89,13 +85,11 @@ def trainer(hyper_p, filenames):
         tf.summary.scalar("loss",loss)
         
     # Accuracy
-# =============================================================================
-#     with tf.variable_scope('accuracy') as scope:
-#         parameter_accuracy = tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2)/tf.norm(NN.parameter_input_tf, 2)
-#         state_accuracy = tf.norm(NN.state_data_tf - NN.forward_pred, 2)/tf.norm(NN.state_data_tf, 2)
-#         tf.summary.scalar("parameter_accuracy", parameter_accuracy)
-#         tf.summary.scalar("state_accuracy", state_accuracy)
-# =============================================================================
+    with tf.variable_scope('accuracy') as scope:
+        parameter_accuracy = tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2)/tf.norm(NN.parameter_input_tf, 2)
+        state_accuracy = tf.norm(NN.state_data_tf - NN.forward_pred, 2)/tf.norm(NN.state_data_tf, 2)
+        tf.summary.scalar("parameter_accuracy", parameter_accuracy)
+        tf.summary.scalar("state_accuracy", state_accuracy)
                 
     # Set optimizers
     with tf.variable_scope('Training') as scope:
@@ -151,7 +145,7 @@ def trainer(hyper_p, filenames):
             # print to monitor results
             if epoch % 100 == 0:
                 elapsed = time.time() - start_time
-                [loss_value, s] = sess.run([loss,summ], tf_dict)
+                [loss_value, s] = sess.run([loss, summ], tf_dict)
                 writer.add_summary(s,epoch)
                 print(filenames.filename)
                 print('GPU: ' + hyper_p.gpu)

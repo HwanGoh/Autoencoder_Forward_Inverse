@@ -43,7 +43,8 @@ class HyperParameters:
 class FileNames:
     def __init__(self,hyper_p):
         self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
-        self.test_data_savefilepath = '../Data/' + 'test_data'
+        self.parameter_test_savefilepath = '../Data/' + 'parameter_test'
+        self.state_test_savefilepath = '../Data/' + 'state_test'
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
         self.figures_savefile_directory = '../Figures/' + self.filename
@@ -72,18 +73,16 @@ if __name__ == "__main__":
     V = get_space(40)
     solver = Fin(V) 
     
-    if os.path.isfile(filenames.test_data_savefilepath + '.csv'):
+    if os.path.isfile(filenames.parameter_test_savefilepath + '.csv'):
         print('Loading Test Data')
-        df = pd.read_csv(filenames.test_data_savefilepath + '.csv')
-        test_data = df.to_numpy()
-        parameter_test = test_data[:,0].reshape((1, V.dim()))
-        state_test = test_data[:,1].reshape((1, V.dim()))
+        df_parameter_test = pd.read_csv(filenames.parameter_test_savefilepath + '.csv')
+        df_state_test = pd.read_csv(filenames.state_test_savefilepath + '.csv')
+        parameter_test = df_parameter_test.to_numpy()
+        state_test = df_state_test.to_numpy()
+        parameter_test = parameter_test.reshape((1, 9))
+        state_test = state_test.reshape((1, 1446))
     else:
-        parameter_test, state_test= generate_thermal_fin_data(1)
-        # Saving Parameters and State Data
-        test_data = {'parameter_test': parameter_test.flatten(), 'state_test': state_test.flatten()}
-        df = pd.DataFrame(test_data)   
-        df.to_csv(filenames.test_data_savefilepath + '.csv', index=False)  
+        raise ValueError('Test Data of size %d has not yet been generated' %(hyper_p.num_training_data)) 
         
     ####################################
     #   Import Trained Neural Network  #
@@ -105,7 +104,7 @@ if __name__ == "__main__":
         #  Plotting  #
         ##############
         #=== Plotting test parameter and test state ===#
-        parameter_test_dl = convert_array_to_dolfin_function(V,parameter_test)
+        parameter_test_dl = solver.nine_param_to_function(parameter_test.T)
         state_test_dl = convert_array_to_dolfin_function(V,state_test)
         
         p_test_fig = dl.plot(parameter_test_dl)

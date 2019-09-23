@@ -47,16 +47,6 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
         
     return parameter, state
 
-def parameter_generator_full_domain(V,solver,length = 0.8):
-    chol = make_cov_chol(V, length)
-    norm = np.random.randn(len(chol))
-    generated_parameter = np.exp(0.5 * chol.T @ norm) 
-    parameter_dl = convert_array_to_dolfin_function(V,generated_parameter)
-    parameter_dl = solver.nine_param_to_function(solver.subfin_avg_op(parameter_dl))
-    generated_parameter = parameter_dl.vector().get_local()
-    
-    return generated_parameter, parameter_dl
-
 def parameter_generator_nine_values(V,solver,length = 0.8):
     chol = make_cov_chol(V, length)
     norm = np.random.randn(len(chol))
@@ -64,6 +54,16 @@ def parameter_generator_nine_values(V,solver,length = 0.8):
     parameter_dl = convert_array_to_dolfin_function(V,generated_parameter)
     generated_parameter = solver.subfin_avg_op(parameter_dl)
     parameter_dl = solver.nine_param_to_function(generated_parameter)
+    
+    return generated_parameter, parameter_dl
+
+def parameter_generator_full_domain(V,solver,length = 0.8):
+    chol = make_cov_chol(V, length)
+    norm = np.random.randn(len(chol))
+    generated_parameter = np.exp(0.5 * chol.T @ norm) 
+    parameter_dl = convert_array_to_dolfin_function(V,generated_parameter)
+    parameter_dl = solver.nine_param_to_function(solver.subfin_avg_op(parameter_dl))
+    generated_parameter = parameter_dl.vector().get_local()
     
     return generated_parameter, parameter_dl
 
@@ -83,15 +83,15 @@ if __name__ == "__main__":
     generate_full_domain = 0
     
     # Select true or test set
-    generate_true_data = 1
-    generate_test_data = 0
+    generate_true_data = 0
+    generate_test_data = 1
     
     # Defining filenames and creating directories
-    num_training_data = 20
+    num_training_data = 1
     parameter_true_savefilepath = '../Data/' + 'parameter_true_%d' %(num_training_data) 
     state_true_savefilepath = '../Data/' + 'state_true_%d' %(num_training_data) 
-    parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_training_data) 
-    state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_training_data) 
+    parameter_test_savefilepath = '../Data/' + 'parameter_test'
+    state_test_savefilepath = '../Data/' + 'state_test'
     if not os.path.exists('../Data'):
             os.makedirs('../Data')
     
