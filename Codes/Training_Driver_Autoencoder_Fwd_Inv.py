@@ -155,8 +155,7 @@ def trainer(hyper_p, filenames):
             # save every 1000 epochs
             if epoch % 1000 == 0:
                 saver.save(sess, filenames.NN_savefile_name, write_meta_graph=False)
-                
-        
+                 
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
         optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
