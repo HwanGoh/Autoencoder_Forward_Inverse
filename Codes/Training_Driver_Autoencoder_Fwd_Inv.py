@@ -47,7 +47,8 @@ class FileNames:
         self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-        self.data_savefilepath = '../Data/' + 'data_%d' %(hyper_p.num_training_data)
+        self.parameter_true_savefilepath = '../Data/' + 'parameter_true_%d' %(hyper_p.num_training_data) 
+        self.state_true_savefilepath = '../Data/' + 'state_true_%d' %(hyper_p.num_training_data) 
         
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
@@ -61,12 +62,14 @@ def trainer(hyper_p, filenames):
     hyper_p.batch_size = hyper_p.num_training_data
     
     # Loading Data        
-    if os.path.isfile(filenames.data_savefilepath + '.csv'):
+    if os.path.isfile(filenames.parameter_true_savefilepath + '.csv'):
         print('Loading Data')
-        df = pd.read_csv(filenames.data_savefilepath + '.csv')
-        true_data = df.to_numpy()
-        parameter_data = true_data[:,0].reshape((hyper_p.num_training_data, 1446))
-        state_data = true_data[:,1].reshape((hyper_p.num_training_data, 1446))
+        df_parameter_true = pd.read_csv(filenames.parameter_true_savefilepath + '.csv')
+        df_state_true = pd.read_csv(filenames.state_true_savefilepath + '.csv')
+        parameter_true = df_parameter_true.to_numpy()
+        state_true = df_state_true.to_numpy()
+        parameter_data = parameter_true.reshape((hyper_p.num_training_data, 9))
+        state_data = state_true.reshape((hyper_p.num_training_data, 1446))
     else:
         raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
     
@@ -84,6 +87,15 @@ def trainer(hyper_p, filenames):
         tf.summary.scalar("auto_encoder_loss",auto_encoder_loss)
         tf.summary.scalar("fwd_loss",fwd_loss)
         tf.summary.scalar("loss",loss)
+        
+    # Accuracy
+# =============================================================================
+#     with tf.variable_scope('accuracy') as scope:
+#         parameter_accuracy = tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2)/tf.norm(NN.parameter_input_tf, 2)
+#         state_accuracy = tf.norm(NN.state_data_tf - NN.forward_pred, 2)/tf.norm(NN.state_data_tf, 2)
+#         tf.summary.scalar("parameter_accuracy", parameter_accuracy)
+#         tf.summary.scalar("state_accuracy", state_accuracy)
+# =============================================================================
                 
     # Set optimizers
     with tf.variable_scope('Training') as scope:
