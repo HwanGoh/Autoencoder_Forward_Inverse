@@ -77,17 +77,18 @@ def convert_array_to_dolfin_function(V, nodal_values):
 #                                  Executor                                   #
 ###############################################################################
 if __name__ == "__main__":  
-    
+
+    num_training_data = 2000
+        
     # Select parameter type
     generate_nine_parameters = 1
     generate_full_domain = 0
     
     # Select true or test set
-    generate_true_data = 0
-    generate_test_data = 1
+    generate_true_data = 1
+    generate_test_data = 0
     
     # Defining filenames and creating directories
-    num_training_data = 1
     parameter_true_savefilepath = '../Data/' + 'parameter_true_%d' %(num_training_data) 
     state_true_savefilepath = '../Data/' + 'state_true_%d' %(num_training_data) 
     parameter_test_savefilepath = '../Data/' + 'parameter_test'
