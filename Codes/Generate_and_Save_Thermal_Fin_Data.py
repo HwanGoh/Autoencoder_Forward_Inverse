@@ -79,8 +79,8 @@ def convert_array_to_dolfin_function(V, nodal_values):
 if __name__ == "__main__":  
     
     # Select parameter type
-    generate_nine_parameters = 1
-    generate_full_domain = 0
+    generate_nine_parameters = 0
+    generate_full_domain = 1
     
     # Select true or test set
     generate_true_data = 0
