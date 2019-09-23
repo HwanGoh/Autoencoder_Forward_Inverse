@@ -96,7 +96,8 @@ def trainer(hyper_p, filenames):
     ###########################   
     # Neural network
     NN = AutoencoderFwdInv(hyper_p,parameter_data.shape[1], state_data.shape[1], construct_flag = 1)
-
+    
+    # Training
     NN.autoencoder_pred.compile(optimizer='adadelta', loss=custom_loss(NN))
 
     NN.autoencoder_pred.fit(parameter_data, parameter_data,
