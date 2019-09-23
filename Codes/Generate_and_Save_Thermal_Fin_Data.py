@@ -78,7 +78,7 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_training_data = 200
+    num_training_data = 20
         
     # Select parameter type
     generate_nine_parameters = 1
