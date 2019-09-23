@@ -11,7 +11,6 @@ sys.path.append('../')
 
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
-from tensorflow import keras
 from tensorflow.python.keras.callbacks import TensorBoard
 import numpy as np
 import pandas as pd

@@ -6,8 +6,8 @@ Created on Sun Sep 22 13:59:12 2019
 @author: hwan
 """
 
-from keras.layers import Input, Dense
-from keras.models import Model
+from tensorflow.keras.layers import Input, Dense
+from tensorflow.keras.models import Model
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class AutoencoderFwdInv:
@@ -39,7 +39,7 @@ class AutoencoderFwdInv:
         
         # Forward and Autoencoder Predictions          
         self.forward_pred = Model(self.parameter_input, self.encoded, name = 'forward_problem')
-        self.autoencoder_pred = Model(self.parameter_input, self.decoded, name = 'autoencoder')
+        self.autoencoder_pred = Model(self.parameter_input, [self.encoded,self.decoded], name = 'autoencoder')
         
         # Inverse Problem (must be defined after full encoder has been defined)    
         self.state_input = Input(shape=(state_dimension,), name = 'state_input')
@@ -55,7 +55,7 @@ class AutoencoderFwdInv:
         self.autoencoder_pred.summary()
         self.inverse_pred.summary()
 
-
+        pdb.set_trace()
 
 
 
