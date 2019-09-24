@@ -29,8 +29,8 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 3
-    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 1
+    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 200
     penalty           = 10
     num_training_data = 20
@@ -102,8 +102,8 @@ def trainer(hyper_p, filenames):
                                                                           'maxls':50,
                                                                           'ftol':1.0 * np.finfo(float).eps})
         # Track gradients
-        gradients = optimizer_Adam.compute_gradients(loss = loss)
         l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
+        gradients = optimizer_Adam.compute_gradients(loss = loss)
         for gradient, variable in gradients:
             tf.summary.histogram("gradients/" + variable.name, l2_norm(gradient))
         optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients)
