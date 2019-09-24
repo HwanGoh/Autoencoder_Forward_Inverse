@@ -140,19 +140,20 @@ def trainer(hyper_p, filenames):
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
                 tf_dict = {NN.parameter_input_tf: parameter_data, NN.state_data_tf: state_data} 
-                loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)   
+                loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
+                writer.add_summary(s, epoch)
             else:
                 minibatches = random_mini_batches(parameter_data.T, state_data.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
                     parameter_data_batch = minibatches[batch_num][0].T
                     state_data_batch = minibatches[batch_num][1].T
                     tf_dict = {NN.parameter_input_tf: parameter_data_batch, NN.state_data_tf: state_data_batch} 
-                    loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)   
+                    loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
+                    writer.add_summary(s, epoch)
                 
             # print to monitor results
             if epoch % 100 == 0:
                 elapsed = time.time() - start_time
-                writer.add_summary(s, epoch)
                 print(filenames.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
