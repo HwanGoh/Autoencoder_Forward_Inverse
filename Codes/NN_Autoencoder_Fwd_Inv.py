@@ -36,7 +36,7 @@ class AutoencoderFwdInv:
                 with tf.variable_scope("forward_problem") as scope:
                     for l in range(0, hyper_p.truncation_layer): 
                             W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
-                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.random_normal_initializer())                                  
+                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
                             tf.summary.histogram("weights" + str(l+1), W)
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)
@@ -73,14 +73,14 @@ class AutoencoderFwdInv:
         self.forward_pred = self.forward_problem(self.parameter_input_tf, hyper_p.truncation_layer)
         self.inverse_pred = self.inverse_problem(self.state_input_tf, hyper_p.truncation_layer, len(self.layers))   
         self.autoencoder_pred = self.inverse_problem(self.forward_pred, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
-
-    
+  
     def forward_problem(self, X, truncation_layer):  
         with tf.variable_scope("forward_problem") as scope:
             for l in range(0, truncation_layer - 1):
                 W = self.weights[l]
                 b = self.biases[l]
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))
+                tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[truncation_layer - 1]
             b = self.biases[truncation_layer - 1]
             output = tf.add(tf.matmul(X, W), b)
@@ -92,7 +92,10 @@ class AutoencoderFwdInv:
                 W = self.weights[l]
                 b = self.biases[l]
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))
+                #tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[-1]
             b = self.biases[-1]
             output = tf.add(tf.matmul(X, W), b)
             return output
+        
+    
