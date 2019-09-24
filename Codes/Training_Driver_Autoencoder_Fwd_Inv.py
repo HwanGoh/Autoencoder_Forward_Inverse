@@ -84,23 +84,30 @@ def trainer(hyper_p, filenames):
         tf.summary.scalar("fwd_loss",fwd_loss)
         tf.summary.scalar("loss",loss)
         
-    # Accuracy
-    with tf.variable_scope('accuracy') as scope:
-        parameter_accuracy = tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2)/tf.norm(NN.parameter_input_tf, 2)
-        state_accuracy = tf.norm(NN.state_data_tf - NN.forward_pred, 2)/tf.norm(NN.state_data_tf, 2)
-        tf.summary.scalar("parameter_accuracy", parameter_accuracy)
-        tf.summary.scalar("state_accuracy", state_accuracy)
+    # Relative Error
+    with tf.variable_scope('relative_error') as scope:
+        parameter_relative_error = tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2)/tf.norm(NN.parameter_input_tf, 2)
+        state_relative_error = tf.norm(NN.state_data_tf - NN.forward_pred, 2)/tf.norm(NN.state_data_tf, 2)
+        tf.summary.scalar("parameter_relative_error", parameter_relative_error)
+        tf.summary.scalar("state_relative_error", state_relative_error)
                 
     # Set optimizers
     with tf.variable_scope('Training') as scope:
-        optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001).minimize(loss)
+        optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001)
         optimizer_LBFGS = tf.contrib.opt.ScipyOptimizerInterface(loss,
                                                                  method='L-BFGS-B',
                                                                  options={'maxiter':10000,
                                                                           'maxfun':50000,
                                                                           'maxcor':50,
                                                                           'maxls':50,
-                                                                          'ftol':1.0 * np.finfo(float).eps})            
+                                                                          'ftol':1.0 * np.finfo(float).eps})
+        # Track gradients
+        gradients = optimizer_Adam.compute_gradients(loss = loss)
+        l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
+        for gradient, variable in gradients:
+            tf.summary.histogram("gradients/" + variable.name, l2_norm(gradient))
+        optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients)
+        
     # Set GPU configuration options
     gpu_options = tf.GPUOptions(visible_device_list=hyper_p.gpu,
                                 allow_growth=True)
@@ -133,7 +140,7 @@ def trainer(hyper_p, filenames):
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
                 tf_dict = {NN.parameter_input_tf: parameter_data, NN.state_data_tf: state_data} 
-                sess.run(optimizer_Adam, tf_dict)   
+                sess.run(optimizer_Adam_op, tf_dict)   
             else:
                 minibatches = random_mini_batches(parameter_data.T, state_data.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
@@ -145,8 +152,8 @@ def trainer(hyper_p, filenames):
             # print to monitor results
             if epoch % 100 == 0:
                 elapsed = time.time() - start_time
-                [loss_value, s] = sess.run([loss, summ], tf_dict)
-                writer.add_summary(s,epoch)
+                loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)
+                writer.add_summary(s, epoch)
                 print(filenames.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
@@ -158,7 +165,7 @@ def trainer(hyper_p, filenames):
                  
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 
