@@ -32,13 +32,13 @@ sys.path.insert(0, '../../Utilities/')
 #                               Parameters                                    #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 1
-    truncation_layer = 1 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 3
+    truncation_layer = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes = 200
-    penalty = 10
-    num_training_data = 20
+    penalty = 30
+    num_training_data = 2000
     batch_size = 20
-    num_epochs = 2000
+    num_epochs = 50000
     
 class FileNames:
     def __init__(self,hyper_p):
@@ -120,7 +120,7 @@ if __name__ == "__main__":
         plt.show()
         
         #=== Plotting predictions of test parameter and test state ===#
-        parameter_pred_dl = convert_array_to_dolfin_function(V,parameter_pred)
+        parameter_pred_dl = solver.nine_param_to_function(parameter_pred.T)
         state_pred_dl = convert_array_to_dolfin_function(V,state_pred)
         
         p_pred_fig = dl.plot(parameter_pred_dl)
