@@ -8,6 +8,7 @@ Created on Sat Sep 14 14:35:58 2019
 
 import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 tf.reset_default_graph()
+tf.logging.set_verbosity(tf.logging.FATAL) # Suppresses all the messages when run begins
 import numpy as np
 import pandas as pd
 
