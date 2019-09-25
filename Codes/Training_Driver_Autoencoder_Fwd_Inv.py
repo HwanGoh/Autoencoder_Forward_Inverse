@@ -123,6 +123,9 @@ def trainer(hyper_p, filenames):
     summ = tf.summary.merge_all()
     writer = tf.summary.FileWriter('../Tensorboard/' + filenames.filename)
     
+    # Saver for saving trained neural network
+    saver = tf.train.Saver(NN.saver_autoencoder)
+    
     ########################
     #   Train Autoencoder  #
     ########################          
@@ -131,7 +134,6 @@ def trainer(hyper_p, filenames):
         writer.add_graph(sess.graph)
         
         # Save neural network
-        saver = tf.train.Saver(NN.saver_autoencoder)
         saver.save(sess, filenames.NN_savefile_name)
         
         # Train neural network
