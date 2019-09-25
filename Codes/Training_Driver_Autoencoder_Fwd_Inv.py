@@ -15,6 +15,7 @@ import pandas as pd
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from random_mini_batches import random_mini_batches
 import time
+import shutil # for deleting directories
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -121,6 +122,8 @@ def trainer(hyper_p, filenames):
     
     # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
     summ = tf.summary.merge_all()
+    if os.path.exists('../Tensorboard/' + filenames.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
+        shutil.rmtree('../Tensorboard/' + filenames.filename)  
     writer = tf.summary.FileWriter('../Tensorboard/' + filenames.filename)
     
     # Saver for saving trained neural network
