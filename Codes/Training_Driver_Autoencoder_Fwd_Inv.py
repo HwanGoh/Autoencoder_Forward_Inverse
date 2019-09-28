@@ -33,7 +33,7 @@ np.random.seed(1234)
 class HyperParameters:
     num_hidden_layers = 3
     truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 200
+    num_hidden_nodes  = 614
     penalty           = 10
     num_training_data = 20
     batch_size        = 20
@@ -41,12 +41,18 @@ class HyperParameters:
     gpu               = '1'
     
 class FileNames:
-    def __init__(self,hyper_p):        
-        self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+    def __init__(self, hyper_p, use_bnd_data):        
+        if use_bnd_data == 1:
+            self.filename = f'bnd_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+        else:
+            self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
         self.parameter_true_savefilepath = '../Data/' + 'parameter_true_%d' %(hyper_p.num_training_data) 
-        self.state_true_savefilepath = '../Data/' + 'state_true_%d' %(hyper_p.num_training_data) 
+        if use_bnd_data == 1:
+            self.state_true_savefilepath = '../Data/' + 'state_true_bnd_%d' %(hyper_p.num_training_data) 
+        else:
+            self.state_true_savefilepath = '../Data/' + 'state_true_%d' %(hyper_p.num_training_data) 
         
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
@@ -67,7 +73,7 @@ def trainer(hyper_p, filenames):
         parameter_true = df_parameter_true.to_numpy()
         state_true = df_state_true.to_numpy()
         parameter_data = parameter_true.reshape((hyper_p.num_training_data, 9))
-        state_data = state_true.reshape((hyper_p.num_training_data, 1446))
+        state_data = state_true.reshape((hyper_p.num_training_data, 614))
     else:
         raise ValueError('Data of size %d has not yet been generated' %(hyper_p.num_training_data))
     
@@ -186,7 +192,11 @@ def trainer(hyper_p, filenames):
 #                                   Executor                                  #
 ###############################################################################     
 if __name__ == "__main__":     
+    
+    use_bnd_data = 1
+    
     hyper_p = HyperParameters()
+    
     if len(sys.argv) > 1:
             hyper_p.num_hidden_layers = int(sys.argv[1])
             hyper_p.truncation_layer  = int(sys.argv[2])
@@ -197,7 +207,8 @@ if __name__ == "__main__":
             hyper_p.num_epochs        = int(sys.argv[7])
             hyper_p.gpu               = str(sys.argv[8])
         
-    filenames = FileNames(hyper_p)
+    filenames = FileNames(hyper_p, use_bnd_data)
+    
     trainer(hyper_p, filenames) 
     
      
