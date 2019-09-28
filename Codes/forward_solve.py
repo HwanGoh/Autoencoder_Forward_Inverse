@@ -1,6 +1,7 @@
 from dolfin import *
 import numpy as np
 from mshr import Rectangle, generate_mesh  
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class SubFin(SubDomain):
     def __init__(self, subfin_bdry, **kwargs):
@@ -144,15 +145,15 @@ class Fin:
         self.fin9.mark(domains_sub, 9)
 
         # Marking boundaries for boundary conditions
-        bottom = CompiledSubDomain("near(x[1], side) && on_boundary", side = 0.0)
-        exterior = CompiledSubDomain("!near(x[1], side) && on_boundary", side = 0.0)
-        boundaries = MeshFunction("size_t", mesh, mesh.topology().dim()-1)
-        boundaries.set_all(0)
-        exterior.mark(boundaries, 1)
-        bottom.mark(boundaries, 2)
-
+        self.bottom = CompiledSubDomain("near(x[1], side) && on_boundary", side = 0.0)
+        self.exterior = CompiledSubDomain("!near(x[1], side) && on_boundary", side = 0.0)
+        self.boundaries = MeshFunction("size_t", mesh, mesh.topology().dim()-1)
+        self.boundaries.set_all(0)
+        self.exterior.mark(self.boundaries, 1)
+        self.bottom.mark(self.boundaries, 2)
+        
         self.dx = Measure('dx', domain=mesh, subdomain_data=domains)
-        self.ds = Measure('ds', domain=mesh, subdomain_data=boundaries)
+        self.ds = Measure('ds', domain=mesh, subdomain_data=self.boundaries)
         self.dx_s = Measure('dx', domain=mesh, subdomain_data=domains_sub)
 
         self._k = Function(V)

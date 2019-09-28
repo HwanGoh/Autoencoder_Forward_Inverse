@@ -16,5 +16,7 @@ def get_space(resolution):
 
     mesh = generate_mesh(geometry, resolution)
 
+    plot(mesh)
+
     V = FunctionSpace(mesh, 'CG', 1)
     return V
