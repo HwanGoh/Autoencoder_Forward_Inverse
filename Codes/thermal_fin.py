@@ -1,5 +1,6 @@
 from dolfin import *
 from mshr import Rectangle, generate_mesh
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def get_space(resolution):
     # Create the thermal fin geometry as referenced in Tan's thesis
@@ -16,7 +17,6 @@ def get_space(resolution):
 
     mesh = generate_mesh(geometry, resolution)
 
-    plot(mesh)
-
     V = FunctionSpace(mesh, 'CG', 1)
-    return V
+
+    return V, mesh

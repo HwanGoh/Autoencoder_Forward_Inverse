@@ -11,6 +11,7 @@ To avoid using dolfin when training the neural network, the data generation and 
 import numpy as np
 import pandas as pd
 import dolfin as dl
+import matplotlib as plt
 from gaussian_field import make_cov_chol
 from forward_solve import Fin
 from thermal_fin import get_space
@@ -22,11 +23,11 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
     #   Generate Parameters and Data  #
     ###################################  following Sheroze's "test_thermal_fin_gradient.py" code
     
-    V = get_space(40)
+    # Generate Dolfin function space and mesh
+    V, mesh = get_space(40)
     solver = Fin(V)    
     
-    
-    print(V.dim())
+    print(V.dim())    
     
     # Create storage arrays
     if generate_nine_parameters == 1:
@@ -34,13 +35,19 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
     if generate_full_domain == 1:
         parameter = np.zeros((num_data, V.dim()))
     if generate_boundary_state == 1:
-        boundary_indices = list(set(sum((f.entities(0).tolist() for f in dl.SubsetIterator(solver.boundaries, 1)), []))) # entries of this vector represent which of the (V.dim() x 1) vector of domain indices correspond to the boundary; NOT the degrees of freedom  
-        v2d = dl.vertex_to_dof_map(V)
-        boundary_dofs = v2d[boundary_indices]
-        state = np.zeros((num_data, len(boundary_indices)))
+        bnd_indices = list(set(sum((f.entities(0).tolist() for f in dl.SubsetIterator(solver.boundaries, 1)), []))) # entries of this vector represent which of the (V.dim() x 1) vector of domain indices correspond to the boundary; NOT the degrees of freedom  
+        state = np.zeros((num_data, len(bnd_indices)))
+        # check if actually boundary points
+        #mesh_coordinates = mesh.coordinates()
+        #bnd_coor = np.zeros((len(bnd_indices),2))        
+        #bnd_counter = 0
+        #for ind in bnd_indices:
+        #    bnd_coor[bnd_counter,:] = mesh_coordinates[ind,:]
+        #    bnd_counter = bnd_counter + 1
+        #dl.plot(mesh)
     else:
         state = np.zeros((num_data, V.dim()))
-    
+        
     for m in range(num_data):
         print('\nGenerating Parameters and Data Set %d of %d' %(m+1, num_data))
         # Generate parameters
@@ -52,8 +59,7 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
         state_dl, _ = solver.forward(parameter_dl)        
         if generate_boundary_state == 1:
             state_full_domain = state_dl.vector().get_local()
-            state[m,:] = state_full_domain[boundary_indices]
-            pdb.set_trace()
+            state[m,:] = state_full_domain[bnd_indices]
         else:
             state[m,:] = state_dl.vector().get_local()             
         
@@ -105,9 +111,14 @@ if __name__ == "__main__":
     
     # Defining filenames and creating directories
     parameter_true_savefilepath = '../Data/' + 'parameter_true_%d' %(num_training_data) 
-    state_true_savefilepath = '../Data/' + 'state_true_%d' %(num_training_data) 
     parameter_test_savefilepath = '../Data/' + 'parameter_test'
-    state_test_savefilepath = '../Data/' + 'state_test'
+    if generate_boundary_state = 1:
+        state_true_savefilepath = '../Data/' + 'state_true_bnd_%d' %(num_training_data) 
+        state_test_savefilepath = '../Data/' + 'state_test_bnd'
+    else:
+        state_true_savefilepath = '../Data/' + 'state_true_%d' %(num_training_data) 
+        state_test_savefilepath = '../Data/' + 'state_test'
+    
     if not os.path.exists('../Data'):
             os.makedirs('../Data')
     
