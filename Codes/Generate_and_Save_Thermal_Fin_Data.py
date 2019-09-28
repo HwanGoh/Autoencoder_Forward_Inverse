@@ -112,7 +112,7 @@ if __name__ == "__main__":
     # Defining filenames and creating directories
     parameter_true_savefilepath = '../Data/' + 'parameter_true_%d' %(num_training_data) 
     parameter_test_savefilepath = '../Data/' + 'parameter_test'
-    if generate_boundary_state = 1:
+    if generate_boundary_state == 1:
         state_true_savefilepath = '../Data/' + 'state_true_bnd_%d' %(num_training_data) 
         state_test_savefilepath = '../Data/' + 'state_test_bnd'
     else:
