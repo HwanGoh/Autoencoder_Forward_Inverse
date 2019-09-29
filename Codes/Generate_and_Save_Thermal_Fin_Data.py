@@ -99,7 +99,7 @@ if __name__ == "__main__":
     num_data = 20
         
     # Select true or test set
-    generate_true_data = 1
+    generate_train_data = 1
     generate_test_data = 0
     
     # Select parameter type
@@ -110,22 +110,22 @@ if __name__ == "__main__":
     generate_boundary_state = 1
     
     # Defining filenames and creating directories
-    parameter_true_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
+    parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
     parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_data) 
     if generate_boundary_state == 1:
-        state_true_savefilepath = '../Data/' + 'state_train_bnd_%d' %(num_data) 
+        state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(num_data) 
         state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_data)
     else:
-        state_true_savefilepath = '../Data/' + 'state_train_%d' %(num_data) 
+        state_train_savefilepath = '../Data/' + 'state_train_%d' %(num_data) 
         state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_data) 
     
     if not os.path.exists('../Data'):
             os.makedirs('../Data')
     
     # Generating data
-    if generate_true_data == 1:
-        parameter_savefilepath = parameter_true_savefilepath
-        state_savefilepath = state_true_savefilepath
+    if generate_train_data == 1:
+        parameter_savefilepath = parameter_train_savefilepath
+        state_savefilepath = state_train_savefilepath
         
     if generate_test_data == 1:
         parameter_savefilepath = parameter_test_savefilepath
