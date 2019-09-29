@@ -32,9 +32,9 @@ sys.path.insert(0, '../../Utilities/')
 #                               Parameters                                    #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 3
-    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 614
+    num_hidden_layers = 1
+    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 1446
     penalty           = 10
     num_training_data = 20
     batch_size        = 20
@@ -43,14 +43,21 @@ class HyperParameters:
     
 class FileNames:
     def __init__(self, hyper_p, use_bnd_data, num_testing_data):
+        # File name
         if use_bnd_data == 1:
             self.filename = f'bnd_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+        else:
+            self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+
+        # Loading and saving data
+        if use_bnd_data == 1:
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
             self.state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
             self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
         else:
-            self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
             self.state_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
@@ -76,8 +83,15 @@ class FileNames:
 if __name__ == "__main__":
     
     hyper_p = HyperParameters()
-    use_bnd_data = 1
+    
+    use_bnd_data = 0
     num_testing_data = 20
+    full_domain_dimensions = 1446    
+    if use_bnd_data == 1:
+        state_data_dimensions = 614
+    else:
+        state_data_dimensions = full_domain_dimensions 
+    
     filenames = FileNames(hyper_p, use_bnd_data, num_testing_data)
            
     #####################################
@@ -86,6 +100,12 @@ if __name__ == "__main__":
     V,_ = get_space(40)
     solver = Fin(V) 
     
+    # Load observation indices  
+    print('Loading Boundary Indices')
+    df_obs_indices = pd.read_csv(filenames.observation_indices_savefilepath + '.csv')    
+    obs_indices = df_obs_indices.to_numpy()    
+    
+    # Load testing data 
     if os.path.isfile(filenames.parameter_test_savefilepath + '.csv'):
         print('Loading Test Data')
         df_parameter_test = pd.read_csv(filenames.parameter_test_savefilepath + '.csv')
@@ -93,7 +113,7 @@ if __name__ == "__main__":
         parameter_test = df_parameter_test.to_numpy()
         state_test = df_state_test.to_numpy()
         parameter_test = parameter_test.reshape((num_testing_data, 9))
-        state_test = state_test.reshape((num_testing_data, 614))  
+        state_test = state_test.reshape((num_testing_data, state_data_dimensions))  
         parameter_test = parameter_test[0,:]
         state_test = state_test[0,:]
     else:
@@ -107,7 +127,7 @@ if __name__ == "__main__":
         new_saver.restore(sess, tf.train.latest_checkpoint(filenames.NN_savefile_directory))        
         
         # Labelling loaded variables as a class
-        NN = AutoencoderFwdInv(hyper_p, len(parameter_test), len(state_test), construct_flag = 0) 
+        NN = AutoencoderFwdInv(hyper_p, len(parameter_test), full_domain_dimensions, obs_indices, construct_flag = 0) 
                 
         #######################
         #   Form Predictions  #
@@ -146,11 +166,10 @@ if __name__ == "__main__":
         parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)/tf.norm(parameter_test,2)
         print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))}))
         
-        if use_bnd_data == 0: # Can't do full state prediction when trained on boundary data
-            s_pred_fig = dl.plot(state_pred_dl)
-            s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
-            plt.savefig(filenames.figures_savefile_name_state_pred, dpi=300)
-            print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
-            plt.show()
-            state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
-            print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))}))
+        s_pred_fig = dl.plot(state_pred_dl)
+        s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
+        plt.savefig(filenames.figures_savefile_name_state_pred, dpi=300)
+        print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
+        plt.show()
+        state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
+        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))}))

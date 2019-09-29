@@ -101,15 +101,15 @@ if __name__ == "__main__":
     num_data = 20
         
     # Select true or test set
-    generate_train_data = 1
-    generate_test_data = 0
+    generate_train_data = 0
+    generate_test_data = 1
     
     # Select parameter type
     generate_nine_parameters = 1
     generate_full_domain = 0
     
-    # Select state type
-    generate_boundary_state = 1
+    # Select observation type
+    generate_boundary_state = 0
     
     # Defining filenames and creating directories
     if not os.path.exists('../Data'):

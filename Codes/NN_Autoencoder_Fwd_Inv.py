@@ -15,6 +15,9 @@ tf.set_random_seed(1234)
 class AutoencoderFwdInv:
     def __init__(self, hyper_p, parameter_dimension, state_dimension, obs_indices, construct_flag):
         
+###############################################################################
+#                    Constuct Neural Network Architecture                     #
+###############################################################################        
         obs_dimension = len(obs_indices)
         
         # Initialize placeholders
@@ -35,11 +38,12 @@ class AutoencoderFwdInv:
         num_layers = len(self.layers)
         weights_init_value = 0.05
         biases_init_value = 0       
-
+        
+        # Construct weights and biases
         if construct_flag == 1:
             with tf.variable_scope("autoencoder") as scope:
                 # Forward Problem
-                with tf.variable_scope("forward_problem") as scope:
+                with tf.variable_scope("encoder") as scope:
                     for l in range(0, hyper_p.truncation_layer): 
                             W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
                             b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
@@ -49,7 +53,7 @@ class AutoencoderFwdInv:
                             self.biases.append(b)
                                                  
                 # Inverse Problem
-                with tf.variable_scope("inverse_problem") as scope:
+                with tf.variable_scope("decoder") as scope:
                     for l in range(hyper_p.truncation_layer, num_layers-1):
                             W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
                             b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))
@@ -65,30 +69,38 @@ class AutoencoderFwdInv:
         if construct_flag == 0: 
             graph = tf.get_default_graph()
             for l in range(0, hyper_p.truncation_layer):
-                W = graph.get_tensor_by_name("autoencoder/forward_problem/W" + str(l+1) + ':0')
-                b = graph.get_tensor_by_name("autoencoder/forward_problem/b" + str(l+1) + ':0')
+                W = graph.get_tensor_by_name("autoencoder/encoder/W" + str(l+1) + ':0')
+                b = graph.get_tensor_by_name("autoencoder/encoder/b" + str(l+1) + ':0')
                 self.weights.append(W)
                 self.biases.append(b)
             for l in range(hyper_p.truncation_layer, num_layers-1):
-                W = graph.get_tensor_by_name("autoencoder/inverse_problem/W" + str(l+1) + ':0')
-                b = graph.get_tensor_by_name("autoencoder/inverse_problem/b" + str(l+1) + ':0')
+                W = graph.get_tensor_by_name("autoencoder/decoder/W" + str(l+1) + ':0')
+                b = graph.get_tensor_by_name("autoencoder/decoder/b" + str(l+1) + ':0')
                 self.weights.append(W)
                 self.biases.append(b)
                 
-        # Network Propagation
-        self.forward_pred = self.forward_problem(self.parameter_input_tf, hyper_p.truncation_layer)
-        self.inverse_pred = self.inverse_problem(self.state_input_tf, hyper_p.truncation_layer, len(self.layers))   
-        self.autoencoder_pred = self.inverse_problem(self.forward_pred, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
+###############################################################################
+#                           Network Propagation                               #
+###############################################################################  
+                
+        # Training and Testing Propagation
+        self.encoded = self.encoder(self.parameter_input_tf, hyper_p.truncation_layer)
+        self.autoencoder_pred = self.decoder(self.encoded, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
         
-        self.forward_pred_test = self.forward_problem(self.parameter_input_test_tf, hyper_p.truncation_layer)
-        self.autoencoder_pred_test = self.inverse_problem(self.forward_pred_test, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
-       
-        # Construction observed state (tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed)
-        self.forward_obs_pred = tf.squeeze(tf.gather(self.forward_pred, obs_indices, axis = 1))
-        self.forward_obs_pred_test = tf.squeeze(tf.gather(self.forward_pred_test, obs_indices, axis = 1))
+        self.encoded_test = self.encoder(self.parameter_input_test_tf, hyper_p.truncation_layer)
+        self.autoencoder_pred_test = self.decoder(self.encoded_test, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
         
-    def forward_problem(self, X, truncation_layer):  
-        with tf.variable_scope("forward_problem") as scope:
+        # Construction observed state and inverse problem from observed state
+        self.forward_obs_pred = tf.squeeze(tf.gather(self.encoded, obs_indices, axis = 1)) # tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed
+        self.forward_obs_pred_test = tf.squeeze(tf.gather(self.encoded_test, obs_indices, axis = 1))
+        self.inverse_pred = self.decoder(self.state_input_tf, hyper_p.truncation_layer, len(self.layers))   
+
+###############################################################################
+#                                Methods                                      #
+############################################################################### 
+        
+    def encoder(self, X, truncation_layer):  
+        with tf.variable_scope("encoder") as scope:
             for l in range(0, truncation_layer - 1):
                 W = self.weights[l]
                 b = self.biases[l]
@@ -99,8 +111,8 @@ class AutoencoderFwdInv:
             output = tf.add(tf.matmul(X, W), b)
             return output
     
-    def inverse_problem(self, X, truncation_layer, num_layers):   
-        with tf.variable_scope("inverse_problem") as scope:
+    def decoder(self, X, truncation_layer, num_layers):   
+        with tf.variable_scope("decoder") as scope:
             for l in range(truncation_layer, num_layers - 2):
                 W = self.weights[l]
                 b = self.biases[l]

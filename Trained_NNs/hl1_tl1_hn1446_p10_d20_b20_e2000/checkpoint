@@ -1,0 +1,2 @@
+model_checkpoint_path: "hl1_tl1_hn1446_p10_d20_b20_e2000"
+all_model_checkpoint_paths: "hl1_tl1_hn1446_p10_d20_b20_e2000"

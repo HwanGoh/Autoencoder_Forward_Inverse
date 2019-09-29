@@ -47,11 +47,7 @@ class FileNames:
             self.filename = f'bnd_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         else:
             self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
-        
-        # Saving neural network
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-        
+
         # Loading and saving data
         if use_bnd_data == 1:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
@@ -60,12 +56,16 @@ class FileNames:
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
             self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
         else:
-            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
             self.state_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
             self.state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
         
+        # Saving neural network
+        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
+
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
@@ -77,11 +77,11 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data
         
     hyper_p.batch_size = hyper_p.num_training_data
     
-    # Observation Operator Indices  
+    # Load observation indices   
     print('Loading Boundary Indices')
     df_obs_indices = pd.read_csv(filenames.observation_indices_savefilepath + '.csv')    
     obs_indices = df_obs_indices.to_numpy()    
-    # Loading Data  
+    # Load Train and Test Data  
     print('Loading Training Data')
     df_parameter_train = pd.read_csv(filenames.parameter_train_savefilepath + '.csv')
     df_state_train = pd.read_csv(filenames.state_train_savefilepath + '.csv')
@@ -214,7 +214,7 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data
 ###############################################################################     
 if __name__ == "__main__":     
     
-    use_bnd_data = 1
+    use_bnd_data = 0
     num_testing_data = 20
     
     full_domain_dimensions = 1446    
@@ -225,6 +225,7 @@ if __name__ == "__main__":
     
     hyper_p = HyperParameters()
     
+    # Inputs from scheduler
     if len(sys.argv) > 1:
             hyper_p.num_hidden_layers = int(sys.argv[1])
             hyper_p.truncation_layer  = int(sys.argv[2])
