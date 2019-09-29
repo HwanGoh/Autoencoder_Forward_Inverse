@@ -52,16 +52,12 @@ class FileNames:
         # Loading and saving data
         if use_bnd_data == 1:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
-            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
-            self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
+            self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
         else:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
-            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
-            self.state_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
-            self.state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
+            self.state_obs_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
     
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
@@ -84,7 +80,7 @@ if __name__ == "__main__":
     
     hyper_p = HyperParameters()
     
-    use_bnd_data = 0
+    use_bnd_data = 1
     num_testing_data = 20
     full_domain_dimensions = 1446    
     if use_bnd_data == 1:
@@ -109,13 +105,13 @@ if __name__ == "__main__":
     if os.path.isfile(filenames.parameter_test_savefilepath + '.csv'):
         print('Loading Test Data')
         df_parameter_test = pd.read_csv(filenames.parameter_test_savefilepath + '.csv')
-        df_state_test = pd.read_csv(filenames.state_test_savefilepath + '.csv')
+        df_state_obs_test = pd.read_csv(filenames.state_obs_test_savefilepath + '.csv')
         parameter_test = df_parameter_test.to_numpy()
-        state_test = df_state_test.to_numpy()
+        state_obs_test = df_state_obs_test.to_numpy()
         parameter_test = parameter_test.reshape((num_testing_data, 9))
-        state_test = state_test.reshape((num_testing_data, state_data_dimensions))  
+        state_obs_test = state_obs_test.reshape((num_testing_data, state_data_dimensions))  
         parameter_test = parameter_test[0,:]
-        state_test = state_test[0,:]
+        state_obs_test = state_obs_test[0,:]
     else:
         raise ValueError('Test Data of size %d has not yet been generated' %(num_testing_data)) 
         
@@ -132,15 +128,16 @@ if __name__ == "__main__":
         #######################
         #   Form Predictions  #
         #######################        
-        state_pred = sess.run(NN.forward_pred, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))})  
-        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))})    
+        state_pred = sess.run(NN.encoded, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))})  
+        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_data_inverse_input_tf: state_obs_test.reshape((1, len(state_obs_test)))})    
         
         ##############
         #  Plotting  #
         ##############
         #=== Plotting test parameter and test state ===#
         parameter_test_dl = solver.nine_param_to_function(parameter_test.T)
-        state_test_dl = convert_array_to_dolfin_function(V,state_test)
+        
+        state_test_dl = convert_array_to_dolfin_function(V, state_test)
         
         p_test_fig = dl.plot(parameter_test_dl)
         p_test_fig.ax.set_title('True Parameter', fontsize=18)  

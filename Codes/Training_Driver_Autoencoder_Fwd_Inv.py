@@ -52,15 +52,15 @@ class FileNames:
         if use_bnd_data == 1:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
+            self.state_obs_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
-            self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
+            self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
         else:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
-            self.state_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
+            self.state_obs_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
-            self.state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
+            self.state_obs_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
         
         # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -73,7 +73,7 @@ class FileNames:
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
-def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data_dimensions, num_testing_data):
+def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_obs_dimensions, num_testing_data):
         
     hyper_p.batch_size = hyper_p.num_training_data
     
@@ -84,18 +84,18 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data
     # Load Train and Test Data  
     print('Loading Training Data')
     df_parameter_train = pd.read_csv(filenames.parameter_train_savefilepath + '.csv')
-    df_state_train = pd.read_csv(filenames.state_train_savefilepath + '.csv')
+    df_state_obs_train = pd.read_csv(filenames.state_obs_train_savefilepath + '.csv')
     parameter_train = df_parameter_train.to_numpy()
-    state_train = df_state_train.to_numpy()
+    state_obs_train = df_state_obs_train.to_numpy()
     parameter_train = parameter_train.reshape((hyper_p.num_training_data, 9))
-    state_train = state_train.reshape((hyper_p.num_training_data, state_data_dimensions))
+    state_obs_train = state_obs_train.reshape((hyper_p.num_training_data, state_obs_dimensions))
     print('Loading Testing Data')
     df_parameter_test = pd.read_csv(filenames.parameter_test_savefilepath + '.csv')
-    df_state_test = pd.read_csv(filenames.state_test_savefilepath + '.csv')
+    df_state_obs_test = pd.read_csv(filenames.state_obs_test_savefilepath + '.csv')
     parameter_test = df_parameter_test.to_numpy()
-    state_test = df_state_test.to_numpy()
+    state_obs_test = df_state_obs_test.to_numpy()
     parameter_test = parameter_test.reshape((num_testing_data, 9))
-    state_test = state_test.reshape((num_testing_data, state_data_dimensions))
+    state_obs_test = state_obs_test.reshape((num_testing_data, state_obs_dimensions))
      
     ###########################
     #   Training Properties   #
@@ -106,7 +106,7 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data
     # Loss functional
     with tf.variable_scope('loss') as scope:
         auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
-        fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_obs_pred, 2, name= 'fwd_loss'), 2)
+        fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_obs_tf - NN.forward_obs_pred, 2, name= 'fwd_loss'), 2)
         loss = tf.add(auto_encoder_loss, fwd_loss, name="loss")
         tf.summary.scalar("auto_encoder_loss",auto_encoder_loss)
         tf.summary.scalar("fwd_loss",fwd_loss)
@@ -115,9 +115,9 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data
     # Relative Error
     with tf.variable_scope('relative_error') as scope:
         parameter_relative_error = (1/num_testing_data)*tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        state_relative_error = (1/num_testing_data)*tf.norm(NN.state_data_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_data_test_tf, 2)
+        state_obs_relative_error = (1/num_testing_data)*tf.norm(NN.state_obs_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_obs_test_tf, 2)
         tf.summary.scalar("parameter_relative_error", parameter_relative_error)
-        tf.summary.scalar("state_relative_error", state_relative_error)
+        tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)
                 
     # Set optimizers
     with tf.variable_scope('Training') as scope:
@@ -171,16 +171,16 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data
         num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
-                tf_dict = {NN.parameter_input_tf: parameter_train, NN.state_data_tf: state_train,
-                           NN.parameter_input_test_tf: parameter_test, NN.state_data_test_tf: state_test} 
+                tf_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train,
+                           NN.parameter_input_test_tf: parameter_test, NN.state_obs_test_tf: state_obs_test} 
                 loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
                 writer.add_summary(s, epoch)
             else:
-                minibatches = random_mini_batches(parameter_train.T, state_train.T, hyper_p.batch_size, 1234)
+                minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
                     parameter_train_batch = minibatches[batch_num][0].T
-                    state_train_batch = minibatches[batch_num][1].T
-                    tf_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_data_tf: state_train_batch} 
+                    state_obs_train_batch = minibatches[batch_num][1].T
+                    tf_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch} 
                     loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
                     writer.add_summary(s, epoch)
                 
@@ -214,14 +214,14 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data
 ###############################################################################     
 if __name__ == "__main__":     
     
-    use_bnd_data = 0
-    num_testing_data = 200
+    use_bnd_data = 1
+    num_testing_data = 20
     
     full_domain_dimensions = 1446    
     if use_bnd_data == 1:
-        state_data_dimensions = 614
+        state_obs_dimensions = 614
     else:
-        state_data_dimensions = full_domain_dimensions 
+        state_obs_dimensions = full_domain_dimensions 
     
     hyper_p = HyperParameters()
     
@@ -238,7 +238,7 @@ if __name__ == "__main__":
         
     filenames = FileNames(hyper_p, use_bnd_data, num_testing_data)
     
-    trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data_dimensions, num_testing_data) 
+    trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_obs_dimensions, num_testing_data) 
     
      
      

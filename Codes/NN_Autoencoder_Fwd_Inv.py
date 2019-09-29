@@ -18,16 +18,14 @@ class AutoencoderFwdInv:
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
 ###############################################################################        
-        obs_dimension = len(obs_indices)
         
         # Initialize placeholders
         self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
-        self.state_input_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_input_tf")
-        self.state_data_tf = tf.placeholder(tf.float32, shape=[None, obs_dimension], name = "state_data_tf") # This is needed for batching during training, else can just use state_data
-        
+        self.state_obs_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
+        self.state_obs_inverse_input_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_inverse_input_tf")
+       
         self.parameter_input_test_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
-        self.state_input_test_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_input_test_tf")
-        self.state_data_test_tf = tf.placeholder(tf.float32, shape=[None, obs_dimension], name = "state_data_test_tf") # This is needed for batching during training, else can just use state_data
+        self.state_obs_test_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_test_tf") # This is needed for batching during training, else can just use state_data
         
         # Initialize weights and biases
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
@@ -93,7 +91,7 @@ class AutoencoderFwdInv:
         # Construction observed state and inverse problem from observed state
         self.forward_obs_pred = tf.squeeze(tf.gather(self.encoded, obs_indices, axis = 1)) # tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed
         self.forward_obs_pred_test = tf.squeeze(tf.gather(self.encoded_test, obs_indices, axis = 1))
-        self.inverse_pred = self.decoder(self.state_input_tf, hyper_p.truncation_layer, len(self.layers))   
+        self.inverse_pred = self.inverse_problem(self.state_obs_inverse_input_tf, hyper_p.truncation_layer, len(self.layers), obs_indices)   
 
 ###############################################################################
 #                                Methods                                      #
@@ -116,8 +114,21 @@ class AutoencoderFwdInv:
             for l in range(truncation_layer, num_layers - 2):
                 W = self.weights[l]
                 b = self.biases[l]
+                pdb.set_trace()
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))
                 #tf.summary.histogram("activation" + str(l+1), X)
+            W = self.weights[-1]
+            b = self.biases[-1]
+            output = tf.add(tf.matmul(X, W), b)
+            return output
+        
+    def inverse_problem(self, X, truncation_layer, num_layers, obs_indices): # difference between this and decoder is that the inverse problem utilizes only the observation nodes from the truncation layer and the corresponding weights
+        with tf.variable_scope("inverse_problem") as scope:
+            self.weights[truncation_layer] = tf.squeeze(tf.gather(self.weights[truncation_layer], obs_indices, axis = 0)) # extract rows of weights corresponding to truncation layer
+            for l in range(truncation_layer, num_layers - 2):
+                W = self.weights[l]
+                b = self.biases[l]
+                X = tf.tanh(tf.add(tf.matmul(X, W), b))
             W = self.weights[-1]
             b = self.biases[-1]
             output = tf.add(tf.matmul(X, W), b)
