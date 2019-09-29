@@ -114,7 +114,6 @@ class AutoencoderFwdInv:
             for l in range(truncation_layer, num_layers - 2):
                 W = self.weights[l]
                 b = self.biases[l]
-                pdb.set_trace()
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))
                 #tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[-1]
