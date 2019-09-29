@@ -20,6 +20,10 @@ class AutoencoderFwdInv:
         self.state_input_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_input_tf")
         self.state_data_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_data_tf") # This is needed for batching during training, else can just use state_data
         
+        self.parameter_input_test_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
+        self.state_input_test_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_input_test_tf")
+        self.state_data_test_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_data_test_tf") # This is needed for batching during training, else can just use state_data
+        
         # Initialize weights and biases
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
         self.layers[hyper_p.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
@@ -73,7 +77,10 @@ class AutoencoderFwdInv:
         self.forward_pred = self.forward_problem(self.parameter_input_tf, hyper_p.truncation_layer)
         self.inverse_pred = self.inverse_problem(self.state_input_tf, hyper_p.truncation_layer, len(self.layers))   
         self.autoencoder_pred = self.inverse_problem(self.forward_pred, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
-  
+        
+        self.forward_pred_test = self.forward_problem(self.parameter_input_test_tf, hyper_p.truncation_layer)
+        self.autoencoder_pred_test = self.inverse_problem(self.forward_pred_test, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
+       
     def forward_problem(self, X, truncation_layer):  
         with tf.variable_scope("forward_problem") as scope:
             for l in range(0, truncation_layer - 1):

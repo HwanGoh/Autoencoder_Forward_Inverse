@@ -96,8 +96,12 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_training_data = 2000
+    num_data = 20
         
+    # Select true or test set
+    generate_true_data = 0
+    generate_test_data = 1
+    
     # Select parameter type
     generate_nine_parameters = 1
     generate_full_domain = 0
@@ -105,19 +109,15 @@ if __name__ == "__main__":
     # Select state type
     generate_boundary_state = 1
     
-    # Select true or test set
-    generate_true_data = 1
-    generate_test_data = 0
-    
     # Defining filenames and creating directories
-    parameter_true_savefilepath = '../Data/' + 'parameter_true_%d' %(num_training_data) 
-    parameter_test_savefilepath = '../Data/' + 'parameter_test'
+    parameter_true_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
+    parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_data) 
     if generate_boundary_state == 1:
-        state_true_savefilepath = '../Data/' + 'state_true_bnd_%d' %(num_training_data) 
-        state_test_savefilepath = '../Data/' + 'state_test_bnd'
+        state_true_savefilepath = '../Data/' + 'state_train_bnd_%d' %(num_data) 
+        state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_data)
     else:
-        state_true_savefilepath = '../Data/' + 'state_true_%d' %(num_training_data) 
-        state_test_savefilepath = '../Data/' + 'state_test'
+        state_true_savefilepath = '../Data/' + 'state_train_%d' %(num_data) 
+        state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_data) 
     
     if not os.path.exists('../Data'):
             os.makedirs('../Data')
@@ -131,7 +131,7 @@ if __name__ == "__main__":
         parameter_savefilepath = parameter_test_savefilepath
         state_savefilepath = state_test_savefilepath
         
-    parameter_data, state_data = generate_thermal_fin_data(num_training_data, generate_nine_parameters, generate_full_domain, generate_boundary_state)
+    parameter_data, state_data = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_domain, generate_boundary_state)
     df_parameter_data = pd.DataFrame({'parameter_data': parameter_data.flatten()})
     df_state_data = pd.DataFrame({'state_data': state_data.flatten()})
     df_parameter_data.to_csv(parameter_savefilepath + '.csv', index=False)  
