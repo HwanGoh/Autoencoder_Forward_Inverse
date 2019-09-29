@@ -41,21 +41,24 @@ class HyperParameters:
     gpu               = '1'
     
 class FileNames:
-    def __init__(self, hyper_p, use_bnd_data):        
+    def __init__(self, hyper_p, use_bnd_data, num_testing_data):        
         if use_bnd_data == 1:
             self.filename = f'bnd_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         else:
             self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-        self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
-        self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(hyper_p.num_training_data) 
+        
         if use_bnd_data == 1:
+            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
             self.state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(hyper_p.num_training_data) 
+            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
+            self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
         else:
+            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
             self.state_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
-            self.state_test_savefilepath = '../Data/' + 'state_test_%d' %(hyper_p.num_training_data) 
+            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
+            self.state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
         
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
@@ -64,10 +67,9 @@ class FileNames:
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
-def trainer(hyper_p, filenames):
+def trainer(hyper_p, filenames, num_testing_data):
         
     hyper_p.batch_size = hyper_p.num_training_data
-    num_testing_data = 20
     
     # Loading Data        
     print('Loading Training Data')
@@ -204,6 +206,8 @@ def trainer(hyper_p, filenames):
 if __name__ == "__main__":     
     
     use_bnd_data = 1
+    num_testing_data = 20
+    
     
     hyper_p = HyperParameters()
     
@@ -217,7 +221,7 @@ if __name__ == "__main__":
             hyper_p.num_epochs        = int(sys.argv[7])
             hyper_p.gpu               = str(sys.argv[8])
         
-    filenames = FileNames(hyper_p, use_bnd_data)
+    filenames = FileNames(hyper_p, use_bnd_data, num_testing_data)
     
     trainer(hyper_p, filenames) 
     
