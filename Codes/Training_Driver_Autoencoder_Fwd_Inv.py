@@ -31,9 +31,9 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 3
-    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 614
+    num_hidden_layers = 1
+    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 1446
     penalty           = 10
     num_training_data = 20
     batch_size        = 20
@@ -42,19 +42,25 @@ class HyperParameters:
     
 class FileNames:
     def __init__(self, hyper_p, use_bnd_data, num_testing_data):        
+        # File name
         if use_bnd_data == 1:
             self.filename = f'bnd_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         else:
             self.filename = f'hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+        
+        # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
         
+        # Loading and saving data
         if use_bnd_data == 1:
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
             self.state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
             self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
         else:
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
             self.state_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
@@ -67,36 +73,40 @@ class FileNames:
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
-def trainer(hyper_p, filenames, num_testing_data):
+def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data_dimensions, num_testing_data):
         
     hyper_p.batch_size = hyper_p.num_training_data
     
-    # Loading Data        
+    # Observation Operator Indices  
+    print('Loading Boundary Indices')
+    df_obs_indices = pd.read_csv(filenames.observation_indices_savefilepath + '.csv')    
+    obs_indices = df_obs_indices.to_numpy()    
+    # Loading Data  
     print('Loading Training Data')
     df_parameter_train = pd.read_csv(filenames.parameter_train_savefilepath + '.csv')
     df_state_train = pd.read_csv(filenames.state_train_savefilepath + '.csv')
     parameter_train = df_parameter_train.to_numpy()
     state_train = df_state_train.to_numpy()
     parameter_train = parameter_train.reshape((hyper_p.num_training_data, 9))
-    state_train = state_train.reshape((hyper_p.num_training_data, 1446))
+    state_train = state_train.reshape((hyper_p.num_training_data, state_data_dimensions))
     print('Loading Testing Data')
     df_parameter_test = pd.read_csv(filenames.parameter_test_savefilepath + '.csv')
     df_state_test = pd.read_csv(filenames.state_test_savefilepath + '.csv')
     parameter_test = df_parameter_test.to_numpy()
     state_test = df_state_test.to_numpy()
     parameter_test = parameter_test.reshape((num_testing_data, 9))
-    state_test = state_test.reshape((num_testing_data, 1446))
+    state_test = state_test.reshape((num_testing_data, state_data_dimensions))
      
     ###########################
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(hyper_p,parameter_train.shape[1], state_train.shape[1], construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p,parameter_train.shape[1], full_domain_dimensions, obs_indices, construct_flag = 1)
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
         auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
-        fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_pred, 2, name= 'fwd_loss'), 2)
+        fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_data_tf - NN.forward_obs_pred, 2, name= 'fwd_loss'), 2)
         loss = tf.add(auto_encoder_loss, fwd_loss, name="loss")
         tf.summary.scalar("auto_encoder_loss",auto_encoder_loss)
         tf.summary.scalar("fwd_loss",fwd_loss)
@@ -105,7 +115,7 @@ def trainer(hyper_p, filenames, num_testing_data):
     # Relative Error
     with tf.variable_scope('relative_error') as scope:
         parameter_relative_error = (1/num_testing_data)*tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        state_relative_error = (1/num_testing_data)*tf.norm(NN.state_data_test_tf - NN.forward_pred_test, 2)/tf.norm(NN.state_data_test_tf, 2)
+        state_relative_error = (1/num_testing_data)*tf.norm(NN.state_data_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_data_test_tf, 2)
         tf.summary.scalar("parameter_relative_error", parameter_relative_error)
         tf.summary.scalar("state_relative_error", state_relative_error)
                 
@@ -204,8 +214,14 @@ def trainer(hyper_p, filenames, num_testing_data):
 ###############################################################################     
 if __name__ == "__main__":     
     
-    use_bnd_data = 0
-    num_testing_data = 200
+    use_bnd_data = 1
+    num_testing_data = 20
+    
+    full_domain_dimensions = 1446    
+    if use_bnd_data == 1:
+        state_data_dimensions = 614
+    else:
+        state_data_dimensions = full_domain_dimensions 
     
     hyper_p = HyperParameters()
     
@@ -221,7 +237,7 @@ if __name__ == "__main__":
         
     filenames = FileNames(hyper_p, use_bnd_data, num_testing_data)
     
-    trainer(hyper_p, filenames, num_testing_data) 
+    trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_data_dimensions, num_testing_data) 
     
      
      

@@ -35,18 +35,20 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
     if generate_full_domain == 1:
         parameter = np.zeros((num_data, V.dim()))
     if generate_boundary_state == 1:
-        bnd_indices = list(set(sum((f.entities(0).tolist() for f in dl.SubsetIterator(solver.boundaries, 1)), []))) # entries of this vector represent which of the (V.dim() x 1) vector of domain indices correspond to the boundary; NOT the degrees of freedom  
-        state = np.zeros((num_data, len(bnd_indices)))
+        obs_indices = list(set(sum((f.entities(0).tolist() for f in dl.SubsetIterator(solver.boundaries, 1)), []))) # entries of this vector represent which of the (V.dim() x 1) vector of domain indices correspond to the boundary; NOT the degrees of freedom  
+        state = np.zeros((num_data, len(obs_indices)))
         # check if actually boundary points
         #mesh_coordinates = mesh.coordinates()
-        #bnd_coor = np.zeros((len(bnd_indices),2))        
-        #bnd_counter = 0
-        #for ind in bnd_indices:
-        #    bnd_coor[bnd_counter,:] = mesh_coordinates[ind,:]
-        #    bnd_counter = bnd_counter + 1
+        #obs_coor = np.zeros((len(obs_indices),2))        
+        #obs_counter = 0
+        #for ind in obs_indices:
+        #    obs_coor[obs_counter,:] = mesh_coordinates[ind,:]
+        #    obs_counter = obs_counter + 1
         #dl.plot(mesh)
+        
     else:
         state = np.zeros((num_data, V.dim()))
+        obs_indices = list(range(V.dim()))
         
     for m in range(num_data):
         print('\nGenerating Parameters and Data Set %d of %d' %(m+1, num_data))
@@ -59,11 +61,11 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
         state_dl, _ = solver.forward(parameter_dl)        
         if generate_boundary_state == 1:
             state_full_domain = state_dl.vector().get_local()
-            state[m,:] = state_full_domain[bnd_indices]
+            state[m,:] = state_full_domain[obs_indices]
         else:
             state[m,:] = state_dl.vector().get_local()             
         
-    return parameter, state
+    return parameter, state, obs_indices
 
 def parameter_generator_nine_values(V,solver,length = 0.8):
     chol = make_cov_chol(V, length)
@@ -114,11 +116,13 @@ if __name__ == "__main__":
         os.makedirs('../Data')
          
     if generate_boundary_state == 1:
+        observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
         parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(num_data) 
         state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(num_data) 
         parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_data) 
         state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_data)        
     else:
+        observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
         parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
         state_train_savefilepath = '../Data/' + 'state_train_%d' %(num_data) 
         parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_data) 
@@ -133,7 +137,9 @@ if __name__ == "__main__":
         state_savefilepath = state_test_savefilepath
     
     # Generating data    
-    parameter_data, state_data = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_domain, generate_boundary_state)
+    parameter_data, state_data, obs_indices = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_domain, generate_boundary_state)
+    df_obs_indices = pd.DataFrame({'obs_indices': obs_indices})
+    df_obs_indices.to_csv(observation_indices_savefilepath + '.csv', index=False)  
     df_parameter_data = pd.DataFrame({'parameter_data': parameter_data.flatten()})
     df_state_data = pd.DataFrame({'state_data': state_data.flatten()})
     df_parameter_data.to_csv(parameter_savefilepath + '.csv', index=False)  

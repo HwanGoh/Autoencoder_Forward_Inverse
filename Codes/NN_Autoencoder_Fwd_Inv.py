@@ -13,16 +13,18 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 tf.set_random_seed(1234)
 
 class AutoencoderFwdInv:
-    def __init__(self, hyper_p, parameter_dimension, state_dimension, construct_flag):
+    def __init__(self, hyper_p, parameter_dimension, state_dimension, obs_indices, construct_flag):
+        
+        obs_dimension = len(obs_indices)
         
         # Initialize placeholders
         self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
         self.state_input_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_input_tf")
-        self.state_data_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_data_tf") # This is needed for batching during training, else can just use state_data
+        self.state_data_tf = tf.placeholder(tf.float32, shape=[None, obs_dimension], name = "state_data_tf") # This is needed for batching during training, else can just use state_data
         
         self.parameter_input_test_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
         self.state_input_test_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_input_test_tf")
-        self.state_data_test_tf = tf.placeholder(tf.float32, shape=[None, state_dimension], name = "state_data_test_tf") # This is needed for batching during training, else can just use state_data
+        self.state_data_test_tf = tf.placeholder(tf.float32, shape=[None, obs_dimension], name = "state_data_test_tf") # This is needed for batching during training, else can just use state_data
         
         # Initialize weights and biases
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
@@ -81,6 +83,10 @@ class AutoencoderFwdInv:
         self.forward_pred_test = self.forward_problem(self.parameter_input_test_tf, hyper_p.truncation_layer)
         self.autoencoder_pred_test = self.inverse_problem(self.forward_pred_test, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
        
+        # Construction observed state (tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed)
+        self.forward_obs_pred = tf.squeeze(tf.gather(self.forward_pred, obs_indices, axis = 1))
+        self.forward_obs_pred_test = tf.squeeze(tf.gather(self.forward_pred_test, obs_indices, axis = 1))
+        
     def forward_problem(self, X, truncation_layer):  
         with tf.variable_scope("forward_problem") as scope:
             for l in range(0, truncation_layer - 1):
