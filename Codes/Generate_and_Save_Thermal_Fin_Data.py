@@ -96,11 +96,11 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_data = 2000
+    num_data = 200
         
     # Select true or test set
-    generate_train_data = 1
-    generate_test_data = 0
+    generate_train_data = 0
+    generate_test_data = 1
     
     # Select parameter type
     generate_nine_parameters = 1
@@ -110,6 +110,9 @@ if __name__ == "__main__":
     generate_boundary_state = 1
     
     # Defining filenames and creating directories
+    if not os.path.exists('../Data'):
+        os.makedirs('../Data')
+        
     parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
     parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_data) 
     if generate_boundary_state == 1:
@@ -117,12 +120,8 @@ if __name__ == "__main__":
         state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_data)
     else:
         state_train_savefilepath = '../Data/' + 'state_train_%d' %(num_data) 
-        state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_data) 
-    
-    if not os.path.exists('../Data'):
-            os.makedirs('../Data')
-    
-    # Generating data
+        state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_data)       
+ 
     if generate_train_data == 1:
         parameter_savefilepath = parameter_train_savefilepath
         state_savefilepath = state_train_savefilepath
@@ -130,7 +129,8 @@ if __name__ == "__main__":
     if generate_test_data == 1:
         parameter_savefilepath = parameter_test_savefilepath
         state_savefilepath = state_test_savefilepath
-        
+    
+    # Generating data    
     parameter_data, state_data = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_domain, generate_boundary_state)
     df_parameter_data = pd.DataFrame({'parameter_data': parameter_data.flatten()})
     df_state_data = pd.DataFrame({'state_data': state_data.flatten()})
