@@ -101,8 +101,8 @@ if __name__ == "__main__":
     num_data = 20
         
     # Select true or test set
-    generate_train_data = 0
-    generate_test_data = 1
+    generate_train_data = 1
+    generate_test_data = 0
     
     # Select parameter type
     generate_nine_parameters = 1
