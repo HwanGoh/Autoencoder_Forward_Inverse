@@ -146,10 +146,11 @@ if __name__ == "__main__":
         parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)/tf.norm(parameter_test,2)
         print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))}))
         
-        s_pred_fig = dl.plot(state_pred_dl)
-        s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
-        plt.savefig(filenames.figures_savefile_name_state_pred, dpi=300)
-        print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
-        plt.show()
-        state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
-        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))}))
+        if use_bnd_data == 0: # Can't do full state prediction when trained on boundary data
+            s_pred_fig = dl.plot(state_pred_dl)
+            s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
+            plt.savefig(filenames.figures_savefile_name_state_pred, dpi=300)
+            print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
+            plt.show()
+            state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
+            print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))}))
