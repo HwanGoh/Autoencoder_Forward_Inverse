@@ -33,12 +33,13 @@ sys.path.insert(0, '../../Utilities/')
 ###############################################################################
 class HyperParameters:
     num_hidden_layers = 3
-    truncation_layer = 2 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes = 200
-    penalty = 30
+    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 614
+    penalty           = 10
     num_training_data = 20
-    batch_size = 20
-    num_epochs = 50000
+    batch_size        = 20
+    num_epochs        = 2000
+    gpu               = '1'
     
 class FileNames:
     def __init__(self, hyper_p, use_bnd_data, num_testing_data):
@@ -91,8 +92,10 @@ if __name__ == "__main__":
         df_state_test = pd.read_csv(filenames.state_test_savefilepath + '.csv')
         parameter_test = df_parameter_test.to_numpy()
         state_test = df_state_test.to_numpy()
-        parameter_test = parameter_test[0,:].reshape((1, 9))
-        state_test = state_test[0,:].reshape((1, 1446))
+        parameter_test = parameter_test.reshape((num_testing_data, 9))
+        state_test = state_test.reshape((num_testing_data, 614))  
+        parameter_test = parameter_test[0,:]
+        state_test = state_test[0,:]
     else:
         raise ValueError('Test Data of size %d has not yet been generated' %(num_testing_data)) 
         
@@ -104,13 +107,13 @@ if __name__ == "__main__":
         new_saver.restore(sess, tf.train.latest_checkpoint(filenames.NN_savefile_directory))        
         
         # Labelling loaded variables as a class
-        NN = AutoencoderFwdInv(hyper_p,parameter_test.shape[1],state_test.shape[1], construct_flag = 0) 
+        NN = AutoencoderFwdInv(hyper_p, len(parameter_test), len(state_test), construct_flag = 0) 
                 
         #######################
         #   Form Predictions  #
         #######################        
-        state_pred = sess.run(NN.forward_pred, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[1]))})  
-        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[1]))})    
+        state_pred = sess.run(NN.forward_pred, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))})  
+        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))})    
         
         ##############
         #  Plotting  #
@@ -141,7 +144,7 @@ if __name__ == "__main__":
         print('Figure saved to ' + filenames.figures_savefile_name_parameter_pred) 
         plt.show()
         parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)/tf.norm(parameter_test,2)
-        print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1,parameter_test.shape[1]))}))
+        print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))}))
         
         s_pred_fig = dl.plot(state_pred_dl)
         s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
@@ -149,4 +152,4 @@ if __name__ == "__main__":
         print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
         plt.show()
         state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
-        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1,state_test.shape[1]))}))
+        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))}))

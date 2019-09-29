@@ -189,7 +189,7 @@ def trainer(hyper_p, filenames, num_testing_data):
                  
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 
@@ -222,7 +222,7 @@ if __name__ == "__main__":
         
     filenames = FileNames(hyper_p, use_bnd_data, num_testing_data)
     
-    trainer(hyper_p, filenames) 
+    trainer(hyper_p, filenames, num_testing_data) 
     
      
      

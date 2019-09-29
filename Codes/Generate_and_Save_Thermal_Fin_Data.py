@@ -96,7 +96,7 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_data = 2000
+    num_data = 20
         
     # Select true or test set
     generate_train_data = 1
