@@ -86,8 +86,7 @@ def trainer(hyper_p, filenames, num_testing_data):
     state_test = df_state_test.to_numpy()
     parameter_test = parameter_test.reshape((num_testing_data, 9))
     state_test = state_test.reshape((num_testing_data, 614))
- 
-    
+     
     ###########################
     #   Training Properties   #
     ###########################   
@@ -205,7 +204,7 @@ def trainer(hyper_p, filenames, num_testing_data):
 ###############################################################################     
 if __name__ == "__main__":     
     
-    use_bnd_data = 1
+    use_bnd_data = 0
     num_testing_data = 200
     
     hyper_p = HyperParameters()

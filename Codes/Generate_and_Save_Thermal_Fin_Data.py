@@ -96,11 +96,11 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_data = 200
+    num_data = 20
         
     # Select true or test set
-    generate_train_data = 0
-    generate_test_data = 1
+    generate_train_data = 1
+    generate_test_data = 0
     
     # Select parameter type
     generate_nine_parameters = 1
@@ -138,6 +138,6 @@ if __name__ == "__main__":
     df_state_data = pd.DataFrame({'state_data': state_data.flatten()})
     df_parameter_data.to_csv(parameter_savefilepath + '.csv', index=False)  
     df_state_data.to_csv(state_savefilepath + '.csv', index=False)  
-    print('\nData Saved')
+    print('\nData Saved to ' + parameter_savefilepath + ' and ' + state_savefilepath)
 
     
