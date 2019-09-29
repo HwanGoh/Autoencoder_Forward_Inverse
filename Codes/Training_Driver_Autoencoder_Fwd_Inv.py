@@ -214,7 +214,7 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_obs_
 ###############################################################################     
 if __name__ == "__main__":     
     
-    use_bnd_data = 0
+    use_bnd_data = 1
     num_testing_data = 200
     
     full_domain_dimensions = 1446    
