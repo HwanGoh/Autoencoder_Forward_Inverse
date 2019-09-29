@@ -78,14 +78,14 @@ def trainer(hyper_p, filenames, num_testing_data):
     parameter_train = df_parameter_train.to_numpy()
     state_train = df_state_train.to_numpy()
     parameter_train = parameter_train.reshape((hyper_p.num_training_data, 9))
-    state_train = state_train.reshape((hyper_p.num_training_data, 614))
+    state_train = state_train.reshape((hyper_p.num_training_data, 1446))
     print('Loading Testing Data')
     df_parameter_test = pd.read_csv(filenames.parameter_test_savefilepath + '.csv')
     df_state_test = pd.read_csv(filenames.state_test_savefilepath + '.csv')
     parameter_test = df_parameter_test.to_numpy()
     state_test = df_state_test.to_numpy()
     parameter_test = parameter_test.reshape((num_testing_data, 9))
-    state_test = state_test.reshape((num_testing_data, 614))
+    state_test = state_test.reshape((num_testing_data, 1446))
      
     ###########################
     #   Training Properties   #
