@@ -208,7 +208,6 @@ if __name__ == "__main__":
     use_bnd_data = 1
     num_testing_data = 20
     
-    
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
