@@ -96,30 +96,32 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_data = 200
+    num_data = 20
         
     # Select true or test set
-    generate_train_data = 0
-    generate_test_data = 1
+    generate_train_data = 1
+    generate_test_data = 0
     
     # Select parameter type
     generate_nine_parameters = 1
     generate_full_domain = 0
     
     # Select state type
-    generate_boundary_state = 1
+    generate_boundary_state = 0
     
     # Defining filenames and creating directories
     if not os.path.exists('../Data'):
         os.makedirs('../Data')
-        
-    parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
-    parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_data) 
+         
     if generate_boundary_state == 1:
+        parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(num_data) 
         state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(num_data) 
-        state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_data)
+        parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd%d' %(num_data) 
+        state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_data)        
     else:
+        parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
         state_train_savefilepath = '../Data/' + 'state_train_%d' %(num_data) 
+        parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_data) 
         state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_data)       
  
     if generate_train_data == 1:
