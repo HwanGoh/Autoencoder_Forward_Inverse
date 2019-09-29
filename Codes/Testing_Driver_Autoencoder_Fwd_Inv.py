@@ -36,7 +36,7 @@ class HyperParameters:
     truncation_layer = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes = 200
     penalty = 30
-    num_training_data = 2000
+    num_training_data = 20
     batch_size = 20
     num_epochs = 50000
     
@@ -66,11 +66,12 @@ if __name__ == "__main__":
     
     hyper_p = HyperParameters()
     filenames = FileNames(hyper_p)
+    num_testing_data = 20
            
     #####################################
     #   Form Test Parameters and State  #
     #####################################
-    V = get_space(40)
+    V,_ = get_space(40)
     solver = Fin(V) 
     
     if os.path.isfile(filenames.parameter_test_savefilepath + '.csv'):
@@ -79,10 +80,10 @@ if __name__ == "__main__":
         df_state_test = pd.read_csv(filenames.state_test_savefilepath + '.csv')
         parameter_test = df_parameter_test.to_numpy()
         state_test = df_state_test.to_numpy()
-        parameter_test = parameter_test.reshape((1, 9))
-        state_test = state_test.reshape((1, 1446))
+        parameter_test = parameter_test[0,:].reshape((1, 9))
+        state_test = state_test[0,:].reshape((1, 1446))
     else:
-        raise ValueError('Test Data of size %d has not yet been generated' %(hyper_p.num_training_data)) 
+        raise ValueError('Test Data of size %d has not yet been generated' %(num_testing_data)) 
         
     ####################################
     #   Import Trained Neural Network  #

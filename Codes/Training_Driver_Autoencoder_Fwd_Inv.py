@@ -103,8 +103,8 @@ def trainer(hyper_p, filenames):
         
     # Relative Error
     with tf.variable_scope('relative_error') as scope:
-        parameter_relative_error = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        state_relative_error = tf.norm(NN.state_data_test_tf - NN.forward_pred_test, 2)/tf.norm(NN.state_data_test_tf, 2)
+        parameter_relative_error = (1/num_testing_data)*tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
+        state_relative_error = (1/num_testing_data)*tf.norm(NN.state_data_test_tf - NN.forward_pred_test, 2)/tf.norm(NN.state_data_test_tf, 2)
         tf.summary.scalar("parameter_relative_error", parameter_relative_error)
         tf.summary.scalar("state_relative_error", state_relative_error)
                 
