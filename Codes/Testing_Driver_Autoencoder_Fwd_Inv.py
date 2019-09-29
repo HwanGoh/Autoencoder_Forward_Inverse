@@ -11,6 +11,7 @@ sys.path.append('../')
 
 import tensorflow as tf
 tf.reset_default_graph()
+import numpy as np
 import pandas as pd
 import dolfin as dl
 from forward_solve import Fin
@@ -55,7 +56,7 @@ class FileNames:
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
             self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
         else:
-            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
             self.state_obs_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
     
@@ -80,7 +81,7 @@ if __name__ == "__main__":
     
     hyper_p = HyperParameters()
     
-    use_bnd_data = 1
+    use_bnd_data = 0
     num_testing_data = 20
     full_domain_dimensions = 1446    
     if use_bnd_data == 1:
@@ -129,15 +130,15 @@ if __name__ == "__main__":
         #   Form Predictions  #
         #######################        
         state_pred = sess.run(NN.encoded, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))})  
-        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_data_inverse_input_tf: state_obs_test.reshape((1, len(state_obs_test)))})    
+        parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_obs_inverse_input_tf: state_obs_test.reshape((1, len(state_obs_test)))})    
         
         ##############
         #  Plotting  #
         ##############
         #=== Plotting test parameter and test state ===#
         parameter_test_dl = solver.nine_param_to_function(parameter_test.T)
-        
-        state_test_dl = convert_array_to_dolfin_function(V, state_test)
+        state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
+        state_test = state_test_dl.vector().get_local()         
         
         p_test_fig = dl.plot(parameter_test_dl)
         p_test_fig.ax.set_title('True Parameter', fontsize=18)  
@@ -153,20 +154,20 @@ if __name__ == "__main__":
         
         #=== Plotting predictions of test parameter and test state ===#
         parameter_pred_dl = solver.nine_param_to_function(parameter_pred.T)
-        state_pred_dl = convert_array_to_dolfin_function(V,state_pred)
+        state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         
         p_pred_fig = dl.plot(parameter_pred_dl)
         p_pred_fig.ax.set_title('Decoder Estimation of True Parameter', fontsize=18)  
         plt.savefig(filenames.figures_savefile_name_parameter_pred, dpi=300)
         print('Figure saved to ' + filenames.figures_savefile_name_parameter_pred) 
         plt.show()
-        parameter_pred_error = tf.norm(parameter_pred - parameter_test,2)/tf.norm(parameter_test,2)
-        print(sess.run(parameter_pred_error, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))}))
+        parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
+        print(parameter_pred_error)
         
         s_pred_fig = dl.plot(state_pred_dl)
         s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
         plt.savefig(filenames.figures_savefile_name_state_pred, dpi=300)
         print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
         plt.show()
-        state_pred_error = tf.norm(state_pred - state_test,2)/tf.norm(state_test,2)
-        print(sess.run(state_pred_error, feed_dict = {NN.state_input_tf: state_test.reshape((1, len(state_test)))}))
+        state_pred_error = np.linalg.norm(state_pred - state_test,2)/np.linalg.norm(state_test,2)
+        print(state_pred_error)
