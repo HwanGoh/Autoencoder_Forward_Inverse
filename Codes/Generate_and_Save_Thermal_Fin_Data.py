@@ -109,7 +109,7 @@ if __name__ == "__main__":
     generate_full_domain = 0
     
     # Select observation type
-    generate_boundary_state = 0
+    generate_boundary_state = 1
     
     # Defining filenames and creating directories
     if not os.path.exists('../Data'):
