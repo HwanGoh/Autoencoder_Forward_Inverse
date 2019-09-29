@@ -49,7 +49,7 @@ class FileNames:
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
         self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
-        self.parameter_ttest_savefilepath = '../Data/' + 'parameter_test_%d' %(hyper_p.num_training_data) 
+        self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(hyper_p.num_training_data) 
         if use_bnd_data == 1:
             self.state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
             self.state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(hyper_p.num_training_data) 
@@ -67,7 +67,7 @@ class FileNames:
 def trainer(hyper_p, filenames):
         
     hyper_p.batch_size = hyper_p.num_training_data
-    num_testing_data = 200
+    num_testing_data = 20
     
     # Loading Data        
     print('Loading Training Data')
@@ -161,7 +161,7 @@ def trainer(hyper_p, filenames):
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
                 tf_dict = {NN.parameter_input_tf: parameter_train, NN.state_data_tf: state_train,
-                           NN.parameter_input_test_tf: parameter_test, NN.state_test_tf: state_test} 
+                           NN.parameter_input_test_tf: parameter_test, NN.state_data_test_tf: state_test} 
                 loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
                 writer.add_summary(s, epoch)
             else:
