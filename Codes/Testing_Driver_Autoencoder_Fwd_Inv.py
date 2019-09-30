@@ -33,13 +33,13 @@ sys.path.insert(0, '../../Utilities/')
 #                               Parameters                                    #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 1
-    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 3
+    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
-    penalty           = 10
-    num_training_data = 20
+    penalty           = 1
+    num_training_data = 2000
     batch_size        = 20
-    num_epochs        = 2000
+    num_epochs        = 50000
     gpu               = '1'
     
 class FileNames:
@@ -81,7 +81,7 @@ if __name__ == "__main__":
     
     hyper_p = HyperParameters()
     
-    use_bnd_data = 0
+    use_bnd_data = 1
     num_testing_data = 20
     full_domain_dimensions = 1446    
     if use_bnd_data == 1:
