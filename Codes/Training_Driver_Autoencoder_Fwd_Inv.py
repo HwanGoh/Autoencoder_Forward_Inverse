@@ -241,7 +241,7 @@ if __name__ == "__main__":
             hyper_p.gpu               = str(sys.argv[8])
             
     # Create filenames       
-    num_testing_data = 20        
+    num_testing_data = 200   
     filenames = FileNames(hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, num_testing_data)
     
     # Initiate training
