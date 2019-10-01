@@ -41,26 +41,28 @@ class HyperParameters:
     gpu               = '1'
     
 class FileNames:
-    def __init__(self, hyper_p, use_bnd_data, num_testing_data):        
+    def __init__(self, hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, num_testing_data):        
         # File name
+        if use_full_domain_data == 1:
+            self.filename = f'full_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         if use_bnd_data == 1:
             self.filename = f'bnd_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
-        else:
-            self.filename = f'full_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+        if use_bnd_data_only == 1:
+            self.filename = f'bndonly_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
 
         # Loading and saving data
-        if use_bnd_data == 1:
-            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
-            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.state_obs_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
-            self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
-        else:
+        if use_full_domain_data == 1:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
             self.state_obs_train_savefilepath = '../Data/' + 'state_train_%d' %(hyper_p.num_training_data) 
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
             self.state_obs_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
+        if use_bnd_data == 1 or use_bnd_data_only == 1:
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
+            self.parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
+            self.state_obs_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
+            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
+            self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data)             
         
         # Saving neural network
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -71,9 +73,9 @@ class FileNames:
             os.makedirs(self.NN_savefile_directory)
    
 ###############################################################################
-#                                  Driver                                     #
+#                                 Training                                    #
 ###############################################################################
-def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_obs_dimensions, num_testing_data):
+def trainer(hyper_p, filenames, use_full_domain_data, use_bnd_data, use_bnd_data_only, full_domain_dimensions, state_obs_dimensions, num_testing_data):
         
     hyper_p.batch_size = hyper_p.num_training_data
     
@@ -101,7 +103,7 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_obs_
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(hyper_p,parameter_train.shape[1], full_domain_dimensions, obs_indices, construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, parameter_train.shape[1], full_domain_dimensions, obs_indices, construct_flag = 1)
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
@@ -210,22 +212,24 @@ def trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_obs_
         print('Final Model Saved')  
     
 ###############################################################################
-#                                   Executor                                  #
+#                                 Driver                                      #
 ###############################################################################     
 if __name__ == "__main__":     
     
-    use_bnd_data = 1
-    num_testing_data = 200
+    # Data type
+    use_full_domain_data = 0
+    use_bnd_data = 0
+    use_bnd_data_only = 1
     
-    full_domain_dimensions = 1446    
-    if use_bnd_data == 1:
-        state_obs_dimensions = 614
-    else:
+    # Observation Dimensions
+    full_domain_dimensions = 1446 
+    if use_full_domain_data == 1:
         state_obs_dimensions = full_domain_dimensions 
-    
+    if use_bnd_data == 1 or use_bnd_data_only == 1:
+        state_obs_dimensions = 614
+
+    # Hyperparameters    
     hyper_p = HyperParameters()
-    
-    # Inputs from scheduler
     if len(sys.argv) > 1:
             hyper_p.num_hidden_layers = int(sys.argv[1])
             hyper_p.truncation_layer  = int(sys.argv[2])
@@ -235,10 +239,13 @@ if __name__ == "__main__":
             hyper_p.batch_size        = int(sys.argv[6])
             hyper_p.num_epochs        = int(sys.argv[7])
             hyper_p.gpu               = str(sys.argv[8])
-        
-    filenames = FileNames(hyper_p, use_bnd_data, num_testing_data)
+            
+    # Create filenames       
+    num_testing_data = 20        
+    filenames = FileNames(hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, num_testing_data)
     
-    trainer(hyper_p, filenames, use_bnd_data, full_domain_dimensions, state_obs_dimensions, num_testing_data) 
+    # Initiate training
+    trainer(hyper_p, filenames, use_full_domain_data, use_bnd_data, use_bnd_data_only, full_domain_dimensions, state_obs_dimensions, num_testing_data) 
     
      
      

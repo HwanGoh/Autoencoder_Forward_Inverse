@@ -43,12 +43,14 @@ class HyperParameters:
     gpu               = '1'
     
 class FileNames:
-    def __init__(self, hyper_p, use_bnd_data, num_testing_data):
+    def __init__(self, hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, num_testing_data):
         # File name
+        if use_full_domain_data == 1:
+            self.filename = f'full_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
         if use_bnd_data == 1:
             self.filename = f'bnd_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
-        else:
-            self.filename = f'full_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
+        if use_bnd_data_only == 1:
+            self.filename = f'bndonly_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
 
         # Loading and saving data
         if use_bnd_data == 1:
@@ -81,15 +83,21 @@ if __name__ == "__main__":
     
     hyper_p = HyperParameters()
     
-    use_bnd_data = 1
-    num_testing_data = 20
-    full_domain_dimensions = 1446    
-    if use_bnd_data == 1:
-        state_data_dimensions = 614
-    else:
-        state_data_dimensions = full_domain_dimensions 
+    # Data type
+    use_full_domain_data = 0
+    use_bnd_data = 0
+    use_bnd_data_only = 1
     
-    filenames = FileNames(hyper_p, use_bnd_data, num_testing_data)
+    # Observation Dimensions
+    full_domain_dimensions = 1446 
+    if use_full_domain_data == 1:
+        state_obs_dimensions = full_domain_dimensions 
+    if use_bnd_data == 1 or use_bnd_data_only == 1:
+        state_obs_dimensions = 614
+    
+    # Create filenames     
+    num_testing_data = 20    
+    filenames = FileNames(hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, num_testing_data)
            
     #####################################
     #   Form Test Parameters and State  #
@@ -110,7 +118,7 @@ if __name__ == "__main__":
         parameter_test = df_parameter_test.to_numpy()
         state_obs_test = df_state_obs_test.to_numpy()
         parameter_test = parameter_test.reshape((num_testing_data, 9))
-        state_obs_test = state_obs_test.reshape((num_testing_data, state_data_dimensions))  
+        state_obs_test = state_obs_test.reshape((num_testing_data, state_obs_dimensions))  
         parameter_test = parameter_test[0,:]
         state_obs_test = state_obs_test[0,:]
     else:
@@ -128,9 +136,10 @@ if __name__ == "__main__":
                 
         #######################
         #   Form Predictions  #
-        #######################        
-        state_pred = sess.run(NN.encoded, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))})  
+        #######################      
         parameter_pred = sess.run(NN.inverse_pred, feed_dict = {NN.state_obs_inverse_input_tf: state_obs_test.reshape((1, len(state_obs_test)))})    
+        if use_full_domain_data == 1 or use_bnd_data == 1: # No state prediction if the truncation layer only consists of the observations
+            state_pred = sess.run(NN.encoded, feed_dict = {NN.parameter_input_tf: parameter_test.reshape((1, len(parameter_test)))})  
         
         ##############
         #  Plotting  #
@@ -154,7 +163,6 @@ if __name__ == "__main__":
         
         #=== Plotting predictions of test parameter and test state ===#
         parameter_pred_dl = solver.nine_param_to_function(parameter_pred.T)
-        state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         
         p_pred_fig = dl.plot(parameter_pred_dl)
         p_pred_fig.ax.set_title('Decoder Estimation of True Parameter', fontsize=18)  
@@ -164,10 +172,12 @@ if __name__ == "__main__":
         parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
         print(parameter_pred_error)
         
-        s_pred_fig = dl.plot(state_pred_dl)
-        s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
-        plt.savefig(filenames.figures_savefile_name_state_pred, dpi=300)
-        print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
-        plt.show()
-        state_pred_error = np.linalg.norm(state_pred - state_test,2)/np.linalg.norm(state_test,2)
-        print(state_pred_error)
+        if use_full_domain_data == 1 or use_bnd_data == 1: # No state prediction if the truncation layer only consists of the observations
+            state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
+            s_pred_fig = dl.plot(state_pred_dl)
+            s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=18)  
+            plt.savefig(filenames.figures_savefile_name_state_pred, dpi=300)
+            print('Figure saved to ' + filenames.figures_savefile_name_state_pred) 
+            plt.show()
+            state_pred_error = np.linalg.norm(state_pred - state_test,2)/np.linalg.norm(state_test,2)
+            print(state_pred_error)

@@ -13,7 +13,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 tf.set_random_seed(1234)
 
 class AutoencoderFwdInv:
-    def __init__(self, hyper_p, parameter_dimension, state_dimension, obs_indices, construct_flag):
+    def __init__(self, hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, parameter_dimension, state_dimension, obs_indices, construct_flag):
         
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -22,6 +22,7 @@ class AutoencoderFwdInv:
         # Initialize placeholders
         self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
         self.state_obs_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
+        
         self.state_obs_inverse_input_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_inverse_input_tf")
        
         self.parameter_input_test_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
@@ -29,7 +30,10 @@ class AutoencoderFwdInv:
         
         # Initialize weights and biases
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
-        self.layers[hyper_p.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
+        if use_full_domain_data == 1 or use_bnd_data == 1:
+            self.layers[hyper_p.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
+        if use_bnd_data_only == 1:
+            self.layers[hyper_p.truncation_layer] = len(obs_indices) # Sets where the forward problem ends and the inverse problem begins
         print(self.layers)
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
@@ -89,9 +93,14 @@ class AutoencoderFwdInv:
         self.autoencoder_pred_test = self.decoder(self.encoded_test, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
         
         # Construction observed state and inverse problem from observed state
-        self.forward_obs_pred = tf.squeeze(tf.gather(self.encoded, obs_indices, axis = 1)) # tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed
-        self.forward_obs_pred_test = tf.squeeze(tf.gather(self.encoded_test, obs_indices, axis = 1))
-        self.inverse_pred = self.inverse_problem(self.state_obs_inverse_input_tf, hyper_p.truncation_layer, len(self.layers), obs_indices)   
+        if use_full_domain_data == 1 or use_bnd_data == 1:
+            self.forward_obs_pred = tf.squeeze(tf.gather(self.encoded, obs_indices, axis = 1)) # tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed
+            self.forward_obs_pred_test = tf.squeeze(tf.gather(self.encoded_test, obs_indices, axis = 1))
+            self.inverse_pred = self.inverse_problem(self.state_obs_inverse_input_tf, hyper_p.truncation_layer, len(self.layers), obs_indices)  
+        if use_bnd_data_only == 1: # Since, for this case, the number of hidden nodes in the truncation layer is equal to the number of sensors, we can just use encoder without gathering for forward prediction and also directly use the decoder for inverse prediction
+            self.forward_obs_pred = self.encoded
+            self.forward_obs_pred_test = self.encoded_test
+            self.inverse_pred = self.decoder(self.state_obs_inverse_input_tf, hyper_p.truncation_layer, len(self.layers))  
 
 ###############################################################################
 #                                Methods                                      #
