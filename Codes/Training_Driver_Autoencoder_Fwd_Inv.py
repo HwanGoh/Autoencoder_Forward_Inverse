@@ -34,7 +34,7 @@ class HyperParameters:
     num_hidden_layers = 1
     truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
-    penalty           = 10
+    penalty           = 1
     num_training_data = 20
     batch_size        = 20
     num_epochs        = 2000
@@ -200,7 +200,7 @@ def trainer(hyper_p, filenames, use_full_domain_data, use_bnd_data, use_bnd_data
                  
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 

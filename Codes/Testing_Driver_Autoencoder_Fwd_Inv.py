@@ -33,13 +33,13 @@ sys.path.insert(0, '../../Utilities/')
 #                               Parameters                                    #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 3
-    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 1
+    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
     penalty           = 1
-    num_training_data = 2000
+    num_training_data = 20
     batch_size        = 20
-    num_epochs        = 50000
+    num_epochs        = 2000
     gpu               = '1'
     
 class FileNames:
@@ -53,14 +53,14 @@ class FileNames:
             self.filename = f'bndonly_hl{hyper_p.num_hidden_layers}_tl{hyper_p.truncation_layer}_hn{hyper_p.num_hidden_nodes}_p{hyper_p.penalty}_d{hyper_p.num_training_data}_b{hyper_p.batch_size}_e{hyper_p.num_epochs}'
 
         # Loading and saving data
-        if use_bnd_data == 1:
+        if use_full_domain_data == 1:
+            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
+            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
+            self.state_obs_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data)             
+        if use_bnd_data == 1 or use_bnd_data_only == 1:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_testing_data) 
             self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_testing_data) 
-        else:
-            self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
-            self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_testing_data) 
-            self.state_obs_test_savefilepath = '../Data/' + 'state_test_%d' %(num_testing_data) 
     
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
@@ -132,7 +132,7 @@ if __name__ == "__main__":
         new_saver.restore(sess, tf.train.latest_checkpoint(filenames.NN_savefile_directory))        
         
         # Labelling loaded variables as a class
-        NN = AutoencoderFwdInv(hyper_p, len(parameter_test), full_domain_dimensions, obs_indices, construct_flag = 0) 
+        NN = AutoencoderFwdInv(hyper_p, use_full_domain_data, use_bnd_data, use_bnd_data_only, len(parameter_test), full_domain_dimensions, obs_indices, construct_flag = 0) 
                 
         #######################
         #   Form Predictions  #
