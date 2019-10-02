@@ -39,10 +39,10 @@ if __name__ == '__main__':
         hyper_p = HyperParameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU
         
         # assign instance attributes for hyper_p
-        hyper_p.data_type         = ['full', 'bnd', 'bndonly']
+        hyper_p.data_type         = ['full', 'bnd']
         hyper_p.num_hidden_layers = [3]
         hyper_p.truncation_layer  = [2] # Indexing includes input and output layer with input layer indexed by 0
-        hyper_p.num_hidden_nodes  = [200]
+        hyper_p.num_hidden_nodes  = [1446]
         hyper_p.penalty           = [1, 10, 20]
         hyper_p.num_training_data = [20, 200, 2000]
         hyper_p.batch_size        = [20]
