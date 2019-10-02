@@ -31,11 +31,11 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 1
-    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 200
+    num_hidden_layers = 3
+    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 1446
     penalty           = 1
-    num_training_data = 20
+    num_training_data = 2000
     batch_size        = 20
     num_epochs        = 2000
     gpu               = '1'
@@ -55,7 +55,7 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Number of Testing Data
-        self.num_testing_data = 200
+        self.num_testing_data = 20
         
         # File name
         if self.use_full_domain_data == 1:
@@ -133,8 +133,8 @@ def trainer(hyper_p, run_options):
         
     # Relative Error
     with tf.variable_scope('relative_error') as scope:
-        parameter_relative_error = (1/run_options.num_testing_data)*tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        state_obs_relative_error = (1/run_options.num_testing_data)*tf.norm(NN.state_obs_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_obs_test_tf, 2)
+        parameter_relative_error = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
+        state_obs_relative_error = tf.norm(NN.state_obs_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_obs_test_tf, 2)
         tf.summary.scalar("parameter_relative_error", parameter_relative_error)
         tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)
                 
@@ -217,7 +217,7 @@ def trainer(hyper_p, run_options):
                  
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 

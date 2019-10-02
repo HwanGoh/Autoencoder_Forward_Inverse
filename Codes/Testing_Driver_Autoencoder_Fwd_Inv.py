@@ -45,8 +45,8 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):
         # Data type
-        self.use_full_domain_data = 1
-        self.use_bnd_data = 0
+        self.use_full_domain_data = 0
+        self.use_bnd_data = 1
         self.use_bnd_data_only = 0
     
         # Observation Dimensions
