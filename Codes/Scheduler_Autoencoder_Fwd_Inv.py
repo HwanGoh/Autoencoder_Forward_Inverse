@@ -42,7 +42,7 @@ if __name__ == '__main__':
         hyper_p.data_type         = ['bndonly']
         hyper_p.num_hidden_layers = [3]
         hyper_p.truncation_layer  = [2] # Indexing includes input and output layer with input layer indexed by 0
-        hyper_p.num_hidden_nodes  = [1446]
+        hyper_p.num_hidden_nodes  = [614]
         hyper_p.penalty           = [1, 10, 20]
         hyper_p.num_training_data = [20, 200, 2000]
         hyper_p.batch_size        = [20]
