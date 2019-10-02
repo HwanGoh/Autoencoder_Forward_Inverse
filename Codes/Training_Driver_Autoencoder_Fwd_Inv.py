@@ -236,6 +236,7 @@ if __name__ == "__main__":
 
     # Hyperparameters    
     hyper_p = HyperParameters()
+    
     if len(sys.argv) > 1:
             hyper_p.num_hidden_layers = int(sys.argv[1])
             hyper_p.truncation_layer  = int(sys.argv[2])
@@ -246,7 +247,7 @@ if __name__ == "__main__":
             hyper_p.num_epochs        = int(sys.argv[7])
             hyper_p.gpu               = str(sys.argv[8])
             
-    # Create filenames         
+    # Set run options         
     run_options = RunOptions(hyper_p)
     
     # Initiate training
