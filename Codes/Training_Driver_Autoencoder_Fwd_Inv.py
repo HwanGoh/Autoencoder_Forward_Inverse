@@ -33,7 +33,7 @@ np.random.seed(1234)
 class HyperParameters:
     num_hidden_layers = 1
     truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 1446
+    num_hidden_nodes  = 200
     penalty           = 1
     num_training_data = 20
     batch_size        = 20
@@ -43,9 +43,9 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p):        
         # Data type
-        self.use_full_domain_data = 0
+        self.use_full_domain_data = 1
         self.use_bnd_data = 0
-        self.use_bnd_data_only = 1
+        self.use_bnd_data_only = 0
     
         # Observation Dimensions
         self.full_domain_dimensions = 1446 
@@ -55,7 +55,7 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Number of Testing Data
-        self.num_testing_data = 20
+        self.num_testing_data = 200
         
         # File name
         if self.use_full_domain_data == 1:

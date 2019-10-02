@@ -19,6 +19,7 @@ from thermal_fin import get_space
 
 import matplotlib.pyplot as plt
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -32,21 +33,21 @@ sys.path.insert(0, '../../Utilities/')
 #                               Parameters                                    #
 ###############################################################################
 class HyperParameters:
-    num_hidden_layers = 1
-    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 3
+    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
     penalty           = 1
-    num_training_data = 20
+    num_training_data = 2000
     batch_size        = 20
-    num_epochs        = 2000
+    num_epochs        = 50000
     gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p):
         # Data type
-        self.use_full_domain_data = 0
+        self.use_full_domain_data = 1
         self.use_bnd_data = 0
-        self.use_bnd_data_only = 1
+        self.use_bnd_data_only = 0
     
         # Observation Dimensions
         self.full_domain_dimensions = 1446 
