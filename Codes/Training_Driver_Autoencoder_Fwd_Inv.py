@@ -238,7 +238,7 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.data_type         = int(sys.argv[1])
+            hyper_p.data_type         = str(sys.argv[1])
             hyper_p.num_hidden_layers = int(sys.argv[2])
             hyper_p.truncation_layer  = int(sys.argv[3])
             hyper_p.num_hidden_nodes  = int(sys.argv[4])
