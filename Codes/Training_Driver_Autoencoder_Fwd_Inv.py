@@ -55,7 +55,7 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Number of Testing Data
-        self.num_testing_data = 20
+        self.num_testing_data = 200
         
         # File name
         if self.use_full_domain_data == 1:
