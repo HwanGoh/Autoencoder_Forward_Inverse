@@ -31,22 +31,29 @@ np.random.seed(1234)
 #                       Hyperparameters and Filenames                         #
 ###############################################################################
 class HyperParameters:
+    data_type         = 'full'
     num_hidden_layers = 3
     truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
     penalty           = 1
-    num_training_data = 2000
+    num_training_data = 20
     batch_size        = 20
     num_epochs        = 2000
     gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p):        
+    def __init__(self, hyper_p):  
         # Data type
         self.use_full_domain_data = 0
-        self.use_bnd_data = 1
+        self.use_bnd_data = 0
         self.use_bnd_data_only = 0
-    
+        if hyper_p.data_type == 'full':
+            self.use_full_domain_data = 1
+        if hyper_p.data_type == 'bnd':
+            self.use_bnd_data = 1
+        if hyper_p.data_type == 'bndonly':
+            self.use_bnd_data_only = 1
+        
         # Observation Dimensions
         self.full_domain_dimensions = 1446 
         if self.use_full_domain_data == 1:
@@ -55,17 +62,10 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Number of Testing Data
-        self.num_testing_data = 200
+        self.num_testing_data = 20
         
         # File name
-        if self.use_full_domain_data == 1:
-            data_type = 'full'
-        if self.use_bnd_data == 1:
-            data_type = 'bnd'
-        if self.use_bnd_data_only == 1:
-            data_type = 'bndonly'
-            
-        self.filename = data_type + '_hl%d_tl%d_hn%d_p%d_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%d_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Loading and saving data
         if self.use_full_domain_data == 1:
@@ -238,14 +238,15 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.num_hidden_layers = int(sys.argv[1])
-            hyper_p.truncation_layer  = int(sys.argv[2])
-            hyper_p.num_hidden_nodes  = int(sys.argv[3])
-            hyper_p.penalty           = int(sys.argv[4])
-            hyper_p.num_training_data = int(sys.argv[5])
-            hyper_p.batch_size        = int(sys.argv[6])
-            hyper_p.num_epochs        = int(sys.argv[7])
-            hyper_p.gpu               = str(sys.argv[8])
+            hyper_p.data_type         = int(sys.argv[1])
+            hyper_p.num_hidden_layers = int(sys.argv[2])
+            hyper_p.truncation_layer  = int(sys.argv[3])
+            hyper_p.num_hidden_nodes  = int(sys.argv[4])
+            hyper_p.penalty           = int(sys.argv[5])
+            hyper_p.num_training_data = int(sys.argv[6])
+            hyper_p.batch_size        = int(sys.argv[7])
+            hyper_p.num_epochs        = int(sys.argv[8])
+            hyper_p.gpu               = str(sys.argv[9])
             
     # Set run options         
     run_options = RunOptions(hyper_p)

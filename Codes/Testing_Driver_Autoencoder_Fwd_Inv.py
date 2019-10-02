@@ -33,6 +33,7 @@ sys.path.insert(0, '../../Utilities/')
 #                               Parameters                                    #
 ###############################################################################
 class HyperParameters:
+    data_type         = 'full'
     num_hidden_layers = 3
     truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
@@ -46,27 +47,26 @@ class RunOptions:
     def __init__(self, hyper_p):
         # Data type
         self.use_full_domain_data = 0
-        self.use_bnd_data = 1
+        self.use_bnd_data = 0
         self.use_bnd_data_only = 0
-    
+        if hyper_p.data_type == 'full':
+            self.use_full_domain_data = 1
+        if hyper_p.data_type == 'bnd':
+            self.use_bnd_data = 1
+        if hyper_p.data_type == 'bndonly':
+            self.use_bnd_data_only = 1
+        
         # Observation Dimensions
         self.full_domain_dimensions = 1446 
         if self.use_full_domain_data == 1:
             self.state_obs_dimensions = self.full_domain_dimensions 
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
             self.state_obs_dimensions = 614
-
-        # Number of Testing Data
-        self.num_testing_data = 20
         
-        # File name
-        if self.use_full_domain_data == 1:
-            data_type = 'full'
-        if self.use_bnd_data == 1:
-            data_type = 'bnd'
-        if self.use_bnd_data_only == 1:
-            data_type = 'bndonly'
-            
+        # Number of Testing Data
+        self.num_testing_data = 200
+        
+        # File name            
         self.filename = data_type + '_hl%d_tl%d_hn%d_p%d_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Loading and saving data
