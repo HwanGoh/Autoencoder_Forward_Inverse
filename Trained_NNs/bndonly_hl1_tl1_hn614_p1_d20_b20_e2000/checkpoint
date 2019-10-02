@@ -1,0 +1,2 @@
+model_checkpoint_path: "bndonly_hl1_tl1_hn614_p1_d20_b20_e2000"
+all_model_checkpoint_paths: "bndonly_hl1_tl1_hn614_p1_d20_b20_e2000"

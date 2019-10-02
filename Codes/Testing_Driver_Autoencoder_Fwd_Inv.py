@@ -136,7 +136,7 @@ if __name__ == "__main__":
         new_saver.restore(sess, tf.train.latest_checkpoint(run_options.NN_savefile_directory))        
         
         # Labelling loaded variables as a class
-        NN = AutoencoderFwdInv(hyper_p, run_options.use_full_domain_data, run_options.use_bnd_data, run_options.use_bnd_data_only, len(parameter_test), run_options.full_domain_dimensions, obs_indices, construct_flag = 0) 
+        NN = AutoencoderFwdInv(hyper_p, run_options, len(parameter_test), run_options.full_domain_dimensions, obs_indices, construct_flag = 0) 
                 
         #######################
         #   Form Predictions  #

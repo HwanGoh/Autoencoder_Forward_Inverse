@@ -120,7 +120,7 @@ def trainer(hyper_p, run_options):
     #   Training Properties   #
     ###########################   
     # Neural network
-    NN = AutoencoderFwdInv(hyper_p, run_options.use_full_domain_data, run_options.use_bnd_data, run_options.use_bnd_data_only, parameter_train.shape[1], run_options.full_domain_dimensions, obs_indices, construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_train.shape[1], run_options.full_domain_dimensions, obs_indices, construct_flag = 1)
     
     # Loss functional
     with tf.variable_scope('loss') as scope:
