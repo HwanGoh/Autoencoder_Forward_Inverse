@@ -62,7 +62,7 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Number of Testing Data
-        self.num_testing_data = 20
+        self.num_testing_data = 200
         
         # File name
         self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%d_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
