@@ -36,9 +36,9 @@ class HyperParameters:
     data_type         = 'full'
     num_hidden_layers = 3
     truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 1446
-    penalty           = 20
-    num_training_data = 200
+    num_hidden_nodes  = 200
+    penalty           = 1
+    num_training_data = 2000
     batch_size        = 20
     num_epochs        = 3000
     gpu               = '1'
