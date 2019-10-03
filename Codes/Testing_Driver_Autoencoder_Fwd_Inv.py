@@ -37,10 +37,10 @@ class HyperParameters:
     num_hidden_layers = 3
     truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
-    penalty           = 1
-    num_training_data = 2000
+    penalty           = 20
+    num_training_data = 200
     batch_size        = 20
-    num_epochs        = 50000
+    num_epochs        = 3000
     gpu               = '1'
     
 class RunOptions:
@@ -64,10 +64,10 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Number of Testing Data
-        self.num_testing_data = 200
+        self.num_testing_data = 20
         
         # File name            
-        self.filename = data_type + '_hl%d_tl%d_hn%d_p%d_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%d_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Loading and saving data
         if self.use_full_domain_data == 1:
@@ -124,8 +124,8 @@ if __name__ == "__main__":
         state_obs_test = df_state_obs_test.to_numpy()
         parameter_test = parameter_test.reshape((run_options.num_testing_data, 9))
         state_obs_test = state_obs_test.reshape((run_options.num_testing_data, run_options.state_obs_dimensions))  
-        parameter_test = parameter_test[0,:]
-        state_obs_test = state_obs_test[0,:]
+        parameter_test = parameter_test[12,:]
+        state_obs_test = state_obs_test[12,:]
     else:
         raise ValueError('Test Data of size %d has not yet been generated' %(run_options.num_testing_data)) 
         
