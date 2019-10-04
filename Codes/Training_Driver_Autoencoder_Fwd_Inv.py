@@ -32,13 +32,13 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 3
-    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 1
+    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
-    penalty           = 1
+    penalty           = 0.1
     num_training_data = 20
     batch_size        = 20
-    num_epochs        = 3000
+    num_epochs        = 2000
     gpu               = '1'
     
 class RunOptions:
@@ -62,10 +62,16 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Number of Testing Data
-        self.num_testing_data = 200
+        self.num_testing_data = 20
+        
+        if hyper_p.penalty >= 1:
+            penalty_string = str(hyper_p.penalty)
+        else:
+            penalty_string = str(hyper_p.penalty)
+            penalty_string = 'pt' + penalty_string[2:]
         
         # File name
-        self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%d_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.penalty, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Loading and saving data
         if self.use_full_domain_data == 1:
@@ -133,9 +139,11 @@ def trainer(hyper_p, run_options):
         
     # Relative Error
     with tf.variable_scope('relative_error') as scope:
-        parameter_relative_error = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
+        parameter_autoencoder_relative_error = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
+        parameter_inverse_problem_relative_error = tf.norm(NN.parameter_input_test_tf - NN.inverse_pred, 2)/tf.norm(NN.parameter_input_test_tf, 2)
         state_obs_relative_error = tf.norm(NN.state_obs_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_obs_test_tf, 2)
-        tf.summary.scalar("parameter_relative_error", parameter_relative_error)
+        tf.summary.scalar("parameter_autoencoder_relative_error", parameter_autoencoder_relative_error)
+        tf.summary.scalar("parameter_inverse_problem_relative_error", parameter_inverse_problem_relative_error)
         tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)
                 
     # Set optimizers
@@ -191,9 +199,11 @@ def trainer(hyper_p, run_options):
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
                 tf_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train,
-                           NN.parameter_input_test_tf: parameter_test, NN.state_obs_test_tf: state_obs_test} 
+                           NN.parameter_input_test_tf: parameter_test, NN.state_obs_test_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test} 
                 loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
                 writer.add_summary(s, epoch)
+                test_gradients = sess.run(gradients, tf_dict)
+                pdb.set_trace()
             else:
                 minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
@@ -217,7 +227,7 @@ def trainer(hyper_p, run_options):
                  
         # Optimize with LBFGS
         print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 
