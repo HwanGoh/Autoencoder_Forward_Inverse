@@ -14,7 +14,7 @@ import pandas as pd
 
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from random_mini_batches import random_mini_batches
-from gradient_checker import check_gradients
+from gradient_checker import check_gradients_directional_derivative
 import time
 import shutil # for deleting directories
 
@@ -66,13 +66,13 @@ class RunOptions:
         self.num_testing_data = 20
         self.check_gradients = 1
         
+        # File name
         if hyper_p.penalty >= 1:
             penalty_string = str(hyper_p.penalty)
         else:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
-        
-        # File name
+
         self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
         # Loading and saving data
@@ -205,7 +205,7 @@ def trainer(hyper_p, run_options):
                 loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
                 if run_options.check_gradients == 1:
                     print('Checking gradient')
-                    check_gradients(sess, NN, loss, gradients_tf, tf_dict)
+                    check_gradients_directional_derivative(sess, NN, loss, gradients_tf, tf_dict)
                     pdb.set_trace()
                 writer.add_summary(s, epoch)
             else:
