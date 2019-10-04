@@ -18,7 +18,6 @@ class AutoencoderFwdInv:
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
 ###############################################################################        
-        
         # Initialize placeholders
         self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
         self.state_obs_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
@@ -83,8 +82,7 @@ class AutoencoderFwdInv:
                 
 ###############################################################################
 #                           Network Propagation                               #
-###############################################################################  
-                
+###############################################################################                  
         # Training and Testing Propagation
         self.encoded = self.encoder(self.parameter_input_tf, hyper_p.truncation_layer)
         self.autoencoder_pred = self.decoder(self.encoded, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
@@ -105,7 +103,6 @@ class AutoencoderFwdInv:
 ###############################################################################
 #                                Methods                                      #
 ############################################################################### 
-        
     def encoder(self, X, truncation_layer):  
         with tf.variable_scope("encoder") as scope:
             for l in range(0, truncation_layer - 1):

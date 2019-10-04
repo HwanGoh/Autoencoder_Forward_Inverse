@@ -14,7 +14,11 @@ import pandas as pd
 
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from random_mini_batches import random_mini_batches
+<<<<<<< HEAD
 from gradient_checker import check_gradients_directional_derivative
+=======
+from gradient_checker import check_gradients_objects, define_weight_assignment_operations, check_gradients
+>>>>>>> e28d6a037b050689d85999695663e92598d949ae
 import time
 import shutil # for deleting directories
 
@@ -164,6 +168,14 @@ def trainer(hyper_p, run_options):
         for gradient, variable in gradients_tf:
             tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient))
         optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients_tf)
+<<<<<<< HEAD
+=======
+        
+        # Define check gradients weight assignment operations
+        if run_options.check_gradients == 1:
+            perturb_h, rand_v_weights, rand_v_biases = check_gradients_objects(NN.layers)
+            perturb_weights_operation_tf, assign_weights_back_operation_tf = define_weight_assignment_operations(NN, perturb_h, rand_v_weights, rand_v_biases)
+>>>>>>> e28d6a037b050689d85999695663e92598d949ae
             
     # Set GPU configuration options
     gpu_options = tf.GPUOptions(visible_device_list=hyper_p.gpu,
@@ -223,6 +235,13 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
+<<<<<<< HEAD
+=======
+                if run_options.check_gradients == 1:
+                    print('Checking gradients')
+                    check_gradients(sess, loss, gradients_tf, loss_value, NN.layers, perturb_h, perturb_weights_operation_tf, assign_weights_back_operation_tf, rand_v_weights, rand_v_biases, tf_dict)
+                    pdb.set_trace()
+>>>>>>> e28d6a037b050689d85999695663e92598d949ae
                 start_time = time.time()     
                 
             # save every 1000 epochs
