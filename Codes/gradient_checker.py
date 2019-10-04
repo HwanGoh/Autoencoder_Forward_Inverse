@@ -6,6 +6,11 @@ Created on Fri Oct  4 12:25:44 2019
 @author: hwan
 """
 
+import tensorflow as tf
+import numpy as np
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
+
 ###############################################################################
 #                         Check Gradients Function                            #
 ###############################################################################
@@ -14,32 +19,40 @@ def check_gradients_objects(layers):
     rand_v_weights = []
     rand_v_biases = []      
     for l in range(0, len(layers) - 1): 
-        rand_v_weights = np.random.random_sample(layers[l], layers[l + 1])
-        rand_v_biases = np.random.random_sample(1, layers[l + 1])                                 
+        W = np.random.random_sample((layers[l], layers[l + 1]))
+        b = np.random.random_sample((1, layers[l + 1]))                                 
         rand_v_weights.append(W)
         rand_v_biases.append(b)
     return perturb_h, rand_v_weights, rand_v_biases
 
-def check_gradients(sess, gradients_tf, loss_value, layers, perturb_weights_operation_tf, assign_weights_back_operation_tf, tf_dict):
+def define_weight_assignment_operations(NN, perturb_h, rand_v_weights, rand_v_biases):
+    weights_current = NN.weights
+    biases_current = NN.biases
+    perturb_weights_flag = tf.Variable(0) # instead of doing sess.run(tf.assign(NN.weights[l], weights_current[l] + NN.weights[l])), this way circumvents all those session runs with one session run of the below operation
+    perturb_weights_operation_tf = perturb_weights_flag.assign(perturb_weights(NN, weights_current, biases_current, perturb_h, rand_v_weights, rand_v_biases)) # assigns to update_weights_flag the value 1
+    assign_weights_back_flag = tf.Variable(0)  
+    assign_weights_back_operation_tf = assign_weights_back_flag.assign(assign_weights_back(NN, weights_current, biases_current))
+    return perturb_weights_operation_tf, assign_weights_back_operation_tf
+
+def check_gradients(sess, loss, gradients_tf, loss_value, layers, perturb_h, perturb_weights_operation_tf, assign_weights_back_operation_tf, rand_v_weights, rand_v_biases, tf_dict):
     #===  Finite Difference Directional Derivative Approximation of Gradient ===#
     sess.run(perturb_weights_operation_tf, feed_dict=tf_dict)
     perturbed_loss = sess.run(loss, feed_dict=tf_dict)
-    finite_difference_grad = (perturbed_loss - loss_value)/h
+    finite_difference_grad = (perturbed_loss - loss_value)/perturb_h
     sess.run(assign_weights_back_operation_tf, feed_dict=tf_dict)
     
-    #===  Directional Derivative with Tensorflow Gradient ===#
-    stacked_w_and_b_dimensions = 0
-    for l in range(0, len(layers) - 1):
-        stacked_w_and_b_dimensions = stacked_w_and_b_dimensions + layers[l]*layers[l+1] + layers[l+1]
-    
-    grad_all_w_and_b = np.array([])    
-    for l in range(0, len(layers) - 1):
-        W1 = sess.run('autoencoder/encoder/W1:0', feed_dict=tf_dict)
-        grad_all_w_and_b = np.concatenate([grad_all_w_and_b, vectorized_weights])
-
-    for l in range(1, len(layers)):
+    #===  Directional Derivative with Tensorflow Gradient ===#    
+    grad_tf_norm = 0   
+    for l in range(0, len(layers) - 1,2):
+        grad_weights_values = sess.run(gradients_tf[l][0], feed_dict=tf_dict)
+        grad_biases_values = sess.run(gradients_tf[l+1][0], feed_dict=tf_dict)
+        grad_weights_sum = np.sum(np.multiply(grad_weights_values, rand_v_weights[l]))
+        grad_biases_sum = np.sum(np.multiply(grad_biases_values, rand_v_biases[l]))
+        grad_tf_norm = grad_tf_norm + grad_weights_sum + grad_biases_sum
    
-
+    pdb.set_trace()
+    print(abs(finite_difference_grad - grad_tf_norm)/abs(finite_difference_grad))
+    
 ###############################################################################
 #                 Assigning Weights for Evaluation of Loss                    #
 ###############################################################################    
