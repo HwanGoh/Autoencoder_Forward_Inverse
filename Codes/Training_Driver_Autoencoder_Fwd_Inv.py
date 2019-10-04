@@ -203,6 +203,10 @@ def trainer(hyper_p, run_options):
                 tf_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train,
                            NN.parameter_input_test_tf: parameter_test, NN.state_obs_test_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test} 
                 loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
+                if run_options.check_gradients == 1:
+                    print('Checking gradient')
+                    check_gradients(sess, NN, loss, gradients_tf, tf_dict)
+                    pdb.set_trace()
                 writer.add_summary(s, epoch)
             else:
                 minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
@@ -219,10 +223,6 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
-                if run_options.check_gradients == 1:
-                    print('Checking gradient')
-                    check_gradients(sess, NN, loss, gradients_tf, loss_value, tf_dict)
-                    pdb.set_trace()
                 start_time = time.time()     
                 
             # save every 1000 epochs
