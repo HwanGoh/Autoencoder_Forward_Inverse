@@ -38,7 +38,7 @@ class HyperParameters:
     penalty           = 1
     num_training_data = 20
     batch_size        = 20
-    num_epochs        = 2000
+    num_epochs        = 3000
     gpu               = '1'
     
 class RunOptions:
