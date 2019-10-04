@@ -112,7 +112,7 @@ class AutoencoderFwdInv:
                 W = self.weights[l]
                 b = self.biases[l]
                 X = tf.tanh(tf.add(tf.matmul(X, W), b))
-                tf.summary.histogram("activation" + str(l+1), X)
+                #tf.summary.histogram("activation" + str(l+1), X)
             W = self.weights[truncation_layer - 1]
             b = self.biases[truncation_layer - 1]
             output = tf.add(tf.matmul(X, W), b)

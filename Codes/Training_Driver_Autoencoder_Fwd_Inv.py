@@ -61,8 +61,9 @@ class RunOptions:
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
             self.state_obs_dimensions = 614
         
-        # Number of Testing Data
+        # Other options
         self.num_testing_data = 20
+        self.check_gradients = 1
         
         if hyper_p.penalty >= 1:
             penalty_string = str(hyper_p.penalty)
@@ -94,7 +95,7 @@ class RunOptions:
         # Creating Directories
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
-   
+
 ###############################################################################
 #                                 Training                                    #
 ###############################################################################
@@ -144,7 +145,7 @@ def trainer(hyper_p, run_options):
         state_obs_relative_error = tf.norm(NN.state_obs_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_obs_test_tf, 2)
         tf.summary.scalar("parameter_autoencoder_relative_error", parameter_autoencoder_relative_error)
         tf.summary.scalar("parameter_inverse_problem_relative_error", parameter_inverse_problem_relative_error)
-        tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)
+        tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)        
                 
     # Set optimizers
     with tf.variable_scope('Training') as scope:
@@ -158,11 +159,21 @@ def trainer(hyper_p, run_options):
                                                                           'ftol':1.0 * np.finfo(float).eps})
         # Track gradients
         l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
-        gradients = optimizer_Adam.compute_gradients(loss = loss)
-        for gradient, variable in gradients:
-            tf.summary.histogram("gradients/" + variable.name, l2_norm(gradient))
-        optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients)
+        gradients_tf = optimizer_Adam.compute_gradients(loss = loss)
+        for gradient, variable in gradients_tf:
+            tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient))
+        optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients_tf)
         
+        # Check gradients objects
+        if run_options.check_gradients == 1:
+            perturb_h, rand_v_weights, rand_v_biases = check_gradients_objects(NN.layers)
+            weights_current = NN.weights
+            biases_current = NN.biases
+            perturb_weights_flag = tf.Variable(0) # instead of doing sess.run(tf.assign(NN.weights[l], weights_current[l] + NN.weights[l])), this way circumvents all those session runs with one session run of the below operation
+            perturb_weights_operation_tf = perturb_weights_flag.assign(perturb_weights(NN, weights_current, biases_current, perturb_h, rand_v_weights, rand_v_biases)) # assigns to update_weights_flag the value 1
+            assign_weights_back_flag = tf.Variable(0)  
+            assign_weights_back_operation_tf = assign_weights_back_flag.assign(assign_weights_back(NN, weights_current, biases_current))
+            
     # Set GPU configuration options
     gpu_options = tf.GPUOptions(visible_device_list=hyper_p.gpu,
                                 allow_growth=True)
@@ -202,8 +213,6 @@ def trainer(hyper_p, run_options):
                            NN.parameter_input_test_tf: parameter_test, NN.state_obs_test_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test} 
                 loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
                 writer.add_summary(s, epoch)
-                test_gradients = sess.run(gradients, tf_dict)
-                pdb.set_trace()
             else:
                 minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
@@ -219,6 +228,9 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
+                if run_options.check_gradients == 1:
+                    check_gradients(sess, gradients_tf, loss_value, NN.layers)
+                    pdb.set_trace()
                 start_time = time.time()     
                 
             # save every 1000 epochs
