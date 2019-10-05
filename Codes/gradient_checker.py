@@ -52,7 +52,7 @@ def check_gradients_directional_derivative(sess, NN, loss, gradients_tf, tf_dict
         b = sess.run(NN.biases[l])
         W_grad_vals = sess.run(gradients_tf[l][0], feed_dict = tf_dict)
         b_grad_vals = sess.run(gradients_tf[l+1][0], feed_dict = tf_dict)
-        grad_tf_directional_derivative = grad_tf_directional_derivative + np.sum(np.multiply(W, W_grad_vals)) + np.sum(np.multiply(b, b_grad_vals))
+        grad_tf_directional_derivative += np.sum(np.multiply(W, W_grad_vals)) + np.sum(np.multiply(b, b_grad_vals))
         
     print(abs(finite_difference_grad - grad_tf_directional_derivative)/(abs(finite_difference_grad)))
     pdb.set_trace()

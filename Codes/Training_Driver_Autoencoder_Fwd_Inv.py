@@ -226,10 +226,6 @@ def trainer(hyper_p, run_options):
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
-                if run_options.check_gradients == 1:
-                    print('Checking gradients')
-                    check_gradients(sess, loss, gradients_tf, loss_value, NN.layers, perturb_h, perturb_weights_operation_tf, assign_weights_back_operation_tf, rand_v_weights, rand_v_biases, tf_dict)
-                    pdb.set_trace()
                 start_time = time.time()     
                 
             # save every 1000 epochs
