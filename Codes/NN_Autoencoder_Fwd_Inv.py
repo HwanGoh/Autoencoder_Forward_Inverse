@@ -19,13 +19,13 @@ class AutoencoderFwdInv:
 #                    Constuct Neural Network Architecture                     #
 ###############################################################################        
         # Initialize placeholders
-        self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
-        self.state_obs_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
+        self.parameter_input_tf = tf.placeholder(tf.float64, shape=[None, parameter_dimension], name = "parameter_input_tf")
+        self.state_obs_tf = tf.placeholder(tf.float64, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
         
-        self.state_obs_inverse_input_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_inverse_input_tf")
+        self.state_obs_inverse_input_tf = tf.placeholder(tf.float64, shape=[None, len(obs_indices)], name = "state_obs_inverse_input_tf")
        
-        self.parameter_input_test_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
-        self.state_obs_test_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_test_tf") # This is needed for batching during training, else can just use state_data
+        self.parameter_input_test_tf = tf.placeholder(tf.float64, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
+        self.state_obs_test_tf = tf.placeholder(tf.float64, shape=[None, len(obs_indices)], name = "state_obs_test_tf") # This is needed for batching during training, else can just use state_data
         
         # Initialize weights and biases
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
@@ -46,8 +46,8 @@ class AutoencoderFwdInv:
                 # Forward Problem
                 with tf.variable_scope("encoder") as scope:
                     for l in range(0, hyper_p.truncation_layer): 
-                            W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
-                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
+                            W = tf.get_variable("W" + str(l+1), dtype = tf.float64, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
+                            b = tf.get_variable("b" + str(l+1), dtype = tf.float64, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
                             tf.summary.histogram("weights" + str(l+1), W)
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)
@@ -56,8 +56,8 @@ class AutoencoderFwdInv:
                 # Inverse Problem
                 with tf.variable_scope("decoder") as scope:
                     for l in range(hyper_p.truncation_layer, num_layers-1):
-                            W = tf.get_variable("W" + str(l+1), shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
-                            b = tf.get_variable("b" + str(l+1), shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))
+                            W = tf.get_variable("W" + str(l+1), dtype = tf.float64, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
+                            b = tf.get_variable("b" + str(l+1), dtype = tf.float64, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))
                             tf.summary.histogram("weights" + str(l+1), W)
                             tf.summary.histogram("biases" + str(l+1), b)
                             self.weights.append(W)

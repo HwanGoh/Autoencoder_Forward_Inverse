@@ -10,12 +10,8 @@ import tensorflow as tf
 import numpy as np
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-<<<<<<< HEAD
 ###############################################################################
 #                    Check Gradients Direct Comparison                        #
-=======
-
->>>>>>> e28d6a037b050689d85999695663e92598d949ae
 ###############################################################################
 def check_gradients_direct_comparison(sess, NN, loss, gradients_tf, tf_dict):
     perturb_h = 1e-6
@@ -35,7 +31,7 @@ def check_gradients_direct_comparison(sess, NN, loss, gradients_tf, tf_dict):
 ###############################################################################
 def check_gradients_directional_derivative(sess, NN, loss, gradients_tf, tf_dict):
     #===  Finite Difference Directional Derivative Approximation of Gradient ===#
-    perturb_h = 0.0000003
+    perturb_h = 1e-8
     rand_v_weights, rand_v_biases = check_gradients_objects(NN.layers)
     current_loss = sess.run(loss, feed_dict=tf_dict)
     weights_current = sess.run(NN.weights)
@@ -69,15 +65,7 @@ def check_gradients_objects(layers):
         b = np.random.random_sample((1, layers[l + 1]))                                 
         rand_v_weights.append(W)
         rand_v_biases.append(b)
-<<<<<<< HEAD
     return rand_v_weights, rand_v_biases        
-        
-        
-        
-        
-        
-=======
-    return perturb_h, rand_v_weights, rand_v_biases
 
 def define_weight_assignment_operations(NN, perturb_h, rand_v_weights, rand_v_biases):
     weights_current = NN.weights
@@ -121,4 +109,3 @@ def assign_weights_back(NN, weights_current, biases_current):
        NN.weights[l].assign(weights_current[l]) 
        NN.biases[l].assign(biases_current[l])
     return 1 # the operations above do absolutely nothing, in the end, all this function does is assign the number 1 to update_weights_flag. Jonathan Wittmer is a very clever boy
->>>>>>> e28d6a037b050689d85999695663e92598d949ae
