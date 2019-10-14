@@ -40,8 +40,8 @@ if __name__ == '__main__':
         
         # assign instance attributes for hyper_p
         hyper_p.data_type         = ['full', 'bnd', 'bnd_only']
-        hyper_p.num_hidden_layers = [3]
-        hyper_p.truncation_layer  = [2] # Indexing includes input and output layer with input layer indexed by 0
+        hyper_p.num_hidden_layers = [1]
+        hyper_p.truncation_layer  = [1] # Indexing includes input and output layer with input layer indexed by 0
         hyper_p.num_hidden_nodes  = [200]
         hyper_p.penalty           = [0.1, 0.5, 0.7]
         hyper_p.num_training_data = [20, 200, 2000]
@@ -70,7 +70,7 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{int(data.penalty)}', f'{data.num_training_data}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
+            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.penalty:.2f}', f'{data.num_training_data}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
             proc.wait() # without this, the process will detach itself once the python code is done running
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
