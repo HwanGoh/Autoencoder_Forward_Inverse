@@ -67,7 +67,7 @@ class RunOptions:
         
         # Other options
         self.num_testing_data = 20
-        self.check_gradients = 1
+        self.check_gradients = 0
         
         # File name
         if hyper_p.penalty >= 1:
