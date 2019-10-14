@@ -43,7 +43,7 @@ if __name__ == '__main__':
         hyper_p.num_hidden_layers = [1]
         hyper_p.truncation_layer  = [1] # Indexing includes input and output layer with input layer indexed by 0
         hyper_p.num_hidden_nodes  = [200]
-        hyper_p.penalty           = [10, 0.5, 0.7]
+        hyper_p.penalty           = [0.1, 0.5, 0.7]
         hyper_p.num_training_data = [20, 200, 2000]
         hyper_p.batch_size        = [20]
         hyper_p.num_epochs        = [4000]
