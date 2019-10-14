@@ -71,6 +71,7 @@ class RunOptions:
         
         # File name
         if hyper_p.penalty >= 1:
+            hyper_p.penalty = int(hyper_p.penalty)
             penalty_string = str(hyper_p.penalty)
         else:
             penalty_string = str(hyper_p.penalty)
@@ -261,7 +262,7 @@ if __name__ == "__main__":
             hyper_p.num_hidden_layers = int(sys.argv[2])
             hyper_p.truncation_layer  = int(sys.argv[3])
             hyper_p.num_hidden_nodes  = int(sys.argv[4])
-            hyper_p.penalty           = int(sys.argv[5])
+            hyper_p.penalty           = float(sys.argv[5])
             hyper_p.num_training_data = int(sys.argv[6])
             hyper_p.batch_size        = int(sys.argv[7])
             hyper_p.num_epochs        = int(sys.argv[8])
