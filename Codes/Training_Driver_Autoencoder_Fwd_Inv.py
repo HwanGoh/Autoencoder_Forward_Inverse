@@ -66,7 +66,7 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         # Other options
-        self.num_testing_data = 20
+        self.num_testing_data = 200
         self.check_gradients = 0
         
         # File name
