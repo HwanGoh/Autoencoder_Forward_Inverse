@@ -15,9 +15,6 @@ import pandas as pd
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from save_trained_parameters import save_weights_and_biases
 from random_mini_batches import random_mini_batches
-from gradient_checker import check_gradients_directional_derivative
-
-from gradient_checker import check_gradients_objects, define_weight_assignment_operations, check_gradients
 
 import time
 import shutil # for deleting directories
@@ -68,7 +65,6 @@ class RunOptions:
         
         #===  Other options ===#
         self.num_testing_data = 20
-        self.check_gradients = 0
         
         #===  File name ===#
         if hyper_p.penalty >= 1:
@@ -146,9 +142,9 @@ def trainer(hyper_p, run_options):
         
     #=== Relative Error ===#
     with tf.variable_scope('relative_error') as scope:
-        parameter_autoencoder_relative_error = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        parameter_inverse_problem_relative_error = tf.norm(NN.parameter_input_test_tf - NN.inverse_pred, 2)/tf.norm(NN.parameter_input_test_tf, 2)
-        state_obs_relative_error = tf.norm(NN.state_obs_test_tf - NN.forward_obs_pred_test, 2)/tf.norm(NN.state_obs_test_tf, 2)
+        parameter_autoencoder_relative_error = tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2)/tf.norm(NN.parameter_input_tf, 2)
+        parameter_inverse_problem_relative_error = tf.norm(NN.parameter_input_tf - NN.inverse_pred, 2)/tf.norm(NN.parameter_input_tf, 2)
+        state_obs_relative_error = tf.norm(NN.state_obs_tf - NN.forward_obs_pred, 2)/tf.norm(NN.state_obs_tf, 2)
         tf.summary.scalar("parameter_autoencoder_relative_error", parameter_autoencoder_relative_error)
         tf.summary.scalar("parameter_inverse_problem_relative_error", parameter_inverse_problem_relative_error)
         tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)        
@@ -199,39 +195,38 @@ def trainer(hyper_p, run_options):
         num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
             if num_batches == 1:
-                tf_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train,
-                           NN.parameter_input_test_tf: parameter_test, NN.state_obs_test_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test} 
-                loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict)  
-                if run_options.check_gradients == 1:
-                    print('Checking gradient')
-                    check_gradients_directional_derivative(sess, NN, loss, gradients_tf, tf_dict)
-                    pdb.set_trace()
-                writer.add_summary(s, epoch)
+                sess.run(optimizer_Adam_op, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train})  
             else:
                 minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
                 for batch_num in range(num_batches):
                     parameter_train_batch = minibatches[batch_num][0].T
                     state_obs_train_batch = minibatches[batch_num][1].T
-                    tf_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch} 
-                    loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
-                    writer.add_summary(s, epoch)
+                    sess.run(optimizer_Adam_op, feed_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch})
                 
             #=== Iteration Information ===#
             if epoch % 100 == 0:
                 elapsed = time.time() - start_time
+                loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train}) 
+                autoencoder_RE, parameter_RE, state_RE, s = sess.run([parameter_autoencoder_relative_error, parameter_inverse_problem_relative_error, state_obs_relative_error, summ], \
+                                                                     feed_dict = {NN.parameter_input_tf: parameter_test, NN.state_obs_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test})
+                writer.add_summary(s, epoch)
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
-                print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
+                print('Epoch: %d, Loss: %.3e, Time: %.2f' %(epoch, loss_value, elapsed))  
+                print('Relative Errors: Autoencoder: %.3e, Parameter: %.3e, State: %.3e\n' %(autoencoder_RE, parameter_RE, state_RE))
                 start_time = time.time()     
                                  
         #=== Optimize with LBFGS ===#
         print('Optimizing with LBFGS\n')   
         #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
-        [loss_value, s] = sess.run([loss,summ], tf_dict)
-        writer.add_summary(s,hyper_p.num_epochs)
+        loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train}) 
+        autoencoder_RE, parameter_RE, state_RE, s = sess.run([parameter_autoencoder_relative_error, parameter_inverse_problem_relative_error, state_obs_relative_error, summ], \
+                                                             feed_dict = {NN.parameter_input_tf: parameter_test, NN.state_obs_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test})
+        writer.add_summary(s, epoch)
         print('LBFGS Optimization Complete\n') 
         elapsed = time.time() - start_time
-        print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
+        print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
+        print('Relative Errors: Autoencoder: %.3e, Parameter: %.3e, State: %.3e' %(autoencoder_RE, parameter_RE, state_RE))
         
         #=== Save final model ===#
         save_weights_and_biases(sess, hyper_p.truncation_layer, NN.layers, run_options.NN_savefile_name)  

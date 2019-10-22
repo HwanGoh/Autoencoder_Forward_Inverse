@@ -24,10 +24,7 @@ class AutoencoderFwdInv:
         self.state_obs_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
         
         self.state_obs_inverse_input_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_inverse_input_tf")
-       
-        self.parameter_input_test_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
-        self.state_obs_test_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_test_tf") # This is needed for batching during training, else can just use state_data
-        
+              
         #=== Define Architecture and Create Parameter Storage ===#
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
         if run_options.use_full_domain_data == 1 or run_options.use_bnd_data == 1:
@@ -92,18 +89,13 @@ class AutoencoderFwdInv:
         #=== Forward Propagation ===#
         self.encoded = self.encoder(self.parameter_input_tf, hyper_p.truncation_layer)
         self.autoencoder_pred = self.decoder(self.encoded, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
-        
-        self.encoded_test = self.encoder(self.parameter_input_test_tf, hyper_p.truncation_layer)
-        self.autoencoder_pred_test = self.decoder(self.encoded_test, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
-        
+                
         #=== Constructing observed state and inverse problem from observed state ===#
         if run_options.use_bnd_data == 1:
             self.forward_obs_pred = tf.squeeze(tf.gather(self.encoded, obs_indices, axis = 1)) # tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed
-            self.forward_obs_pred_test = tf.squeeze(tf.gather(self.encoded_test, obs_indices, axis = 1))
             self.inverse_pred = self.inverse_problem(self.state_obs_inverse_input_tf, hyper_p.truncation_layer, len(self.layers), obs_indices)  
         if run_options.use_full_domain_data == 1 or run_options.use_bnd_data_only == 1: # Since, for this case, the number of hidden nodes in the truncation layer is equal to the number of sensors, we can just use encoder without gathering for forward prediction and also directly use the decoder for inverse prediction
             self.forward_obs_pred = self.encoded
-            self.forward_obs_pred_test = self.encoded_test
             self.inverse_pred = self.decoder(self.state_obs_inverse_input_tf, hyper_p.truncation_layer, len(self.layers))  
 
 ###############################################################################
