@@ -34,18 +34,18 @@ sys.path.insert(0, '../../Utilities/')
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 3
-    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 1
+    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
     penalty           = 1
     num_training_data = 20
     batch_size        = 20
-    num_epochs        = 3000
+    num_epochs        = 2000
     gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p):
-        # Data type
+        #=== Data type ===#
         self.use_full_domain_data = 0
         self.use_bnd_data = 0
         self.use_bnd_data_only = 0
@@ -56,17 +56,17 @@ class RunOptions:
         if hyper_p.data_type == 'bndonly':
             self.use_bnd_data_only = 1
         
-        # Observation Dimensions
+        #=== Observation Dimensions ===#
         self.full_domain_dimensions = 1446 
         if self.use_full_domain_data == 1:
             self.state_obs_dimensions = self.full_domain_dimensions 
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
             self.state_obs_dimensions = 614
         
-        # Number of Testing Data
+        #=== Number of Testing Data ===#
         self.num_testing_data = 20
         
-        # File name
+        #=== File name ===#
         if hyper_p.penalty >= 1:
             penalty_string = str(hyper_p.penalty)
         else:
@@ -75,7 +75,7 @@ class RunOptions:
 
         self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
-        # Loading and saving data
+        #=== Loading and saving data ===#
         if self.use_full_domain_data == 1:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(self.num_testing_data) 
@@ -93,7 +93,7 @@ class RunOptions:
         self.figures_savefile_name_parameter_pred = self.figures_savefile_directory + '/' + 'parameter_pred'
         self.figures_savefile_name_state_pred = self.figures_savefile_directory + '/' + 'state_pred'
         
-        # Creating Directories
+        #=== Creating Directories ===#
         if not os.path.exists('../Data'):
             os.makedirs('../Data')
         if not os.path.exists(self.figures_savefile_directory):
@@ -104,10 +104,10 @@ class RunOptions:
 ###############################################################################
 if __name__ == "__main__":
     
-    # Set hyperparameters
+    #=== Set hyperparameters ===#
     hyper_p = HyperParameters()
         
-    # Set run options        
+    #=== Set run options ===#        
     run_options = RunOptions(hyper_p)
            
     #####################################
@@ -116,12 +116,12 @@ if __name__ == "__main__":
     V,_ = get_space(40)
     solver = Fin(V) 
     
-    # Load observation indices  
+    #=== Load observation indices ===#  
     print('Loading Boundary Indices')
     df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
     obs_indices = df_obs_indices.to_numpy()    
     
-    # Load testing data 
+    #=== Load testing data ===# 
     if os.path.isfile(run_options.parameter_test_savefilepath + '.csv'):
         print('Loading Test Data')
         df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
@@ -135,15 +135,15 @@ if __name__ == "__main__":
     else:
         raise ValueError('Test Data of size %d has not yet been generated' %(run_options.num_testing_data)) 
         
+    #=== Neural network ===#
+    NN = AutoencoderFwdInv(hyper_p, run_options, len(parameter_test), run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name, construct_flag = 0)
+
+        
     ####################################
     #   Import Trained Neural Network  #
     ####################################        
     with tf.Session() as sess:    
-        new_saver = tf.train.import_meta_graph(run_options.NN_savefile_name + '.meta')
-        new_saver.restore(sess, tf.train.latest_checkpoint(run_options.NN_savefile_directory))        
-        
-        # Labelling loaded variables as a class
-        NN = AutoencoderFwdInv(hyper_p, run_options, len(parameter_test), run_options.full_domain_dimensions, obs_indices, construct_flag = 0) 
+        sess.run(tf.initialize_all_variables()) 
                 
         #######################
         #   Form Predictions  #

@@ -9,22 +9,6 @@ Created on Fri Oct  4 12:25:44 2019
 import tensorflow as tf
 import numpy as np
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
-###############################################################################
-#                    Check Gradients Direct Comparison                        #
-###############################################################################
-def check_gradients_direct_comparison(sess, NN, loss, gradients_tf, tf_dict):
-    perturb_h = 1e-6
-    current_loss = sess.run(loss, feed_dict=tf_dict)
-    weights_current = sess.run(NN.weights)
-    biases_current = sess.run(NN.biases)
-    for l in range(0, len(NN.weights)): 
-        for i in range(0, NN.layers[l]*NN.layers[l+1]):
-            unit_vec = np.zeros((NN.layers[l]*NN.layers[l+1])) 
-            unit_vec[i] = 1
-            sess.run(tf.assign(NN.weights[l], weights_current[l] + perturb_h*unit_vec[l]))
-            sess.run(tf.assign(NN.biases[l], biases_current[l] + perturb_h*unit_vec[l]))
-            perturbed_loss = sess.run(loss, feed_dict=tf_dict)
             
 ###############################################################################
 #                    Check Gradients Directional Derivative                   #

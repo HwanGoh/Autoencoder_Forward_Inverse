@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from save_trained_parameters import save_weights_and_biases
 from random_mini_batches import random_mini_batches
 from gradient_checker import check_gradients_directional_derivative
 
@@ -39,7 +40,7 @@ class HyperParameters:
     num_hidden_layers = 1
     truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
-    penalty           = 0.1
+    penalty           = 1
     num_training_data = 20
     batch_size        = 20
     num_epochs        = 2000
@@ -47,7 +48,7 @@ class HyperParameters:
     
 class RunOptions:
     def __init__(self, hyper_p):  
-        # Data type
+        #=== Data type ===#
         self.use_full_domain_data = 0
         self.use_bnd_data = 0
         self.use_bnd_data_only = 0
@@ -58,18 +59,18 @@ class RunOptions:
         if hyper_p.data_type == 'bndonly':
             self.use_bnd_data_only = 1
         
-        # Observation Dimensions
+        #===  Observation Dimensions === #
         self.full_domain_dimensions = 1446 
         if self.use_full_domain_data == 1:
             self.state_obs_dimensions = self.full_domain_dimensions 
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
             self.state_obs_dimensions = 614
         
-        # Other options
-        self.num_testing_data = 200
+        #===  Other options ===#
+        self.num_testing_data = 20
         self.check_gradients = 0
         
-        # File name
+        #===  File name ===#
         if hyper_p.penalty >= 1:
             hyper_p.penalty = int(hyper_p.penalty)
             penalty_string = str(hyper_p.penalty)
@@ -79,7 +80,7 @@ class RunOptions:
 
         self.filename = hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
-        # Loading and saving data
+        #=== Loading and saving data ===#
         if self.use_full_domain_data == 1:
             self.observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
             self.parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
@@ -93,11 +94,11 @@ class RunOptions:
             self.parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(self.num_testing_data) 
             self.state_obs_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(self.num_testing_data)             
         
-        # Saving neural network
+        #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
 
-        # Creating Directories
+        #=== Creating Directories ===#
         if not os.path.exists(self.NN_savefile_directory):
             os.makedirs(self.NN_savefile_directory)
 
@@ -108,11 +109,11 @@ def trainer(hyper_p, run_options):
         
     hyper_p.batch_size = hyper_p.num_training_data
     
-    # Load observation indices   
+    #=== Load observation indices ===# 
     print('Loading Boundary Indices')
     df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
     obs_indices = df_obs_indices.to_numpy()    
-    # Load Train and Test Data  
+    #=== Load Train and Test Data ===#  
     print('Loading Training Data')
     df_parameter_train = pd.read_csv(run_options.parameter_train_savefilepath + '.csv')
     df_state_obs_train = pd.read_csv(run_options.state_obs_train_savefilepath + '.csv')
@@ -131,10 +132,10 @@ def trainer(hyper_p, run_options):
     ###########################
     #   Training Properties   #
     ###########################   
-    # Neural network
-    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_train.shape[1], run_options.full_domain_dimensions, obs_indices, construct_flag = 1)
+    #=== Neural network ===#
+    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_train.shape[1], run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name, construct_flag = 1)
     
-    # Loss functional
+    #=== Loss functional ===#
     with tf.variable_scope('loss') as scope:
         auto_encoder_loss = tf.pow(tf.norm(NN.parameter_input_tf - NN.autoencoder_pred, 2, name= 'auto_encoder_loss'), 2)
         fwd_loss = hyper_p.penalty*tf.pow(tf.norm(NN.state_obs_tf - NN.forward_obs_pred, 2, name= 'fwd_loss'), 2)
@@ -143,7 +144,7 @@ def trainer(hyper_p, run_options):
         tf.summary.scalar("fwd_loss",fwd_loss)
         tf.summary.scalar("loss",loss)
         
-    # Relative Error
+    #=== Relative Error ===#
     with tf.variable_scope('relative_error') as scope:
         parameter_autoencoder_relative_error = tf.norm(NN.parameter_input_test_tf - NN.autoencoder_pred_test, 2)/tf.norm(NN.parameter_input_test_tf, 2)
         parameter_inverse_problem_relative_error = tf.norm(NN.parameter_input_test_tf - NN.inverse_pred, 2)/tf.norm(NN.parameter_input_test_tf, 2)
@@ -152,7 +153,7 @@ def trainer(hyper_p, run_options):
         tf.summary.scalar("parameter_inverse_problem_relative_error", parameter_inverse_problem_relative_error)
         tf.summary.scalar("state_obs_relative_error", state_obs_relative_error)        
                 
-    # Set optimizers
+    #=== Set optimizers ===#
     with tf.variable_scope('Training') as scope:
         optimizer_Adam = tf.train.AdamOptimizer(learning_rate=0.001)
         optimizer_LBFGS = tf.contrib.opt.ScipyOptimizerInterface(loss,
@@ -162,14 +163,14 @@ def trainer(hyper_p, run_options):
                                                                           'maxcor':50,
                                                                           'maxls':50,
                                                                           'ftol':1.0 * np.finfo(float).eps})
-        # Track gradients
+        #=== Track gradients ===#
         l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
         gradients_tf = optimizer_Adam.compute_gradients(loss = loss)
         for gradient, variable in gradients_tf:
             tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient))
         optimizer_Adam_op = optimizer_Adam.apply_gradients(gradients_tf)
                     
-    # Set GPU configuration options
+    #=== Set GPU configuration options ===#
     gpu_options = tf.GPUOptions(visible_device_list=hyper_p.gpu,
                                 allow_growth=True)
     
@@ -179,14 +180,11 @@ def trainer(hyper_p, run_options):
                                 inter_op_parallelism_threads=2,
                                 gpu_options= gpu_options)
     
-    # Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
+    #=== Tensorboard ===# type "tensorboard --logdir=Tensorboard" into terminal and click the link
     summ = tf.summary.merge_all()
     if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
         shutil.rmtree('../Tensorboard/' + run_options.filename)  
     writer = tf.summary.FileWriter('../Tensorboard/' + run_options.filename)
-    
-    # Saver for saving trained neural network
-    saver = tf.train.Saver(NN.saver_autoencoder)
     
     ########################
     #   Train Autoencoder  #
@@ -194,11 +192,8 @@ def trainer(hyper_p, run_options):
     with tf.Session(config=gpu_config) as sess:
         sess.run(tf.initialize_all_variables()) 
         writer.add_graph(sess.graph)
-        
-        # Save neural network
-        saver.save(sess, run_options.NN_savefile_name)
-        
-        # Train neural network
+               
+        #=== Train neural network ===#
         print('Beginning Training\n')
         start_time = time.time()
         num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
@@ -221,29 +216,25 @@ def trainer(hyper_p, run_options):
                     loss_value, _, s = sess.run([loss, optimizer_Adam_op, summ], tf_dict) 
                     writer.add_summary(s, epoch)
                 
-            # print to monitor results
+            #=== Iteration Information ===#
             if epoch % 100 == 0:
                 elapsed = time.time() - start_time
                 print(run_options.filename)
                 print('GPU: ' + hyper_p.gpu)
                 print('Epoch: %d, Loss: %.3e, Time: %.2f\n' %(epoch, loss_value, elapsed))
                 start_time = time.time()     
-                
-            # save every 1000 epochs
-            if epoch % 1000 == 0:
-                saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)
-                 
-        # Optimize with LBFGS
+                                 
+        #=== Optimize with LBFGS ===#
         print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
         [loss_value, s] = sess.run([loss,summ], tf_dict)
         writer.add_summary(s,hyper_p.num_epochs)
         print('LBFGS Optimization Complete\n') 
         elapsed = time.time() - start_time
         print('Loss: %.3e, Time: %.2f\n' %(loss_value, elapsed))
         
-        # Save final model
-        saver.save(sess, run_options.NN_savefile_name, write_meta_graph=False)   
+        #=== Save final model ===#
+        save_weights_and_biases(sess, hyper_p.truncation_layer, NN.layers, run_options.NN_savefile_name)  
         print('Final Model Saved')  
     
 ###############################################################################
@@ -252,7 +243,7 @@ def trainer(hyper_p, run_options):
 if __name__ == "__main__":     
     
 
-    # Hyperparameters    
+    #=== Hyperparameters ===#    
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
@@ -266,10 +257,10 @@ if __name__ == "__main__":
             hyper_p.num_epochs        = int(sys.argv[8])
             hyper_p.gpu               = str(sys.argv[9])
             
-    # Set run options         
+    #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
     
-    # Initiate training
+    #=== Initiate training ===#
     trainer(hyper_p, run_options) 
     
      

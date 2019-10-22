@@ -8,26 +8,27 @@ Created on Sun Sep 15 14:29:36 2019
 
 import tensorflow as tf
 import numpy as np
+import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 tf.set_random_seed(1234)
 
 class AutoencoderFwdInv:
-    def __init__(self, hyper_p, run_options, parameter_dimension, state_dimension, obs_indices, construct_flag):
+    def __init__(self, hyper_p, run_options, parameter_dimension, state_dimension, obs_indices, savefilepath, construct_flag):
         
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
 ###############################################################################        
-        # Initialize placeholders
-        self.parameter_input_tf = tf.placeholder(tf.float64, shape=[None, parameter_dimension], name = "parameter_input_tf")
-        self.state_obs_tf = tf.placeholder(tf.float64, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
+        #=== Construct Placeholders ===#
+        self.parameter_input_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_tf")
+        self.state_obs_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_tf") # This is needed for batching during training, else can just use state_data
         
-        self.state_obs_inverse_input_tf = tf.placeholder(tf.float64, shape=[None, len(obs_indices)], name = "state_obs_inverse_input_tf")
+        self.state_obs_inverse_input_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_inverse_input_tf")
        
-        self.parameter_input_test_tf = tf.placeholder(tf.float64, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
-        self.state_obs_test_tf = tf.placeholder(tf.float64, shape=[None, len(obs_indices)], name = "state_obs_test_tf") # This is needed for batching during training, else can just use state_data
+        self.parameter_input_test_tf = tf.placeholder(tf.float32, shape=[None, parameter_dimension], name = "parameter_input_test_tf")
+        self.state_obs_test_tf = tf.placeholder(tf.float32, shape=[None, len(obs_indices)], name = "state_obs_test_tf") # This is needed for batching during training, else can just use state_data
         
-        # Initialize weights and biases
+        #=== Define Architecture and Create Parameter Storage ===#
         self.layers = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
         if run_options.use_full_domain_data == 1 or run_options.use_bnd_data == 1:
             self.layers[hyper_p.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
@@ -37,60 +38,65 @@ class AutoencoderFwdInv:
         self.weights = [] # This will be a list of tensorflow variables
         self.biases = [] # This will be a list of tensorflow variables
         num_layers = len(self.layers)
-        weights_init_value = 0.05
         biases_init_value = 0       
         
-        # Construct weights and biases
+        #=== Initialize Weights and Biases ===#
         if construct_flag == 1:
             with tf.variable_scope("autoencoder") as scope:
                 # Forward Problem
                 with tf.variable_scope("encoder") as scope:
-                    for l in range(0, hyper_p.truncation_layer): 
-                            W = tf.get_variable("W" + str(l+1), dtype = tf.float64, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.random_normal_initializer())
-                            b = tf.get_variable("b" + str(l+1), dtype = tf.float64, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))                                  
-                            tf.summary.histogram("weights" + str(l+1), W)
-                            tf.summary.histogram("biases" + str(l+1), b)
+                    for l in range(1, hyper_p.truncation_layer+1): 
+                            W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.random_normal_initializer())
+                            b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(biases_init_value))                                  
+                            tf.summary.histogram("weights" + str(l), W)
+                            tf.summary.histogram("biases" + str(l), b)
                             self.weights.append(W)
                             self.biases.append(b)
                                                  
                 # Inverse Problem
                 with tf.variable_scope("decoder") as scope:
-                    for l in range(hyper_p.truncation_layer, num_layers-1):
-                            W = tf.get_variable("W" + str(l+1), dtype = tf.float64, shape = [self.layers[l], self.layers[l + 1]], initializer = tf.contrib.layers.xavier_initializer())
-                            b = tf.get_variable("b" + str(l+1), dtype = tf.float64, shape = [1, self.layers[l + 1]], initializer = tf.constant_initializer(biases_init_value))
-                            tf.summary.histogram("weights" + str(l+1), W)
-                            tf.summary.histogram("biases" + str(l+1), b)
+                    for l in range(hyper_p.truncation_layer+1, num_layers):
+                            W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.contrib.layers.xavier_initializer())
+                            b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(biases_init_value))
+                            tf.summary.histogram("weights" + str(l), W)
+                            tf.summary.histogram("biases" + str(l), b)
                             self.weights.append(W)
                             self.biases.append(b)
-            
-            # Ensures train.Saver only saves the weights and biases                
-            self.saver_autoencoder = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, "autoencoder")
         
-        # Load trained model  
+        #=== Load Trained Model ===# 
         if construct_flag == 0: 
-            graph = tf.get_default_graph()
-            for l in range(0, hyper_p.truncation_layer):
-                W = graph.get_tensor_by_name("autoencoder/encoder/W" + str(l+1) + ':0')
-                b = graph.get_tensor_by_name("autoencoder/encoder/b" + str(l+1) + ':0')
-                self.weights.append(W)
-                self.biases.append(b)
-            for l in range(hyper_p.truncation_layer, num_layers-1):
-                W = graph.get_tensor_by_name("autoencoder/decoder/W" + str(l+1) + ':0')
-                b = graph.get_tensor_by_name("autoencoder/decoder/b" + str(l+1) + ':0')
-                self.weights.append(W)
-                self.biases.append(b)
+            with tf.variable_scope("encoder") as scope:
+                for l in range(1, hyper_p.truncation_layer+1): 
+                    df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
+                    df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
+                    restored_W = df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]])
+                    restored_b = df_trained_biases.values.reshape([1, self.layers[l]])
+                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.constant_initializer(restored_W))
+                    b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(restored_b))                                  
+                    self.weights.append(W)
+                    self.biases.append(b)
+            with tf.variable_scope("decoder") as scope:
+               for l in range(hyper_p.truncation_layer+1, num_layers):
+                    df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
+                    df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
+                    restored_W = df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]])
+                    restored_b = df_trained_biases.values.reshape([1, self.layers[l]])
+                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.constant_initializer(restored_W))
+                    b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(restored_b))                                  
+                    self.weights.append(W)
+                    self.biases.append(b)
                 
 ###############################################################################
 #                           Network Propagation                               #
 ###############################################################################                  
-        # Training and Testing Propagation
+        #=== Forward Propagation ===#
         self.encoded = self.encoder(self.parameter_input_tf, hyper_p.truncation_layer)
         self.autoencoder_pred = self.decoder(self.encoded, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
         
         self.encoded_test = self.encoder(self.parameter_input_test_tf, hyper_p.truncation_layer)
         self.autoencoder_pred_test = self.decoder(self.encoded_test, hyper_p.truncation_layer, len(self.layers)) # To be used in the loss function
         
-        # Construction observed state and inverse problem from observed state
+        #=== Constructing observed state and inverse problem from observed state ===#
         if run_options.use_bnd_data == 1:
             self.forward_obs_pred = tf.squeeze(tf.gather(self.encoded, obs_indices, axis = 1)) # tf.gather gathers the columns but for some reason it creates a [m,obs_dim,1] tensor that needs to be squeezed
             self.forward_obs_pred_test = tf.squeeze(tf.gather(self.encoded_test, obs_indices, axis = 1))
