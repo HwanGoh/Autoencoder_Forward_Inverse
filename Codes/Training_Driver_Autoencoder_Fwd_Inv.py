@@ -46,7 +46,7 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 1
+        self.use_LBFGS = 0
         
         #=== Data type ===#
         self.use_full_domain_data = 0
@@ -197,19 +197,16 @@ def trainer(hyper_p, run_options):
         start_time = time.time()
         num_batches = int(hyper_p.num_training_data/hyper_p.batch_size)
         for epoch in range(hyper_p.num_epochs):
-            if num_batches == 1:
-                sess.run(optimizer_Adam_op, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train})  
-            else:
-                minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
-                for batch_num in range(num_batches):
-                    parameter_train_batch = minibatches[batch_num][0].T
-                    state_obs_train_batch = minibatches[batch_num][1].T
-                    sess.run(optimizer_Adam_op, feed_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch})
+            minibatches = random_mini_batches(parameter_train.T, state_obs_train.T, hyper_p.batch_size, 1234)
+            for batch_num in range(num_batches):
+                parameter_train_batch = minibatches[batch_num][0].T
+                state_obs_train_batch = minibatches[batch_num][1].T
+                sess.run(optimizer_Adam_op, feed_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch})
                 
             #=== Iteration Information ===#
             if epoch % 100 == 0:
                 elapsed = time.time() - start_time
-                loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train}) 
+                loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch}) 
                 autoencoder_RE, parameter_RE, state_RE, s = sess.run([parameter_autoencoder_relative_error, parameter_inverse_problem_relative_error, state_obs_relative_error, summ], \
                                                                      feed_dict = {NN.parameter_input_tf: parameter_test, NN.state_obs_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test})
                 writer.add_summary(s, epoch)
@@ -222,8 +219,8 @@ def trainer(hyper_p, run_options):
         #=== Optimize with LBFGS ===#
         if run_options.use_LBFGS == 1:
             print('Optimizing with LBFGS')   
-            optimizer_LBFGS.minimize(sess, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train})
-            loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train}) 
+            optimizer_LBFGS.minimize(sess, feed_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch})
+            loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train_batch, NN.state_obs_tf: state_obs_train_batch}) 
             autoencoder_RE, parameter_RE, state_RE, s = sess.run([parameter_autoencoder_relative_error, parameter_inverse_problem_relative_error, state_obs_relative_error, summ], \
                                                                  feed_dict = {NN.parameter_input_tf: parameter_test, NN.state_obs_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test})
             writer.add_summary(s, epoch)
