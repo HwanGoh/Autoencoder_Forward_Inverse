@@ -44,7 +44,10 @@ class HyperParameters:
     gpu               = '1'
     
 class RunOptions:
-    def __init__(self, hyper_p):  
+    def __init__(self, hyper_p): 
+        #=== Use LBFGS Optimizer ===#
+        self.use_LBFGS = 1
+        
         #=== Data type ===#
         self.use_full_domain_data = 0
         self.use_bnd_data = 0
@@ -217,16 +220,17 @@ def trainer(hyper_p, run_options):
                 start_time = time.time()     
                                  
         #=== Optimize with LBFGS ===#
-        print('Optimizing with LBFGS\n')   
-        optimizer_LBFGS.minimize(sess, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train})
-        loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train}) 
-        autoencoder_RE, parameter_RE, state_RE, s = sess.run([parameter_autoencoder_relative_error, parameter_inverse_problem_relative_error, state_obs_relative_error, summ], \
-                                                             feed_dict = {NN.parameter_input_tf: parameter_test, NN.state_obs_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test})
-        writer.add_summary(s, epoch)
-        elapsed = time.time() - start_time
-        print('LBFGS Optimization Complete\n')         
-        print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
-        print('Relative Errors: Autoencoder: %.3e, Parameter: %.3e, State: %.3e' %(autoencoder_RE, parameter_RE, state_RE))
+        if run_options.use_LBFGS == 1:
+            print('Optimizing with LBFGS')   
+            optimizer_LBFGS.minimize(sess, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train})
+            loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train}) 
+            autoencoder_RE, parameter_RE, state_RE, s = sess.run([parameter_autoencoder_relative_error, parameter_inverse_problem_relative_error, state_obs_relative_error, summ], \
+                                                                 feed_dict = {NN.parameter_input_tf: parameter_test, NN.state_obs_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test})
+            writer.add_summary(s, epoch)
+            elapsed = time.time() - start_time
+            print('LBFGS Optimization Complete')         
+            print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
+            print('Relative Errors: Autoencoder: %.3e, Parameter: %.3e, State: %.3e\n' %(autoencoder_RE, parameter_RE, state_RE))
         
         #=== Save final model ===#
         save_weights_and_biases(sess, hyper_p.truncation_layer, NN.layers, run_options.NN_savefile_name)  
