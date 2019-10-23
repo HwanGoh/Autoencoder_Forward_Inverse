@@ -218,13 +218,13 @@ def trainer(hyper_p, run_options):
                                  
         #=== Optimize with LBFGS ===#
         print('Optimizing with LBFGS\n')   
-        #optimizer_LBFGS.minimize(sess, feed_dict=tf_dict)
+        optimizer_LBFGS.minimize(sess, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train})
         loss_value = sess.run(loss, feed_dict = {NN.parameter_input_tf: parameter_train, NN.state_obs_tf: state_obs_train}) 
         autoencoder_RE, parameter_RE, state_RE, s = sess.run([parameter_autoencoder_relative_error, parameter_inverse_problem_relative_error, state_obs_relative_error, summ], \
                                                              feed_dict = {NN.parameter_input_tf: parameter_test, NN.state_obs_tf: state_obs_test, NN.state_obs_inverse_input_tf: state_obs_test})
         writer.add_summary(s, epoch)
-        print('LBFGS Optimization Complete\n') 
         elapsed = time.time() - start_time
+        print('LBFGS Optimization Complete\n')         
         print('Loss: %.3e, Time: %.2f' %(loss_value, elapsed))
         print('Relative Errors: Autoencoder: %.3e, Parameter: %.3e, State: %.3e' %(autoencoder_RE, parameter_RE, state_RE))
         
