@@ -38,50 +38,41 @@ class AutoencoderFwdInv:
         biases_init_value = 0       
         
         #=== Initialize Weights and Biases ===#
-        if construct_flag == 1:
-            with tf.variable_scope("autoencoder") as scope:
-                # Forward Problem
-                with tf.variable_scope("encoder") as scope:
-                    for l in range(1, hyper_p.truncation_layer+1): 
-                            W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.random_normal_initializer())
-                            b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(biases_init_value))                                  
-                            tf.summary.histogram("weights" + str(l), W)
-                            tf.summary.histogram("biases" + str(l), b)
-                            self.weights.append(W)
-                            self.biases.append(b)
-                                                 
-                # Inverse Problem
-                with tf.variable_scope("decoder") as scope:
-                    for l in range(hyper_p.truncation_layer+1, num_layers):
-                            W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.contrib.layers.xavier_initializer())
-                            b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(biases_init_value))
-                            tf.summary.histogram("weights" + str(l), W)
-                            tf.summary.histogram("biases" + str(l), b)
-                            self.weights.append(W)
-                            self.biases.append(b)
-        
-        #=== Load Trained Model ===# 
-        if construct_flag == 0: 
+        with tf.variable_scope("autoencoder") as scope:
+            # Forward Problem
             with tf.variable_scope("encoder") as scope:
                 for l in range(1, hyper_p.truncation_layer+1): 
-                    df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
-                    df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
-                    restored_W = df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]])
-                    restored_b = df_trained_biases.values.reshape([1, self.layers[l]])
-                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.constant_initializer(restored_W))
-                    b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(restored_b))                                  
+                    if construct_flag == 1:
+                        weights_initializer = tf.random_normal_initializer()
+                        biases_initializer = tf.constant_initializer(0)
+                    if construct_flag == 0:
+                        df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
+                        df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
+                        weights_initializer = tf.constant_initializer(df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]]))
+                        biases_initializer = tf.constant_initializer(df_trained_biases.values.reshape([1, self.layers[l]]))
+                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = weights_initializer)
+                    b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = biases_initializer)                                  
+                    tf.summary.histogram("weights" + str(l), W)
+                    tf.summary.histogram("biases" + str(l), b)
                     self.weights.append(W)
-                    self.biases.append(b)
+                    self.biases.append(b)                                             
+            # Inverse Problem
             with tf.variable_scope("decoder") as scope:
-               for l in range(hyper_p.truncation_layer+1, num_layers):
-                    df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
-                    df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
-                    restored_W = df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]])
-                    restored_b = df_trained_biases.values.reshape([1, self.layers[l]])
-                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = tf.constant_initializer(restored_W))
-                    b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = tf.constant_initializer(restored_b))                                  
+                for l in range(hyper_p.truncation_layer+1, num_layers):
+                    if construct_flag == 1:
+                        weights_initializer = tf.random_normal_initializer()
+                        biases_initializer = tf.constant_initializer(0)
+                    if construct_flag == 0:
+                        df_trained_weights = pd.read_csv(savefilepath + "_W" + str(l) + '.csv')
+                        df_trained_biases = pd.read_csv(savefilepath + "_b" + str(l) + '.csv')
+                        weights_initializer = tf.constant_initializer(df_trained_weights.values.reshape([self.layers[l-1], self.layers[l]]))
+                        biases_initializer = tf.constant_initializer(df_trained_biases.values.reshape([1, self.layers[l]]))
+                    W = tf.get_variable("W" + str(l), dtype = tf.float32, shape = [self.layers[l-1], self.layers[l]], initializer = weights_initializer)
+                    b = tf.get_variable("b" + str(l), dtype = tf.float32, shape = [1, self.layers[l]], initializer = biases_initializer)                                  
+                    tf.summary.histogram("weights" + str(l), W)
+                    tf.summary.histogram("biases" + str(l), b)
                     self.weights.append(W)
-                    self.biases.append(b)
+                    self.biases.append(b)  
                 
 ###############################################################################
 #                           Network Propagation                               #
