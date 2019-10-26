@@ -98,7 +98,7 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_data = 20
+    num_data = 50000
         
     # Select true or test set
     generate_train_data = 1
@@ -109,7 +109,7 @@ if __name__ == "__main__":
     generate_full_domain = 0
     
     # Select observation type
-    generate_boundary_state = 1
+    generate_boundary_state = 0
     
     # Defining filenames and creating directories
     if not os.path.exists('../Data'):
