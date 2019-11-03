@@ -24,15 +24,15 @@ np.random.seed(1234)
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'full'
+    data_type         = 'bndonly'
     num_hidden_layers = 3
     truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 1446
+    num_hidden_nodes  = 614
     penalty           = 1
     num_training_data = 50000
     batch_size        = 1000
     num_epochs        = 200
-    gpu               = '1'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p): 
