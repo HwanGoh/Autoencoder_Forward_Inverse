@@ -6,11 +6,12 @@ Created on Sat Sep 14 14:35:58 2019
 @author: Hwan Goh
 """
 
-import tensorflow as tf # for some reason this must be first! Or else I get segmentation fault
 import numpy as np
+import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from Utilities.optimize_autoencoder import optimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -109,9 +110,22 @@ def trainer(hyper_p, run_options):
     NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name, construct_flag = 1)
     
     #=== Training ===#
-    optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
+    storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs = optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
 
-    
+#=== Saving Metrics ===#
+    metrics_dict = {}
+    metrics_dict['loss_train'] = storage_array_loss_train
+    metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
+    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_forward_problem
+    metrics_dict['loss_val'] = storage_array_loss_val
+    metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
+    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
+    metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
+    metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
+    metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
+    df_metrics = pd.DataFrame(metrics_dict)
+    df_metrics.to_csv(run_options.NN_savefile_name + "_metrics" + '.csv', index=False)
+
 ###############################################################################
 #                                 Driver                                      #
 ###############################################################################     
