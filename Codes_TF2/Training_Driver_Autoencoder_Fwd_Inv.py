@@ -24,7 +24,7 @@ np.random.seed(1234)
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'full'
+    data_type         = 'bndonly'
     num_hidden_layers = 1
     truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
@@ -112,7 +112,7 @@ def trainer(hyper_p, run_options):
     #=== Training ===#
     storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs = optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
 
-#=== Saving Metrics ===#
+    #=== Saving Metrics ===#
     metrics_dict = {}
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
@@ -135,15 +135,15 @@ if __name__ == "__main__":
     hyper_p = HyperParameters()
     
     if len(sys.argv) > 1:
-            hyper_p.data_type         = str(sys.argv[1])
-            hyper_p.num_hidden_layers = int(sys.argv[2])
-            hyper_p.truncation_layer  = int(sys.argv[3])
-            hyper_p.num_hidden_nodes  = int(sys.argv[4])
-            hyper_p.penalty           = float(sys.argv[5])
-            hyper_p.num_training_data = int(sys.argv[6])
-            hyper_p.batch_size        = int(sys.argv[7])
-            hyper_p.num_epochs        = int(sys.argv[8])
-            hyper_p.gpu               = str(sys.argv[9])
+        hyper_p.data_type         = str(sys.argv[1])
+        hyper_p.num_hidden_layers = int(sys.argv[2])
+        hyper_p.truncation_layer  = int(sys.argv[3])
+        hyper_p.num_hidden_nodes  = int(sys.argv[4])
+        hyper_p.penalty           = float(sys.argv[5])
+        hyper_p.num_training_data = int(sys.argv[6])
+        hyper_p.batch_size        = int(sys.argv[7])
+        hyper_p.num_epochs        = int(sys.argv[8])
+        hyper_p.gpu               = str(sys.argv[9])
             
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
