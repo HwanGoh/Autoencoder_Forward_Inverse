@@ -30,7 +30,7 @@ class HyperParameters:
     num_hidden_nodes  = 1446
     penalty           = 1
     num_training_data = 50000
-    batch_size        = 2
+    batch_size        = 1000
     num_epochs        = 200
     gpu               = '1'
     
