@@ -26,11 +26,11 @@ np.random.seed(1234)
 class HyperParameters:
     data_type         = 'bndonly'
     num_hidden_layers = 3
-    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 614
+    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 200
     penalty           = 1
-    num_training_data = 50000
-    batch_size        = 1000
+    num_training_data = 20
+    batch_size        = 50000
     num_epochs        = 200
     gpu               = '2'
     
