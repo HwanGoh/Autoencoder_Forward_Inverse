@@ -25,7 +25,7 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 3
+    num_hidden_layers = 1
     truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
     penalty           = 1

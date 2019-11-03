@@ -48,10 +48,10 @@ class AutoencoderFwdInv(tf.keras.Model):
 ###############################################################################
 #                          Autoencoder Propagation                            #    
 ###############################################################################                
-        def call(self, X):
-            fwd_problem_solution = self.encoder(X)
-            inv_problem_solution = self.decoder(fwd_problem_solution)
-            return inv_problem_solution
+    def call(self, X):
+        fwd_problem_solution = self.encoder(X)
+        inv_problem_solution = self.decoder(fwd_problem_solution)
+        return inv_problem_solution
             
 ###############################################################################
 #                                  Encoder                                    # 
@@ -70,7 +70,7 @@ class Encoder(tf.keras.layers.Layer):
     def call(self, X):
         for hidden_layer in self.hidden_layers_encoder:
             X = hidden_layer(X)
-        return 
+        return X
     
 ###############################################################################
 #                                  Decoder                                    # 
@@ -89,7 +89,7 @@ class Decoder(tf.keras.layers.Layer):
     def call(self, X):
         for hidden_layer in self.hidden_layers_decoder:
             X = hidden_layer(X)
-        return 
+        return X
     
     
     
