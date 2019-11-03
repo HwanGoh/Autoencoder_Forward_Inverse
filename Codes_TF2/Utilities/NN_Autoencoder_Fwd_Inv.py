@@ -27,10 +27,8 @@ class AutoencoderFwdInv(tf.keras.Model):
         self.num_layers = len(self.architecture)    
        
         #=== Define Other Attributes ===#
-        self.truncation_layer = hyper_p.truncation_layer
-        self.hidden_layers_encoder = [] # This will be a list of layers
         self.hidden_layers_decoder = [] # This will be a list of layers
-        activation = ['relu']
+        activation = 'relu'
         self.activations = ['linear'] + [activation]*hyper_p.num_hidden_layers + ['linear']
         self.activations[hyper_p.truncation_layer] = 'linear' # This is the identity activation
         
@@ -39,8 +37,13 @@ class AutoencoderFwdInv(tf.keras.Model):
         self.bias_initializer = 'zeros'
                 
         if construct_flag == 1:
-            self.encoder = Encoder()
-            self.decoder = Decoder()
+            self.encoder = Encoder(hyper_p.truncation_layer, 
+                                   self.architecture, self.activations, 
+                                   self.kernel_initializer, self.bias_initializer)
+            self.decoder = Decoder(hyper_p.truncation_layer, 
+                                   self.architecture, self.activations, 
+                                   self.kernel_initializer, self.bias_initializer, 
+                                   self.num_layers)
 
 ###############################################################################
 #                          Autoencoder Propagation                            #    
@@ -54,12 +57,13 @@ class AutoencoderFwdInv(tf.keras.Model):
 #                                  Encoder                                    # 
 ###############################################################################         
 class Encoder(tf.keras.layers.Layer):
-    def __init__(self):
+    def __init__(self, truncation_layer, architecture, activations, kernel_initializer, bias_initializer):
         super(Encoder, self).__init__()
-        for l in range(1, self.truncation_layer+1):
-            hidden_layer_encoder = tf.keras.layers.Dense(units = self.architecture[l],
-                                                         activation = self.activations[l], use_bias = True,
-                                                         kernel_initializer = self.kernel_initializer, bias_initializer = self.bias_initializer,
+        self.hidden_layers_encoder = [] # This will be a list of layers
+        for l in range(1, truncation_layer+1):
+            hidden_layer_encoder = tf.keras.layers.Dense(units = architecture[l],
+                                                         activation = activations[l], use_bias = True,
+                                                         kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                                          name = "W" + str(l))
             self.hidden_layers_encoder.append(hidden_layer_encoder)
             
@@ -72,12 +76,13 @@ class Encoder(tf.keras.layers.Layer):
 #                                  Decoder                                    # 
 ###############################################################################         
 class Decoder(tf.keras.layers.Layer):
-    def __init__(self):
+    def __init__(self, truncation_layer, architecture, activations, kernel_initializer, bias_initializer, num_layers):
         super(Decoder, self).__init__()
-        for l in range(self.truncation_layer+1, self.num_layers):
-            hidden_layer_decoder = tf.keras.layers.Dense(units = self.architecture[l],
-                                                         activation = self.activations[l], use_bias = True,
-                                                         kernel_initializer = self.kernel_initializer, bias_initializer = self.bias_initializer,
+        self.hidden_layers_decoder = [] # This will be a list of layers
+        for l in range(truncation_layer+1, num_layers):
+            hidden_layer_decoder = tf.keras.layers.Dense(units = architecture[l],
+                                                         activation = activations[l], use_bias = True,
+                                                         kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                                          name = "W" + str(l))
             self.hidden_layers_decoder.append(hidden_layer_decoder)
             

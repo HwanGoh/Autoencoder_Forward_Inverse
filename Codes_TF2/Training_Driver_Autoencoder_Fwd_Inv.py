@@ -24,7 +24,7 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 1
+    num_hidden_layers = 3
     truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1446
     penalty           = 1
@@ -35,6 +35,9 @@ class HyperParameters:
     
 class RunOptions:
     def __init__(self, hyper_p): 
+        #===  Number of Testing Data ===#
+        self.num_testing_data = 20
+        
         #=== Use LBFGS Optimizer ===#
         self.use_LBFGS = 0
         
@@ -52,17 +55,14 @@ class RunOptions:
         if hyper_p.data_type == 'bndonly':
             self.use_bnd_data_only = 1
         
-        #===  Observation Dimensions === #
+        #=== Observation Dimensions === #
         self.full_domain_dimensions = 1446 
         if self.use_full_domain_data == 1:
             self.state_obs_dimensions = self.full_domain_dimensions 
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
             self.state_obs_dimensions = 614
         
-        #===  Other options ===#
-        self.num_testing_data = 20
-        
-        #===  File name ===#
+        #=== File name ===#
         if hyper_p.penalty >= 1:
             hyper_p.penalty = int(hyper_p.penalty)
             penalty_string = str(hyper_p.penalty)
@@ -103,12 +103,14 @@ def trainer(hyper_p, run_options):
     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
     #=== Loading Data ===#        
-    obs_indices, data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, hyper_p.num_training_data, hyper_p.batch_size, run_options.random_seed)
-    pdb.set_trace()      
+    obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, hyper_p.num_training_data, hyper_p.batch_size, run_options.random_seed) 
     
     #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_train.shape[1], run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name, construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name, construct_flag = 1)
     
+    #=== Training ===#
+    optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
+
     
 ###############################################################################
 #                                 Driver                                      #

@@ -40,17 +40,17 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
         
     #=== Define Outputs ===#
     data_input_shape = parameter_train.shape[1:]
-    num_channels = parameter_train.shape[-1]
+    parameter_dimension = parameter_train.shape[-1]
     
     #=== Shuffling Data ===#
-    data_and_labels_train_full = tf.data.Dataset.from_tensor_slices((parameter_train, state_obs_train)).shuffle(8192, seed=random_seed)
-    data_and_labels_test = tf.data.Dataset.from_tensor_slices((parameter_test, state_obs_test)).shuffle(8192, seed=random_seed).batch(batch_size)
+    parameter_and_state_obs_train_full = tf.data.Dataset.from_tensor_slices((parameter_train, state_obs_train)).shuffle(8192, seed=random_seed)
+    parameter_and_state_obs_test = tf.data.Dataset.from_tensor_slices((parameter_test, state_obs_test)).shuffle(8192, seed=random_seed).batch(batch_size)
     
     #=== Partitioning Out Validation Set and Constructing Batches ===#
     num_training_data = int(0.8 * len(parameter_train))
-    data_and_labels_train = data_and_labels_train_full.take(num_training_data).batch(batch_size)
-    data_and_labels_val = data_and_labels_train_full.skip(num_training_data).batch(batch_size)    
-    num_batches_train = len(list(data_and_labels_train))
-    num_batches_val = len(list(data_and_labels_train))
+    parameter_and_state_obs_train = parameter_and_state_obs_train_full.take(num_training_data).batch(batch_size)
+    parameter_and_state_obs_val = parameter_and_state_obs_train_full.skip(num_training_data).batch(batch_size)    
+    num_batches_train = len(list(parameter_and_state_obs_train))
+    num_batches_val = len(list(parameter_and_state_obs_train))
 
-    return obs_indices, data_and_labels_train, data_and_labels_test, data_and_labels_val, data_input_shape, num_channels, num_batches_train, num_batches_val
+    return obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val
