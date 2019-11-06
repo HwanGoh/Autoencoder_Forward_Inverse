@@ -25,13 +25,13 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 3
-    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 614
+    num_hidden_layers = 7
+    truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 500
     penalty           = 1
-    num_training_data = 20
-    batch_size        = 5
-    num_epochs        = 100
+    num_training_data = 50000
+    batch_size        = 1000
+    num_epochs        = 2000
     gpu               = '2'
     
 class RunOptions:

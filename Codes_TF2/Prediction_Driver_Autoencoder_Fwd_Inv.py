@@ -22,14 +22,14 @@ import sys
 #                               Parameters                                    #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'full'
+    data_type         = 'bndonly'
     num_hidden_layers = 3
     truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 200
+    num_hidden_nodes  = 614
     penalty           = 1
     num_training_data = 50000
     batch_size        = 1000
-    num_epochs        = 100
+    num_epochs        = 2000
     gpu               = '2'
     
 class RunOptions:
@@ -56,7 +56,7 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         #=== Number of Testing Data ===#
-        self.num_testing_data = 2000
+        self.num_testing_data = 200
         
         #=== File name ===#
         if hyper_p.penalty >= 1:
