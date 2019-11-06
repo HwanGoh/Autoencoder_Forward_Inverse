@@ -117,7 +117,6 @@ if __name__ == "__main__":
     parameter_and_state_obs_val_draw = parameter_and_state_obs_val.take(1)
     
     for batch_num, (parameter_test, state_obs_test) in parameter_and_state_obs_val_draw.enumerate():
-        print(batch_num.numpy())
         parameter_pred_batch = NN.decoder(state_obs_test)
         state_pred_batch = NN.encoder(parameter_test)
     

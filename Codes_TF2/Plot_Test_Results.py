@@ -7,12 +7,13 @@ Created on Wed Nov  6 12:59:59 2019
 """
 
 import numpy as np
-import dolfin as dl
-from forward_solve import Fin
-from thermal_fin import get_space
-from Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 import pandas as pd
 import matplotlib.pyplot as plt
+import dolfin as dl
+
+from Generate_Data.forward_solve import Fin
+from Generate_Data.thermal_fin import get_space
+from Generate_Data.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -112,7 +113,7 @@ if __name__ == "__main__":
     #  Plotting  #
     ##############
     #=== Plotting test parameter and test state ===#
-    parameter_test_dl = solver.nine_param_to_function(parameter_test.T)
+    parameter_test_dl = solver.nine_param_to_function(parameter_test)
     state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
     state_test = state_test_dl.vector().get_local()         
     
@@ -129,7 +130,7 @@ if __name__ == "__main__":
     plt.show()
     
     #=== Plotting predictions of test parameter and test state ===#
-    parameter_pred_dl = solver.nine_param_to_function(parameter_pred.T)
+    parameter_pred_dl = solver.nine_param_to_function(parameter_pred)
     
     p_pred_fig = dl.plot(parameter_pred_dl)
     p_pred_fig.ax.set_title('Decoder Estimation of True Parameter', fontsize=18)  
