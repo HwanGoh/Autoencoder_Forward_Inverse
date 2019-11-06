@@ -14,14 +14,9 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 
-
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-import os
 import sys
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-os.environ['OMP_NUM_THREADS'] = '6'
-sys.path.insert(0, '../../Utilities/')
 
 ###############################################################################
 #                               Parameters                                    #
@@ -89,17 +84,7 @@ class RunOptions:
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
         self.figures_savefile_directory = '../Figures/' + self.filename
-        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test'
-        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test'
-        self.figures_savefile_name_parameter_pred = self.figures_savefile_directory + '/' + 'parameter_pred'
-        self.figures_savefile_name_state_pred = self.figures_savefile_directory + '/' + 'state_pred'
-        
-        #=== Creating Directories ===#
-        if not os.path.exists('../Datasets'):
-            os.makedirs('../Datasets')
-        if not os.path.exists(self.figures_savefile_directory):
-            os.makedirs(self.figures_savefile_directory)
-       
+               
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
@@ -129,12 +114,32 @@ if __name__ == "__main__":
     #######################
     #   Form Predictions  #
     #######################      
-    parameter_and_state_obs_val_draw = parameter_and_state_obs_val.take(10)
+    parameter_and_state_obs_val_draw = parameter_and_state_obs_val.take(1)
     
-    for batch_num, (parameter_val, state_obs_val) in parameter_and_state_obs_val_draw.enumerate():
+    for batch_num, (parameter_test, state_obs_test) in parameter_and_state_obs_val_draw.enumerate():
         print(batch_num.numpy())
-        parameter_pred = NN.decoder(state_obs_val)
-        state_pred = NN.encoder(parameter_val)
+        parameter_pred_batch = NN.decoder(state_obs_test)
+        state_pred_batch = NN.encoder(parameter_test)
     
-    pdb.set_trace()
+    parameter_test = parameter_test[0,:].numpy()
+    parameter_pred = parameter_pred_batch[0,:].numpy()
+    if run_options.use_full_domain_data == 1: # No state prediction if the truncation layer only consists of the observations
+        state_test = state_obs_test[0,:].numpy()
+        state_pred = state_pred_batch[0,:].numpy()
+    
+    #######################
+    #   Save Predictions  #
+    #######################  
+    df_parameter_test = pd.DataFrame({'parameter_test': parameter_test})
+    df_parameter_test.to_csv(run_options.NN_savefile_name + '_parameter_test' + '.csv', index=False)  
+    df_parameter_pred = pd.DataFrame({'parameter_pred': parameter_pred})
+    df_parameter_pred.to_csv(run_options.NN_savefile_name + '_parameter_pred' + '.csv', index=False)  
+    if run_options.use_full_domain_data == 1: # No state prediction if the truncation layer only consists of the observations
+        df_state_test = pd.DataFrame({'state_test': state_test})
+        df_state_test.to_csv(run_options.NN_savefile_name + '_state_test' + '.csv', index=False)  
+        df_state_pred = pd.DataFrame({'state_pred': state_pred})
+        df_state_pred.to_csv(run_options.NN_savefile_name + '_state_pred' + '.csv', index=False)  
+
+    print('\nPredictions Saved to ' + run_options.NN_savefile_name)
+        
     
