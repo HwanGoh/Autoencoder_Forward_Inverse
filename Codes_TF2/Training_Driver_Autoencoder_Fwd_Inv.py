@@ -32,7 +32,7 @@ class HyperParameters:
     num_training_data = 50000
     batch_size        = 1000
     num_epochs        = 2000
-    gpu               = '2'
+    gpu               = '1'
     
 class RunOptions:
     def __init__(self, hyper_p): 
