@@ -75,17 +75,17 @@ class RunOptions:
 
         #=== Loading and saving data ===#
         if self.use_full_domain_data == 1:
-            self.observation_indices_savefilepath = '../Datasets/' + 'thermal_fin_full_domain'
-            self.parameter_train_savefilepath = '../Datasets/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
-            self.state_obs_train_savefilepath = '../Datasets/' + 'state_train_%d' %(hyper_p.num_training_data) 
-            self.parameter_test_savefilepath = '../Datasets/' + 'parameter_test_%d' %(self.num_testing_data) 
-            self.state_obs_test_savefilepath = '../Datasets/' + 'state_test_%d' %(self.num_testing_data) 
+            self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
+            self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
+            self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(hyper_p.num_training_data) 
+            self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) 
+            self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) 
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
-            self.observation_indices_savefilepath = '../Datasets/' + 'thermal_fin_bnd_indices'
-            self.parameter_train_savefilepath = '../Datasets/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.state_obs_train_savefilepath = '../Datasets/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
-            self.parameter_test_savefilepath = '../Datasets/' + 'parameter_test_bnd_%d' %(self.num_testing_data) 
-            self.state_obs_test_savefilepath = '../Datasets/' + 'state_test_bnd_%d' %(self.num_testing_data)             
+            self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices'
+            self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) 
+            self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) 
+            self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_bnd_%d' %(self.num_testing_data) 
+            self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_bnd_%d' %(self.num_testing_data)             
         
         #=== Saving neural network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
