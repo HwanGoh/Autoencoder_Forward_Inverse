@@ -37,7 +37,7 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #===  Number of Testing Data ===#
-        self.num_testing_data = 20
+        self.num_testing_data = 200
         
         #=== Use LBFGS Optimizer ===#
         self.use_LBFGS = 0
