@@ -9,7 +9,8 @@ Created on Wed Sep 18 20:53:06 2019
 import subprocess
 from mpi4py import MPI
 import copy
-from schedule_and_run import get_hyperparameter_permutations, schedule_runs
+from Utilities.get_hyperparameter_permutations import get_hyperparameter_permutations
+from Utilities.schedule_and_run import schedule_runs
 from Training_Driver_Autoencoder_Fwd_Inv import HyperParameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
