@@ -21,7 +21,7 @@ def loss_autoencoder(autoencoder_pred, parameter_true):
     return tf.reduce_mean(tf.square(tf.subtract(parameter_true, autoencoder_pred)))
 
 def loss_forward_problem(state_obs_pred, state_obs_true, penalty):
-    return penalty*tf.reduce_mean(tf.square(state_obs_pred, state_obs_true))
+    return penalty*tf.reduce_mean(tf.square(tf.subtract(state_obs_pred, state_obs_true)))
 
 def relative_error(prediction, true):
     return tf.norm(true - prediction, 2)/tf.norm(true, 2)
@@ -151,5 +151,5 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
     #=== Save final model ===#
     NN.save_weights(run_options.NN_savefile_name)
     print('Final Model Saved') 
-    
+
     return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs 

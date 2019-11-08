@@ -12,7 +12,7 @@ from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class AutoencoderFwdInv(tf.keras.Model):
-    def __init__(self, hyper_p, run_options, parameter_dimension, state_dimension, obs_indices, savefilepath, construct_flag):
+    def __init__(self, hyper_p, run_options, parameter_dimension, state_dimension, obs_indices, savefilepath):
         super(AutoencoderFwdInv, self).__init__()
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -36,15 +36,14 @@ class AutoencoderFwdInv(tf.keras.Model):
         self.kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
         self.bias_initializer = 'zeros'
                 
-        if construct_flag == 1:
-            self.encoder = Encoder(hyper_p.truncation_layer, 
-                                   self.architecture, self.activations, 
-                                   self.kernel_initializer, self.bias_initializer)
-            self.decoder = Decoder(hyper_p.truncation_layer, 
-                                   self.architecture, self.activations, 
-                                   self.kernel_initializer, self.bias_initializer, 
-                                   self.num_layers)
-
+        self.encoder = Encoder(hyper_p.truncation_layer, 
+                               self.architecture, self.activations, 
+                               self.kernel_initializer, self.bias_initializer)
+        self.decoder = Decoder(hyper_p.truncation_layer, 
+                               self.architecture, self.activations, 
+                               self.kernel_initializer, self.bias_initializer, 
+                               self.num_layers)
+        
 ###############################################################################
 #                          Autoencoder Propagation                            #    
 ###############################################################################                

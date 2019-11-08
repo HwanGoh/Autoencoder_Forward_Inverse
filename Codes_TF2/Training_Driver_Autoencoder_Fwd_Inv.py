@@ -25,12 +25,12 @@ np.random.seed(1234)
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 1
-    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 5
+    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     penalty           = 1
-    num_training_data = 20
-    batch_size        = 20
+    num_training_data = 50000
+    batch_size        = 1000
     num_epochs        = 20
     gpu               = '1'
     
@@ -107,7 +107,7 @@ def trainer(hyper_p, run_options):
     obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, hyper_p.num_training_data, hyper_p.batch_size, run_options.random_seed) 
     
     #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name, construct_flag = 1)
+    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
     
     #=== Training ===#
     storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs = optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)

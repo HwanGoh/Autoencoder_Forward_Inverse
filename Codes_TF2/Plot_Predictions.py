@@ -24,8 +24,8 @@ import os
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 7
-    truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 5
+    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     penalty           = 1
     num_training_data = 20
@@ -57,7 +57,7 @@ class RunOptions:
             self.state_obs_dimensions = 614
         
         #=== Number of Testing Data ===#
-        self.num_testing_data = 20
+        self.num_testing_data = 200
         
         #=== File name ===#
         if hyper_p.penalty >= 1:
@@ -76,6 +76,14 @@ class RunOptions:
         self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test'
         self.figures_savefile_name_parameter_pred = self.figures_savefile_directory + '/' + 'parameter_pred'
         self.figures_savefile_name_state_pred = self.figures_savefile_directory + '/' + 'state_pred'
+        
+        
+        if self.use_full_domain_data == 1:
+            self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
+            self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(hyper_p.num_training_data) 
+            self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(hyper_p.num_training_data) 
+            self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) 
+            self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) 
         
         #=== Creating Directories ===#
         if not os.path.exists(self.figures_savefile_directory):
@@ -104,15 +112,50 @@ if __name__ == "__main__":
     parameter_pred = df_parameter_pred.to_numpy()
     
     if run_options.use_full_domain_data == 1: # No state prediction if the truncation layer only consists of the observations
-        df_state_test = pd.read_csv(run_options.NN_savefile_name + '_state_test' + '.csv')
-        state_test = df_state_test.to_numpy()
+# =============================================================================
+#         df_state_test = pd.read_csv(run_options.NN_savefile_name + '_state_test' + '.csv')
+#         state_test = df_state_test.to_numpy()
+# =============================================================================
         df_state_pred = pd.read_csv(run_options.NN_savefile_name + '_state_pred' + '.csv')
         state_pred = df_state_pred.to_numpy()
+        
+# =============================================================================
+#     num_training_data = 50000
+#     #=== Load observation indices ===# 
+#     print('Loading Boundary Indices')
+#     df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
+#     obs_indices = df_obs_indices.to_numpy()    
+#     #=== Load Train and Test Data ===#  
+#     print('Loading Training Data')
+#     df_parameter_train = pd.read_csv(run_options.parameter_train_savefilepath + '.csv')
+#     df_state_obs_train = pd.read_csv(run_options.state_obs_train_savefilepath + '.csv')
+#     parameter_train = df_parameter_train.to_numpy()
+#     state_obs_train = df_state_obs_train.to_numpy()
+#     parameter_train = parameter_train.reshape((num_training_data, 9))
+#     state_obs_train = state_obs_train.reshape((num_training_data, run_options.state_obs_dimensions))
+#     print('Loading Testing Data')
+#     df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
+#     df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
+#     parameter_test = df_parameter_test.to_numpy()
+#     state_obs_test = df_state_obs_test.to_numpy()
+#     parameter_test = parameter_test.reshape((run_options.num_testing_data, 9))
+#     state_obs_test = state_obs_test.reshape((run_options.num_testing_data, run_options.state_obs_dimensions))        
+#     
+#     parameter_train = parameter_train[43241,:]
+#     state_train =  state_obs_train[43241,:]
+#     
+#     parameter_train_dl = solver.nine_param_to_function(parameter_train)
+#     state_train_dl, _ = solver.forward(parameter_train_dl) # generate true state for comparison
+#     state_train_forward = state_train_dl.vector().get_local()    
+#         
+#     diff = state_train - state_train_forward
+#     pdb.set_trace()
+# =============================================================================
     
     ##############
     #  Plotting  #
     ##############
-    #=== Plotting test parameter and test state ===#
+    #=== Plotting test parameter and test state ===#   
     parameter_test_dl = solver.nine_param_to_function(parameter_test)
     state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
     state_test = state_test_dl.vector().get_local()    

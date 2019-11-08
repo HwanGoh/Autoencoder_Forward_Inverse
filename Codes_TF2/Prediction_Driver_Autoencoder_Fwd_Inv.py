@@ -23,8 +23,8 @@ import sys
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 1
-    truncation_layer  = 1 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 5
+    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     penalty           = 1
     num_training_data = 20
@@ -108,9 +108,9 @@ if __name__ == "__main__":
     #   Import Trained Neural Network  #
     ####################################        
     #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyper_p, run_options, data_input_shape[0], run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name, construct_flag = 1)
-    NN.load_weights(run_options.NN_savefile_name)
-                
+    NN = AutoencoderFwdInv(hyper_p, run_options, data_input_shape[0], run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+    NN.load_weights(run_options.NN_savefile_name)     
+    
     #######################
     #   Form Predictions  #
     #######################      
@@ -119,7 +119,7 @@ if __name__ == "__main__":
     for batch_num, (parameter_test, state_obs_test) in parameter_and_state_obs_val_draw.enumerate():
         parameter_pred_batch = NN.decoder(state_obs_test)
         state_pred_batch = NN.encoder(parameter_test)
-    
+          
     parameter_test = parameter_test[0,:].numpy()
     parameter_pred = parameter_pred_batch[0,:].numpy()
     if run_options.use_full_domain_data == 1: # No state prediction if the truncation layer only consists of the observations
