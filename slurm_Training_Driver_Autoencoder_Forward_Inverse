@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#SBATCH -J Layerwise_Test
+#SBATCH -p gtx
+#SBATCH -N 1
+#SBATCH -n 4
+#SBATCH -t 24:00:00
+#SBATCH -o Autoencoder_Forward_Inverse.out
+#SBATCH --mail-user=Hwan.Goh@gmail.com
+#SBATCH --mail-type=all
+
+module load intel/17.0.4 python3/3.6.3 cuda/10.0 cudnn/7.6.2 nccl/2.4.7
+
+ibrun -np 4 ./Autoencoder_Forward_Inverse.py
