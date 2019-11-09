@@ -170,7 +170,7 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
         print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
         print('Train Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_train_batch_average.result(), loss_train_batch_average_autoencoder.result(), loss_train_batch_average_forward_problem.result()))
         print('Val Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_val_batch_average.result(), loss_val_batch_average_autoencoder.result(), loss_val_batch_average_forward_problem.result()))
-        print('test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_test_batch_average.result(), loss_test_batch_average_autoencoder.result(), loss_test_batch_average_forward_problem.result()))
+        print('Test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_test_batch_average.result(), loss_test_batch_average_autoencoder.result(), loss_test_batch_average_forward_problem.result()))
         print('Rel Errors: AE: %.3e, Inverse: %.3e, Forward: %.3e\n' %(relative_error_batch_average_parameter_autoencoder.result(), relative_error_batch_average_parameter_inverse_problem.result(), relative_error_batch_average_state_obs.result()))
         start_time_epoch = time.time()   
             

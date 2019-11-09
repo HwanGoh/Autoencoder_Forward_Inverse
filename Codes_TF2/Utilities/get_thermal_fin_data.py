@@ -36,7 +36,7 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     parameter_train = tf.cast(parameter_train,tf.float32)
     state_obs_train = tf.cast(state_obs_train, tf.float32)
     parameter_test = tf.cast(parameter_test, tf.float32)
-    state_obs_test = tf.cast(parameter_test, tf.float32)
+    state_obs_test = tf.cast(state_obs_test, tf.float32)
         
     #=== Define Outputs ===#
     data_input_shape = parameter_train.shape[1:]
