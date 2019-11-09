@@ -114,9 +114,9 @@ if __name__ == "__main__":
     #######################
     #   Form Predictions  #
     #######################      
-    parameter_and_state_obs_val_draw = parameter_and_state_obs_val.take(1)
+    parameter_and_state_obs_test_draw = parameter_and_state_obs_test.take(1)
     
-    for batch_num, (parameter_test, state_obs_test) in parameter_and_state_obs_val_draw.enumerate():
+    for batch_num, (parameter_test, state_obs_test) in parameter_and_state_obs_test_draw.enumerate():
         parameter_pred_batch = NN.decoder(state_obs_test)
         state_pred_batch = NN.encoder(parameter_test)
           
