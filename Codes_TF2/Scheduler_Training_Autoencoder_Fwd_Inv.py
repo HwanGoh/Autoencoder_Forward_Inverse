@@ -32,7 +32,7 @@ if __name__ == '__main__':
     nprocs = comm.Get_size()
     rank   = comm.Get_rank()
     
-    # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
+    # By running "mpirun -n <number> ./Scheduler_Training_Autoencoder_Fwd_Inv.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action 
         #########################
         #   Get Scenarios List  #

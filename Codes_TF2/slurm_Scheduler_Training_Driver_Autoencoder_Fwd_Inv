@@ -1,9 +1,9 @@
 #!/bin/bash
 
 #SBATCH -J Autoencoder_Forward_Inverse_Schedule
-#SBATCH -p gtx
+#SBATCH -p gpu
 #SBATCH -N 1
-#SBATCH -n 4
+#SBATCH -n 1
 #SBATCH -t 24:00:00
 #SBATCH -o Autoencoder_Forward_Inverse.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
