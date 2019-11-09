@@ -23,10 +23,10 @@ import sys
 ###############################################################################
 class HyperParameters:
     data_type         = 'full'
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 3
+    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 200
-    penalty           = 1
+    penalty           = 0.01
     num_training_data = 50000
     batch_size        = 1000
     num_epochs        = 4000
