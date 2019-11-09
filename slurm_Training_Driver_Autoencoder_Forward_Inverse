@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -J Autoencoder_Forward_Inverse_Schedule
+#SBATCH -J Layerwise_Test
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 4
