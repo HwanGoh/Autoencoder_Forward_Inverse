@@ -42,6 +42,10 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
     loss_val_batch_average_autoencoder = tf.keras.metrics.Mean()
     loss_val_batch_average_forward_problem = tf.keras.metrics.Mean()
     
+    loss_test_batch_average = tf.keras.metrics.Mean()
+    loss_test_batch_average_autoencoder = tf.keras.metrics.Mean()
+    loss_test_batch_average_forward_problem = tf.keras.metrics.Mean()    
+    
     relative_error_batch_average_parameter_autoencoder = tf.keras.metrics.Mean()
     relative_error_batch_average_parameter_inverse_problem = tf.keras.metrics.Mean()
     relative_error_batch_average_state_obs = tf.keras.metrics.Mean()
@@ -54,6 +58,10 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
     storage_array_loss_val = np.array([])
     storage_array_loss_val_autoencoder = np.array([])
     storage_array_loss_val_forward_problem = np.array([])
+    
+    storage_array_loss_test = np.array([])
+    storage_array_loss_test_autoencoder = np.array([])
+    storage_array_loss_test_forward_problem = np.array([])
     
     storage_array_relative_error_parameter_autoencoder = np.array([])
     storage_array_relative_error_parameter_inverse_problem = np.array([])
@@ -96,10 +104,9 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
             loss_train_batch_average_autoencoder(loss_train_batch_autoencoder)
             loss_train_batch_average_forward_problem(loss_train_batch_forward_problem)
         
-        #=== Computing Relative Errors ===#
+        #=== Computing Relative Errors Validation ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:
             parameter_pred_val_batch_AE = NN(parameter_val)
-            parameter_pred_val_batch_Inverse_problem = NN.decoder(state_obs_val)
             state_pred_val_batch = NN.encoder(parameter_val)
             loss_val_batch_autoencoder = loss_autoencoder(parameter_pred_val_batch_AE, parameter_val)
             loss_val_batch_forward_problem = loss_forward_problem(state_pred_val_batch, state_obs_val, hyper_p.penalty)
@@ -107,9 +114,21 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
             loss_val_batch_average(loss_val_batch)
             loss_val_batch_average_autoencoder(loss_val_batch_autoencoder)
             loss_val_batch_average_forward_problem(loss_val_batch_forward_problem)
-            relative_error_batch_parameter_autoencoder = relative_error(parameter_pred_val_batch_AE, parameter_val)
-            relative_error_batch_parameter_inverse_problem = relative_error(parameter_pred_val_batch_Inverse_problem, parameter_val)
-            relative_error_batch_state_obs = relative_error(state_pred_val_batch, state_obs_val)
+            
+        #=== Computing Relative Errors Test ===#
+        for parameter_test, state_obs_test in parameter_and_state_obs_test:
+            parameter_pred_test_batch_AE = NN(parameter_test)
+            parameter_pred_test_batch_Inverse_problem = NN.decoder(state_obs_test)
+            state_pred_test_batch = NN.encoder(parameter_test)
+            loss_test_batch_autoencoder = loss_autoencoder(parameter_pred_test_batch_AE, parameter_test)
+            loss_test_batch_forward_problem = loss_forward_problem(state_pred_test_batch, state_obs_test, hyper_p.penalty)
+            loss_test_batch = loss_test_batch_autoencoder + loss_test_batch_forward_problem
+            loss_test_batch_average(loss_test_batch)
+            loss_test_batch_average_autoencoder(loss_test_batch_autoencoder)
+            loss_test_batch_average_forward_problem(loss_test_batch_forward_problem)
+            relative_error_batch_parameter_autoencoder = relative_error(parameter_pred_test_batch_AE, parameter_test)
+            relative_error_batch_parameter_inverse_problem = relative_error(parameter_pred_test_batch_Inverse_problem, parameter_test)
+            relative_error_batch_state_obs = relative_error(state_pred_test_batch, state_obs_test)
             relative_error_batch_average_parameter_autoencoder(relative_error_batch_parameter_autoencoder)
             relative_error_batch_average_parameter_inverse_problem(relative_error_batch_parameter_inverse_problem)
             relative_error_batch_average_state_obs(relative_error_batch_state_obs)
@@ -122,6 +141,9 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
             tf.summary.scalar('loss_val', loss_val_batch_average.result(), step=epoch)
             tf.summary.scalar('loss_val_autoencoder', loss_val_batch_average_autoencoder.result(), step=epoch)
             tf.summary.scalar('loss_val_forward_problem', loss_val_batch_average_forward_problem.result(), step=epoch)
+            tf.summary.scalar('loss_test', loss_test_batch_average.result(), step=epoch)
+            tf.summary.scalar('loss_test_autoencoder', loss_test_batch_average_autoencoder.result(), step=epoch)
+            tf.summary.scalar('loss_test_forward_problem', loss_test_batch_average_forward_problem.result(), step=epoch)
             tf.summary.scalar('relative_error_parameter_autoencoder', relative_error_batch_average_parameter_autoencoder.result(), step=epoch)
             tf.summary.scalar('relative_error_parameter_inverse_problem', relative_error_batch_average_parameter_inverse_problem.result(), step=epoch)
             tf.summary.scalar('relative_error_state_obs', relative_error_batch_average_state_obs.result(), step=epoch)
@@ -131,6 +153,9 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
             storage_array_loss_val = np.append(storage_array_loss_val, loss_val_batch_average.result())
             storage_array_loss_val_autoencoder = np.append(storage_array_loss_val_autoencoder, loss_val_batch_average_autoencoder.result())
             storage_array_loss_val_forward_problem = np.append(storage_array_loss_val_forward_problem, loss_val_batch_average_forward_problem.result())
+            storage_array_loss_test = np.append(storage_array_loss_test, loss_test_batch_average.result())
+            storage_array_loss_test_autoencoder = np.append(storage_array_loss_test_autoencoder, loss_test_batch_average_autoencoder.result())
+            storage_array_loss_test_forward_problem = np.append(storage_array_loss_test_forward_problem, loss_test_batch_average_forward_problem.result())
             storage_array_relative_error_parameter_autoencoder = np.append(storage_array_relative_error_parameter_autoencoder, relative_error_batch_average_parameter_autoencoder.result())
             storage_array_relative_error_parameter_inverse_problem = np.append(storage_array_relative_error_parameter_inverse_problem, relative_error_batch_average_parameter_inverse_problem.result())
             storage_array_relative_error_state_obs = np.append(storage_array_relative_error_state_obs, relative_error_batch_average_state_obs.result())
@@ -145,6 +170,7 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
         print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
         print('Train Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_train_batch_average.result(), loss_train_batch_average_autoencoder.result(), loss_train_batch_average_forward_problem.result()))
         print('Val Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_val_batch_average.result(), loss_val_batch_average_autoencoder.result(), loss_val_batch_average_forward_problem.result()))
+        print('test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_test_batch_average.result(), loss_test_batch_average_autoencoder.result(), loss_test_batch_average_forward_problem.result()))
         print('Rel Errors: AE: %.3e, Inverse: %.3e, Forward: %.3e\n' %(relative_error_batch_average_parameter_autoencoder.result(), relative_error_batch_average_parameter_inverse_problem.result(), relative_error_batch_average_state_obs.result()))
         start_time_epoch = time.time()   
             
@@ -152,4 +178,4 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
     NN.save_weights(run_options.NN_savefile_name)
     print('Final Model Saved') 
 
-    return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs 
+    return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs 
