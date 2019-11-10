@@ -41,13 +41,13 @@ if __name__ == '__main__':
         
         # assign instance attributes for hyper_p
         hyper_p.data_type         = ['full']
-        hyper_p.num_hidden_layers = [3]
-        hyper_p.truncation_layer  = [2] # Indexing includes input and output layer with input layer indexed by 0
+        hyper_p.num_hidden_layers = [5]
+        hyper_p.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
         hyper_p.num_hidden_nodes  = [500]
         hyper_p.penalty           = [0.01, 1, 5, 10, 50, 100]
         hyper_p.num_training_data = [50000]
         hyper_p.batch_size        = [1000]
-        hyper_p.num_epochs        = [1000]
+        hyper_p.num_epochs        = [500]
         
         permutations_list, hyper_p_keys = get_hyperparameter_permutations(hyper_p) 
         print('permutations_list generated')
