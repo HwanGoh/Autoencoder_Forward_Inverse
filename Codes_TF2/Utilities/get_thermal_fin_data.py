@@ -15,7 +15,8 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
     df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
-    obs_indices = df_obs_indices.to_numpy()    
+    obs_indices = df_obs_indices.to_numpy() 
+
     #=== Load Train and Test Data ===#  
     print('Loading Training Data')
     df_parameter_train = pd.read_csv(run_options.parameter_train_savefilepath + '.csv')
