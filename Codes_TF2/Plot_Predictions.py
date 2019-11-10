@@ -30,7 +30,7 @@ class HyperParameters:
     penalty           = 1
     num_training_data = 50000
     batch_size        = 1000
-    num_epochs        = 4000
+    num_epochs        = 500
     gpu               = '1'
     
 class RunOptions:
@@ -115,9 +115,9 @@ if __name__ == "__main__":
         df_state_pred = pd.read_csv(run_options.NN_savefile_name + '_state_pred' + '.csv')
         state_pred = df_state_pred.to_numpy()
     
-    ##############
-    #  Plotting  #
-    ##############
+###############################################################################
+#                             Plotting Predictions                            #
+###############################################################################
     #=== Plotting test parameter and test state ===#   
     parameter_test_dl = solver.nine_param_to_function(parameter_test)
     state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
@@ -159,9 +159,116 @@ if __name__ == "__main__":
         plt.show()
         state_pred_error = np.linalg.norm(state_pred - state_test,2)/np.linalg.norm(state_test,2)
         print(state_pred_error)
+            
+###############################################################################
+#                               Plotting Metrics                              #
+###############################################################################      
+    df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics" + '.csv')
+    array_metrics = df_metrics.to_numpy()
+    x_axis = np.linspace(1, hyper_p.num_epochs-1, hyper_p.num_epochs-1, endpoint = True)
+
+    ######################
+    #  Autoencoder Loss  #                          
+    ######################
+    fig_loss = plt.figure()
+    print('Loading Metrics')
+    storage_loss_array = array_metrics[1:,0]
+    plt.plot(x_axis, storage_loss_array, label = 'loss')
         
-    #=== Plotting predictions of test parameter and test state ===#
+    #=== Figure Properties ===#   
+    plt.title('Training Loss of Autoencoder')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    #plt.axis([0,30,1.5,3])
+    plt.legend()
     
+    #=== Saving Figure ===#
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_autoencoder_' + run_options.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+
+    ####################
+    #  Parameter Loss  #                          
+    ####################
+    fig_loss = plt.figure()
+    print('Loading Metrics')
+    storage_parameter_loss_array = array_metrics[1:,1]
+    plt.plot(x_axis, storage_parameter_loss_array, label = 'loss')
+        
+    #=== Figure Properties ===#   
+    plt.title('Training Loss of Parameter Data')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    #plt.axis([0,30,1.5,3])
+    plt.legend()
+    
+    #=== Saving Figure ===#
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_parameter_data_' + run_options.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+    
+    ################
+    #  State Loss  #                          
+    ################
+    fig_loss = plt.figure()
+    print('Loading Metrics')
+    storage_state_loss_array = array_metrics[1:,2]
+    plt.plot(x_axis, storage_state_loss_array, label = 'loss')
+        
+    #=== Figure Properties ===#   
+    plt.title('Training Loss of State Data')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    #plt.axis([0,30,1.5,3])
+    plt.legend()
+    
+    #=== Saving Figure ===#
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_state_data_' + run_options.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+    
+    ##############################
+    #  Parameter Relative Error  #                          
+    ##############################
+    fig_loss = plt.figure()
+    print('Loading Metrics')
+    storage_parameter_relative_error = array_metrics[1:,7]
+    plt.plot(x_axis, storage_parameter_relative_error, label = 'relative error')
+        
+    #=== Figure Properties ===#   
+    plt.title('Relative Error of State Prediction')
+    plt.xlabel('Epochs')
+    plt.ylabel('Relative Error')
+    #plt.axis([0,30,1.5,3])
+    plt.legend()
+    
+    #=== Saving Figure ===#
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'relative_error' + '_parameter_' + run_options.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+    
+    ##########################
+    #  State Relative Error  #                          
+    ##########################
+    fig_loss = plt.figure()
+    print('Loading Metrics')
+    storage_state_relative_error = array_metrics[1:,8]
+    plt.plot(x_axis, storage_state_relative_error, label = 'relative error')
+        
+    #=== Figure Properties ===#   
+    plt.title('Relative Error of Parameter Prediction')
+    plt.xlabel('Epochs')
+    plt.ylabel('Relative Error')
+    #plt.axis([0,30,1.5,3])
+    plt.legend()
+    
+    #=== Saving Figure ===#
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'relative_error' + '_state_' + run_options.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+
+
+
     
     
     
