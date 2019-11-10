@@ -47,7 +47,7 @@ if __name__ == '__main__':
         hyper_p.penalty           = [0.01, 1, 5, 10, 50, 100]
         hyper_p.num_training_data = [50000]
         hyper_p.batch_size        = [1000]
-        hyper_p.num_epochs        = [500]
+        hyper_p.num_epochs        = [500, 10000]
         
         permutations_list, hyper_p_keys = get_hyperparameter_permutations(hyper_p) 
         print('permutations_list generated')
