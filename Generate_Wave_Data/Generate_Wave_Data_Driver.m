@@ -90,7 +90,6 @@ RunOptions.GaussianWidth = 1e5;%(1e11); %Increase to decrease width of the Gauss
 RunOptions.DGMPolyOrder = 2; %Polynomial order used for approximation
 
 %=== Time-Stepping Properties ===%
-RunOptions.TimeLSERK4 = 1; %Use low-storage five-stage explicit fourth order Runge-Kutta method
 RunOptions.TimeStepUseCFLTimo = 1/2; %Set CFL condition for Timo's time step size, set to 0 if you don't want to use
 RunOptions.TimeStepSizeLSERK4 = 1e-6; %Set own value for time step size for LSERK4 time stepping, set to 0 if you don't want to use
 if RunOptions.TestAcousticParameters == 1;
@@ -103,17 +102,27 @@ end
 %% %%%%%%%%%%%%%%%%%
 %%% Adding noise %%%
 %%%%%%%%%%%%%%%%%%%%
-RunOptions.AddNoise = 1; %Add noise?
+RunOptions.AddNoise = 0; %Add noise?
 RunOptions.NoiseLevel = 0.001; %Scalar multiplier of noise draws
 RunOptions.NoiseMinMax = 0; %Use max minus min of data
 RunOptions.NoiseMinMaxS = 0; %Use max minus min of data at each sensor
 RunOptions.NoiseMax = 1; %Use max of all data
 RunOptions.NoiseMaxS = 0; %Use max of data at each sensor
 
+%% %%%%%%%%%%
+%%% Prior %%%
+%%%%%%%%%%%%%
+RunOptions.N_Samples = 2;
+%=== Initial Condition ===%
+Prior.Exp_h = 0.4; %Expected Value of h, Default = 70
+Prior.AC_Var_h = 0.1^2; %Variance of p_0
+Prior.AC_Corr_h = 0.0015; %Correlation Length of h, Default: 0.0001;
+
 %% %%%%%%%%%%%%%
 %%% Plotting %%%
 %%%%%%%%%%%%%%%%
 PLOT.MeshD=0; %Data Mesh
+PLOT.PriorSamples=1; %Plot draws from prior
 PLOT.WaveDGMForwardMesh=0; %Plot Mesh for Acoustic Forward Problem
 PLOT.DGMForward=1; %Plot DGM Generated Forward Acoustic Data
 PLOT.DGMForwardQuiver=0; %Plot DGM Generated Forward Acoustic Data using Quiver
@@ -166,6 +175,11 @@ if RunOptions.UseTrelisMesh == 1
 end
 
 %% =======================================================================%
+%                          Testing Prior Samples
+%=========================================================================%
+%[Prior.L_pr,Prior.traceCov_h,Cov_pr,~] = SmoothnessPrior_AutoCorr(MeshD.Nodes,Prior.Exp_h,Prior.AC_Var_h,Prior.AC_Corr_h,2,PLOT);
+
+%% =======================================================================%
 %                           Forward Problem
 %=========================================================================%
                           %==================%
@@ -174,7 +188,7 @@ end
 %%%%%%%%%%%%%%%%%%
 %%% Set Up DGM %%%
 %%%%%%%%%%%%%%%%%%
-DGMMeshD = EWE_DGM2D_Setup(RunOptions,MeshD,RunOptions.FluidMeshD,RunOptions.SolidMeshD,RunOptions.FluidDomainWithSolidLayerMeshD);
+[DGMMeshD, PrecomputedIntrplteObjectsD] = EWE_DGM2D_Setup(RunOptions,MeshD,RunOptions.FluidMeshD,RunOptions.SolidMeshD,RunOptions.FluidDomainWithSolidLayerMeshD);
 ConstructDGMSensors
 PlotDGMMesh
 AcousticForwardTimeStepsize
@@ -182,7 +196,13 @@ AcousticForwardTimeStepsize
                          %====================%
                          %    Computations    %
                          %====================%    
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%  Acoustic Forward Problem  %%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%              
-QPAT_EWE_DGM2D_AcousticForward
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Construct Single Test Case  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%              
+%QPAT_EWE_DGM2D_AcousticForward
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%  Construct Samples  %%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%   
+PLOT.TRI_DGMMeshD=delaunay(DGMMeshD.x,DGMMeshD.y);
+EWE_DGM2D_ConstructSamples(RunOptions,MeshD.Nodes,MeshD.Elements,DGMMeshD.x,DGMMeshD.y,DGMMeshD.Np,DGMMeshD.K,PrecomputedIntrplteObjectsD,DGMMeshD.pinfo,DGMMeshD.rho,DataVrblsWave.SensorsD,dt,Prior,PLOT)

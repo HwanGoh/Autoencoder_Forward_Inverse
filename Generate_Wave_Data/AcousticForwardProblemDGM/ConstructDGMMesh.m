@@ -1,4 +1,4 @@
-function [DGMMesh] = ConstructDGMMesh(RunOptions,Mesh)
+function [DGMMesh, PrecomputedIntrplteObjects] = ConstructDGMMesh(RunOptions,Mesh)
 
 % ConstructDGMMesh constructs the inversion mesh for DGM, given the properties of the
 % optical inversion mesh stored in MeshI.
@@ -104,6 +104,9 @@ Nodesxy = [x(:),y(:)];
 %     VertexNodesGlobalIndicesDGM = [VertexNodesGlobalIndicesDGM;rowstemp]; %Element vertices for DGM mesh
 % end
 % VertexNodesGlobalIndicesFEM = VertexNodesGlobalIndicesFEM(:);
+
+%=== Construct Interpolation Objects ===%
+[PrecomputedIntrplteObjects] = PrecomputeIntrplteObjects(Mesh.N_Elm,Mesh.Nodes,x,y,Np*K);
 
 %=== Saving Outputs in a Structure ===%
 DGMMesh.N = N;

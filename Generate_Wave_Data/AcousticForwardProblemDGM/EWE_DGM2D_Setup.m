@@ -1,4 +1,4 @@
-function DGMMesh = EWE_DGM2D_Setup(RunOptions,Mesh,FluidMesh,SolidMesh,FluidDomainWithSolidLayerMesh)
+function [DGMMesh, PrecomputedIntrplteObjects] = EWE_DGM2D_Setup(RunOptions,Mesh,FluidMesh,SolidMesh,FluidDomainWithSolidLayerMesh)
 
 % EWEDGM2DSetup generates the required structures for the
 % discontinuous Galerkin method which are independent of the illumination
@@ -14,7 +14,7 @@ Nfaces = 3; %Number of faces, required for constructing BCType in the script Cor
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Construct DGM Mesh %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%
-DGMMesh = ConstructDGMMesh(RunOptions,Mesh); %No need to output objects since they are saved in Globals2D
+[DGMMesh, PrecomputedIntrplteObjects] = ConstructDGMMesh(RunOptions,Mesh); %No need to output objects since they are saved in Globals2D
 
 %%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Domain Parameters %%%

@@ -25,9 +25,7 @@ DGMMeshD.pinfo = EWE_DGM2D_PrecomputeUpwindFluxPNonConf(RunOptions,DGMMeshD.pinf
 %                            Time Stepping
 %=========================================================================%
 %=== Low-Storage Five-Stage Explicit 4th Order Runge-Kutta Method ===%    
-if RunOptions.TimeLSERK4 == 1;
-    [T11TimeSteps,T22TimeSteps,T12TimeSteps,vxTimeSteps,vyTimeSteps] = EWE_DGM2D_LSExpRK4(RunOptions,DataVrblsWave.p0DGM,DGMMeshD.x,DGMMeshD.y,DGMMeshD.Np,DGMMeshD.K,DGMMeshD.pinfo,dt,PLOT);
-end
+[T11TimeSteps,T22TimeSteps,T12TimeSteps,vxTimeSteps,vyTimeSteps] = EWE_DGM2D_LSExpRK4(RunOptions,DataVrblsWave.p0DGM,DGMMeshD.x,DGMMeshD.y,DGMMeshD.Np,DGMMeshD.K,DGMMeshD.pinfo,dt,PLOT);
 
 %% =======================================================================%
 %                            Sensory Data

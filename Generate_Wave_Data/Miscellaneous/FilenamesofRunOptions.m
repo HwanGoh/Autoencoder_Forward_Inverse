@@ -1,9 +1,9 @@
 %=== Filenames of Outputs ===%
 if RunOptions.FluidDomainWithSolidLayerMeshD == 1 %For saving data
-    RunOptions.SaveFileNameDataDomain = 'SLDataDomain';
+    RunOptions.SaveFileNameDataDomain = 'SL';
 end
 if RunOptions.FluidMeshD == 1 %For saving data
-    RunOptions.SaveFileNameDataDomain = 'FDataDomain';
+    RunOptions.SaveFileNameDataDomain = 'F';
 end
 
 %=== Noisy Data Properties ===%
@@ -40,5 +40,6 @@ end
 
 %=== Save File Name ===%
 RunOptions.SaveFileName = sprintf('%s_%s_%sD_%s%s_%dSensors_%sFinalTime',RunOptions.SaveFileNameParameterType,RunOptions.SaveFileNameDataDomain,RunOptions.TrelisMeshDElementSize,RunOptions.SaveFileNameNoiseLevel,RunOptions.SaveFileNameNoiseType,RunOptions.NumberofSensorsOnOneBoundaryEdge,RunOptions.SaveFileNameFinalTime);
+RunOptions.SaveFileNameSamples = sprintf('Samples-%s-%s-%sD-%dSensors-%sFinalTime-%dSamples',RunOptions.SaveFileNameParameterType,RunOptions.SaveFileNameDataDomain,RunOptions.TrelisMeshDElementSize,RunOptions.NumberofSensorsOnOneBoundaryEdge,RunOptions.SaveFileNameFinalTime,RunOptions.N_Samples);
 
 

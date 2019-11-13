@@ -35,7 +35,7 @@ class HyperParameters:
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    penalty           = 0.01
+    penalty           = 1
     num_training_data = 50000
     batch_size        = 1000
     num_epochs        = 500
@@ -182,12 +182,12 @@ if __name__ == "__main__":
     fig_loss = plt.figure()
     print('Loading Metrics')
     storage_loss_array = array_metrics[1:,0]
-    plt.plot(x_axis, storage_loss_array, label = 'loss')
+    plt.plot(x_axis, np.log(storage_loss_array), label = 'Log-Loss')
         
     #=== Figure Properties ===#   
-    plt.title('Training Loss of Autoencoder')
+    plt.title('Training Log-Loss of Autoencoder')
     plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+    plt.ylabel('Log-Loss')
     #plt.axis([0,30,1.5,3])
     plt.legend()
     
@@ -202,12 +202,12 @@ if __name__ == "__main__":
     fig_loss = plt.figure()
     print('Loading Metrics')
     storage_parameter_loss_array = array_metrics[1:,1]
-    plt.plot(x_axis, storage_parameter_loss_array, label = 'loss')
+    plt.plot(x_axis, np.log(storage_parameter_loss_array), label = 'Log-Loss')
         
     #=== Figure Properties ===#   
-    plt.title('Training Loss of Parameter Data')
+    plt.title('Training Log-Loss of Parameter Data')
     plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+    plt.ylabel('Log-Loss')
     #plt.axis([0,30,1.5,3])
     plt.legend()
     
@@ -222,12 +222,12 @@ if __name__ == "__main__":
     fig_loss = plt.figure()
     print('Loading Metrics')
     storage_state_loss_array = array_metrics[1:,2]
-    plt.plot(x_axis, storage_state_loss_array, label = 'loss')
+    plt.plot(x_axis, np.log(storage_state_loss_array), label = 'Log-Loss')
         
     #=== Figure Properties ===#   
-    plt.title('Training Loss of State Data')
+    plt.title('Training Log-Loss of State Data')
     plt.xlabel('Epochs')
-    plt.ylabel('Loss')
+    plt.ylabel('Log-Loss')
     #plt.axis([0,30,1.5,3])
     plt.legend()
     
@@ -242,7 +242,7 @@ if __name__ == "__main__":
     fig_loss = plt.figure()
     print('Loading Metrics')
     storage_parameter_relative_error = array_metrics[1:,7]
-    plt.plot(x_axis, storage_parameter_relative_error, label = 'relative error')
+    plt.plot(x_axis, storage_parameter_relative_error, label = 'Relative Error')
         
     #=== Figure Properties ===#   
     plt.title('Relative Error of State Prediction')
@@ -262,7 +262,7 @@ if __name__ == "__main__":
     fig_loss = plt.figure()
     print('Loading Metrics')
     storage_state_relative_error = array_metrics[1:,8]
-    plt.plot(x_axis, storage_state_relative_error, label = 'relative error')
+    plt.plot(x_axis, storage_state_relative_error, label = 'Relative Error')
         
     #=== Figure Properties ===#   
     plt.title('Relative Error of Parameter Prediction')
