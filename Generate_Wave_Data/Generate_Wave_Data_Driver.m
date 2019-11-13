@@ -121,10 +121,10 @@ RunOptions.NoiseMaxS = 0; %Use max of data at each sensor
 %% %%%%%%%%%%%%%
 %%% Plotting %%%
 %%%%%%%%%%%%%%%%
-PLOT.MeshD=1; %Data Mesh
-PLOT.PriorSamples=1; %Plot draws from prior
-PLOT.WaveDGMForwardMesh=1; %Plot Mesh for Acoustic Forward Problem
-PLOT.DGMForward=1; %Plot DGM Generated Forward Acoustic Data
+PLOT.MeshD=0; %Data Mesh
+PLOT.PriorSamples=0; %Plot draws from prior
+PLOT.WaveDGMForwardMesh=0; %Plot Mesh for Acoustic Forward Problem
+PLOT.DGMForward=0; %Plot DGM Generated Forward Acoustic Data
 PLOT.DGMForwardQuiver=0; %Plot DGM Generated Forward Acoustic Data using Quiver
 PLOT.DGMForwardSensorData=0; %Plot DGM Generated Forward Acoustic Data
 PLOT.Noise=0; %Plot noisy data
