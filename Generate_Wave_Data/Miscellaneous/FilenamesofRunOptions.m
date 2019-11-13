@@ -40,6 +40,6 @@ end
 
 %=== Save File Name ===%
 RunOptions.SaveFileName = sprintf('%s_%s_%sD_%s%s_%dSensors_%sFinalTime',RunOptions.SaveFileNameParameterType,RunOptions.SaveFileNameDataDomain,RunOptions.TrelisMeshDElementSize,RunOptions.SaveFileNameNoiseLevel,RunOptions.SaveFileNameNoiseType,RunOptions.NumberofSensorsOnOneBoundaryEdge,RunOptions.SaveFileNameFinalTime);
-RunOptions.SaveFileNameSamples = sprintf('Samples-%s-%s-%sD-%dSensors-%sFinalTime-%dSamples',RunOptions.SaveFileNameParameterType,RunOptions.SaveFileNameDataDomain,RunOptions.TrelisMeshDElementSize,RunOptions.NumberofSensorsOnOneBoundaryEdge,RunOptions.SaveFileNameFinalTime,RunOptions.N_Samples);
+RunOptions.SaveFileNameSamples = sprintf('Samples_%s_%s_%sD_%dSensors_%sFinalTime_%dSamples',RunOptions.SaveFileNameParameterType,RunOptions.SaveFileNameDataDomain,RunOptions.TrelisMeshDElementSize,RunOptions.NumberofSensorsOnOneBoundaryEdge,RunOptions.SaveFileNameFinalTime,RunOptions.N_Samples);
 
 
