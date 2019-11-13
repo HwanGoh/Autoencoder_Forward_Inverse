@@ -39,8 +39,8 @@ function [hAS_FEM,vxSamplesDataTimeSteps,vySamplesDataTimeSteps]=EWE_DGM2D_Const
 %          27/07/2018 - huge overhaul of approximation error codes
 %          12/11/2019, Oden Institute for Computational Sciences and Engineering, United States of America
 
-PLOT.DGMForward = 1; %Suppress plotting of wave propagation
-PLOT.PriorSamples = 1; %Suppress plotting of prior samples
+PLOT.DGMForward = 0; %Suppress plotting of wave propagation
+PLOT.PriorSamples = 0; %Suppress plotting of prior samples
 PLOT.DGMForwardSensorData = 0; %Suppress plotting of sensory data
 N_Samples = RunOptions.N_Samples;
 NumberofSensors = size(Sensors,2);

@@ -51,6 +51,15 @@ RunOptions.VelocitiesData = 1; %Output of forward problem sensory data of veloci
 RunOptions.TrelisMeshDElementSize = '0009'; %Entry for generating Trelis data mesh, main purpose is for the file name when saving
 RunOptions.BoundaryCondition = 'Neumann';
 
+%% %%%%%%%%%%
+%%% Prior %%%
+%%%%%%%%%%%%%
+RunOptions.N_Samples = 50000;
+%=== Initial Condition ===%
+Prior.Exp_h = 0.4; %Expected Value of h, Default = 70
+Prior.AC_Var_h = 0.1^2; %Variance of p_0
+Prior.AC_Corr_h = 0.0015; %Correlation Length of h, Default: 0.0001;
+
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% Acoustic Forward Problem %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -108,15 +117,6 @@ RunOptions.NoiseMinMax = 0; %Use max minus min of data
 RunOptions.NoiseMinMaxS = 0; %Use max minus min of data at each sensor
 RunOptions.NoiseMax = 1; %Use max of all data
 RunOptions.NoiseMaxS = 0; %Use max of data at each sensor
-
-%% %%%%%%%%%%
-%%% Prior %%%
-%%%%%%%%%%%%%
-RunOptions.N_Samples = 2;
-%=== Initial Condition ===%
-Prior.Exp_h = 0.4; %Expected Value of h, Default = 70
-Prior.AC_Var_h = 0.1^2; %Variance of p_0
-Prior.AC_Corr_h = 0.0015; %Correlation Length of h, Default: 0.0001;
 
 %% %%%%%%%%%%%%%
 %%% Plotting %%%
