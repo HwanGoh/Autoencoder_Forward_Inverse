@@ -39,9 +39,8 @@ function [hAS_FEM,vxSamplesDataTimeSteps,vySamplesDataTimeSteps]=EWE_DGM2D_Const
 %          27/07/2018 - huge overhaul of approximation error codes
 %          12/11/2019, Oden Institute for Computational Sciences and Engineering, United States of America
 
-PLOT.DGMForward = 0; %Suppress plotting of wave propagation
-PLOT.PriorMargPoints = 0; %Suppress plotting of marginalisation points
-PLOT.PriorSamples = 0; %Suppress plotting of prior samples
+PLOT.DGMForward = 1; %Suppress plotting of wave propagation
+PLOT.PriorSamples = 1; %Suppress plotting of prior samples
 PLOT.DGMForwardSensorData = 0; %Suppress plotting of sensory data
 N_Samples = RunOptions.N_Samples;
 NumberofSensors = size(Sensors,2);
@@ -51,8 +50,6 @@ printf([num2str(N_Samples) ' samples to be computed for approximation error']);
 %=========================================================================%
 %                         Accurate Model Samples
 %=========================================================================%
-printf('Computing samples of accurate model');
-
 %=== Absorbed Energy Density Samples ===%
 printf('Computing samples of accurate model, ACPrior Draws');
 [~,~,~,hAS_FEM] = SmoothnessPrior_AutoCorr(MeshNodes,Prior.Exp_h,Prior.AC_Var_h,Prior.AC_Corr_h,N_Samples,PLOT);
@@ -85,5 +82,3 @@ clear T11ASTimeSteps T22ASTimeSteps T12ASTimeSteps T11ASDataTimeSteps T22ASDataT
 end
 clear vxSTimeSteps vySTimeSteps vxSDataTimeSteps vySDataTimeSteps
 
-%=== Saving and Loading Accurate Model Samples ===%
-save(RunOptions.SaveFileNameSamples,'hAS_FEM','vxSamplesDataTimeSteps','vySamplesDataTimeSteps','-v7.3')

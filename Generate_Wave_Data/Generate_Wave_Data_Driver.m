@@ -48,7 +48,7 @@ RunOptions.FullqVectorData = 0; %Output of forward problem sensory data of full 
 RunOptions.VelocitiesData = 1; %Output of forward problem sensory data of velocities, only works when sensors are placed on the boundary
 
 %=== Trelis Mesh Properties ===%
-RunOptions.TrelisMeshDElementSize = '0007'; %Entry for generating Trelis data mesh, main purpose is for the file name when saving
+RunOptions.TrelisMeshDElementSize = '0009'; %Entry for generating Trelis data mesh, main purpose is for the file name when saving
 RunOptions.BoundaryCondition = 'Neumann';
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,19 +121,19 @@ Prior.AC_Corr_h = 0.0015; %Correlation Length of h, Default: 0.0001;
 %% %%%%%%%%%%%%%
 %%% Plotting %%%
 %%%%%%%%%%%%%%%%
-PLOT.MeshD=0; %Data Mesh
+PLOT.MeshD=1; %Data Mesh
 PLOT.PriorSamples=1; %Plot draws from prior
-PLOT.WaveDGMForwardMesh=0; %Plot Mesh for Acoustic Forward Problem
+PLOT.WaveDGMForwardMesh=1; %Plot Mesh for Acoustic Forward Problem
 PLOT.DGMForward=1; %Plot DGM Generated Forward Acoustic Data
 PLOT.DGMForwardQuiver=0; %Plot DGM Generated Forward Acoustic Data using Quiver
 PLOT.DGMForwardSensorData=0; %Plot DGM Generated Forward Acoustic Data
 PLOT.Noise=0; %Plot noisy data
 PLOT.DGMPlotBirdsEyeView = 1; %Use birds eye view for DGM plots
+PLOT.InitialPressurezAxis = [0 1]; %z axis limits for plotting QPAT elastic wave propogation
 PLOT.DGMPlotUsezLim = 0; %Use z axis limits for DGM plots
-PLOT.DGMPlotzAxis = [0 1100]; %z axis limits for plotting QPAT elastic wave propogation
-PLOT.DGMAdjointPlotzAxis = [0 20]; %z axis limits for plotting QPAT elastic wave propogation
+PLOT.DGMPlotzAxis = [0 1]; %z axis limits for plotting QPAT elastic wave propogation
 PLOT.HoldColourAxis = 1; %Hold colour axis
-PLOT.ColourAxis = [0 600]; %Colour axis
+PLOT.ColourAxis = [0 1]; %Colour axis
 
 %=== Pre-define Figures ===%
 DefineFigures
@@ -192,6 +192,8 @@ end
 ConstructDGMSensors
 PlotDGMMesh
 AcousticForwardTimeStepsize
+PLOT.TRI_DGMMeshD=delaunay(DGMMeshD.x,DGMMeshD.y); %To be used later when plotting wave propagation
+DGMMeshD.pinfo = EWE_DGM2D_PrecomputeUpwindFluxPNonConf(RunOptions,DGMMeshD.pinfo,DGMMeshD.Norder,DGMMeshD.rho,DGMMeshD.lambda,DGMMeshD.mu,MeshD.DomainIndices,RunOptions.FluidDomainWithSolidLayerMeshD,RunOptions.SolidMeshD);             
 
                          %====================%
                          %    Computations    %
@@ -204,5 +206,9 @@ AcousticForwardTimeStepsize
 %%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%  Construct Samples  %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%   
-PLOT.TRI_DGMMeshD=delaunay(DGMMeshD.x,DGMMeshD.y);
-EWE_DGM2D_ConstructSamples(RunOptions,MeshD.Nodes,MeshD.Elements,DGMMeshD.x,DGMMeshD.y,DGMMeshD.Np,DGMMeshD.K,PrecomputedIntrplteObjectsD,DGMMeshD.pinfo,DGMMeshD.rho,DataVrblsWave.SensorsD,dt,Prior,PLOT)
+[hAS_FEM,vxSamplesDataTimeSteps,vySamplesDataTimeSteps] = EWE_DGM2D_ConstructSamples(RunOptions,MeshD.Nodes,MeshD.Elements,DGMMeshD.x,DGMMeshD.y,DGMMeshD.Np,DGMMeshD.K,PrecomputedIntrplteObjectsD,DGMMeshD.pinfo,DGMMeshD.rho,DataVrblsWave.SensorsD,dt,Prior,PLOT);
+
+%=== Saving Samples ===%
+save(RunOptions.SaveFileNameSamples,'hAS_FEM','vxSamplesDataTimeSteps','vySamplesDataTimeSteps','-v7.3')
+
+

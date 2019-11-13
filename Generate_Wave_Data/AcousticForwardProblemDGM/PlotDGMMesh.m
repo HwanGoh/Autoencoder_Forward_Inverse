@@ -3,7 +3,7 @@
 %=========================================================================%
 if PLOT.WaveDGMForwardMesh==1;
     figure(PLOT.Figure_WaveDGMForwardMesh)
-    triplot(MeshD.Elements,MeshD.Nodes(:,1)*(1/RunOptions.ScalingOptical),MeshD.Nodes(:,2)*(1/RunOptions.ScalingOptical)); %In metres
+    triplot(MeshD.Elements,MeshD.Nodes(:,1),MeshD.Nodes(:,2)); %In metres
     hold on
     title(PLOT.Figure_WaveDGMForwardMesh_Title,'FontWeight','bold')
     axis 'image'

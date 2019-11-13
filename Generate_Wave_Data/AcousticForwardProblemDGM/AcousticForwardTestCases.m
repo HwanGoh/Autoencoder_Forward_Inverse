@@ -23,7 +23,3 @@ if RunOptions.p0Test2 == 1;
     end
 end
 DataVrblsWave.p0DGM = reshape(DataVrblsWave.p0DGM,DGMMeshD.Np,DGMMeshD.K);
-PLOT.InitialPressurezAxis = [0 1]; %z axis limits for plotting QPAT elastic wave propogation
-PLOT.DGMPlotzAxis = [0 1]; %z axis limits for plotting QPAT elastic wave propogation
-PLOT.HoldColourAxis = 1; %Hold colour axis
-PLOT.ColourAxis = [0 1]; %Colour axis

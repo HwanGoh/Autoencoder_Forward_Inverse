@@ -13,13 +13,6 @@ disp('-----------------')
 %                            Initial Pressure
 %=========================================================================%
 AcousticForwardTestCases
-PLOT.TRI_DGMMeshD=delaunay(DGMMeshD.x,DGMMeshD.y); %To be used later when plotting wave propagation
-
-%% =======================================================================%
-%                       Precomputing Flux Terms
-%=========================================================================%
-%=== Precompute Some Upwind Flux Terms for Non-Conforming Mesh ===%
-DGMMeshD.pinfo = EWE_DGM2D_PrecomputeUpwindFluxPNonConf(RunOptions,DGMMeshD.pinfo,DGMMeshD.Norder,DGMMeshD.rho,DGMMeshD.lambda,DGMMeshD.mu,MeshD.DomainIndices,RunOptions.FluidDomainWithSolidLayerMeshD,RunOptions.SolidMeshD);             
 
 %% =======================================================================%
 %                            Time Stepping
