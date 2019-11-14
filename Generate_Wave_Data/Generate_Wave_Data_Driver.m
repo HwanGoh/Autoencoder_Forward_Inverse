@@ -48,13 +48,13 @@ RunOptions.FullqVectorData = 0; %Output of forward problem sensory data of full 
 RunOptions.VelocitiesData = 1; %Output of forward problem sensory data of velocities, only works when sensors are placed on the boundary
 
 %=== Trelis Mesh Properties ===%
-RunOptions.TrelisMeshDElementSize = '0009'; %Entry for generating Trelis data mesh, main purpose is for the file name when saving
+RunOptions.TrelisMeshDElementSize = '002'; %Entry for generating Trelis data mesh, main purpose is for the file name when saving
 RunOptions.BoundaryCondition = 'Neumann';
 
 %% %%%%%%%%%%
 %%% Prior %%%
 %%%%%%%%%%%%%
-RunOptions.N_Samples = 50000;
+RunOptions.N_Samples = 50;
 %=== Initial Condition ===%
 Prior.Exp_h = 0.4; %Expected Value of h, Default = 70
 Prior.AC_Var_h = 0.1^2; %Variance of p_0

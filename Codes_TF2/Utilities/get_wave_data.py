@@ -6,37 +6,24 @@ Created on Sun Nov  3 10:16:28 2019
 @author: hwan
 """
 import tensorflow as tf
+import numpy as np
 import pandas as pd
 import scipy.io
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 
-def load_wave_data(run_options, num_training_data, batch_size, random_seed):
+def load_wave_data(run_options, num_training_data, num_testing_data, batch_size, random_seed):
     
-    training_data = scipy.io.loadmat('../../Datasets/DGM_Wave/Samples_TestPrmtrs_F_%s_10Sensors_008FinalTime_%dSamples.mat' %(run_options.computation_domain_discretization, num_training_data))
-    pdb.set_trace()
-
-    
-    #=== Load observation indices ===# 
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
-    obs_indices = df_obs_indices.to_numpy() 
-
     #=== Load Train and Test Data ===#  
     print('Loading Training Data')
-    df_parameter_train = pd.read_csv(run_options.parameter_train_savefilepath + '.csv')
-    df_state_obs_train = pd.read_csv(run_options.state_obs_train_savefilepath + '.csv')
-    parameter_train = df_parameter_train.to_numpy()
-    state_obs_train = df_state_obs_train.to_numpy()
-    parameter_train = parameter_train.reshape((num_training_data, 9))
-    state_obs_train = state_obs_train.reshape((num_training_data, run_options.state_obs_dimensions))
+    training_data = scipy.io.loadmat('../../Datasets/DGM_Wave/Samples_TestPrmtrs_F_%s_10Sensors_008FinalTime_%dSamples.mat' %(run_options.computation_domain_discretization, num_training_data))
+    parameter_train = training_data['hAS_FEM']
+    state_obs_train = np.concatenate((training_data['vxSamplesDataTimeSteps'], training_data['vySamplesDataTimeSteps']), axis = 1)
+    
     print('Loading Testing Data')
-    df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
-    df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
-    parameter_test = df_parameter_test.to_numpy()
-    state_obs_test = df_state_obs_test.to_numpy()
-    parameter_test = parameter_test.reshape((run_options.num_testing_data, 9))
-    state_obs_test = state_obs_test.reshape((run_options.num_testing_data, run_options.state_obs_dimensions))
+    testing_data = scipy.io.loadmat('../../Datasets/DGM_Wave/Samples_TestPrmtrs_F_%s_10Sensors_008FinalTime_%dSamples.mat' %(run_options.computation_domain_discretization, num_testing_data))
+    parameter_test = testing_data['hAS_FEM']
+    state_obs_test = np.concatenate((testing_data['vxSamplesDataTimeSteps'], testing_data['vySamplesDataTimeSteps']), axis = 1)
     
     #=== Casting as float32 ===#
     parameter_train = tf.cast(parameter_train,tf.float32)
@@ -59,4 +46,4 @@ def load_wave_data(run_options, num_training_data, batch_size, random_seed):
     num_batches_train = len(list(parameter_and_state_obs_train))
     num_batches_val = len(list(parameter_and_state_obs_train))
 
-    return obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val
+    return parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val

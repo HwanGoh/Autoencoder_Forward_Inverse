@@ -37,7 +37,7 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #===  Number of Testing Data ===#
-        self.num_testing_data = 200
+        self.num_testing_data = 50
         
         #=== Use LBFGS Optimizer ===#
         self.use_LBFGS = 0
@@ -51,6 +51,8 @@ class RunOptions:
         self.use_bnd_data_only = 0
         self.computational_domain = 'F'
         self.computation_domain_discretization = '002D'
+        self.number_of_time_steps = 140
+        self.number_of_sensors = 36
         
         #=== Observation Dimensions === #
         self.full_domain_dimensions = 1446 
@@ -100,10 +102,10 @@ def trainer(hyper_p, run_options):
     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
     #=== Loading Data ===#        
-    obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_wave_data(run_options, hyper_p.num_training_data, hyper_p.batch_size, run_options.random_seed) 
+    parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_wave_data(run_options, hyper_p.num_training_data, run_options.num_testing_data, hyper_p.batch_size, run_options.random_seed)     
     
     #=== Neural Network ===#
-    NN = AutoencoderRNNFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+    NN = AutoencoderRNNFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, run_options.number_of_sensors, run_options.NN_savefile_name)
     
     #=== Training ===#
     storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs  = optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
