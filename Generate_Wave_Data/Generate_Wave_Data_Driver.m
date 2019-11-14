@@ -54,7 +54,7 @@ RunOptions.BoundaryCondition = 'Neumann';
 %% %%%%%%%%%%
 %%% Prior %%%
 %%%%%%%%%%%%%
-RunOptions.N_Samples = 200;
+RunOptions.N_Samples = 50000;
 %=== Initial Condition ===%
 Prior.Exp_h = 0.4; %Expected Value of h, Default = 70
 Prior.AC_Var_h = 0.1^2; %Variance of p_0
@@ -208,7 +208,11 @@ DGMMeshD.pinfo = EWE_DGM2D_PrecomputeUpwindFluxPNonConf(RunOptions,DGMMeshD.pinf
 %%%%%%%%%%%%%%%%%%%%%%%%%%%   
 [hAS_FEM,vxSamplesDataTimeSteps,vySamplesDataTimeSteps] = EWE_DGM2D_ConstructSamples(RunOptions,MeshD.Nodes,MeshD.Elements,DGMMeshD.x,DGMMeshD.y,DGMMeshD.Np,DGMMeshD.K,PrecomputedIntrplteObjectsD,DGMMeshD.pinfo,DGMMeshD.rho,DataVrblsWave.SensorsD,dt,Prior,PLOT);
 
+hAS_FEM = hAS_FEM';
+vxSamplesDataTimeSteps = vxSamplesDataTimeSteps';
+vySamplesDataTimeSteps = vySamplesDataTimeSteps';
+
 %=== Saving Samples ===%
-save(RunOptions.SaveFileNameSamples,'hAS_FEM','vxSamplesDataTimeSteps','vySamplesDataTimeSteps','-v7.3')
+save(RunOptions.SaveFileNameSamples,'hAS_FEM','vxSamplesDataTimeSteps','vySamplesDataTimeSteps')
 
 
