@@ -54,7 +54,7 @@ RunOptions.BoundaryCondition = 'Neumann';
 %% %%%%%%%%%%
 %%% Prior %%%
 %%%%%%%%%%%%%
-RunOptions.N_Samples = 50000;
+RunOptions.N_Samples = 200;
 %=== Initial Condition ===%
 Prior.Exp_h = 0.4; %Expected Value of h, Default = 70
 Prior.AC_Var_h = 0.1^2; %Variance of p_0
