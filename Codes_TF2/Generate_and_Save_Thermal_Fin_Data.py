@@ -18,7 +18,7 @@ from Generate_Data.thermal_fin import get_space
 import os
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_domain, generate_boundary_state):
+def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying, generate_boundary_state):
     ###################################
     #   Generate Parameters and Data  #
     ###################################  following Sheroze's "test_thermal_fin_gradient.py" code
@@ -32,7 +32,7 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
     # Create storage arrays
     if generate_nine_parameters == 1:
         parameter = np.zeros((num_data, 9))
-    if generate_full_domain == 1:
+    if generate_varying == 1:
         parameter = np.zeros((num_data, V.dim()))
     if generate_boundary_state == 1:
         obs_indices = list(set(sum((f.entities(0).tolist() for f in dl.SubsetIterator(solver.boundaries, 1)), []))) # entries of this vector represent which of the (V.dim() x 1) vector of domain indices correspond to the boundary; NOT the degrees of freedom  
@@ -51,12 +51,12 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_
         obs_indices = list(range(V.dim()))
         
     for m in range(num_data):
-        print('\nGenerating Parameters and Data Set %d of %d' %(m+1, num_data))
+        print('\nGenerating Parameters and Data Set %d of %d\n' %(m+1, num_data))
         # Generate parameters
         if generate_nine_parameters == 1:
             parameter[m,:], parameter_dl = parameter_generator_nine_values(V,solver)
-        if generate_full_domain == 1:
-            parameter[m,:], parameter_dl = parameter_generator_full_domain(V,solver)              
+        if generate_varying == 1:
+            parameter[m,:], parameter_dl = parameter_generator_varying(V,solver)              
         # Solve PDE for state variable
         state_dl, _ = solver.forward(parameter_dl)        
         if generate_boundary_state == 1:
@@ -77,7 +77,7 @@ def parameter_generator_nine_values(V,solver,length = 0.8):
     
     return generated_parameter, parameter_dl
 
-def parameter_generator_full_domain(V,solver,length = 0.8):
+def parameter_generator_varying(V,solver,length = 0.8):
     chol = make_cov_chol(V, length)
     norm = np.random.randn(len(chol))
     generated_parameter = np.exp(0.5 * chol.T @ norm) 
@@ -103,30 +103,38 @@ if __name__ == "__main__":
     # Select true or test set
     generate_train_data = 1
     generate_test_data = 0
+
+    # Select observation type
+    generate_full_domain = 1
+    generate_boundary_state = 0
     
     # Select parameter type
-    generate_nine_parameters = 1
-    generate_full_domain = 0
-    
-    # Select observation type
-    generate_boundary_state = 1
+    generate_nine_parameters = 0
+    generate_varying = 1
     
     # Defining filenames and creating directories
     if not os.path.exists('../Data'):
         os.makedirs('../Data')
          
+    if generate_nine_parameters == 1:
+        parameter_type = '_nine'
+        
+    if generate_varying == 1:
+        parameter_type = '_vary'
+        
+    if generate_full_domain == 1:    
+        observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
+        parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(num_data) + parameter_type
+        state_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + parameter_type
+        parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(num_data) + parameter_type
+        state_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + parameter_type  
+        
     if generate_boundary_state == 1:
-        observation_indices_savefilepath = '../Data/' + 'thermal_fin_bnd_indices'
-        parameter_train_savefilepath = '../Data/' + 'parameter_train_bnd_%d' %(num_data) 
-        state_train_savefilepath = '../Data/' + 'state_train_bnd_%d' %(num_data) 
-        parameter_test_savefilepath = '../Data/' + 'parameter_test_bnd_%d' %(num_data) 
-        state_test_savefilepath = '../Data/' + 'state_test_bnd_%d' %(num_data)        
-    else:
-        observation_indices_savefilepath = '../Data/' + 'thermal_fin_full_domain'
-        parameter_train_savefilepath = '../Data/' + 'parameter_train_%d' %(num_data) 
-        state_train_savefilepath = '../Data/' + 'state_train_%d' %(num_data) 
-        parameter_test_savefilepath = '../Data/' + 'parameter_test_%d' %(num_data) 
-        state_test_savefilepath = '../Data/' + 'state_test_%d' %(num_data)       
+        observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices'
+        parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_bnd_%d' %(num_data) + parameter_type
+        state_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_bnd_%d' %(num_data) + parameter_type
+        parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_bnd_%d' %(num_data) + parameter_type
+        state_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_bnd_%d' %(num_data) + parameter_type         
  
     if generate_train_data == 1:
         parameter_savefilepath = parameter_train_savefilepath
@@ -137,7 +145,7 @@ if __name__ == "__main__":
         state_savefilepath = state_test_savefilepath
     
     # Generating data    
-    parameter_data, state_data, obs_indices = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_full_domain, generate_boundary_state)
+    parameter_data, state_data, obs_indices = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying, generate_boundary_state)
     df_obs_indices = pd.DataFrame({'obs_indices': obs_indices})
     df_obs_indices.to_csv(observation_indices_savefilepath + '.csv', index=False)  
     df_parameter_data = pd.DataFrame({'parameter_data': parameter_data.flatten()})

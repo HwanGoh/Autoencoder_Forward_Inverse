@@ -25,6 +25,8 @@ def load_wave_data(run_options, num_training_data, num_testing_data, batch_size,
     parameter_test = testing_data['hAS_FEM']
     state_obs_test = np.concatenate((testing_data['vxSamplesDataTimeSteps'], testing_data['vySamplesDataTimeSteps']), axis = 1)
     
+    pdb.set_trace()
+    
     #=== Casting as float32 ===#
     parameter_train = tf.cast(parameter_train,tf.float32)
     state_obs_train = tf.cast(state_obs_train, tf.float32)
