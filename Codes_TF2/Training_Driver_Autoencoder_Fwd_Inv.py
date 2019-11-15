@@ -42,11 +42,15 @@ class RunOptions:
         #=== Random Seed ===#
         self.random_seed = 1234
         
-        #=== Data type ===#
+        #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
         self.num_testing_data = 200
         
+        #=== Data Type Names ===#
+        self.use_full_domain_data = 0
+        self.use_bnd_data = 0
+        self.use_bnd_data_only = 0
         if hyper_p.data_type == 'full':
             self.use_full_domain_data = 1
         if hyper_p.data_type == 'bnd':
