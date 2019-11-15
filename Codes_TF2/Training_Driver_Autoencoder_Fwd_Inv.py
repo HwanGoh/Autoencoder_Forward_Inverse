@@ -46,7 +46,10 @@ class RunOptions:
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
         self.num_testing_data = 200
-        
+
+###############################################################################
+#                                 File Name                                   #
+###############################################################################        
         #=== Data Type Names ===#
         self.use_full_domain_data = 0
         self.use_bnd_data = 0
@@ -85,6 +88,9 @@ class RunOptions:
 
         self.filename = self.dataset + '_' + hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
+###############################################################################
+#                                 File Paths                                  #
+############################################################################### 
         #=== Loading and saving data ===#
         if self.use_full_domain_data == 1:
             self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
@@ -108,7 +114,7 @@ class RunOptions:
             os.makedirs(self.NN_savefile_directory)
 
 ###############################################################################
-#                                 Training                                    #
+#                                  Driver                                     #
 ###############################################################################
 def trainer(hyper_p, run_options):
     #=== GPU Settings ===#

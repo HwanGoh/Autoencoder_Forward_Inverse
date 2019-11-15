@@ -12,9 +12,9 @@ import numpy as np
 import pandas as pd
 import dolfin as dl
 import matplotlib as plt
-from Generate_Data.gaussian_field import make_cov_chol
-from Generate_Data.forward_solve import Fin
-from Generate_Data.thermal_fin import get_space
+from Generate_Thermal_Fin_Data.gaussian_field import make_cov_chol
+from Generate_Thermal_Fin_Data.forward_solve import Fin
+from Generate_Thermal_Fin_Data.thermal_fin import get_space
 import os
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sun Sep 15 15:34:49 2019
+Created on Sun Nov 10 12:18:38 2019
+
+@author: hwan
+"""
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Nov  6 12:59:59 2019
 
 @author: hwan
 """
 import sys
 sys.path.append('../')
 
-from Utilities.predict_and_save import predict_and_save
+from Utilities.plot_and_save import plot_and_save
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-import sys
+import os
 
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
@@ -40,7 +48,7 @@ class RunOptions:
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
         self.num_testing_data = 200
-
+        
 ###############################################################################
 #                                 File Name                                   #
 ###############################################################################         
@@ -66,13 +74,11 @@ class RunOptions:
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
             self.state_obs_dimensions = 614
         
-        #=== File Name ===#
+        #=== File name ===#
         if data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
-            parameter_type = ''
         if data_thermal_fin_vary == 1:
             self.dataset = 'thermalfinvary'
-            parameter_type = '_vary'
         if hyper_p.penalty >= 1:
             hyper_p.penalty = int(hyper_p.penalty)
             penalty_string = str(hyper_p.penalty)
@@ -84,36 +90,34 @@ class RunOptions:
 
 ###############################################################################
 #                                 File Paths                                  #
-############################################################################### 
-        #=== Loading Data ===#
-        if self.use_full_domain_data == 1:
-            self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
-            self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(hyper_p.num_training_data) + parameter_type
-            self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(hyper_p.num_training_data) + parameter_type
-            self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + parameter_type
-            self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + parameter_type
-        if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
-            self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices'
-            self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_bnd_%d' %(hyper_p.num_training_data) + parameter_type
-            self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_bnd_%d' %(hyper_p.num_training_data) + parameter_type
-            self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_bnd_%d' %(self.num_testing_data) + parameter_type
-            self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_bnd_%d' %(self.num_testing_data) + parameter_type          
-        
+###############################################################################         
         #=== Save File Name ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
-        
-        #=== Save File Path for One Instance of Test Data ===#
+  
+        #=== Loading Test Case ===#       
         self.savefile_name_parameter_test = self.NN_savefile_name + '_parameter_test'
         if hyper_p.data_type == 'full':
             self.savefile_name_state_test = self.NN_savefile_name + '_state_test'
         if hyper_p.data_type == 'bndonly':
             self.savefile_name_state_test = self.NN_savefile_name + '_state_test_bnd'
             
-        #=== Save File Path for Predictions ===#    
+        #=== Loading Predictions ===#    
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'     
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'
             
+        #=== Savefile Path for Figures ===#    
+        self.figures_savefile_directory = '../Figures/' + self.filename
+        self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
+        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test'
+        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test'
+        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
+        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
+        
+        #=== Creating Directories ===#
+        if not os.path.exists(self.figures_savefile_directory):
+            os.makedirs(self.figures_savefile_directory)
+
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
@@ -137,5 +141,14 @@ if __name__ == "__main__":
     run_options = RunOptions(hyper_p)
     
     #=== Predict and Save ===#
-    predict_and_save(hyper_p, run_options)
+    plot_and_save(hyper_p, run_options)
+    
+
+
+
+    
+    
+    
+    
+    
     

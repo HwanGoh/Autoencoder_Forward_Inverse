@@ -12,12 +12,6 @@ from Utilities.get_hyperparameter_permutations import get_hyperparameter_permuta
 from Training_Driver_Autoencoder_Fwd_Inv import HyperParameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-class FLAGS:
-    RECEIVED = 1
-    RUN_FINISHED = 2
-    EXIT = 3
-    NEW_RUN = 4
-
 ###############################################################################
 #                                   Executor                                  #
 ###############################################################################
@@ -33,7 +27,7 @@ if __name__ == '__main__':
     hyper_p.num_hidden_layers = [5]
     hyper_p.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
     hyper_p.num_hidden_nodes  = [500]
-    hyper_p.penalty           = [0.01, 1, 5, 10, 50, 100]
+    hyper_p.penalty           = [0.001, 0.01, 1, 10, 50, 100]
     hyper_p.num_training_data = [50000]
     hyper_p.batch_size        = [1000]
     hyper_p.num_epochs        = [500]
@@ -50,6 +44,7 @@ if __name__ == '__main__':
         scenarios_class_instances.append(copy.deepcopy(hyper_p_scenario))
     
     for scenario in scenarios_class_instances:
-        subprocess.Popen(['./Prediction_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.2f}', f'{scenario.num_training_data}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}'])
-                
+        proc = subprocess.Popen(['./Prediction_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.2f}', f'{scenario.num_training_data}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}']) 
+        proc.wait()
+        
     print('All scenarios computed')
