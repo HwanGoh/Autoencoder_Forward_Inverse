@@ -14,7 +14,7 @@ from Generate_Thermal_Fin_Data.forward_solve import Fin
 from Generate_Thermal_Fin_Data.thermal_fin import get_space
 from Generate_Thermal_Fin_Data.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 
-def plot_and_safe(hyper_p, run_options):
+def plot_and_save(hyper_p, run_options):
 ###############################################################################
 #                     Form Fenics Domain and Load Predictions                 #
 ###############################################################################
@@ -61,8 +61,11 @@ def plot_and_safe(hyper_p, run_options):
         plt.show()
     
     #=== Plotting predictions of test parameter and test state ===#
-    parameter_pred_dl = solver.nine_param_to_function(parameter_pred)
-    
+    if run_options.dataset == 'thermalfin9':
+        parameter_pred_dl = solver.nine_param_to_function(parameter_pred)
+    if run_options.dataset == 'thermalfinvary':
+        parameter_pred_dl = convert_array_to_dolfin_function(V,parameter_pred)
+        parameter_pred_dl = solver.nine_param_to_function(solver.subfin_avg_op(parameter_pred_dl))    
     p_pred_fig = dl.plot(parameter_pred_dl)
     p_pred_fig.ax.set_title('Decoder Estimation of True Parameter', fontsize=13)  
     plt.colorbar(p_test_fig)

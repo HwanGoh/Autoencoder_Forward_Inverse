@@ -23,7 +23,7 @@ if __name__ == '__main__':
     hyper_p = HyperParameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU
     
     # assign instance attributes for hyper_p
-    hyper_p.data_type         = ['full']
+    hyper_p.data_type         = ['bndonly']
     hyper_p.num_hidden_layers = [5]
     hyper_p.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
     hyper_p.num_hidden_nodes  = [500]
@@ -44,7 +44,8 @@ if __name__ == '__main__':
         scenarios_class_instances.append(copy.deepcopy(hyper_p_scenario))
     
     for scenario in scenarios_class_instances:
-        proc = subprocess.Popen(['./Prediction_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.2f}', f'{scenario.num_training_data}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}']) 
+        #proc = subprocess.Popen(['./Prediction_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.2f}', f'{scenario.num_training_data}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}']) 
+        proc = subprocess.Popen(['./Plotting_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.2f}', f'{scenario.num_training_data}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}']) 
         proc.wait()
         
     print('All scenarios computed')

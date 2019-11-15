@@ -114,7 +114,7 @@ class RunOptions:
             os.makedirs(self.NN_savefile_directory)
 
 ###############################################################################
-#                                  Driver                                     #
+#                                  Training                                   #
 ###############################################################################
 def trainer(hyper_p, run_options):
     #=== GPU Settings ===#
