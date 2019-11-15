@@ -98,11 +98,11 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_data = 20
+    num_data = 50000
         
     # Select true or test set
-    generate_train_data = 0
-    generate_test_data = 1
+    generate_train_data = 1
+    generate_test_data = 0
 
     # Select observation type
     generate_full_domain = 1
