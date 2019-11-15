@@ -23,14 +23,14 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     df_state_obs_train = pd.read_csv(run_options.state_obs_train_savefilepath + '.csv')
     parameter_train = df_parameter_train.to_numpy()
     state_obs_train = df_state_obs_train.to_numpy()
-    parameter_train = parameter_train.reshape((num_training_data, 9))
+    parameter_train = parameter_train.reshape((num_training_data, run_options.parameter_dimensions))
     state_obs_train = state_obs_train.reshape((num_training_data, run_options.state_obs_dimensions))
     print('Loading Testing Data')
     df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
     df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
     parameter_test = df_parameter_test.to_numpy()
     state_obs_test = df_state_obs_test.to_numpy()
-    parameter_test = parameter_test.reshape((run_options.num_testing_data, 9))
+    parameter_test = parameter_test.reshape((run_options.num_testing_data, run_options.parameter_dimensions))
     state_obs_test = state_obs_test.reshape((run_options.num_testing_data, run_options.state_obs_dimensions))
     
     #=== Casting as float32 ===#

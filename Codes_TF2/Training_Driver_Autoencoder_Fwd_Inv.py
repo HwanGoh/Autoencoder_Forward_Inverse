@@ -58,8 +58,12 @@ class RunOptions:
         if hyper_p.data_type == 'bndonly':
             self.use_bnd_data_only = 1
         
-        #=== Observation Dimensions === #
+        #=== Parameter and Observation Dimensions === #
         self.full_domain_dimensions = 1446 
+        if data_thermal_fin_nine == 1:
+            self.parameter_dimensions = 9
+        if data_thermal_fin_vary == 1:
+            self.parameter_dimensions = self.full_domain_dimensions
         if self.use_full_domain_data == 1:
             self.state_obs_dimensions = self.full_domain_dimensions 
         if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
