@@ -98,21 +98,22 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
+    #=== Number of Data ===#
     num_data = 50000
+    
+    #===  Select parameter type ===#
+    generate_nine_parameters = 0
+    generate_varying = 1
         
-    # Select true or test set
+    #=== Select true or test set ===#
     generate_train_data = 1
     generate_test_data = 0
 
-    # Select observation type
+    #===  Select observation type ===#
     generate_full_domain = 0
     generate_boundary_state = 1
     
-    # Select parameter type
-    generate_nine_parameters = 0
-    generate_varying = 1
-    
-    # Defining filenames and creating directories
+    #===  Defining filenames and creating directories ===#
     if not os.path.exists('../Data'):
         os.makedirs('../Data')
          
@@ -144,7 +145,7 @@ if __name__ == "__main__":
         parameter_savefilepath = parameter_test_savefilepath
         state_savefilepath = state_test_savefilepath
     
-    # Generating data    
+    #=== Generating data ===#   
     parameter_data, state_data, obs_indices = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying, generate_boundary_state)
     df_obs_indices = pd.DataFrame({'obs_indices': obs_indices})
     df_obs_indices.to_csv(observation_indices_savefilepath + '.csv', index=False)  
