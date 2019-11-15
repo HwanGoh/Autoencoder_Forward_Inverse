@@ -82,7 +82,7 @@ def parameter_generator_varying(V,solver,length = 0.8):
     norm = np.random.randn(len(chol))
     generated_parameter = np.exp(0.5 * chol.T @ norm) 
     parameter_dl = convert_array_to_dolfin_function(V,generated_parameter)
-    parameter_dl = solver.nine_param_to_function(solver.subfin_avg_op(parameter_dl))
+    #parameter_dl = solver.nine_param_to_function(solver.subfin_avg_op(parameter_dl))
     generated_parameter = parameter_dl.vector().get_local()
     
     return generated_parameter, parameter_dl
@@ -98,15 +98,15 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
-    num_data = 200
+    num_data = 20
         
     # Select true or test set
     generate_train_data = 0
     generate_test_data = 1
 
     # Select observation type
-    generate_full_domain = 0
-    generate_boundary_state = 1
+    generate_full_domain = 1
+    generate_boundary_state = 0
     
     # Select parameter type
     generate_nine_parameters = 0
@@ -123,18 +123,18 @@ if __name__ == "__main__":
         parameter_type = '_vary'
         
     if generate_full_domain == 1:    
-        observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
-        parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(num_data) + parameter_type
-        state_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + parameter_type
-        parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(num_data) + parameter_type
-        state_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + parameter_type  
+        observation_indices_savefilepath = '../../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
+        parameter_train_savefilepath = '../../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(num_data) + parameter_type
+        state_train_savefilepath = '../../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + parameter_type
+        parameter_test_savefilepath = '../../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(num_data) + parameter_type
+        state_test_savefilepath = '../../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + parameter_type  
         
     if generate_boundary_state == 1:
-        observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices'
-        parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_bnd_%d' %(num_data) + parameter_type
-        state_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_bnd_%d' %(num_data) + parameter_type
-        parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_bnd_%d' %(num_data) + parameter_type
-        state_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_bnd_%d' %(num_data) + parameter_type         
+        observation_indices_savefilepath = '../../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices'
+        parameter_train_savefilepath = '../../../Datasets/Thermal_Fin/' + 'parameter_train_bnd_%d' %(num_data) + parameter_type
+        state_train_savefilepath = '../../../Datasets/Thermal_Fin/' + 'state_train_bnd_%d' %(num_data) + parameter_type
+        parameter_test_savefilepath = '../../../Datasets/Thermal_Fin/' + 'parameter_test_bnd_%d' %(num_data) + parameter_type
+        state_test_savefilepath = '../../../Datasets/Thermal_Fin/' + 'state_test_bnd_%d' %(num_data) + parameter_type         
  
     if generate_train_data == 1:
         parameter_savefilepath = parameter_train_savefilepath

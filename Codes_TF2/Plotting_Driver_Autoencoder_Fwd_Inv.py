@@ -30,7 +30,7 @@ class HyperParameters:
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    penalty           = 1
+    penalty           = 100
     num_training_data = 50000
     batch_size        = 1000
     num_epochs        = 500
@@ -38,16 +38,16 @@ class HyperParameters:
     
 class RunOptions:
     def __init__(self, hyper_p): 
+        #=== Data Set ===#
+        data_thermal_fin_nine = 0
+        data_thermal_fin_vary = 1
+        self.num_testing_data = 200
+        
         #=== Use LBFGS Optimizer ===#
         self.use_LBFGS = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
-        
-        #=== Data Set ===#
-        data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 1
-        self.num_testing_data = 200
         
 ###############################################################################
 #                                 File Name                                   #

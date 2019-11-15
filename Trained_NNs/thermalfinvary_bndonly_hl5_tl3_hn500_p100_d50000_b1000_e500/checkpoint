@@ -1,0 +1,2 @@
+model_checkpoint_path: "thermalfinvary_bndonly_hl5_tl3_hn500_p100_d50000_b1000_e500"
+all_model_checkpoint_paths: "thermalfinvary_bndonly_hl5_tl3_hn500_p100_d50000_b1000_e500"

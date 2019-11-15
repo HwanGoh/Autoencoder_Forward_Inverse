@@ -30,16 +30,16 @@ class HyperParameters:
     
 class RunOptions:
     def __init__(self, hyper_p): 
+        #=== Data Set ===#
+        data_thermal_fin_nine = 0
+        data_thermal_fin_vary = 1
+        self.num_testing_data = 200
+        
         #=== Use LBFGS Optimizer ===#
         self.use_LBFGS = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
-        
-        #=== Data Set ===#
-        data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 1
-        self.num_testing_data = 200
 
 ###############################################################################
 #                                 File Name                                   #
