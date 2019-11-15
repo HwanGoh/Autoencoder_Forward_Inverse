@@ -154,4 +154,3 @@ if __name__ == "__main__":
     df_state_data.to_csv(state_savefilepath + '.csv', index=False)  
     print('\nData Saved to ' + parameter_savefilepath + ' and ' + state_savefilepath)
 
-    
