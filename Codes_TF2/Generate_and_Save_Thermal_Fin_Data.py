@@ -113,10 +113,7 @@ if __name__ == "__main__":
     generate_full_domain = 0
     generate_boundary_state = 1
     
-    #===  Defining filenames and creating directories ===#
-    if not os.path.exists('../Data'):
-        os.makedirs('../Data')
-         
+    #===  Defining filenames and creating directories ===#         
     if generate_nine_parameters == 1:
         parameter_type = '_nine'
         
