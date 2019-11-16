@@ -163,7 +163,7 @@ if __name__ == "__main__":
         hyper_p.num_epochs        = int(sys.argv[8])
         hyper_p.gpu               = str(sys.argv[9])
     
-    hyper_p.penalty
+    print(hyper_p.penalty)
     pdb.set_trace()
         
     #=== Set run options ===#         
