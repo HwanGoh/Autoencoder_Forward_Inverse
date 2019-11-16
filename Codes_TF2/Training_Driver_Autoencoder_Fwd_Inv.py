@@ -28,7 +28,7 @@ class HyperParameters:
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    penalty           = 1
+    penalty           = 0.001
     num_training_data = 50000
     batch_size        = 1000
     num_epochs        = 500
@@ -87,7 +87,7 @@ class RunOptions:
             penalty_string = 'pt' + penalty_string[2:]
 
         self.filename = self.dataset + '_' + hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
-
+        
 ###############################################################################
 #                                 File Paths                                  #
 ############################################################################### 
