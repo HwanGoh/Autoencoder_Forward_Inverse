@@ -26,14 +26,14 @@ import os
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'full'
+    data_type         = 'bndonly'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    penalty           = 1
-    num_training_data = 200
+    penalty           = 100
+    num_training_data = 50000
     batch_size        = 1000
-    num_epochs        = 10
+    num_epochs        = 500
     gpu               = '0'
     
 class RunOptions:

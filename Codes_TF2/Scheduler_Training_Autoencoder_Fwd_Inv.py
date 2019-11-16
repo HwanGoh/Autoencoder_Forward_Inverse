@@ -40,14 +40,14 @@ if __name__ == '__main__':
         hyper_p = HyperParameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU
         
         # assign instance attributes for hyper_p
-        hyper_p.data_type         = ['full']
+        hyper_p.data_type         = ['bndonly']
         hyper_p.num_hidden_layers = [5]
         hyper_p.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
         hyper_p.num_hidden_nodes  = [500]
         hyper_p.penalty           = [0.001, 0.01, 1, 10, 50, 100]
         hyper_p.num_training_data = [50000]
         hyper_p.batch_size        = [1000]
-        hyper_p.num_epochs        = [500]
+        hyper_p.num_epochs        = [4000]
         
         permutations_list, hyper_p_keys = get_hyperparameter_permutations(hyper_p) 
         print('permutations_list generated')

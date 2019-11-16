@@ -12,7 +12,7 @@ import dolfin as dl
 
 from Generate_Thermal_Fin_Data.forward_solve import Fin
 from Generate_Thermal_Fin_Data.thermal_fin import get_space
-from Generate_Thermal_Fin_Data.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
+from Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -74,7 +74,7 @@ def plot_and_save(hyper_p, run_options):
     print('Figure saved to ' + run_options.figures_savefile_name_parameter_pred) 
     plt.show()
     parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
-    print(parameter_pred_error)
+    print('Parameter prediction relative error: %.7f' %parameter_pred_error)
     
     if run_options.use_full_domain_data == 1: # No state prediction if the truncation layer only consists of the observations
         state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
@@ -85,7 +85,7 @@ def plot_and_save(hyper_p, run_options):
         print('Figure saved to ' + run_options.figures_savefile_name_state_pred) 
         plt.show()
     state_pred_error = np.linalg.norm(state_pred - state_test,2)/np.linalg.norm(state_test,2)
-    print(state_pred_error)
+    print('State observation prediction relative error: %.7f' %state_pred_error)
             
 ###############################################################################
 #                               Plotting Metrics                              #
