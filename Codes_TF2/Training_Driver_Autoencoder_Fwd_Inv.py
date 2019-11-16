@@ -88,9 +88,6 @@ class RunOptions:
 
         self.filename = self.dataset + '_' + hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
-        print(self.filename)
-        pdb.set_trace()
-
 ###############################################################################
 #                                 File Paths                                  #
 ############################################################################### 
@@ -165,7 +162,10 @@ if __name__ == "__main__":
         hyper_p.batch_size        = int(sys.argv[7])
         hyper_p.num_epochs        = int(sys.argv[8])
         hyper_p.gpu               = str(sys.argv[9])
-            
+    
+    hyper_p.penalty
+    pdb.set_trace()
+        
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
     
