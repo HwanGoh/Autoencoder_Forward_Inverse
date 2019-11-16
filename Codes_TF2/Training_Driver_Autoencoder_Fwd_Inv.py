@@ -162,10 +162,6 @@ if __name__ == "__main__":
         hyper_p.batch_size        = int(sys.argv[7])
         hyper_p.num_epochs        = int(sys.argv[8])
         hyper_p.gpu               = str(sys.argv[9])
-    
-    print(sys.argv[5])
-    print(hyper_p.penalty)
-    pdb.set_trace()
         
     #=== Set run options ===#         
     run_options = RunOptions(hyper_p)
