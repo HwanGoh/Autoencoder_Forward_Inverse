@@ -25,7 +25,7 @@ class FLAGS:
 ###############################################################################
 if __name__ == '__main__':
                     
-    # To run this code "mpirun -n 7 ./Scheduler_Training_Autoencoder_Fwd_Inv.py" in command line
+    # To run this code "mpirun -n 5 ./Scheduler_Training_Autoencoder_Fwd_Inv.py" in command line
     
     # mpi stuff
     comm   = MPI.COMM_WORLD
