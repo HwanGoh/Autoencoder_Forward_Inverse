@@ -14,13 +14,11 @@ Created on Wed Nov  6 12:59:59 2019
 @author: hwan
 """
 import sys
-sys.path.append('../')
+import os
 
 from Utilities.plot_and_save import plot_and_save
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
-import os
 
 ###############################################################################
 #                       HyperParameters and RunOptions                        #

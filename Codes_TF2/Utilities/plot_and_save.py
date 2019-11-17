@@ -10,8 +10,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import dolfin as dl
 
-import sys, os
-sys.path.append(os.path.abspath('../..'))
+import sys
+sys.path.append('../..')
 
 from Generate_Thermal_Fin_Data.Utilities.forward_solve import Fin
 from Generate_Thermal_Fin_Data.Utilities.thermal_fin import get_space

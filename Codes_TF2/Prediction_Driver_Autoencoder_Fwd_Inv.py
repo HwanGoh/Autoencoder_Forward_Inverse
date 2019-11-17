@@ -5,9 +5,6 @@ Created on Sun Sep 15 15:34:49 2019
 
 @author: hwan
 """
-import sys
-sys.path.append('../')
-
 from Utilities.predict_and_save import predict_and_save
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
