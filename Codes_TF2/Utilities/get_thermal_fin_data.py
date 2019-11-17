@@ -24,14 +24,14 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     parameter_train = df_parameter_train.to_numpy()
     state_obs_train = df_state_obs_train.to_numpy()
     parameter_train = parameter_train.reshape((num_training_data, run_options.parameter_dimensions))
-    state_obs_train = state_obs_train.reshape((num_training_data, run_options.state_obs_dimensions))
+    state_obs_train = state_obs_train.reshape((num_training_data, len(obs_indices)))
     print('Loading Testing Data')
     df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
     df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
     parameter_test = df_parameter_test.to_numpy()
     state_obs_test = df_state_obs_test.to_numpy()
     parameter_test = parameter_test.reshape((run_options.num_testing_data, run_options.parameter_dimensions))
-    state_obs_test = state_obs_test.reshape((run_options.num_testing_data, run_options.state_obs_dimensions))
+    state_obs_test = state_obs_test.reshape((run_options.num_testing_data, len(obs_indices)))
 
     #=== Casting as float32 ===#
     parameter_train = tf.cast(parameter_train,tf.float32)
@@ -48,7 +48,7 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     parameter_and_state_obs_test = tf.data.Dataset.from_tensor_slices((parameter_test, state_obs_test)).shuffle(8192, seed=random_seed).batch(batch_size)
     
     #=== Partitioning Out Validation Set and Constructing Batches ===#
-    num_training_data = int(0.8 * len(parameter_train))
+    num_training_data = int(0.8 * num_training_data)
     parameter_and_state_obs_train = parameter_and_state_obs_train_full.take(num_training_data).batch(batch_size)
     parameter_and_state_obs_val = parameter_and_state_obs_train_full.skip(num_training_data).batch(batch_size)    
     num_batches_train = len(list(parameter_and_state_obs_train))

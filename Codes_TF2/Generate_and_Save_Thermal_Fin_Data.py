@@ -18,54 +18,51 @@ from Generate_Thermal_Fin_Data.thermal_fin import get_space
 import os
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying, generate_boundary_state):
-    ###################################
-    #   Generate Parameters and Data  #
-    ###################################  following Sheroze's "test_thermal_fin_gradient.py" code
-    
-    # Generate Dolfin function space and mesh
+###############################################################################
+#                        Generate Parameters and Data                         #
+############################################################################### following Sheroze's "test_thermal_fin_gradient.py" code
+def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying):
+    #=== Generate Dolfin function space and mesh ===#
     V, mesh = get_space(40)
     solver = Fin(V)    
     
     print(V.dim())    
     
-    # Create storage arrays
+    #=== Create storage arrays ===#
     if generate_nine_parameters == 1:
-        parameter = np.zeros((num_data, 9))
+        parameter_data = np.zeros((num_data, 9))
     if generate_varying == 1:
-        parameter = np.zeros((num_data, V.dim()))
-    if generate_boundary_state == 1:
-        obs_indices = list(set(sum((f.entities(0).tolist() for f in dl.SubsetIterator(solver.boundaries, 1)), []))) # entries of this vector represent which of the (V.dim() x 1) vector of domain indices correspond to the boundary; NOT the degrees of freedom  
-        state = np.zeros((num_data, len(obs_indices)))
-        # check if actually boundary points
-        #mesh_coordinates = mesh.coordinates()
-        #obs_coor = np.zeros((len(obs_indices),2))        
-        #obs_counter = 0
-        #for ind in obs_indices:
-        #    obs_coor[obs_counter,:] = mesh_coordinates[ind,:]
-        #    obs_counter = obs_counter + 1
-        #dl.plot(mesh)
+        parameter_data = np.zeros((num_data, V.dim()))
+    
+    obs_indices_full = list(range(V.dim()))
+    state_data_full = np.zeros((num_data, V.dim()))
+    
+    obs_indices_bnd = list(set(sum((f.entities(0).tolist() for f in dl.SubsetIterator(solver.boundaries, 1)), []))) # entries of this vector represent which of the (V.dim() x 1) vector of domain indices correspond to the boundary; NOT the degrees of freedom  
+    state_data_bnd = np.zeros((num_data, len(obs_indices_bnd)))
+    # check if actually boundary points
+    #mesh_coordinates = mesh.coordinates()
+    #obs_coor = np.zeros((len(obs_indices),2))        
+    #obs_counter = 0
+    #for ind in obs_indices:
+    #    obs_coor[obs_counter,:] = mesh_coordinates[ind,:]
+    #    obs_counter = obs_counter + 1
+    #dl.plot(mesh)
         
-    else:
-        state = np.zeros((num_data, V.dim()))
-        obs_indices = list(range(V.dim()))
-        
+    #=== Generating Parameters and State ===#
     for m in range(num_data):
         print('\nGenerating Parameters and Data Set %d of %d\n' %(m+1, num_data))
         # Generate parameters
         if generate_nine_parameters == 1:
-            parameter[m,:], parameter_dl = parameter_generator_nine_values(V,solver)
+            parameter_data[m,:], parameter_dl = parameter_generator_nine_values(V,solver)
         if generate_varying == 1:
-            parameter[m,:], parameter_dl = parameter_generator_varying(V,solver)              
+            parameter_data[m,:], parameter_dl = parameter_generator_varying(V,solver)              
         # Solve PDE for state variable
-        state_dl, _ = solver.forward(parameter_dl)        
-        if generate_boundary_state == 1:
-            state_full_domain = state_dl.vector().get_local()
-            state[m,:] = state_full_domain[obs_indices]
-        else:
-            state[m,:] = state_dl.vector().get_local()             
+        state_dl, _ = solver.forward(parameter_dl)    
+        state_data = state_dl.vector().get_local()
+        state_data_full[m,:] = state_data
+        state_data_bnd[m,:] = state_data[obs_indices_bnd]         
         
-    return parameter, state, obs_indices
+    return parameter_data, state_data_full, state_data_bnd, obs_indices_full, obs_indices_bnd
 
 def parameter_generator_nine_values(V,solver,length = 0.8):
     chol = make_cov_chol(V, length)
@@ -97,57 +94,65 @@ def convert_array_to_dolfin_function(V, nodal_values):
 ###############################################################################
 if __name__ == "__main__":  
 
+    #################################
+    #   Run Options and File Names  #
+    #################################     
     #=== Number of Data ===#
-    num_data = 200
-    
-    #===  Select parameter type ===#
-    generate_nine_parameters = 0
-    generate_varying = 1
-        
-    #=== Select true or test set ===#
+    num_data = 20
+
+    #=== Select True or Test Set ===#
     generate_train_data = 0
     generate_test_data = 1
-
-    #===  Select observation type ===#
-    generate_full_domain = 0
-    generate_boundary_state = 1
     
-    #===  Defining filenames and creating directories ===#         
+    #===  Select Parameter Type ===#
+    generate_nine_parameters = 0
+    generate_varying = 1
+    
+    #=== Defining Filenames and Creating Directories ===#         
     if generate_nine_parameters == 1:
-        parameter_type = '_nine'
-        
+        parameter_type = '_nine'        
     if generate_varying == 1:
         parameter_type = '_vary'
-        
-    if generate_full_domain == 1:    
-        observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_full_domain'
-        parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(num_data) + parameter_type
-        state_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + parameter_type
-        parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(num_data) + parameter_type
-        state_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + parameter_type  
-        
-    if generate_boundary_state == 1:
-        observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices'
-        parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_bnd_%d' %(num_data) + parameter_type
-        state_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_bnd_%d' %(num_data) + parameter_type
-        parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_bnd_%d' %(num_data) + parameter_type
-        state_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_bnd_%d' %(num_data) + parameter_type         
- 
+          
+    parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(num_data) + parameter_type
+    parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(num_data) + parameter_type
+
+    observation_indices_full_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices_full'
+    observation_indices_bnd_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices_bnd'
+    
+    state_train_full_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + '_full' + parameter_type
+    state_train_bnd_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + '_bnd' + parameter_type
+    state_test_full_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + '_full' + parameter_type  
+    state_test_bnd_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + '_bnd' + parameter_type         
+
     if generate_train_data == 1:
         parameter_savefilepath = parameter_train_savefilepath
-        state_savefilepath = state_train_savefilepath
+        state_full_savefilepath = state_train_full_savefilepath
+        state_bnd_savefilepath = state_train_bnd_savefilepath
         
     if generate_test_data == 1:
         parameter_savefilepath = parameter_test_savefilepath
-        state_savefilepath = state_test_savefilepath
+        state_full_savefilepath = state_test_full_savefilepath
+        state_bnd_savefilepath = state_test_bnd_savefilepath
     
-    #=== Generating data ===#   
-    parameter_data, state_data, obs_indices = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying, generate_boundary_state)
-    df_obs_indices = pd.DataFrame({'obs_indices': obs_indices})
-    df_obs_indices.to_csv(observation_indices_savefilepath + '.csv', index=False)  
+    #############################
+    #   Generate and Save Data  #
+    ############################# 
+    #=== Generating Data ===#   
+    parameter_data, state_data_full, state_data_bnd, obs_indices_full, obs_indices_bnd = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying)
+    
+    #=== Saving Data ===#  
     df_parameter_data = pd.DataFrame({'parameter_data': parameter_data.flatten()})
-    df_state_data = pd.DataFrame({'state_data': state_data.flatten()})
     df_parameter_data.to_csv(parameter_savefilepath + '.csv', index=False)  
-    df_state_data.to_csv(state_savefilepath + '.csv', index=False)  
-    print('\nData Saved to ' + parameter_savefilepath + ' and ' + state_savefilepath)
+    
+    df_obs_indices_full = pd.DataFrame({'obs_indices': obs_indices_full})
+    df_obs_indices_full.to_csv(observation_indices_full_savefilepath + '.csv', index=False)  
+    df_obs_indices_bnd = pd.DataFrame({'obs_indices': obs_indices_bnd})
+    df_obs_indices_bnd.to_csv(observation_indices_bnd_savefilepath + '.csv', index=False)  
+    
+    df_state_data_full = pd.DataFrame({'state_data': state_data_full.flatten()})
+    df_state_data_full.to_csv(state_full_savefilepath + '.csv', index=False)  
+    df_state_data_bnd = pd.DataFrame({'state_data': state_data_bnd.flatten()})
+    df_state_data_bnd.to_csv(state_bnd_savefilepath + '.csv', index=False) 
+    print('\n All Data Saved')
 

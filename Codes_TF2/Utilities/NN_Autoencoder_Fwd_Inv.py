@@ -19,9 +19,9 @@ class AutoencoderFwdInv(tf.keras.Model):
 ############################################################################### 
         #=== Define Architecture and Create Layer Storage ===#
         self.architecture = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
-        if run_options.use_full_domain_data == 1 or run_options.use_bnd_data == 1:
+        if hyper_p.data_type == 'full':
             self.architecture[hyper_p.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
-        if run_options.use_bnd_data_only == 1:
+        if hyper_p.data_type == 'bnd':
             self.architecture[hyper_p.truncation_layer] = len(obs_indices) # Sets where the forward problem ends and the inverse problem begins
         print(self.architecture)
         self.num_layers = len(self.architecture)    

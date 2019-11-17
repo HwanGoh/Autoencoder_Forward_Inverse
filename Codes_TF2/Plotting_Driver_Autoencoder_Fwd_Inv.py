@@ -26,14 +26,14 @@ import os
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'bndonly'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
-    penalty           = 50
-    num_training_data = 50000
+    num_hidden_nodes  = 100
+    penalty           = 1
+    num_training_data = 200
     batch_size        = 1000
-    num_epochs        = 4000
+    num_epochs        = 20
     gpu               = '0'
     
 class RunOptions:
@@ -41,38 +41,20 @@ class RunOptions:
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
-        self.num_testing_data = 200
-        
-        #=== Use LBFGS Optimizer ===#
-        self.use_LBFGS = 0
+        self.num_testing_data = 20
         
         #=== Random Seed ===#
         self.random_seed = 1234
-        
+
 ###############################################################################
 #                                 File Name                                   #
-###############################################################################         
-        #=== Data Type Names ===#
-        self.use_full_domain_data = 0
-        self.use_bnd_data = 0
-        self.use_bnd_data_only = 0
-        if hyper_p.data_type == 'full':
-            self.use_full_domain_data = 1
-        if hyper_p.data_type == 'bnd':
-            self.use_bnd_data = 1
-        if hyper_p.data_type == 'bndonly':
-            self.use_bnd_data_only = 1
-        
+###############################################################################                
         #=== Parameter and Observation Dimensions === #
         self.full_domain_dimensions = 1446 
         if data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if data_thermal_fin_vary == 1:
             self.parameter_dimensions = self.full_domain_dimensions
-        if self.use_full_domain_data == 1:
-            self.state_obs_dimensions = self.full_domain_dimensions 
-        if self.use_bnd_data == 1 or self.use_bnd_data_only == 1:
-            self.state_obs_dimensions = 614
         
         #=== File name ===#
         if data_thermal_fin_nine == 1:
