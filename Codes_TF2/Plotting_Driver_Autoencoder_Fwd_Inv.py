@@ -26,7 +26,7 @@ import os
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'bnd'
+    data_type         = 'full'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 100
@@ -39,8 +39,8 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 1
+        data_thermal_fin_nine = 1
+        data_thermal_fin_vary = 0
         self.num_testing_data = 20
         
         #=== Random Seed ===#

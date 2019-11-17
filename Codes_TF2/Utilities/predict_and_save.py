@@ -47,10 +47,10 @@ def predict_and_save(hyper_p, run_options):
         parameter_pred_batch = NN.decoder(state_obs_test)
         state_pred_batch = NN.encoder(parameter_test)
           
-    parameter_test = parameter_test[45,:].numpy()
-    parameter_pred = parameter_pred_batch[45,:].numpy()
-    state_test = state_obs_test[45,:].numpy()
-    state_pred = state_pred_batch[45,:].numpy()
+    parameter_test = parameter_test[4,:].numpy()
+    parameter_pred = parameter_pred_batch[4,:].numpy()
+    state_test = state_obs_test[4,:].numpy()
+    state_pred = state_pred_batch[4,:].numpy()
     
     #=== Generating Boundary Data from Full Data ===#
     #state_test = state_test[obs_indices].flatten()

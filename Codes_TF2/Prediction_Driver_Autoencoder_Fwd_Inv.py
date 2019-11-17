@@ -17,7 +17,7 @@ import sys
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'bnd'
+    data_type         = 'full'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 100
@@ -81,9 +81,9 @@ class RunOptions:
         self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test'
         if hyper_p.data_type == 'full':
             self.savefile_name_state_test = self.NN_savefile_directory + '/state_test'
-        if hyper_p.data_type == 'bndonly':
+        if hyper_p.data_type == 'bnd':
             self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd'
-            
+         
         #=== Save File Path for Predictions ===#    
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
         self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'     

@@ -36,7 +36,7 @@ def plot_and_save(hyper_p, run_options):
 #                             Plotting Predictions                            #
 ###############################################################################
     #=== Plotting test parameter and test state ===#   
-    df_obs_indices = pd.read_csv('../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices' + '.csv')    
+    df_obs_indices = pd.read_csv('../../Datasets/Thermal_Fin/' + 'obs_indices_bnd' + '.csv')    
     obs_indices = df_obs_indices.to_numpy() 
     
     if run_options.dataset == 'thermalfin9':
@@ -46,7 +46,7 @@ def plot_and_save(hyper_p, run_options):
     if hyper_p.data_type == 'full':
         state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
         state_test = state_test_dl.vector().get_local()    
-    if hyper_p.data_type == 'bndonly':
+    if hyper_p.data_type == 'bnd':
         state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
         state_test = state_test_dl.vector().get_local()   
         state_test = state_test[obs_indices].flatten()
@@ -80,7 +80,7 @@ def plot_and_save(hyper_p, run_options):
     parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
     print('Parameter prediction relative error: %.7f' %parameter_pred_error)
     
-    if run_options.use_full_domain_data == 1: # No state prediction if the truncation layer only consists of the observations
+    if hyper_p.data_type == 'full': # No state prediction if the truncation layer only consists of the observations
         state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         s_pred_fig = dl.plot(state_pred_dl)
         s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=13)  
