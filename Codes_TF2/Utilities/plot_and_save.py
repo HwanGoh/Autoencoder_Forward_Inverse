@@ -10,12 +10,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import dolfin as dl
 
-from Generate_Thermal_Fin_Data.forward_solve import Fin
-from Generate_Thermal_Fin_Data.thermal_fin import get_space
-from Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
+import sys, os
+sys.path.append(os.path.abspath('../..'))
+
+from Generate_Thermal_Fin_Data.Utilities.forward_solve import Fin
+from Generate_Thermal_Fin_Data.Utilities.thermal_fin import get_space
+from Generate_Thermal_Fin_Data.Utilities import gaussian_field
+from Generate_Thermal_Fin_Data.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
 
 def plot_and_save(hyper_p, run_options):
 ###############################################################################

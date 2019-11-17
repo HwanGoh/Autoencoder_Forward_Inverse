@@ -29,9 +29,9 @@ class HyperParameters:
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     penalty           = 1
-    num_training_data = 50000
+    num_training_data = 200
     batch_size        = 1000
-    num_epochs        = 500
+    num_epochs        = 20
     gpu               = '0'
     
 class RunOptions:
@@ -39,7 +39,7 @@ class RunOptions:
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
-        self.num_testing_data = 200
+        self.num_testing_data = 20
         
         #=== Random Seed ===#
         self.random_seed = 1234
