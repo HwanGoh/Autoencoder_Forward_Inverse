@@ -13,10 +13,10 @@ import dolfin as dl
 import sys
 sys.path.append('../..')
 
-from Fenics_Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
-from Fenics_Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space
-from Fenics_Thermal_Fin_Heat_Simulator.Utilities import gaussian_field
-from Fenics_Thermal_Fin_Heat_Simulator.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
+from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
+from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space
+from Thermal_Fin_Heat_Simulator.Utilities import gaussian_field
+from Thermal_Fin_Heat_Simulator.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
