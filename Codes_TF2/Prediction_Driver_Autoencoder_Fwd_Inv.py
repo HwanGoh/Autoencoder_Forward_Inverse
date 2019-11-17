@@ -11,21 +11,20 @@ sys.path.append('../')
 from Utilities.predict_and_save import predict_and_save
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
 import sys
 
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'full'
+    data_type         = 'bndonly'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    penalty           = 1
+    penalty           = 0.01
     num_training_data = 50000
     batch_size        = 1000
-    num_epochs        = 500
+    num_epochs        = 4000
     gpu               = '0'
     
 class RunOptions:
@@ -104,11 +103,11 @@ class RunOptions:
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
         
         #=== Save File Path for One Instance of Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_name + '_parameter_test'
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test'
         if hyper_p.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_name + '_state_test'
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test'
         if hyper_p.data_type == 'bndonly':
-            self.savefile_name_state_test = self.NN_savefile_name + '_state_test_bnd'
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd'
             
         #=== Save File Path for Predictions ===#    
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'

@@ -11,14 +11,11 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 
-def predict_and_save(hyper_p, run_options):
-    #=== Load observation indices ===#  
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
-    obs_indices = df_obs_indices.to_numpy()    
-    
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
+def predict_and_save(hyper_p, run_options):    
     #=== Load testing data ===# 
-    obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, hyper_p.num_training_data, hyper_p.batch_size, run_options.random_seed) 
+    obs_indices, _, parameter_and_state_obs_test, _, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, hyper_p.num_training_data, hyper_p.batch_size, run_options.random_seed) 
 
     ####################################
     #   Import Trained Neural Network  #
@@ -50,14 +47,12 @@ def predict_and_save(hyper_p, run_options):
         parameter_pred_batch = NN.decoder(state_obs_test)
         state_pred_batch = NN.encoder(parameter_test)
           
-    parameter_test = parameter_test[0,:].numpy()
-    parameter_pred = parameter_pred_batch[0,:].numpy()
-    state_test = state_obs_test[0,:].numpy()
-    state_pred = state_pred_batch[0,:].numpy()
+    parameter_test = parameter_test[45,:].numpy()
+    parameter_pred = parameter_pred_batch[45,:].numpy()
+    state_test = state_obs_test[45,:].numpy()
+    state_pred = state_pred_batch[45,:].numpy()
     
     #=== Generating Boundary Data from Full Data ===#
-    #df_obs_indices = pd.read_csv('../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices' + '.csv')    
-    #obs_indices = df_obs_indices.to_numpy() 
     #state_test = state_test[obs_indices].flatten()
     
     #####################################
@@ -72,6 +67,6 @@ def predict_and_save(hyper_p, run_options):
     df_state_pred = pd.DataFrame({'state_pred': state_pred})
     df_state_pred.to_csv(run_options.savefile_name_state_pred + '.csv', index=False)  
 
-    print('\nPredictions Saved to ' + run_options.NN_savefile_name)
+    print('\nPredictions Saved to ' + run_options.NN_savefile_directory)
         
     

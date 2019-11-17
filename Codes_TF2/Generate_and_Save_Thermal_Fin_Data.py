@@ -82,7 +82,6 @@ def parameter_generator_varying(V,solver,length = 0.8):
     norm = np.random.randn(len(chol))
     generated_parameter = np.exp(0.5 * chol.T @ norm) 
     parameter_dl = convert_array_to_dolfin_function(V,generated_parameter)
-    #parameter_dl = solver.nine_param_to_function(solver.subfin_avg_op(parameter_dl))
     generated_parameter = parameter_dl.vector().get_local()
     
     return generated_parameter, parameter_dl

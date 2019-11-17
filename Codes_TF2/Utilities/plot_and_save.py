@@ -36,6 +36,9 @@ def plot_and_save(hyper_p, run_options):
 #                             Plotting Predictions                            #
 ###############################################################################
     #=== Plotting test parameter and test state ===#   
+    df_obs_indices = pd.read_csv('../../Datasets/Thermal_Fin/' + 'thermal_fin_bnd_indices' + '.csv')    
+    obs_indices = df_obs_indices.to_numpy() 
+    
     if run_options.dataset == 'thermalfin9':
         parameter_test_dl = solver.nine_param_to_function(parameter_test)
     if run_options.dataset == 'thermalfinvary':
@@ -44,8 +47,9 @@ def plot_and_save(hyper_p, run_options):
         state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
         state_test = state_test_dl.vector().get_local()    
     if hyper_p.data_type == 'bndonly':
-        df_state_test = pd.read_csv(run_options.savefile_name_state_test + '.csv')
-        state_test = df_state_test.to_numpy()
+        state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
+        state_test = state_test_dl.vector().get_local()   
+        state_test = state_test[obs_indices].flatten()
     
     p_test_fig = dl.plot(parameter_test_dl)
     p_test_fig.ax.set_title('True Parameter', fontsize=13)  
@@ -163,7 +167,7 @@ def plot_and_save(hyper_p, run_options):
     plt.plot(x_axis, storage_parameter_relative_error, label = 'Relative Error')
         
     #=== Figure Properties ===#   
-    plt.title('Relative Error of State Prediction')
+    plt.title('Relative Error of Parameter Prediction')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
     #plt.axis([0,30,1.5,3])
@@ -183,7 +187,7 @@ def plot_and_save(hyper_p, run_options):
     plt.plot(x_axis, storage_state_relative_error, label = 'Relative Error')
         
     #=== Figure Properties ===#   
-    plt.title('Relative Error of Parameter Prediction')
+    plt.title('Relative Error of State Prediction')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
     #plt.axis([0,30,1.5,3])
