@@ -98,15 +98,15 @@ if __name__ == "__main__":
     #   Run Options and File Names  #
     #################################     
     #=== Number of Data ===#
-    num_data = 20
+    num_data = 50000
 
     #=== Select True or Test Set ===#
-    generate_train_data = 0
-    generate_test_data = 1
+    generate_train_data = 1
+    generate_test_data = 0
     
     #===  Select Parameter Type ===#
-    generate_nine_parameters = 0
-    generate_varying = 1
+    generate_nine_parameters = 1
+    generate_varying = 0
     
     #=== Defining Filenames and Creating Directories ===#         
     if generate_nine_parameters == 1:

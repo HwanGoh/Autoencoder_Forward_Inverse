@@ -39,7 +39,7 @@ class RunOptions:
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
-        self.num_testing_data = 20
+        self.num_testing_data = 200
         
         #=== Random Seed ===#
         self.random_seed = 1234
