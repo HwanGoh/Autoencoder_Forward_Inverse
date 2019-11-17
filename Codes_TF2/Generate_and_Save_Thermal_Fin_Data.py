@@ -21,7 +21,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                        Generate Parameters and Data                         #
 ############################################################################### following Sheroze's "test_thermal_fin_gradient.py" code
-def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying):
+def generate_thermal_fin_data(data_file_name, num_data, generate_nine_parameters, generate_varying):
     #=== Generate Dolfin function space and mesh ===#
     V, mesh = get_space(40)
     solver = Fin(V)    
@@ -50,7 +50,8 @@ def generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varyi
         
     #=== Generating Parameters and State ===#
     for m in range(num_data):
-        print('\nGenerating Parameters and Data Set %d of %d\n' %(m+1, num_data))
+        print('\nGenerating: ' + data_file_name)
+        print('Data Set %d of %d\n' %(m+1, num_data))
         # Generate parameters
         if generate_nine_parameters == 1:
             parameter_data[m,:], parameter_dl = parameter_generator_nine_values(V,solver)
@@ -98,48 +99,41 @@ if __name__ == "__main__":
     #   Run Options and File Names  #
     #################################     
     #=== Number of Data ===#
-    num_data = 50000
+    num_data = 20
 
     #=== Select True or Test Set ===#
-    generate_train_data = 1
-    generate_test_data = 0
+    generate_train_data = 0
+    generate_test_data = 1
     
     #===  Select Parameter Type ===#
-    generate_nine_parameters = 1
-    generate_varying = 0
+    generate_nine_parameters = 0
+    generate_varying = 1
     
-    #=== Defining Filenames and Creating Directories ===#         
+    #=== Defining Filenames and Creating Directories ===#
+    if generate_train_data == 1:
+        train_or_test = 'train'
+    if generate_test_data == 1:
+        train_or_test = 'test'         
     if generate_nine_parameters == 1:
         parameter_type = '_nine'        
     if generate_varying == 1:
         parameter_type = '_vary'
-          
-    parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(num_data) + parameter_type
-    parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(num_data) + parameter_type
+    
+    data_file_name = train_or_test + '_' + str(num_data) + parameter_type
+      
+    parameter_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_' + train_or_test + '_%d' %(num_data) + parameter_type
 
     observation_indices_full_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices_full'
     observation_indices_bnd_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices_bnd'
     
-    state_train_full_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + '_full' + parameter_type
-    state_train_bnd_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(num_data) + '_bnd' + parameter_type
-    state_test_full_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + '_full' + parameter_type  
-    state_test_bnd_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(num_data) + '_bnd' + parameter_type         
+    state_full_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_' + train_or_test + '_%d' %(num_data) + '_full' + parameter_type
+    state_bnd_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_' + train_or_test + '_%d' + '_bnd' + parameter_type
 
-    if generate_train_data == 1:
-        parameter_savefilepath = parameter_train_savefilepath
-        state_full_savefilepath = state_train_full_savefilepath
-        state_bnd_savefilepath = state_train_bnd_savefilepath
-        
-    if generate_test_data == 1:
-        parameter_savefilepath = parameter_test_savefilepath
-        state_full_savefilepath = state_test_full_savefilepath
-        state_bnd_savefilepath = state_test_bnd_savefilepath
-    
     #############################
     #   Generate and Save Data  #
     ############################# 
     #=== Generating Data ===#   
-    parameter_data, state_data_full, state_data_bnd, obs_indices_full, obs_indices_bnd = generate_thermal_fin_data(num_data, generate_nine_parameters, generate_varying)
+    parameter_data, state_data_full, state_data_bnd, obs_indices_full, obs_indices_bnd = generate_thermal_fin_data(data_file_name, num_data, generate_nine_parameters, generate_varying)
     
     #=== Saving Data ===#  
     df_parameter_data = pd.DataFrame({'parameter_data': parameter_data.flatten()})
