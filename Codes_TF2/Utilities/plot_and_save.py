@@ -13,8 +13,8 @@ import dolfin as dl
 import sys
 sys.path.append('../..')
 
+from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
-from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space
 from Thermal_Fin_Heat_Simulator.Utilities import gaussian_field
 from Thermal_Fin_Heat_Simulator.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
 
@@ -24,8 +24,8 @@ def plot_and_save(hyper_p, run_options):
 ###############################################################################
 #                     Form Fenics Domain and Load Predictions                 #
 ###############################################################################
-    V,_ = get_space(40)
-    solver = Fin(V) 
+    V,_ = get_space_2D(40)
+    solver = Fin_2D(V) 
     
     df_parameter_test = pd.read_csv(run_options.savefile_name_parameter_test + '.csv')
     parameter_test = df_parameter_test.to_numpy()
