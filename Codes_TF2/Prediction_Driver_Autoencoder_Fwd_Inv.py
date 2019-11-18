@@ -86,15 +86,15 @@ class RunOptions:
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
         
         #=== Save File Path for One Instance of Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test'
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
         if hyper_p.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test'
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
         if hyper_p.data_type == 'bnd':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd'
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension
          
         #=== Save File Path for Predictions ===#    
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'     
+        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred' + fin_dimension
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension     
             
 ###############################################################################
 #                                  Driver                                     #

@@ -31,7 +31,7 @@ class HyperParameters:
     penalty           = 1
     num_training_data = 200
     batch_size        = 1000
-    num_epochs        = 20
+    num_epochs        = 10
     gpu               = '0'
     
 class RunOptions:
@@ -87,23 +87,23 @@ class RunOptions:
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
   
         #=== Save File Path for One Instance of Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test'
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
         if hyper_p.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test'
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
         if hyper_p.data_type == 'bndonly':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd'           
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension           
             
         #=== Loading Predictions ===#    
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'
+        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred' + fin_dimension
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension
             
         #=== Savefile Path for Figures ===#    
         self.figures_savefile_directory = '../Figures/' + self.filename
         self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
-        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test'
-        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test'
-        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
-        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
+        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test' + fin_dimension
+        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test' + fin_dimension
+        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred' + fin_dimension
+        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred' + fin_dimension
         
         #=== Creating Directories ===#
         if not os.path.exists(self.figures_savefile_directory):
