@@ -9,7 +9,9 @@ import tensorflow as tf
 import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-
+###############################################################################
+#                                 All Data                                    #
+###############################################################################
 def load_thermal_fin_data(run_options, num_training_data, batch_size, random_seed):
     
     #=== Load observation indices ===# 
@@ -55,3 +57,34 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     num_batches_val = len(list(parameter_and_state_obs_train))
 
     return obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val
+
+###############################################################################
+#                                 Test Data                                   #
+###############################################################################
+def load_thermal_fin_test_data(run_options, batch_size, random_seed):
+    
+    #=== Load observation indices ===# 
+    print('Loading Boundary Indices')
+    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
+    obs_indices = df_obs_indices.to_numpy() 
+
+    print('Loading Testing Data')
+    df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
+    df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
+    parameter_test = df_parameter_test.to_numpy()
+    state_obs_test = df_state_obs_test.to_numpy()
+    parameter_test = parameter_test.reshape((run_options.num_testing_data, run_options.parameter_dimensions))
+    state_obs_test = state_obs_test.reshape((run_options.num_testing_data, len(obs_indices)))
+
+    #=== Casting as float32 ===#
+    parameter_test = tf.cast(parameter_test, tf.float32)
+    state_obs_test = tf.cast(state_obs_test, tf.float32)
+        
+    #=== Define Outputs ===#
+    data_input_shape = parameter_test.shape[1:]
+    parameter_dimension = parameter_test.shape[-1]
+    
+    #=== Shuffling Data ===#
+    parameter_and_state_obs_test = tf.data.Dataset.from_tensor_slices((parameter_test, state_obs_test)).shuffle(8192, seed=random_seed).batch(batch_size)
+    
+    return obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension

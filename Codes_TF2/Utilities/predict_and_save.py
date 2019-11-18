@@ -8,14 +8,14 @@ Created on Fri Nov 15 12:46:01 2019
 
 import pandas as pd
 
-from Utilities.get_thermal_fin_data import load_thermal_fin_data
+from Utilities.get_thermal_fin_data import load_thermal_fin_test_data
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def predict_and_save(hyper_p, run_options):    
     #=== Load testing data ===# 
-    obs_indices, _, parameter_and_state_obs_test, _, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, hyper_p.num_training_data, hyper_p.batch_size, run_options.random_seed) 
+    obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_test_data(run_options, hyper_p.batch_size, run_options.random_seed) 
 
     ####################################
     #   Import Trained Neural Network  #

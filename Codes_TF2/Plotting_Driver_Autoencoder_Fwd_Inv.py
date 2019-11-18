@@ -37,9 +37,13 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 1
-        self.num_testing_data = 20
+        data_thermal_fin_nine = 1
+        data_thermal_fin_vary = 0
+        self.num_testing_data = 200
+        
+        #=== Data Dimensions ===#
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -48,7 +52,10 @@ class RunOptions:
 #                                 File Name                                   #
 ###############################################################################                
         #=== Parameter and Observation Dimensions === #
-        self.full_domain_dimensions = 1446 
+        if self.fin_dimensions_2D == 1:
+            self.full_domain_dimensions = 1446 
+        if self.fin_dimensions_3D == 1:
+            self.full_domain_dimensions = 4090 
         if data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if data_thermal_fin_vary == 1:
@@ -59,6 +66,10 @@ class RunOptions:
             self.dataset = 'thermalfin9'
         if data_thermal_fin_vary == 1:
             self.dataset = 'thermalfinvary'
+        if self.fin_dimensions_2D == 1:
+            fin_dimension = ''
+        if self.fin_dimensions_3D == 1:
+            fin_dimension = '_3D'
         if hyper_p.penalty >= 1:
             hyper_p.penalty = int(hyper_p.penalty)
             penalty_string = str(hyper_p.penalty)
@@ -66,7 +77,7 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.dataset + '_' + hyper_p.data_type + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
 ###############################################################################
 #                                 File Paths                                  #

@@ -13,7 +13,7 @@ import dolfin as dl
 import sys
 sys.path.append('../..')
 
-from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D
+from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
 from Thermal_Fin_Heat_Simulator.Utilities import gaussian_field
 from Thermal_Fin_Heat_Simulator.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
@@ -24,8 +24,17 @@ def plot_and_save(hyper_p, run_options):
 ###############################################################################
 #                     Form Fenics Domain and Load Predictions                 #
 ###############################################################################
-    V,_ = get_space_2D(40)
-    solver = Fin_2D(V) 
+    #=== Form Fenics Domain ===#
+    if run_options.fin_dimensions_2D == 1:
+        V,_ = get_space_2D(40)
+    if run_options.fin_dimensions_3D == 1:
+        V, mesh = get_space_3D(40)
+    
+    solver = Fin(V) 
+    
+    #=== Load Observation Indices, Test and Predicted Parameters and State ===#
+    df_obs_indices = pd.read_csv('../../Datasets/Thermal_Fin/' + 'obs_indices_bnd' + '.csv')    
+    obs_indices = df_obs_indices.to_numpy() 
     
     df_parameter_test = pd.read_csv(run_options.savefile_name_parameter_test + '.csv')
     parameter_test = df_parameter_test.to_numpy()
@@ -38,22 +47,24 @@ def plot_and_save(hyper_p, run_options):
 ###############################################################################
 #                             Plotting Predictions                            #
 ###############################################################################
-    #=== Plotting test parameter and test state ===#   
-    df_obs_indices = pd.read_csv('../../Datasets/Thermal_Fin/' + 'obs_indices_bnd' + '.csv')    
-    obs_indices = df_obs_indices.to_numpy() 
-    
+    #=== Converting Test Parameter Into Dolfin Object and Computed State Observation ===#       
     if run_options.dataset == 'thermalfin9':
         parameter_test_dl = solver.nine_param_to_function(parameter_test)
+        if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
+            parameter_values = parameter_test_dl.vector().get_local()  
+            zero_indices = np.where(parameter_values == 0)[0]
+            for ind in zero_indices:
+                parameter_values[ind] = parameter_values[ind-1]
+            parameter_test_dl = convert_array_to_dolfin_function(V, parameter_values)
     if run_options.dataset == 'thermalfinvary':
         parameter_test_dl = convert_array_to_dolfin_function(V,parameter_test)
-    if hyper_p.data_type == 'full':
-        state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
-        state_test = state_test_dl.vector().get_local()    
+    
+    state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
+    state_test = state_test_dl.vector().get_local()    
     if hyper_p.data_type == 'bnd':
-        state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
-        state_test = state_test_dl.vector().get_local()   
         state_test = state_test[obs_indices].flatten()
     
+    #=== Plotting Test Parameter and Test State ===#  
     p_test_fig = dl.plot(parameter_test_dl)
     p_test_fig.ax.set_title('True Parameter', fontsize=13)  
     plt.colorbar(p_test_fig)
@@ -69,11 +80,19 @@ def plot_and_save(hyper_p, run_options):
         print('Figure saved to ' + run_options.figures_savefile_name_state_test) 
         plt.show()
     
-    #=== Plotting predictions of test parameter and test state ===#
+    #=== Converting Predicted Parameter into Dolfin Object ===# 
     if run_options.dataset == 'thermalfin9':
         parameter_pred_dl = solver.nine_param_to_function(parameter_pred)
+        if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
+            parameter_values = parameter_pred_dl.vector().get_local()  
+            zero_indices = np.where(parameter_values == 0)[0]
+            for ind in zero_indices:
+                parameter_values[ind] = parameter_values[ind-1]
+            parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_values)
     if run_options.dataset == 'thermalfinvary':
         parameter_pred_dl = convert_array_to_dolfin_function(V,parameter_pred)   
+    
+    #=== Plotting Predicted Parameter and State ===#
     p_pred_fig = dl.plot(parameter_pred_dl)
     p_pred_fig.ax.set_title('Decoder Estimation of True Parameter', fontsize=13)  
     plt.colorbar(p_test_fig)
@@ -83,7 +102,7 @@ def plot_and_save(hyper_p, run_options):
     parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
     print('Parameter prediction relative error: %.7f' %parameter_pred_error)
     
-    if hyper_p.data_type == 'full': # No state prediction if the truncation layer only consists of the observations
+    if hyper_p.data_type == 'full': # No visualization of state prediction if the truncation layer only consists of the boundary observations
         state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         s_pred_fig = dl.plot(state_pred_dl)
         s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=13)  
