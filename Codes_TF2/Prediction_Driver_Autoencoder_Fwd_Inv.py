@@ -27,8 +27,8 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 1
-        data_thermal_fin_vary = 0
+        data_thermal_fin_nine = 0
+        data_thermal_fin_vary = 1
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
