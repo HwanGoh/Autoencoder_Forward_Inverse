@@ -14,12 +14,11 @@ import sys
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     penalty           = 1
-    num_training_data = 200
     batch_size        = 1000
     num_epochs        = 10
     gpu               = '0'
@@ -29,11 +28,14 @@ class RunOptions:
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
+        
+        #=== Data Set Size ===#
+        self.num_training_data = 200
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -69,15 +71,15 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, hyper_p.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, self.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
 ###############################################################################
 #                                 File Paths                                  #
 ############################################################################### 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyper_p.data_type + fin_dimension
-        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(hyper_p.num_training_data) + fin_dimension + parameter_type
-        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(hyper_p.num_training_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
+        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(self.num_training_data) + fin_dimension + parameter_type
+        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(self.num_training_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
         self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + fin_dimension + parameter_type 
         self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
         
@@ -110,10 +112,9 @@ if __name__ == "__main__":
         hyper_p.truncation_layer  = int(sys.argv[3])
         hyper_p.num_hidden_nodes  = int(sys.argv[4])
         hyper_p.penalty           = float(sys.argv[5])
-        hyper_p.num_training_data = int(sys.argv[6])
-        hyper_p.batch_size        = int(sys.argv[7])
-        hyper_p.num_epochs        = int(sys.argv[8])
-        hyper_p.gpu               = str(sys.argv[9])
+        hyper_p.batch_size        = int(sys.argv[6])
+        hyper_p.num_epochs        = int(sys.argv[7])
+        hyper_p.gpu               = str(sys.argv[8])
         
     #=== Set run options ===#        
     run_options = RunOptions(hyper_p)
