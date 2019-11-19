@@ -27,7 +27,7 @@ class HyperParameters:
     data_type         = 'full'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
+    num_hidden_nodes  = 100
     penalty           = 50
     batch_size        = 1000
     num_epochs        = 500
@@ -36,7 +36,7 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 1
+        data_thermal_fin_nine = 0
         data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
@@ -44,8 +44,8 @@ class RunOptions:
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
