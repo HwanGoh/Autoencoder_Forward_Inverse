@@ -105,9 +105,10 @@ class RunOptions:
 #                                  Training                                   #
 ###############################################################################
 def trainer(hyper_p, run_options):
-    #=== GPU Settings ===#
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
+    if run_options.fin_dimensions_2D == 1:
+        #=== GPU Settings ===#
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+        os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
     #=== Loading Data ===#        
     obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, run_options.num_training_data, hyper_p.batch_size, run_options.random_seed) 
