@@ -27,11 +27,11 @@ class HyperParameters:
     data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 50
+    num_hidden_nodes  = 100
     penalty           = 50
     batch_size        = 1000
     num_epochs        = 500
-    gpu               = '1'
+    gpu               = '2'
     
 class RunOptions:
     def __init__(self, hyper_p): 
