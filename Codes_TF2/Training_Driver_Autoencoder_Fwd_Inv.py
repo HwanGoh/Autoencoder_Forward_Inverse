@@ -24,14 +24,14 @@ np.random.seed(1234)
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'bnd'
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 100
+    data_type         = 'full'
+    num_hidden_layers = 3
+    truncation_layer  = 2 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 50
     penalty           = 50
     batch_size        = 1000
     num_epochs        = 500
-    gpu               = '2'
+    gpu               = '3'
     
 class RunOptions:
     def __init__(self, hyper_p): 
