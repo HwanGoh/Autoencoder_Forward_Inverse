@@ -6,7 +6,7 @@ Created on Sun Nov  3 10:16:28 2019
 @author: hwan
 """
 import tensorflow as tf
-import numpy as np
+import pandas as pd
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
@@ -16,17 +16,22 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
-    obs_indices = np.loadtxt(open(run_options.observation_indices_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
+    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
+    obs_indices = df_obs_indices.to_numpy() 
 
     #=== Load Train and Test Data ===#  
     print('Loading Training Data')
-    parameter_train = np.loadtxt(open(run_options.parameter_train_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
-    state_obs_train = np.loadtxt(open(run_options.state_obs_train_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
+    df_parameter_train = pd.read_csv(run_options.parameter_train_savefilepath + '.csv')
+    df_state_obs_train = pd.read_csv(run_options.state_obs_train_savefilepath + '.csv')
+    parameter_train = df_parameter_train.to_numpy()
+    state_obs_train = df_state_obs_train.to_numpy()
     parameter_train = parameter_train.reshape((num_training_data, run_options.parameter_dimensions))
     state_obs_train = state_obs_train.reshape((num_training_data, len(obs_indices)))
     print('Loading Testing Data')
-    parameter_test = np.loadtxt(open(run_options.parameter_test_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
-    state_obs_test = np.loadtxt(open(run_options.state_obs_test_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
+    df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
+    df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
+    parameter_test = df_parameter_test.to_numpy()
+    state_obs_test = df_state_obs_test.to_numpy()
     parameter_test = parameter_test.reshape((run_options.num_testing_data, run_options.parameter_dimensions))
     state_obs_test = state_obs_test.reshape((run_options.num_testing_data, len(obs_indices)))
 
@@ -60,11 +65,14 @@ def load_thermal_fin_test_data(run_options, batch_size, random_seed):
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
-    obs_indices = np.loadtxt(open(run_options.observation_indices_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
+    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
+    obs_indices = df_obs_indices.to_numpy() 
 
     print('Loading Testing Data')
-    parameter_test = np.loadtxt(open(run_options.parameter_test_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
-    state_obs_test = np.loadtxt(open(run_options.state_obs_test_savefilepath + '.csv', "rb"), delimiter=",", skiprows=1)
+    df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
+    df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
+    parameter_test = df_parameter_test.to_numpy()
+    state_obs_test = df_state_obs_test.to_numpy()
     parameter_test = parameter_test.reshape((run_options.num_testing_data, run_options.parameter_dimensions))
     state_obs_test = state_obs_test.reshape((run_options.num_testing_data, len(obs_indices)))
 
