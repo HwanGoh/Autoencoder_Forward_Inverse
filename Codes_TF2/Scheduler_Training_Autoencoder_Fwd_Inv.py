@@ -43,8 +43,8 @@ if __name__ == '__main__':
         hyper_p.data_type         = ['full', 'bnd']
         hyper_p.num_hidden_layers = [5]
         hyper_p.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
-        hyper_p.num_hidden_nodes  = [500]
-        hyper_p.penalty           = [0.01, 1, 10, 50]
+        hyper_p.num_hidden_nodes  = [50, 100, 1000]
+        hyper_p.penalty           = [50]
         hyper_p.batch_size        = [1000]
         hyper_p.num_epochs        = [500]
         
