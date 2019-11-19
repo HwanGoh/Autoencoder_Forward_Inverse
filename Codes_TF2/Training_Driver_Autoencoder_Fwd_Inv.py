@@ -36,16 +36,16 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 1
-        data_thermal_fin_vary = 0
+        data_thermal_fin_nine = 0
+        data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 200
+        self.num_training_data = 50000
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Random Seed ===#
         self.random_seed = 1234
