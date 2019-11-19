@@ -37,7 +37,7 @@ class RunOptions:
     def __init__(self, hyper_p): 
         #=== Data Set ===#
         data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 0
+        data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
         self.num_training_data = 50000
