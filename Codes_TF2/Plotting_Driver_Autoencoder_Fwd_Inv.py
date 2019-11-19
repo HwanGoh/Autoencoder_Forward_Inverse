@@ -28,9 +28,9 @@ class HyperParameters:
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    penalty           = 1
+    penalty           = 50
     batch_size        = 1000
-    num_epochs        = 10
+    num_epochs        = 500
     gpu               = '0'
     
 class RunOptions:
@@ -40,7 +40,7 @@ class RunOptions:
         data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 200
+        self.num_training_data = 50000
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
