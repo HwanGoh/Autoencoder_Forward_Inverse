@@ -24,9 +24,9 @@ np.random.seed(1234)
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class HyperParameters:
-    data_type         = 'bnd'
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    data_type         = 'full'
+    num_hidden_layers = 7
+    truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1000
     penalty           = 50
     batch_size        = 1000
@@ -36,8 +36,8 @@ class HyperParameters:
 class RunOptions:
     def __init__(self, hyper_p): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 1
+        data_thermal_fin_nine = 1
+        data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
         self.num_training_data = 50000
