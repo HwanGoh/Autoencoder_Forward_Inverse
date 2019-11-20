@@ -29,8 +29,8 @@ class HyperParameters:
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 1000
     penalty           = 50
-    batch_size        = 1000
-    num_epochs        = 2000
+    batch_size        = 1234
+    num_epochs        = 20
     gpu               = '0'
     
 class RunOptions:
