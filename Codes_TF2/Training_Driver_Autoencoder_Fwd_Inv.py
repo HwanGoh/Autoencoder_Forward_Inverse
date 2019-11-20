@@ -112,6 +112,8 @@ def trainer(hyper_p, run_options):
     #=== Loading Data ===#        
     obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, run_options.num_training_data, hyper_p.batch_size, run_options.random_seed) 
     
+    pdb.set_trace()
+    
     #=== Neural Network ===#
     NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
     
