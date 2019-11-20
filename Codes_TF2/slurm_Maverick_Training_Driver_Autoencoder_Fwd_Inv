@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#SBATCH -J Autoencoder_Forward_Inverse_3D_vary
+#SBATCH -J Autoencoder_Forward_Inverse_3D_bnd_9_500
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 4
 #SBATCH -t 12:00:00
-#SBATCH -o Autoencoder_Forward_Inverse_3D_vary.out
+#SBATCH -o Autoencoder_Forward_Inverse_3D_bnd_9_500.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all
 
