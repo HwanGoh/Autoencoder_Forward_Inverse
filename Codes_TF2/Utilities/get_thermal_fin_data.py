@@ -26,7 +26,7 @@ def load_thermal_fin_data(run_options, num_training_data, batch_size, random_see
     parameter_train = df_parameter_train.to_numpy()
     state_obs_train = df_state_obs_train.to_numpy()
     print(obs_indices.shape)
-    print(state_obs_train)
+    print(state_obs_train.shape)
     pdb.set_trace()
     parameter_train = parameter_train.reshape((num_training_data, run_options.parameter_dimensions))
     state_obs_train = state_obs_train.reshape((num_training_data, len(obs_indices)))
