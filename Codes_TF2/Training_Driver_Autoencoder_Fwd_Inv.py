@@ -5,6 +5,9 @@ Created on Sat Sep 14 14:35:58 2019
 
 @author: Hwan Goh
 """
+import os
+import sys
+
 import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
@@ -12,9 +15,6 @@ from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.optimize_autoencoder import optimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
-import os
-import sys
 
 ###############################################################################
 #                       Hyperparameters and Run_Options                       #
@@ -78,7 +78,7 @@ class RunOptions:
             penalty_string = str(hyper_p.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, self.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.activation, penalty_string, self.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
 
 ###############################################################################
 #                                 File Paths                                  #
