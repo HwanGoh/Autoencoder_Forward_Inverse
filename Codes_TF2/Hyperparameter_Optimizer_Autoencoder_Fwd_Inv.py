@@ -109,16 +109,18 @@ class RunOptions:
 
         #=== Saving Hyperparameter Optimization Outputs  ===#    
         self.hyper_p_opt_outputs_directory = '../Hyperparameter_Optimization'
-        self.hyper_p_opt_text_savefile_name = self.hyper_p_opt_outputs_directory + '/best_set_of_hyperparameters.txt'
+        self.hyper_p_opt_optimal_parameters_savefile_name = self.hyper_p_opt_outputs_directory + '/optimal_set_of_hyperparameters.txt'
+        self.hyper_p_opt_scenarios_trained_name = self.hyper_p_opt_outputs_directory + '/scenarios_trained.txt'
+        self.hyper_p_opt_validation_losses_name = self.hyper_p_opt_outputs_directory + '/validation_losses.csv'
         self.hyper_p_opt_convergence_savefile_name = self.hyper_p_opt_outputs_directory + '/convergence.png'
 
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
 if __name__ == "__main__":  
-    #####################
-    #   Initial Setup   #
-    #####################
+    ###################################
+    #   Select Optimization Options   #
+    ###################################
     #=== skopt Number of Calls ===#
     n_calls = 10
     
@@ -126,13 +128,16 @@ if __name__ == "__main__":
     hyper_p_of_interest_dict = {}
     hyper_p_of_interest_dict['num_hidden_layers'] = Integer(3, 20, name='num_hidden_layers')
     hyper_p_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
-    hyper_p_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
     hyper_p_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
-    hyper_p_of_interest_dict['batch_size'] = Integer(100, 1000, name='batch_size')
+    #hyper_p_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    #hyper_p_of_interest_dict['batch_size'] = Integer(100, 1000, name='batch_size')
     
+    #####################
+    #   Initial Setup   #
+    #####################
     hyper_p_of_interest_list = list(hyper_p_of_interest_dict.keys()) 
     hyper_p_of_interest_objective_args_tuple = tuple(hyper_p_of_interest_list)
-
+    
     #=== Generate skopt 'space' list ===#
     space = []
     for key, val in hyper_p_of_interest_dict.items(): 
@@ -187,16 +192,14 @@ if __name__ == "__main__":
         
         return storage_array_loss_val[-1]
     
-    ####################################
-    #   Optimize for Hyperparameters   #
-    ####################################
-    #=== Minimize ===#
+    ################################
+    #   Optimize Hyperparameters   #
+    ################################
     res_gp = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)
 
-    ######################################
-    #   Save Optimized Hyperparameters   #
-    ######################################
-    #=== Display Optimal Parameters ===#
+    ##################################
+    #   Display Optimal Parameters   #
+    ##################################
     print('=================================================')
     print('      Hyperparameter Optimization Complete')
     print('=================================================')
@@ -204,18 +207,34 @@ if __name__ == "__main__":
     print('Optimized Parameters:')    
     for n, parameter_name in enumerate(hyper_p_of_interest_list):
         print(parameter_name + ': {}'.format(res_gp.x[n]))
-       
-    #=== Write Hyperparameter Optimization Summary ===#
-    with open(run_options.hyper_p_opt_text_savefile_name, 'w') as summary_txt:
-        summary_txt.write('Optimized Validation Loss: {}\n'.format(res_gp.fun))
-        summary_txt.write('\n')
-        summary_txt.write('Optimized parameters:\n')      
+    
+    #####################################
+    #   Save Optimization Information   #
+    #####################################
+    #=== Write Optimal Set Hyperparameters ===#
+    with open(run_options.hyper_p_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
+        optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(res_gp.fun))
+        optimal_set_txt.write('\n')
+        optimal_set_txt.write('Optimized parameters:\n')      
         for n, parameter_name in enumerate(hyper_p_of_interest_list):
-            summary_txt.write(parameter_name + ': {}\n'.format(res_gp.x[n]))
+            optimal_set_txt.write(parameter_name + ': {}\n'.format(res_gp.x[n]))
+            
+    #=== Write List of Scenarios Trained ===#
+    with open(run_options.hyper_p_opt_scenarios_trained_name, 'w') as scenarios_trained_txt:
+        for scenario in res_gp.x_iters:
+            scenarios_trained_txt.write("%s\n" % scenario)      
+            
+    #=== Write List of Validation Losses ===#
+    validation_losses_dict = {}
+    validation_losses_dict['validation_losses'] = res_gp.func_vals
+    df_validation_losses = pd.DataFrame(validation_losses_dict)
+    df_validation_losses.to_csv(run_options.hyper_p_opt_validation_losses_name, index=False)    
         
     #=== Convergence Plot ===#    
     plot_convergence(res_gp)
     plt.savefig(run_options.hyper_p_opt_convergence_savefile_name)
+    
+    print('Outputs Saved')
     
     #####################################################
     #   Delete All Suboptimal Trained Neural Networks   #
@@ -228,7 +247,7 @@ if __name__ == "__main__":
     #=== Updating Run Options ===#
     run_options = RunOptions(hyper_p)
     
-    #=== Deleting Directories ===#
+    #=== Deleting Suboptimal Neural Networks ===#
     directories_list_Trained_NNs = os.listdir(path=run_options.hyper_p_opt_Trained_NNs_directory)
     directories_list_Tensorboard = os.listdir(path=run_options.hyper_p_opt_Tensorboard_directory)
     for filename in directories_list_Trained_NNs:
@@ -236,11 +255,7 @@ if __name__ == "__main__":
             shutil.rmtree(run_options.hyper_p_opt_Trained_NNs_directory + '/' + filename) 
             shutil.rmtree(run_options.hyper_p_opt_Tensorboard_directory + '/' + filename) 
     
-    
-    print('===========================')
-    print('      Outputs Saved')
-    print('===========================')
-    
+    print('Suboptimal Trained Networks Deleted')
     
 
 
