@@ -110,7 +110,7 @@ class RunOptions:
 
         #=== Saving Hyperparameter Optimization Outputs  ===#    
         self.hyper_p_opt_outputs_directory = '../Hyperparameter_Optimization'
-        self.hyper_p_opt_skopt_res_savefile_name = self.hyper_p_opt_outputs_directory + '/res_gp.pkl'
+        self.hyper_p_opt_skopt_res_savefile_name = self.hyper_p_opt_outputs_directory + '/hyper_p_opt_result.pkl'
         self.hyper_p_opt_optimal_parameters_savefile_name = self.hyper_p_opt_outputs_directory + '/optimal_set_of_hyperparameters.txt'
         self.hyper_p_opt_scenarios_trained_savefile_name = self.hyper_p_opt_outputs_directory + '/scenarios_trained.txt'
         self.hyper_p_opt_validation_losses_savefile_name = self.hyper_p_opt_outputs_directory + '/validation_losses.csv'
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 10
+    n_calls = 40
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyper_p_of_interest_dict = {}
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     ################################
     #   Optimize Hyperparameters   #
     ################################
-    res_gp = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)
+    hyper_p_opt_result = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)
 
     ##################################
     #   Display Optimal Parameters   #
@@ -205,38 +205,38 @@ if __name__ == "__main__":
     print('=================================================')
     print('      Hyperparameter Optimization Complete')
     print('=================================================')
-    print('Optimized Validation Loss: {}\n'.format(res_gp.fun))
+    print('Optimized Validation Loss: {}\n'.format(hyper_p_opt_result.fun))
     print('Optimized Parameters:')    
     for n, parameter_name in enumerate(hyper_p_of_interest_list):
-        print(parameter_name + ': {}'.format(res_gp.x[n]))
+        print(parameter_name + ': {}'.format(hyper_p_opt_result.x[n]))
     
     #####################################
     #   Save Optimization Information   #
     #####################################
     #=== Save .pkl File ===#
-    dump(res_gp, run_options.hyper_p_opt_skopt_res_savefile_name, store_objective=False)
+    dump(hyper_p_opt_result, run_options.hyper_p_opt_skopt_res_savefile_name, store_objective=False)
     
     #=== Write Optimal Set Hyperparameters ===#
     with open(run_options.hyper_p_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
-        optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(res_gp.fun))
+        optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(hyper_p_opt_result.fun))
         optimal_set_txt.write('\n')
         optimal_set_txt.write('Optimized parameters:\n')      
         for n, parameter_name in enumerate(hyper_p_of_interest_list):
-            optimal_set_txt.write(parameter_name + ': {}\n'.format(res_gp.x[n]))
+            optimal_set_txt.write(parameter_name + ': {}\n'.format(hyper_p_opt_result.x[n]))
             
     #=== Write List of Scenarios Trained ===#
     with open(run_options.hyper_p_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
-        for scenario in res_gp.x_iters:
+        for scenario in hyper_p_opt_result.x_iters:
             scenarios_trained_txt.write("%s\n" % scenario)      
             
     #=== Write List of Validation Losses ===#
     validation_losses_dict = {}
-    validation_losses_dict['validation_losses'] = res_gp.func_vals
+    validation_losses_dict['validation_losses'] = hyper_p_opt_result.func_vals
     df_validation_losses = pd.DataFrame(validation_losses_dict)
     df_validation_losses.to_csv(run_options.hyper_p_opt_validation_losses_savefile_name, index=False)    
         
     #=== Convergence Plot ===#    
-    plot_convergence(res_gp)
+    plot_convergence(hyper_p_opt_result)
     plt.savefig(run_options.hyper_p_opt_convergence_savefile_name)
     
     print('Outputs Saved')
@@ -246,7 +246,7 @@ if __name__ == "__main__":
     #####################################################
     #=== Assigning hyper_p with Optimal Hyperparameters ===#
     for num, parameter in enumerate(hyper_p_of_interest_list): 
-        setattr(hyper_p, parameter, res_gp.x[num])
+        setattr(hyper_p, parameter, hyper_p_opt_result.x[num])
     hyper_p.truncation_layer = int(np.ceil(hyper_p.num_hidden_layers/2))
     
     #=== Updating Run Options ===#
