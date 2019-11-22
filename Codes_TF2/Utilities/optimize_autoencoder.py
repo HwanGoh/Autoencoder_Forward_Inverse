@@ -67,10 +67,14 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
     storage_array_relative_error_parameter_inverse_problem = np.array([])
     storage_array_relative_error_state_obs = np.array([])
     
+    #=== Creating Directory for Trained Neural Network ===#
+    if not os.path.exists(run_options.NN_savefile_directory):
+        os.makedirs(run_options.NN_savefile_directory)
+    
     #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists('../Tensorboard/' + run_options.filename): # Remove existing directory because Tensorboard graphs mess up of you write over it
-        shutil.rmtree('../Tensorboard/' + run_options.filename)  
-    summary_writer = tf.summary.create_file_writer('../Tensorboard/' + run_options.filename)
+    if os.path.exists(run_options.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
+        shutil.rmtree(run_options.tensorboard_directory)  
+    summary_writer = tf.summary.create_file_writer(run_options.tensorboard_directory)
 
 ###############################################################################
 #                          Train Neural Network                               #

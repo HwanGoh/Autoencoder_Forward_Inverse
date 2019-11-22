@@ -11,6 +11,7 @@ import sys
 import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
+from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.optimize_autoencoder import optimize
 
@@ -27,7 +28,7 @@ class HyperParameters:
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 2000
+    num_epochs        = 2
     gpu               = '1'
     
 class RunOptions:
@@ -37,12 +38,12 @@ class RunOptions:
         data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 50000
+        self.num_training_data = 200
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -90,13 +91,10 @@ class RunOptions:
         self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + fin_dimension + parameter_type 
         self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
         
-        #=== Saving Neural Network ===#
+        #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-
-        #=== Creating Directories ===#
-        if not os.path.exists(self.NN_savefile_directory):
-            os.makedirs(self.NN_savefile_directory)
+        self.tensorboard_directory = '../Tensorboard/' + self.filename
 
 ###############################################################################
 #                                  Training                                   #
@@ -106,8 +104,9 @@ def trainer(hyper_p, run_options):
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
     os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
     
-    #=== Loading Data ===#        
-    obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, run_options.num_training_data, hyper_p.batch_size, run_options.random_seed) 
+    #=== Loading Data and Constructing Batches ===#        
+    obs_indices, parameter_train, state_obs_train, parameter_test, state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_data(run_options, run_options.num_training_data) 
+    parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, num_training_data, num_batches_train, num_batches_val = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyper_p.batch_size, run_options.random_seed)
     
     #=== Neural Network ===#
     NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
