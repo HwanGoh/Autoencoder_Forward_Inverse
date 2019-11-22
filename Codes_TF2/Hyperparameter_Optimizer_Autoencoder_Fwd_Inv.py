@@ -18,6 +18,7 @@ from skopt.space import Real, Integer, Categorical
 from skopt.utils import use_named_args
 from skopt import gp_minimize
 from skopt.plots import plot_convergence
+from skopt import dump, load
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
@@ -37,7 +38,7 @@ class HyperParameters: # Set defaults, hyperparameters of interest will be overw
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 2000
+    num_epochs        = 1000
     gpu               = '0'
 
 class RunOptions:
@@ -109,9 +110,10 @@ class RunOptions:
 
         #=== Saving Hyperparameter Optimization Outputs  ===#    
         self.hyper_p_opt_outputs_directory = '../Hyperparameter_Optimization'
+        self.hyper_p_opt_skopt_res_savefile_name = self.hyper_p_opt_outputs_directory + '/res_gp.pkl'
         self.hyper_p_opt_optimal_parameters_savefile_name = self.hyper_p_opt_outputs_directory + '/optimal_set_of_hyperparameters.txt'
-        self.hyper_p_opt_scenarios_trained_name = self.hyper_p_opt_outputs_directory + '/scenarios_trained.txt'
-        self.hyper_p_opt_validation_losses_name = self.hyper_p_opt_outputs_directory + '/validation_losses.csv'
+        self.hyper_p_opt_scenarios_trained_savefile_name = self.hyper_p_opt_outputs_directory + '/scenarios_trained.txt'
+        self.hyper_p_opt_validation_losses_savefile_name = self.hyper_p_opt_outputs_directory + '/validation_losses.csv'
         self.hyper_p_opt_convergence_savefile_name = self.hyper_p_opt_outputs_directory + '/convergence.png'
 
 ###############################################################################
@@ -122,7 +124,7 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 60
+    n_calls = 10
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyper_p_of_interest_dict = {}
@@ -211,6 +213,9 @@ if __name__ == "__main__":
     #####################################
     #   Save Optimization Information   #
     #####################################
+    #=== Save .pkl File ===#
+    dump(res_gp, run_options.hyper_p_opt_skopt_res_savefile_name, store_objective=False)
+    
     #=== Write Optimal Set Hyperparameters ===#
     with open(run_options.hyper_p_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
         optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(res_gp.fun))
@@ -220,7 +225,7 @@ if __name__ == "__main__":
             optimal_set_txt.write(parameter_name + ': {}\n'.format(res_gp.x[n]))
             
     #=== Write List of Scenarios Trained ===#
-    with open(run_options.hyper_p_opt_scenarios_trained_name, 'w') as scenarios_trained_txt:
+    with open(run_options.hyper_p_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
         for scenario in res_gp.x_iters:
             scenarios_trained_txt.write("%s\n" % scenario)      
             
@@ -228,7 +233,7 @@ if __name__ == "__main__":
     validation_losses_dict = {}
     validation_losses_dict['validation_losses'] = res_gp.func_vals
     df_validation_losses = pd.DataFrame(validation_losses_dict)
-    df_validation_losses.to_csv(run_options.hyper_p_opt_validation_losses_name, index=False)    
+    df_validation_losses.to_csv(run_options.hyper_p_opt_validation_losses_savefile_name, index=False)    
         
     #=== Convergence Plot ===#    
     plot_convergence(res_gp)
