@@ -114,17 +114,24 @@ class RunOptions:
 if __name__ == "__main__":  
     #####################
     #   Initial Setup   #
-    #####################  
-    #=== Constuct Space of Hyperparameters of Interest ===#     
-    num_hidden_layers = Integer(1, 20, name='num_hidden_layers')
-    num_hidden_nodes = Integer(500, 2000, name='num_hidden_nodes')
-    activation = Categorical(['elu', 'relu', 'tanh'], name='activation')
-    penalty = Integer(1, 200, name='penalty')
-    batch_size = Integer(100, 1000, name='batch_size')
+    #####################
+    #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefere to have the list of variable names on hand
+    hyper_p_of_interest_dict = {}
+    hyper_p_of_interest_dict['num_hidden_layers'] = Integer(1, 20, name='num_hidden_layers')
+    hyper_p_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
+    hyper_p_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    hyper_p_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
+    hyper_p_of_interest_dict['batch_size'] = Integer(100, 1000, name='batch_size')
     
-    space = [num_hidden_layers, num_hidden_nodes, activation, penalty, batch_size]
+    hyper_p_of_interest_list = list(hyper_p_of_interest_dict.keys()) 
+    hyper_p_of_interest_objective_args_tuple = tuple(hyper_p_of_interest_list)
+
+    #=== Generate skopt 'space' list ===#
+    space = []
+    for key, val in hyper_p_of_interest_dict.items(): 
+        space.append(val)
     
-    #=== Instantiate Hyperparameters and Run Options ===#
+    #=== Instantiate Hyperparameters and Run Options to Load Data ===#
     hyper_p = HyperParameters()
     run_options = RunOptions(hyper_p)
     
@@ -139,14 +146,12 @@ if __name__ == "__main__":
     #   Objective Functional   #
     ############################
     @use_named_args(space)
-    def objective_functional(num_hidden_layers, num_hidden_nodes, activation, penalty, batch_size):                
+    def objective_functional(**hyper_p_of_interest_objective_args_tuple):            
         #=== Assign Hyperparameters of Interest ===#
-        hyper_p.num_hidden_layers = num_hidden_layers
-        hyper_p.truncation_layer = int(np.ceil(num_hidden_layers/2))
-        hyper_p.num_hidden_nodes = num_hidden_nodes
-        hyper_p.activation = activation
-        hyper_p.penalty = penalty
-        hyper_p.batch_size = batch_size
+        for key, val in hyper_p_of_interest_objective_args_tuple.items(): 
+            setattr(hyper_p, key, val)
+        
+        hyper_p.truncation_layer = int(np.ceil(hyper_p.num_hidden_layers/2))
         
         #=== Update Run_Options ===#
         run_options = RunOptions(hyper_p)
@@ -190,11 +195,9 @@ if __name__ == "__main__":
     print('=================================================')
     print('Optimized Validation Loss: {}\n'.format(res_gp.fun))
     print('Optimized Parameters:')
-    print('num_hidden_layers: {}'.format(res_gp.x[0]))
-    print('num_hidden_nodes: {}'.format(res_gp.x[1]))
-    print('activation: {}'.format(res_gp.x[2]))
-    print('penalty: {}'.format(res_gp.x[3]))
-    print('batch_size: {}'.format(res_gp.x[4]))
+    
+    for n, parameter_name in enumerate(hyper_p_of_interest_list):
+        print(parameter_name + ': {}'.format(res_gp.x[n]))
     
     #=== Save Outputs Name and Directory ===#    
     save_path = '../Hyperparameter_Optimization'
@@ -207,13 +210,11 @@ if __name__ == "__main__":
     with open(complete_path_and_file, 'w') as summary_txt:
         summary_txt.write('Optimized Validation Loss: {}\n'.format(res_gp.fun))
         summary_txt.write('\n')
-        summary_txt.write('Optimized parameters:\n')
-        summary_txt.write('num_hidden_layers: {}\n'.format(res_gp.x[0]))
-        summary_txt.write('num_hidden_nodes: {}\n'.format(res_gp.x[1]))
-        summary_txt.write('activation: {}\n'.format(res_gp.x[2]))
-        summary_txt.write('penalty: {}\n'.format(res_gp.x[3]))
-        summary_txt.write('batch_size: {}\n'.format(res_gp.x[4]))
-            
+        summary_txt.write('Optimized parameters:\n')      
+        for n, parameter_name in enumerate(hyper_p_of_interest_list):
+            summary_txt.write(parameter_name + ': {}\n'.format(res_gp.x[n]))
+        
+    #=== Convergence Plot ===#    
     plot_convergence(res_gp)
     plt.savefig(save_path + '/' + 'convergence.png')
     
