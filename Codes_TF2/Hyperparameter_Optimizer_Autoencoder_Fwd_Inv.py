@@ -35,7 +35,7 @@ class HyperParameters: # Set defaults, hyperparameters of interest will be overw
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 2
+    num_epochs        = 2000
     gpu               = '0'
 
 class RunOptions:
@@ -159,7 +159,7 @@ if __name__ == "__main__":
     #   Optimize for Hyperparameters   #
     ####################################
     #=== Minimize ===#
-    res_gp = gp_minimize(objective_functional, space, n_calls=10, random_state=None)
+    res_gp = gp_minimize(objective_functional, space, n_calls=60, random_state=None)
 
     #=== Display Summary ===#
     print('=================================================')
