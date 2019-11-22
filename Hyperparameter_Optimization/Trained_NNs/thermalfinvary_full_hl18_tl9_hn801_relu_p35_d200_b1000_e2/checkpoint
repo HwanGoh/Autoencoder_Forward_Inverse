@@ -1,0 +1,2 @@
+model_checkpoint_path: "thermalfinvary_full_hl18_tl9_hn801_relu_p35_d200_b1000_e2"
+all_model_checkpoint_paths: "thermalfinvary_full_hl18_tl9_hn801_relu_p35_d200_b1000_e2"
