@@ -1,6 +1,0 @@
-Optimized Validation Loss: 22247.36328125
-
-Optimized parameters:
-num_hidden_layers: 18
-num_hidden_nodes: 801
-penalty: 35
