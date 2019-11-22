@@ -113,7 +113,7 @@ if __name__ == "__main__":
     ############################
     #   Hyperparameter Space   #
     ############################        
-    num_hidden_layers = Integer(1, 6, name='num_hidden_layers')
+    num_hidden_layers = Integer(1, 20, name='num_hidden_layers')
     num_hidden_nodes = Integer(500, 2000, name='num_hidden_nodes')
     activation = Categorical(['elu', 'relu', 'tanh'], name='activation')
     penalty = Integer(1, 200, name='penalty')
