@@ -37,7 +37,7 @@ class HyperParameters: # Set defaults, hyperparameters of interest will be overw
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 2000
+    num_epochs        = 1000
     gpu               = '0'
 
 class RunOptions:
