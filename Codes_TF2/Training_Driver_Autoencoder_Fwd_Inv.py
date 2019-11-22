@@ -90,7 +90,7 @@ class RunOptions:
         self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + fin_dimension + parameter_type 
         self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
         
-        #=== Saving neural network ===#
+        #=== Saving Neural Network ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
 

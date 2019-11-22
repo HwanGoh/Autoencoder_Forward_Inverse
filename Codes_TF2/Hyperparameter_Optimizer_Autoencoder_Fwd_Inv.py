@@ -16,6 +16,7 @@ from skopt.plots import plot_convergence
 
 import os
 import sys
+import time
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
@@ -36,7 +37,7 @@ class HyperParameters: # These will be replaced
     gpu               = '1'
 
 class RunOptions:
-    def __init__(self, hyper_p):         
+    def __init__(self, hyper_p):
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
@@ -87,60 +88,81 @@ class RunOptions:
         self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + fin_dimension + parameter_type 
         self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
 
+        #=== Saving Optimization Outputs ===#
+        self.hyper_p_opt_savefile_directory = '../Hyperparameter_Optimization'  # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+        self.hyper_p_opt_savefile_name = self.hyper_p_opt_savefile_directory + '/' + str(int(time.time())) # The file path and name for the four files
+
+        #=== Creating Directories ===#
+        if not os.path.exists(self.hyper_p_opt_savefile_directory):
+            os.makedirs(self.hyper_p_opt_savefile_directory)
+
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
-############################
-#   Hyperparameter Space   #
-############################        
-activation = Categorical(['elu', 'relu', 'tanh'], name='activation')
-num_hidden_layers = Integer(1, 6, name='num_hidden_layers')
-num_hidden_nodes = Integer(500, 2000, name='num_hidden_nodes')
-penalty = Integer(1, 200, name='penalty')
-batch_size = Integer(100, 1000, name='batch_size')
-
-space = [activation, num_hidden_layers, num_hidden_nodes, batch_size]
-
-#######################################
-#   Hyperparameters and Run_Options   #
-#######################################
-hyper_p = HyperParameters()
-run_options = RunOptions(hyper_p)
-
-####################
-#   GPU Settings   #
-#################### 
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
-
-############################
-#   Objective Functional   #
-############################
-@use_named_args(space)
-def objective_functional(activation, num_hidden_layers, num_hidden_nodes, penalty, batch_size):
-    #=== Assign Hyperparameters of Interest ===#
-    hyper_p.num_hidden_layers = num_hidden_layers
-    hyper_p.truncation_layer = np.ceil(num_hidden_layers/2)
-    hyper_p.num_hidden_nodes = num_hidden_nodes
-    hyper_p.activation = activation
-    hyper_p.penalty = penalty
-    hyper_p.batch_size = batch_size
+if __name__ == "__main__":  
+    ############################
+    #   Hyperparameter Space   #
+    ############################        
+    activation = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    num_hidden_layers = Integer(1, 6, name='num_hidden_layers')
+    num_hidden_nodes = Integer(500, 2000, name='num_hidden_nodes')
+    penalty = Integer(1, 200, name='penalty')
+    batch_size = Integer(100, 1000, name='batch_size')
     
-    #=== Loading Data ===#        
-    obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, run_options.num_training_data, hyper_p.batch_size, run_options.random_seed) 
-
-    #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+    space = [activation, num_hidden_layers, num_hidden_nodes, batch_size]
     
-    #=== Training ===#
-    _, _, _, storage_array_loss_val, _, _, _, _, _, _, _, _  = optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
+    #######################################
+    #   Hyperparameters and Run_Options   #
+    #######################################
+    hyper_p = HyperParameters()
+    run_options = RunOptions(hyper_p)
     
-    return storage_array_loss_val[-1]
-
-####################################
-#   Optimize for Hyperparameters   #
-####################################
-res_gp = gp_minimize(objective_functional, space, n_calls=60, random_state=None)
+    ####################
+    #   GPU Settings   #
+    #################### 
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+    os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
+    
+    ############################
+    #   Objective Functional   #
+    ############################
+    @use_named_args(space)
+    def objective_functional(activation, num_hidden_layers, num_hidden_nodes, penalty, batch_size):
+        #=== Assign Hyperparameters of Interest ===#
+        hyper_p.num_hidden_layers = num_hidden_layers
+        hyper_p.truncation_layer = np.ceil(num_hidden_layers/2)
+        hyper_p.num_hidden_nodes = num_hidden_nodes
+        hyper_p.activation = activation
+        hyper_p.penalty = penalty
+        hyper_p.batch_size = batch_size
+        
+        #=== Loading Data ===#        
+        obs_indices, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, data_input_shape, parameter_dimension, num_batches_train, num_batches_val = load_thermal_fin_data(run_options, run_options.num_training_data, hyper_p.batch_size, run_options.random_seed) 
+    
+        #=== Neural Network ===#
+        NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+        
+        #=== Training ===#
+        _, _, _, storage_array_loss_val, _, _, _, _, _, _, _, _  = optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
+        
+        return storage_array_loss_val[-1]
+    
+    ####################################
+    #   Optimize for Hyperparameters   #
+    ####################################
+    #=== Minimize ===#
+    res_gp = gp_minimize(objective_functional, space, n_calls=60, random_state=None)
+    
+    #=== Save Outputs ===#
+    print("Best score: {}".format(res_gp.fun))
+    print('''Best parameters:\n
+             activation: {}
+             num_hidden_layers: {}
+             num_hidden_nodes: {}
+             batch_size: {}'''.format(*res_gp.x))
+    
+    plot_convergence(res_gp)
+    plt.savefig(run_options.hyper_p_opt_savefile_name + '.png')
     
     
     
