@@ -5,8 +5,6 @@ Created on Sat Sep 14 14:35:58 2019
 
 @author: Hwan Goh
 """
-
-import numpy as np
 import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
@@ -18,8 +16,6 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 import os
 import sys
 
-np.random.seed(1234)
-
 ###############################################################################
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
@@ -28,6 +24,7 @@ class HyperParameters:
     num_hidden_layers = 7
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
+    activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
     num_epochs        = 2000
