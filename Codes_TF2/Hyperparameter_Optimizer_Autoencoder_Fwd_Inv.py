@@ -7,7 +7,6 @@ Created on Thu Nov 21 21:37:28 2019
 """
 import os
 import sys
-import time
 import shutil # for deleting directories
 
 import numpy as np
@@ -108,6 +107,11 @@ class RunOptions:
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
         self.tensorboard_directory = self.hyper_p_opt_Tensorboard_directory + '/' + self.filename
 
+        #=== Saving Hyperparameter Optimization Outputs  ===#    
+        self.hyper_p_opt_outputs_directory = '../Hyperparameter_Optimization'
+        self.hyper_p_opt_text_savefile_name = self.hyper_p_opt_outputs_directory + '/best_set_of_hyperparameters.txt'
+        self.hyper_p_opt_convergence_savefile_name = self.hyper_p_opt_outputs_directory + '/convergence.png'
+
 ###############################################################################
 #                                  Driver                                     #
 ###############################################################################
@@ -115,9 +119,12 @@ if __name__ == "__main__":
     #####################
     #   Initial Setup   #
     #####################
-    #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefere to have the list of variable names on hand
+    #=== skopt Number of Calls ===#
+    n_calls = 10
+    
+    #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyper_p_of_interest_dict = {}
-    hyper_p_of_interest_dict['num_hidden_layers'] = Integer(1, 20, name='num_hidden_layers')
+    hyper_p_of_interest_dict['num_hidden_layers'] = Integer(3, 20, name='num_hidden_layers')
     hyper_p_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
     hyper_p_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
     hyper_p_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
@@ -149,8 +156,7 @@ if __name__ == "__main__":
     def objective_functional(**hyper_p_of_interest_objective_args_tuple):            
         #=== Assign Hyperparameters of Interest ===#
         for key, val in hyper_p_of_interest_objective_args_tuple.items(): 
-            setattr(hyper_p, key, val)
-        
+            setattr(hyper_p, key, val)        
         hyper_p.truncation_layer = int(np.ceil(hyper_p.num_hidden_layers/2))
         
         #=== Update Run_Options ===#
@@ -185,29 +191,22 @@ if __name__ == "__main__":
     #   Optimize for Hyperparameters   #
     ####################################
     #=== Minimize ===#
-    res_gp = gp_minimize(objective_functional, space, n_calls=10, random_state=None)
+    res_gp = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)
 
     ######################################
     #   Save Optimized Hyperparameters   #
     ######################################
+    #=== Display Optimal Parameters ===#
     print('=================================================')
     print('      Hyperparameter Optimization Complete')
     print('=================================================')
     print('Optimized Validation Loss: {}\n'.format(res_gp.fun))
-    print('Optimized Parameters:')
-    
+    print('Optimized Parameters:')    
     for n, parameter_name in enumerate(hyper_p_of_interest_list):
         print(parameter_name + ': {}'.format(res_gp.x[n]))
-    
-    #=== Save Outputs Name and Directory ===#    
-    save_path = '../Hyperparameter_Optimization'
-    name_of_file = 'best_set_of_hyperparameters.txt'
-    complete_path_and_file = os.path.join(save_path, name_of_file)
-    if not os.path.exists(save_path):
-        os.makedirs(save_path)
-    
+       
     #=== Write Hyperparameter Optimization Summary ===#
-    with open(complete_path_and_file, 'w') as summary_txt:
+    with open(run_options.hyper_p_opt_text_savefile_name, 'w') as summary_txt:
         summary_txt.write('Optimized Validation Loss: {}\n'.format(res_gp.fun))
         summary_txt.write('\n')
         summary_txt.write('Optimized parameters:\n')      
@@ -216,18 +215,20 @@ if __name__ == "__main__":
         
     #=== Convergence Plot ===#    
     plot_convergence(res_gp)
-    plt.savefig(save_path + '/' + 'convergence.png')
+    plt.savefig(run_options.hyper_p_opt_convergence_savefile_name)
     
-    #=== Delete All Suboptimal Trained Neural Networks ===#
-    hyper_p.num_hidden_layers = res_gp.x[0]
+    #####################################################
+    #   Delete All Suboptimal Trained Neural Networks   #
+    #####################################################
+    #=== Assigning hyper_p with Optimal Hyperparameters ===#
+    for num, parameter in enumerate(hyper_p_of_interest_list): 
+        setattr(hyper_p, parameter, res_gp.x[num])
     hyper_p.truncation_layer = int(np.ceil(hyper_p.num_hidden_layers/2))
-    hyper_p.num_hidden_nodes = res_gp.x[1]
-    hyper_p.activation = res_gp.x[2]
-    hyper_p.penalty = res_gp.x[3]
-    hyper_p.batch_size = res_gp.x[4]
     
+    #=== Updating Run Options ===#
     run_options = RunOptions(hyper_p)
     
+    #=== Deleting Directories ===#
     directories_list_Trained_NNs = os.listdir(path=run_options.hyper_p_opt_Trained_NNs_directory)
     directories_list_Tensorboard = os.listdir(path=run_options.hyper_p_opt_Tensorboard_directory)
     for filename in directories_list_Trained_NNs:
@@ -235,6 +236,10 @@ if __name__ == "__main__":
             shutil.rmtree(run_options.hyper_p_opt_Trained_NNs_directory + '/' + filename) 
             shutil.rmtree(run_options.hyper_p_opt_Tensorboard_directory + '/' + filename) 
     
+    
+    print('===========================')
+    print('      Outputs Saved')
+    print('===========================')
     
     
 
