@@ -146,8 +146,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         start_time_epoch = time.time()
         for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():
             start_time_batch = time.time()
-            loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients\
-            = train_step(parameter_train, state_obs_train)
+            loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients = train_step()
             elapsed_time_batch = time.time() - start_time_batch
             #=== Display Model Summary ===#
             if batch_num == 0 and epoch == 0:
@@ -159,8 +158,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         
         #=== Computing Relative Errors Validation ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:
-            loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem\
-            = update_tf_metrics_validation(parameter_val, state_obs_val)
+            loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem = update_tf_metrics_validation()
             loss_val_batch_average(loss_val_batch)
             loss_val_batch_average_autoencoder(loss_val_batch_autoencoder)
             loss_val_batch_average_forward_problem(loss_val_batch_forward_problem)
@@ -168,8 +166,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         #=== Computing Relative Errors Test ===#
         for parameter_test, state_obs_test in parameter_and_state_obs_test:
             loss_test_batch, loss_test_batch_autoencoder, loss_test_batch_forward_problem,\
-            relative_error_batch_parameter_autoencoder, relative_error_batch_parameter_inverse_problem, relative_error_batch_state_obs\
-            = update_tf_metrics_test(parameter_test, state_obs_test)
+            relative_error_batch_parameter_autoencoder, relative_error_batch_parameter_inverse_problem, relative_error_batch_state_obs = update_tf_metrics_test()
             loss_test_batch_average(loss_test_batch)
             loss_test_batch_average_autoencoder(loss_test_batch_autoencoder)
             loss_test_batch_average_forward_problem(loss_test_batch_forward_problem)
