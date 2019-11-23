@@ -38,7 +38,7 @@ class RunOptions:
         data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 200
+        self.num_training_data = 50000
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
