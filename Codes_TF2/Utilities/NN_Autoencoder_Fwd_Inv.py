@@ -65,7 +65,7 @@ class Encoder(tf.keras.layers.Layer):
                                                          kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                                          name = "W" + str(l))
             self.hidden_layers_encoder.append(hidden_layer_encoder)
-            
+    @tf.function        
     def call(self, X):
         for hidden_layer in self.hidden_layers_encoder:
             X = hidden_layer(X)
@@ -84,7 +84,7 @@ class Decoder(tf.keras.layers.Layer):
                                                          kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                                          name = "W" + str(l))
             self.hidden_layers_decoder.append(hidden_layer_decoder)
-            
+    @tf.function        
     def call(self, X):
         for hidden_layer in self.hidden_layers_decoder:
             X = hidden_layer(X)
