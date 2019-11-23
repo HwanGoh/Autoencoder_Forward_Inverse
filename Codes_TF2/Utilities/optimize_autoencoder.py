@@ -80,7 +80,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
             return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients
 
 ###############################################################################
-#                          Train Neural Network                               #
+#                             Train Neural Network                            #
 ############################################################################### 
     print('Beginning Training')
     for epoch in range(hyperp.num_epochs):
