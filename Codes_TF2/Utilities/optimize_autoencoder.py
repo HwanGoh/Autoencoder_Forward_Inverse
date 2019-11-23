@@ -100,7 +100,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
             if batch_num == 0 and epoch == 0:
                 NN.summary()
             if batch_num  == 0:
-                print('Time per Batch: %.2f' %(elapsed_time_batch))
+                print('Time per Batch: %.4f' %(elapsed_time_batch))
 # =============================================================================
 #             with tf.GradientTape() as tape:
 #                 parameter_pred_train_AE = NN(parameter_train)
