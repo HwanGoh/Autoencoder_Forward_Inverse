@@ -25,11 +25,11 @@ class Hyperparameters:
     data_type         = 'full'
     num_hidden_layers = 7
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 50
+    num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 50
     batch_size        = 100
-    num_epochs        = 100
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
@@ -41,12 +41,12 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 200
+        self.num_training_data = 50000
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Random Seed ===#
         self.random_seed = 1234
