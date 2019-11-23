@@ -20,7 +20,7 @@ import time
 import tensorflow as tf
 import numpy as np
 
-from update_tf_metrics import update_tf_metrics_validation, update_tf_metrics_test, update_tf_metrics_tensorboard
+from Utilities.update_tf_metrics import update_tf_metrics_validation, update_tf_metrics_test, update_tf_metrics_tensorboard
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
