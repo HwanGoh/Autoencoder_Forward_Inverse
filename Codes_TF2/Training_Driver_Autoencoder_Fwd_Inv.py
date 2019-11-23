@@ -25,11 +25,11 @@ class Hyperparameters:
     data_type         = 'full'
     num_hidden_layers = 7
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
+    num_hidden_nodes  = 50
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 500
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
@@ -41,7 +41,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 50000
+        self.num_training_data = 200
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
@@ -126,7 +126,7 @@ def trainer(hyperp, run_options, file_paths):
     storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
     storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
     storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-    = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+    = optimize(hyperp, run_options, file_paths, NN,loss_autoencoder, loss_forward_problem, relative_error,\
                parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
                parameter_dimension, num_batches_train)
 
