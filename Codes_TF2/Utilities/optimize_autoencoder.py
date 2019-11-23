@@ -17,7 +17,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train, which_gpu):
+def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -73,7 +73,7 @@ def optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, rel
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print(file_paths.filename)
-        print('GPU: ' + which_gpu + '\n')
+        print('GPU: ' + run_options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():

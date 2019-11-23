@@ -46,6 +46,9 @@ class Hyperparameters:
     
 class RunOptions:
     def __init__(self): 
+        #=== Choose Which GPU to Use ===#
+        self.which_gpu = '1'
+        
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
@@ -182,16 +185,16 @@ if __name__ == "__main__":
         = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices, file_paths.NN_savefile_name)
+        NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
         #=== Training ===#
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
-                   parameter_dimension, num_batches_train, which_gpu)
+                   parameter_dimension, num_batches_train)
     
         #=== Saving Metrics ===#
         metrics_dict = {}
