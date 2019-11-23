@@ -13,15 +13,15 @@ from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def predict_and_save(hyper_p, run_options):    
+def predict_and_save(hyperp, run_options):    
     #=== Load testing data ===# 
-    obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_test_data(run_options, hyper_p.batch_size, run_options.random_seed) 
+    obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_test_data(run_options, hyperp.batch_size, run_options.random_seed) 
 
     ####################################
     #   Import Trained Neural Network  #
     ####################################        
     #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyper_p, run_options, data_input_shape[0], run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+    NN = AutoencoderFwdInv(hyperp, run_options, data_input_shape[0], run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
     NN.load_weights(run_options.NN_savefile_name)     
     
     #######################

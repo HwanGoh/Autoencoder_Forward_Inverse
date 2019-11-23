@@ -29,7 +29,7 @@ def relative_error(prediction, true):
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
+def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -80,13 +80,13 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
 #                          Train Neural Network                               #
 ############################################################################### 
     print('Beginning Training')
-    for epoch in range(hyper_p.num_epochs):
+    for epoch in range(hyperp.num_epochs):
         print('================================')
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print(run_options.filename)
-        print('GPU: ' + hyper_p.gpu + '\n')
-        print('Optimizing %d batches of size %d:' %(num_batches_train, hyper_p.batch_size))
+        print('GPU: ' + hyperp.gpu + '\n')
+        print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():
             with tf.GradientTape() as tape:
@@ -97,7 +97,7 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
                 if batch_num == 0 and epoch == 0:
                     NN.summary()
                 loss_train_batch_autoencoder = loss_autoencoder(parameter_pred_train_AE, parameter_train)
-                loss_train_batch_forward_problem = loss_forward_problem(state_pred_train, state_obs_train, hyper_p.penalty)
+                loss_train_batch_forward_problem = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
                 loss_train_batch = loss_train_batch_autoencoder + loss_train_batch_forward_problem
                 gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
                 optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -113,7 +113,7 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
             parameter_pred_val_batch_AE = NN(parameter_val)
             state_pred_val_batch = NN.encoder(parameter_val)
             loss_val_batch_autoencoder = loss_autoencoder(parameter_pred_val_batch_AE, parameter_val)
-            loss_val_batch_forward_problem = loss_forward_problem(state_pred_val_batch, state_obs_val, hyper_p.penalty)
+            loss_val_batch_forward_problem = loss_forward_problem(state_pred_val_batch, state_obs_val, hyperp.penalty)
             loss_val_batch = loss_val_batch_autoencoder + loss_val_batch_forward_problem
             loss_val_batch_average(loss_val_batch)
             loss_val_batch_average_autoencoder(loss_val_batch_autoencoder)
@@ -125,7 +125,7 @@ def optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_
             parameter_pred_test_batch_Inverse_problem = NN.decoder(state_obs_test)
             state_pred_test_batch = NN.encoder(parameter_test)
             loss_test_batch_autoencoder = loss_autoencoder(parameter_pred_test_batch_AE, parameter_test)
-            loss_test_batch_forward_problem = loss_forward_problem(state_pred_test_batch, state_obs_test, hyper_p.penalty)
+            loss_test_batch_forward_problem = loss_forward_problem(state_pred_test_batch, state_obs_test, hyperp.penalty)
             loss_test_batch = loss_test_batch_autoencoder + loss_test_batch_forward_problem
             loss_test_batch_average(loss_test_batch)
             loss_test_batch_average_autoencoder(loss_test_batch_autoencoder)

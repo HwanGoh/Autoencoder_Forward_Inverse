@@ -12,34 +12,34 @@ from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class AutoencoderFwdInv(tf.keras.Model):
-    def __init__(self, hyper_p, run_options, parameter_dimension, state_dimension, obs_indices, savefilepath):
+    def __init__(self, hyperp, run_options, parameter_dimension, state_dimension, obs_indices, savefilepath):
         super(AutoencoderFwdInv, self).__init__()
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
 ############################################################################### 
         #=== Define Architecture and Create Layer Storage ===#
-        self.architecture = [parameter_dimension] + [hyper_p.num_hidden_nodes]*hyper_p.num_hidden_layers + [parameter_dimension]
-        if hyper_p.data_type == 'full':
-            self.architecture[hyper_p.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
-        if hyper_p.data_type == 'bnd':
-            self.architecture[hyper_p.truncation_layer] = len(obs_indices) # Sets where the forward problem ends and the inverse problem begins
+        self.architecture = [parameter_dimension] + [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [parameter_dimension]
+        if hyperp.data_type == 'full':
+            self.architecture[hyperp.truncation_layer] = state_dimension # Sets where the forward problem ends and the inverse problem begins
+        if hyperp.data_type == 'bnd':
+            self.architecture[hyperp.truncation_layer] = len(obs_indices) # Sets where the forward problem ends and the inverse problem begins
         print(self.architecture)
         self.num_layers = len(self.architecture)    
        
         #=== Define Other Attributes ===#
         self.hidden_layers_decoder = [] # This will be a list of layers
-        activation = hyper_p.activation
-        self.activations = ['linear'] + [activation]*hyper_p.num_hidden_layers + ['linear']
-        self.activations[hyper_p.truncation_layer] = 'linear' # This is the identity activation
+        activation = hyperp.activation
+        self.activations = ['linear'] + [activation]*hyperp.num_hidden_layers + ['linear']
+        self.activations[hyperp.truncation_layer] = 'linear' # This is the identity activation
         
         #=== Weights and Biases Initializer ===#
         self.kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
         self.bias_initializer = 'zeros'
                 
-        self.encoder = Encoder(hyper_p.truncation_layer, 
+        self.encoder = Encoder(hyperp.truncation_layer, 
                                self.architecture, self.activations, 
                                self.kernel_initializer, self.bias_initializer)
-        self.decoder = Decoder(hyper_p.truncation_layer, 
+        self.decoder = Decoder(hyperp.truncation_layer, 
                                self.architecture, self.activations, 
                                self.kernel_initializer, self.bias_initializer, 
                                self.num_layers)

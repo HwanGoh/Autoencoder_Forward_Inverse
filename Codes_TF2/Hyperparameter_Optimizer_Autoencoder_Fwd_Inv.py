@@ -30,7 +30,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
-class HyperParameters: # Set defaults, hyperparameters of interest will be overwritten later
+class Hyperparameters: # Set defaults, hyperparameters of interest will be overwritten later
     data_type         = 'full'
     num_hidden_layers = 7
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
@@ -38,22 +38,22 @@ class HyperParameters: # Set defaults, hyperparameters of interest will be overw
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 2
     gpu               = '0'
 
 class RunOptions:
-    def __init__(self, hyper_p):
+    def __init__(self, hyperp):
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 50000
+        self.num_training_data = 200
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -82,39 +82,39 @@ class RunOptions:
             fin_dimension = ''
         if self.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyper_p.penalty >= 1:
-            hyper_p.penalty = int(hyper_p.penalty)
-            penalty_string = str(hyper_p.penalty)
+        if hyperp.penalty >= 1:
+            hyperp.penalty = int(hyperp.penalty)
+            penalty_string = str(hyperp.penalty)
         else:
-            penalty_string = str(hyper_p.penalty)
+            penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, hyper_p.activation, penalty_string, self.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, self.num_training_data, hyperp.batch_size, hyperp.num_epochs)
 
 ###############################################################################
 #                                 File Paths                                  #
 ############################################################################### 
         #=== Loading and saving data ===#
-        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyper_p.data_type + fin_dimension
+        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
         self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(self.num_training_data) + fin_dimension + parameter_type
-        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(self.num_training_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
+        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(self.num_training_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
         self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + fin_dimension + parameter_type 
-        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + fin_dimension + '_' + hyper_p.data_type + parameter_type
+        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
 
         #=== Saving Trained Neural Network and Tensorboard ===#
-        self.hyper_p_opt_Trained_NNs_directory = '../Hyperparameter_Optimization/Trained_NNs'
-        self.hyper_p_opt_Tensorboard_directory = '../Hyperparameter_Optimization/Tensorboard'
-        self.NN_savefile_directory = self.hyper_p_opt_Trained_NNs_directory + '/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
+        self.hyperp_opt_Trained_NNs_directory = '../Hyperparameter_Optimization/Trained_NNs'
+        self.hyperp_opt_Tensorboard_directory = '../Hyperparameter_Optimization/Tensorboard'
+        self.NN_savefile_directory = self.hyperp_opt_Trained_NNs_directory + '/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-        self.tensorboard_directory = self.hyper_p_opt_Tensorboard_directory + '/' + self.filename
+        self.tensorboard_directory = self.hyperp_opt_Tensorboard_directory + '/' + self.filename
 
         #=== Saving Hyperparameter Optimization Outputs  ===#    
-        self.hyper_p_opt_outputs_directory = '../Hyperparameter_Optimization'
-        self.hyper_p_opt_skopt_res_savefile_name = self.hyper_p_opt_outputs_directory + '/hyper_p_opt_result.pkl'
-        self.hyper_p_opt_optimal_parameters_savefile_name = self.hyper_p_opt_outputs_directory + '/optimal_set_of_hyperparameters.txt'
-        self.hyper_p_opt_scenarios_trained_savefile_name = self.hyper_p_opt_outputs_directory + '/scenarios_trained.txt'
-        self.hyper_p_opt_validation_losses_savefile_name = self.hyper_p_opt_outputs_directory + '/validation_losses.csv'
-        self.hyper_p_opt_convergence_savefile_name = self.hyper_p_opt_outputs_directory + '/convergence.png'
+        self.hyperp_opt_outputs_directory = '../Hyperparameter_Optimization'
+        self.hyperp_opt_skopt_res_savefile_name = self.hyperp_opt_outputs_directory + '/hyperp_opt_result.pkl'
+        self.hyperp_opt_optimal_parameters_savefile_name = self.hyperp_opt_outputs_directory + '/optimal_set_of_hyperparameters.txt'
+        self.hyperp_opt_scenarios_trained_savefile_name = self.hyperp_opt_outputs_directory + '/scenarios_trained.txt'
+        self.hyperp_opt_validation_losses_savefile_name = self.hyperp_opt_outputs_directory + '/validation_losses.csv'
+        self.hyperp_opt_convergence_savefile_name = self.hyperp_opt_outputs_directory + '/convergence.png'
 
 ###############################################################################
 #                                  Driver                                     #
@@ -124,59 +124,59 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 40
+    n_calls = 10
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
-    hyper_p_of_interest_dict = {}
-    hyper_p_of_interest_dict['num_hidden_layers'] = Integer(3, 20, name='num_hidden_layers')
-    hyper_p_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
-    hyper_p_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
-    #hyper_p_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
-    #hyper_p_of_interest_dict['batch_size'] = Integer(100, 1000, name='batch_size')
+    hyperp_of_interest_dict = {}
+    hyperp_of_interest_dict['num_hidden_layers'] = Integer(3, 20, name='num_hidden_layers')
+    hyperp_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
+    hyperp_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
+    #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    #hyperp_of_interest_dict['batch_size'] = Integer(100, 1000, name='batch_size')
     
     #####################
     #   Initial Setup   #
     #####################
-    hyper_p_of_interest_list = list(hyper_p_of_interest_dict.keys()) 
-    hyper_p_of_interest_objective_args_tuple = tuple(hyper_p_of_interest_list)
+    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys()) 
+    hyperp_of_interest_objective_args_tuple = tuple(hyperp_of_interest_list)
     
     #=== Generate skopt 'space' list ===#
     space = []
-    for key, val in hyper_p_of_interest_dict.items(): 
+    for key, val in hyperp_of_interest_dict.items(): 
         space.append(val)
     
     #=== Instantiate Hyperparameters and Run Options to Load Data ===#
-    hyper_p = HyperParameters()
-    run_options = RunOptions(hyper_p)
+    hyperp = Hyperparameters()
+    run_options = RunOptions(hyperp)
     
     #=== Load Data ===#
     obs_indices, parameter_train, state_obs_train, parameter_test, state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_data(run_options, run_options.num_training_data) 
     
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = hyper_p.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = hyperp.gpu
     
     ############################
     #   Objective Functional   #
     ############################
     @use_named_args(space)
-    def objective_functional(**hyper_p_of_interest_objective_args_tuple):            
+    def objective_functional(**hyperp_of_interest_objective_args_tuple):            
         #=== Assign Hyperparameters of Interest ===#
-        for key, val in hyper_p_of_interest_objective_args_tuple.items(): 
-            setattr(hyper_p, key, val)        
-        hyper_p.truncation_layer = int(np.ceil(hyper_p.num_hidden_layers/2))
+        for key, val in hyperp_of_interest_objective_args_tuple.items(): 
+            setattr(hyperp, key, val)        
+        hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
         
         #=== Update Run_Options ===#
-        run_options = RunOptions(hyper_p)
+        run_options = RunOptions(hyperp)
         
         #=== Construct Validation Set and Batches ===#        
-        parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, num_training_data, num_batches_train, num_batches_val = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyper_p.batch_size, run_options.random_seed)
+        parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, num_training_data, num_batches_train, num_batches_val = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyper_p, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+        NN = AutoencoderFwdInv(hyperp, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs  = optimize(hyper_p, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs  = optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
     
         #=== Saving Metrics ===#
         metrics_dict = {}
@@ -197,7 +197,7 @@ if __name__ == "__main__":
     ################################
     #   Optimize Hyperparameters   #
     ################################
-    hyper_p_opt_result = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)
+    hyperp_opt_result = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)
 
     ##################################
     #   Display Optimal Parameters   #
@@ -205,60 +205,60 @@ if __name__ == "__main__":
     print('=================================================')
     print('      Hyperparameter Optimization Complete')
     print('=================================================')
-    print('Optimized Validation Loss: {}\n'.format(hyper_p_opt_result.fun))
+    print('Optimized Validation Loss: {}\n'.format(hyperp_opt_result.fun))
     print('Optimized Parameters:')    
-    for n, parameter_name in enumerate(hyper_p_of_interest_list):
-        print(parameter_name + ': {}'.format(hyper_p_opt_result.x[n]))
+    for n, parameter_name in enumerate(hyperp_of_interest_list):
+        print(parameter_name + ': {}'.format(hyperp_opt_result.x[n]))
     
     #####################################
     #   Save Optimization Information   #
     #####################################
     #=== Save .pkl File ===#
-    dump(hyper_p_opt_result, run_options.hyper_p_opt_skopt_res_savefile_name, store_objective=False)
+    dump(hyperp_opt_result, run_options.hyperp_opt_skopt_res_savefile_name, store_objective=False)
     
     #=== Write Optimal Set Hyperparameters ===#
-    with open(run_options.hyper_p_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
-        optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(hyper_p_opt_result.fun))
+    with open(run_options.hyperp_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
+        optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(hyperp_opt_result.fun))
         optimal_set_txt.write('\n')
         optimal_set_txt.write('Optimized parameters:\n')      
-        for n, parameter_name in enumerate(hyper_p_of_interest_list):
-            optimal_set_txt.write(parameter_name + ': {}\n'.format(hyper_p_opt_result.x[n]))
+        for n, parameter_name in enumerate(hyperp_of_interest_list):
+            optimal_set_txt.write(parameter_name + ': {}\n'.format(hyperp_opt_result.x[n]))
             
     #=== Write List of Scenarios Trained ===#
-    with open(run_options.hyper_p_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
-        for scenario in hyper_p_opt_result.x_iters:
+    with open(run_options.hyperp_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
+        for scenario in hyperp_opt_result.x_iters:
             scenarios_trained_txt.write("%s\n" % scenario)      
             
     #=== Write List of Validation Losses ===#
     validation_losses_dict = {}
-    validation_losses_dict['validation_losses'] = hyper_p_opt_result.func_vals
+    validation_losses_dict['validation_losses'] = hyperp_opt_result.func_vals
     df_validation_losses = pd.DataFrame(validation_losses_dict)
-    df_validation_losses.to_csv(run_options.hyper_p_opt_validation_losses_savefile_name, index=False)    
+    df_validation_losses.to_csv(run_options.hyperp_opt_validation_losses_savefile_name, index=False)    
         
     #=== Convergence Plot ===#    
-    plot_convergence(hyper_p_opt_result)
-    plt.savefig(run_options.hyper_p_opt_convergence_savefile_name)
+    plot_convergence(hyperp_opt_result)
+    plt.savefig(run_options.hyperp_opt_convergence_savefile_name)
     
     print('Outputs Saved')
     
     #####################################################
     #   Delete All Suboptimal Trained Neural Networks   #
     #####################################################
-    #=== Assigning hyper_p with Optimal Hyperparameters ===#
-    for num, parameter in enumerate(hyper_p_of_interest_list): 
-        setattr(hyper_p, parameter, hyper_p_opt_result.x[num])
-    hyper_p.truncation_layer = int(np.ceil(hyper_p.num_hidden_layers/2))
+    #=== Assigning hyperp with Optimal Hyperparameters ===#
+    for num, parameter in enumerate(hyperp_of_interest_list): 
+        setattr(hyperp, parameter, hyperp_opt_result.x[num])
+    hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
     
     #=== Updating Run Options ===#
-    run_options = RunOptions(hyper_p)
+    run_options = RunOptions(hyperp)
     
     #=== Deleting Suboptimal Neural Networks ===#
-    directories_list_Trained_NNs = os.listdir(path=run_options.hyper_p_opt_Trained_NNs_directory)
-    directories_list_Tensorboard = os.listdir(path=run_options.hyper_p_opt_Tensorboard_directory)
+    directories_list_Trained_NNs = os.listdir(path=run_options.hyperp_opt_Trained_NNs_directory)
+    directories_list_Tensorboard = os.listdir(path=run_options.hyperp_opt_Tensorboard_directory)
     for filename in directories_list_Trained_NNs:
         if filename != run_options.filename:
-            shutil.rmtree(run_options.hyper_p_opt_Trained_NNs_directory + '/' + filename) 
-            shutil.rmtree(run_options.hyper_p_opt_Tensorboard_directory + '/' + filename) 
+            shutil.rmtree(run_options.hyperp_opt_Trained_NNs_directory + '/' + filename) 
+            shutil.rmtree(run_options.hyperp_opt_Tensorboard_directory + '/' + filename) 
     
     print('Suboptimal Trained Networks Deleted')
     

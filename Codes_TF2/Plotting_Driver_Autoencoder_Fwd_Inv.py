@@ -23,7 +23,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
-class HyperParameters:
+class Hyperparameters:
     data_type         = 'full'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
@@ -34,7 +34,7 @@ class HyperParameters:
     gpu               = '0'
     
 class RunOptions:
-    def __init__(self, hyper_p): 
+    def __init__(self, hyperp): 
         #=== Data Set ===#
         data_thermal_fin_nine = 0
         data_thermal_fin_vary = 1
@@ -72,14 +72,14 @@ class RunOptions:
             fin_dimension = ''
         if self.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyper_p.penalty >= 1:
-            hyper_p.penalty = int(hyper_p.penalty)
-            penalty_string = str(hyper_p.penalty)
+        if hyperp.penalty >= 1:
+            hyperp.penalty = int(hyperp.penalty)
+            penalty_string = str(hyperp.penalty)
         else:
-            penalty_string = str(hyper_p.penalty)
+            penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
 
-        self.filename = self.dataset + '_' + hyper_p.data_type + fin_dimension + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyper_p.num_hidden_layers, hyper_p.truncation_layer, hyper_p.num_hidden_nodes, penalty_string, self.num_training_data, hyper_p.batch_size, hyper_p.num_epochs)
+        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, penalty_string, self.num_training_data, hyperp.batch_size, hyperp.num_epochs)
 
 ###############################################################################
 #                                 File Paths                                  #
@@ -90,9 +90,9 @@ class RunOptions:
   
         #=== Save File Path for One Instance of Test Data ===#
         self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
-        if hyper_p.data_type == 'full':
+        if hyperp.data_type == 'full':
             self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
-        if hyper_p.data_type == 'bndonly':
+        if hyperp.data_type == 'bndonly':
             self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension           
             
         #=== Loading Predictions ===#    
@@ -117,23 +117,23 @@ class RunOptions:
 if __name__ == "__main__":
     
     #=== Set hyperparameters ===#
-    hyper_p = HyperParameters()
+    hyperp = Hyperparameters()
     
     if len(sys.argv) > 1:
-        hyper_p.data_type         = str(sys.argv[1])
-        hyper_p.num_hidden_layers = int(sys.argv[2])
-        hyper_p.truncation_layer  = int(sys.argv[3])
-        hyper_p.num_hidden_nodes  = int(sys.argv[4])
-        hyper_p.penalty           = float(sys.argv[5])
-        hyper_p.batch_size        = int(sys.argv[6])
-        hyper_p.num_epochs        = int(sys.argv[7])
-        hyper_p.gpu               = str(sys.argv[8])
+        hyperp.data_type         = str(sys.argv[1])
+        hyperp.num_hidden_layers = int(sys.argv[2])
+        hyperp.truncation_layer  = int(sys.argv[3])
+        hyperp.num_hidden_nodes  = int(sys.argv[4])
+        hyperp.penalty           = float(sys.argv[5])
+        hyperp.batch_size        = int(sys.argv[6])
+        hyperp.num_epochs        = int(sys.argv[7])
+        hyperp.gpu               = str(sys.argv[8])
         
     #=== Set run options ===#        
-    run_options = RunOptions(hyper_p)
+    run_options = RunOptions(hyperp)
     
     #=== Predict and Save ===#
-    plot_and_save(hyper_p, run_options)
+    plot_and_save(hyperp, run_options)
     
 
 

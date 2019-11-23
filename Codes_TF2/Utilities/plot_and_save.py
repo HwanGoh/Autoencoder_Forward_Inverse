@@ -21,7 +21,7 @@ from Thermal_Fin_Heat_Simulator.Utilities.plot_3D import plot_3D
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def plot_and_save(hyper_p, run_options):
+def plot_and_save(hyperp, run_options):
 ###############################################################################
 #                     Form Fenics Domain and Load Predictions                 #
 ###############################################################################
@@ -62,7 +62,7 @@ def plot_and_save(hyper_p, run_options):
     
     state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
     state_test = state_test_dl.vector().get_local()    
-    if hyper_p.data_type == 'bnd':
+    if hyperp.data_type == 'bnd':
         state_test = state_test[obs_indices].flatten()
     
     #=== Plotting Test Parameter and Test State ===#  
@@ -76,7 +76,7 @@ def plot_and_save(hyper_p, run_options):
     print('Figure saved to ' + run_options.figures_savefile_name_parameter_test)   
     plt.show()
     
-    if hyper_p.data_type == 'full': # No state prediction for bnd only data
+    if hyperp.data_type == 'full': # No state prediction for bnd only data
         if run_options.fin_dimensions_2D == 1:
             s_test_fig = dl.plot(state_test_dl)
             s_test_fig.ax.set_title('True State', fontsize=13) 
@@ -112,7 +112,7 @@ def plot_and_save(hyper_p, run_options):
     parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
     print('Parameter prediction relative error: %.7f' %parameter_pred_error)
     
-    if hyper_p.data_type == 'full': # No visualization of state prediction if the truncation layer only consists of the boundary observations
+    if hyperp.data_type == 'full': # No visualization of state prediction if the truncation layer only consists of the boundary observations
         state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         if run_options.fin_dimensions_2D == 1:
             s_pred_fig = dl.plot(state_pred_dl)
@@ -131,7 +131,7 @@ def plot_and_save(hyper_p, run_options):
 ###############################################################################      
     df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics" + '.csv')
     array_metrics = df_metrics.to_numpy()
-    x_axis = np.linspace(1, hyper_p.num_epochs-1, hyper_p.num_epochs-1, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs-1, hyperp.num_epochs-1, endpoint = True)
 
     ######################
     #  Autoencoder Loss  #                          
