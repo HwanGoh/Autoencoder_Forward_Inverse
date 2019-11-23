@@ -26,61 +26,64 @@ from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.optimize_autoencoder import optimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+#=== Choose GPU to Use ===#
+which_gpu = '1'
 
 ###############################################################################
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
-class Hyperparameters: # Set defaults, hyperparameters of interest will be overwritten later
-    data_type         = 'full'
+class Hyperparameters:
+    data_type         = 'bnd'
     num_hidden_layers = 7
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 1000
+    num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 1000
-    gpu               = '0'
-
+    num_epochs        = 10
+    
 class RunOptions:
-    def __init__(self, hyperp):
+    def __init__(self): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 50000
+        self.num_training_data = 200
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
 
-###############################################################################
-#                                 File Name                                   #
-###############################################################################                
         #=== Parameter and Observation Dimensions === #
         if self.fin_dimensions_2D == 1:
             self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
             self.full_domain_dimensions = 4090 
-        if data_thermal_fin_nine == 1:
+        if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
-        if data_thermal_fin_vary == 1:
+        if self.data_thermal_fin_vary == 1:
             self.parameter_dimensions = self.full_domain_dimensions
-        
-        #=== File name ===#
-        if data_thermal_fin_nine == 1:
+
+###############################################################################
+#                                 File Paths                                  #
+###############################################################################  
+class FilePaths():              
+    def __init__(self, hyperp, run_options): 
+        #=== Declaring File Name Components ===#
+        if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
-        if data_thermal_fin_vary == 1:
+        if run_options.data_thermal_fin_vary == 1:
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
-        if self.fin_dimensions_2D == 1:
+        if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
-        if self.fin_dimensions_3D == 1:
+        if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
         if hyperp.penalty >= 1:
             hyperp.penalty = int(hyperp.penalty)
@@ -88,12 +91,10 @@ class RunOptions:
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
-
-        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, self.num_training_data, hyperp.batch_size, hyperp.num_epochs)
-
-###############################################################################
-#                                 File Paths                                  #
-############################################################################### 
+        
+        #=== File Name ===#
+        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_training_data, hyperp.batch_size, hyperp.num_epochs)
+ 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
         self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(self.num_training_data) + fin_dimension + parameter_type
@@ -124,7 +125,7 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 40
+    n_calls = 10
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyperp_of_interest_dict = {}
