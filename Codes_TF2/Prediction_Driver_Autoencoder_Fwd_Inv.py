@@ -22,7 +22,6 @@ class Hyperparameters:
     penalty           = 50
     batch_size        = 1000
     num_epochs        = 2
-    gpu               = '1'
     
 class RunOptions:
     def __init__(self): 
@@ -116,7 +115,6 @@ if __name__ == "__main__":
         hyperp.penalty           = float(sys.argv[5])
         hyperp.batch_size        = int(sys.argv[6])
         hyperp.num_epochs        = int(sys.argv[7])
-        hyperp.gpu               = str(sys.argv[8])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)

@@ -53,14 +53,14 @@ def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
         if len(available_gpus) > 0 and len(available_processes) > 0 and len(scenarios) > 0:
             curr_process = available_processes.pop(0) # rank of the process to send to
             curr_scenario = scenarios.pop(0)
-            curr_scenario.gpu = str(available_gpus.pop(0)) # which GPU we want to run the process on. Note that the extra "gpu" field is created here as well
+            which_gpu = str(available_gpus.pop(0)) # which GPU we want to run the process on. Note that the extra "gpu" field is created here as well
             
             print('Beginning Training of NN:')
             print()
             
             # block here to make sure the process starts before moving on so we don't overwrite buffer
             print('current process: ' + str(curr_process))
-            req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN) # master process sending out new run
+            req = comm.isend(curr_scenario, which_gpu, curr_process, flags.NEW_RUN) # master process sending out new run
             req.wait() # without this, the message sent by comm.isend might get lost when this process hasn't been probed. With this, it essentially continues to message until its probe
             
         elif len(available_processes) > 0 and len(scenarios) == 0:

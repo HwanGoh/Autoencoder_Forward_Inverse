@@ -18,6 +18,9 @@ from Utilities.optimize_autoencoder import optimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
+#=== Choose GPU to Use ===#
+which_gpu = '1'
+
 ###############################################################################
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
@@ -29,8 +32,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 2
-    gpu               = '1'
+    num_epochs        = 10
     
 class RunOptions:
     def __init__(self): 
@@ -100,10 +102,10 @@ class FilePaths():
 ###############################################################################
 #                                  Training                                   #
 ###############################################################################
-def trainer(hyperp, run_options, file_paths):
+def trainer(hyperp, run_options, file_paths, which_gpu):
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = hyperp.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = which_gpu
     
     #=== Loading Data and Constructing Batches ===#        
     obs_indices, parameter_train, state_obs_train, parameter_test, state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_data(file_paths, run_options.num_training_data, run_options.num_testing_data, run_options.parameter_dimensions) 
@@ -119,7 +121,7 @@ def trainer(hyperp, run_options, file_paths):
     storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
     = optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
                parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
-               parameter_dimension, num_batches_train)
+               parameter_dimension, num_batches_train, which_gpu)
 
     #=== Saving Metrics ===#
     metrics_dict = {}
@@ -152,13 +154,13 @@ if __name__ == "__main__":
         hyperp.penalty           = float(sys.argv[5])
         hyperp.batch_size        = int(sys.argv[6])
         hyperp.num_epochs        = int(sys.argv[7])
-        hyperp.gpu               = str(sys.argv[8])
+        which_gpu                = str(sys.argv[8])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
 
     #=== Initiate training ===#
-    trainer(hyperp, run_options, file_paths) 
+    trainer(hyperp, run_options, file_paths, which_gpu) 
     
      
      

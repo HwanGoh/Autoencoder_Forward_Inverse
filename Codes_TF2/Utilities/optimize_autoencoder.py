@@ -5,31 +5,19 @@ Created on Fri Oct 25 12:31:44 2019
 
 @author: hwan
 """
-import tensorflow as tf
-import numpy as np
-
 import shutil # for deleting directories
 import os
 import time
 
+import tensorflow as tf
+import numpy as np
+
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
-###############################################################################
-#                          Loss and Relative Errors                           #
-###############################################################################
-def loss_autoencoder(autoencoder_pred, parameter_true):
-    return tf.reduce_mean(tf.norm(tf.subtract(parameter_true, autoencoder_pred),2))
-
-def loss_forward_problem(state_obs_pred, state_obs_true, penalty):
-    return penalty*tf.reduce_mean(tf.norm(tf.subtract(state_obs_pred, state_obs_true),2))
-
-def relative_error(prediction, true):
-    return tf.norm(true - prediction, 2)/tf.norm(true, 2)
 
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
+def optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train, which_gpu):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -85,7 +73,7 @@ def optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, rel
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print(file_paths.filename)
-        print('GPU: ' + hyperp.gpu + '\n')
+        print('GPU: ' + which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():
