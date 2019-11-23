@@ -117,7 +117,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         #=== Computing Relative Errors Validation ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:
             loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem\
-            = update_tf_metrics_validation(NN, parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem, hyperp_penalty)
+            = update_tf_metrics_validation(NN, parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem, hyperp.penalty)
             loss_val_batch_average(loss_val_batch)
             loss_val_batch_average_autoencoder(loss_val_batch_autoencoder)
             loss_val_batch_average_forward_problem(loss_val_batch_forward_problem)
