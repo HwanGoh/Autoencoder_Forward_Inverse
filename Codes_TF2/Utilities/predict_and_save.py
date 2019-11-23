@@ -23,7 +23,7 @@ def predict_and_save(hyperp, run_options, file_paths):
     #   Import Trained Neural Network  #
     ####################################        
     #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, data_input_shape[0], run_options.full_domain_dimensions, obs_indices, file_paths.NN_savefile_name)
+    NN = AutoencoderFwdInv(hyperp, data_input_shape[0], run_options.full_domain_dimensions, obs_indices)
     NN.load_weights(file_paths.NN_savefile_name)     
     
     #######################
