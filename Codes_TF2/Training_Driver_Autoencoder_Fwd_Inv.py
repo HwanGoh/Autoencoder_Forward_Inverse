@@ -29,7 +29,7 @@ class Hyperparameters:
     penalty           = 50
     batch_size        = 1000
     num_epochs        = 2
-    gpu               = '1'
+    gpu               = '0'
     
 class RunOptions:
     def __init__(self, hyperp): 
