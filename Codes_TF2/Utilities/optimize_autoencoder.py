@@ -117,7 +117,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         #=== Computing Relative Errors Validation ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:
             loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem\
-            = update_tf_metrics_validation(parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem)
+            = update_tf_metrics_validation(NN, parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem, hyperp_penalty)
             loss_val_batch_average(loss_val_batch)
             loss_val_batch_average_autoencoder(loss_val_batch_autoencoder)
             loss_val_batch_average_forward_problem(loss_val_batch_forward_problem)
@@ -126,7 +126,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         for parameter_test, state_obs_test in parameter_and_state_obs_test:
             loss_test_batch, loss_test_batch_autoencoder, loss_test_batch_forward_problem,\
             relative_error_batch_parameter_autoencoder, relative_error_batch_parameter_inverse_problem, relative_error_batch_state_obs\
-            = update_tf_metrics_test(parameter_test, state_obs_test, loss_autoencoder, loss_forward_problem)
+            = update_tf_metrics_test(NN, hyperp.penalty, parameter_test, state_obs_test, loss_autoencoder, loss_forward_problem, relative_error)
             loss_test_batch_average(loss_test_batch)
             loss_test_batch_average_autoencoder(loss_test_batch_autoencoder)
             loss_test_batch_average_forward_problem(loss_test_batch_forward_problem)
@@ -136,10 +136,11 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
 
         #=== Track Training Metrics, Weights and Gradients ===#
         with summary_writer.as_default():
-            update_tf_metrics_tensorboard(loss_train_batch_average, loss_train_batch_average_autoencoder, loss_train_batch_average_forward_problem,
+            update_tf_metrics_tensorboard(NN, epoch, gradients, 
+                                          loss_train_batch_average, loss_train_batch_average_autoencoder, loss_train_batch_average_forward_problem,
                                           loss_val_batch_average, loss_val_batch_average_autoencoder, loss_val_batch_average_forward_problem,
                                           loss_test_batch_average, loss_test_batch_average_autoencoder, loss_test_batch_average_forward_problem,
-                                          relative_error_batch_average_parameter_autoencoder, relative_error_batch_average_parameter_inverse_problem, relative_error_batch_average_state_obs)               
+                                          relative_error_batch_average_parameter_autoencoder, relative_error_batch_average_parameter_inverse_problem, relative_error_batch_average_state_obs)
                 
         #=== Update Storage Arrays ===#
         storage_array_loss_train = np.append(storage_array_loss_train, loss_train_batch_average.result())
