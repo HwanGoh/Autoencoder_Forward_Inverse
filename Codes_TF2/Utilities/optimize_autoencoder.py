@@ -95,10 +95,10 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
             start_time_batch = time.time()
             loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients\
             = train_step(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem)
+            elapsed_time_batch = time.time() - start_time_batch
             #=== Display Model Summary ===#
             if batch_num == 0 and epoch == 0:
                 NN.summary()
-            elapsed_time_batch = time.time() - start_time_batch
             if batch_num  == 0:
                 print('Time per Batch: %.2f' %(elapsed_time_batch))
 # =============================================================================

@@ -28,7 +28,7 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 50
-    batch_size        = 100
+    batch_size        = 1000
     num_epochs        = 1000
     
 class RunOptions:
