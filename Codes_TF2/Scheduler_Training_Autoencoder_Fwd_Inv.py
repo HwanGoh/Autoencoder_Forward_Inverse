@@ -55,6 +55,7 @@ if __name__ == '__main__':
         scenarios_class_instances = []
         for scenario_values in permutations_list: 
             hyperp_scenario = Hyperparameters()
+            setattr(hyperp_scenario, 'which_gpu', '0') # Set gpu number as hyperp attribute so that MPI can pass it around with the other hyperparameters
             for i in range(0, len(scenario_values)):
                 setattr(hyperp_scenario, hyperp_keys[i], scenario_values[i])
             scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
@@ -70,7 +71,7 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.penalty:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
+            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.penalty:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.which_gpu}'])
             proc.wait() # without this, the process will detach itself once the python code is done running
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
