@@ -68,9 +68,10 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         os.makedirs(file_paths.NN_savefile_directory)
     
     #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
-        shutil.rmtree(file_paths.tensorboard_directory)  
-    summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+    if run_options.use_tensorboard == 1:
+        if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
+            shutil.rmtree(file_paths.tensorboard_directory)  
+        summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
 
 ###############################################################################
 #                                Training Step                                #
@@ -155,24 +156,25 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
             relative_error_batch_average_state_obs(relative_error_batch_state_obs)
 
         #=== Track Training Metrics, Weights and Gradients ===#
-        with summary_writer.as_default():
-            tf.summary.scalar('loss_training', loss_train_batch_average.result(), step=epoch)
-            tf.summary.scalar('loss_training_autoencoder', loss_train_batch_average_autoencoder.result(), step=epoch)
-            tf.summary.scalar('loss_training_forward_problem', loss_train_batch_average_forward_problem.result(), step=epoch)
-            tf.summary.scalar('loss_val', loss_val_batch_average.result(), step=epoch)
-            tf.summary.scalar('loss_val_autoencoder', loss_val_batch_average_autoencoder.result(), step=epoch)
-            tf.summary.scalar('loss_val_forward_problem', loss_val_batch_average_forward_problem.result(), step=epoch)
-            tf.summary.scalar('loss_test', loss_test_batch_average.result(), step=epoch)
-            tf.summary.scalar('loss_test_autoencoder', loss_test_batch_average_autoencoder.result(), step=epoch)
-            tf.summary.scalar('loss_test_forward_problem', loss_test_batch_average_forward_problem.result(), step=epoch)
-            tf.summary.scalar('relative_error_parameter_autoencoder', relative_error_batch_average_parameter_autoencoder.result(), step=epoch)
-            tf.summary.scalar('relative_error_parameter_inverse_problem', relative_error_batch_average_parameter_inverse_problem.result(), step=epoch)
-            tf.summary.scalar('relative_error_state_obs', relative_error_batch_average_state_obs.result(), step=epoch)
-            for w in NN.weights:
-                tf.summary.histogram(w.name, w, step=epoch)
-            l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
-            for gradient, variable in zip(gradients, NN.trainable_variables):
-                tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient), step = epoch)              
+        if run_options.use_tensorboard == 1:
+            with summary_writer.as_default():
+                tf.summary.scalar('loss_training', loss_train_batch_average.result(), step=epoch)
+                tf.summary.scalar('loss_training_autoencoder', loss_train_batch_average_autoencoder.result(), step=epoch)
+                tf.summary.scalar('loss_training_forward_problem', loss_train_batch_average_forward_problem.result(), step=epoch)
+                tf.summary.scalar('loss_val', loss_val_batch_average.result(), step=epoch)
+                tf.summary.scalar('loss_val_autoencoder', loss_val_batch_average_autoencoder.result(), step=epoch)
+                tf.summary.scalar('loss_val_forward_problem', loss_val_batch_average_forward_problem.result(), step=epoch)
+                tf.summary.scalar('loss_test', loss_test_batch_average.result(), step=epoch)
+                tf.summary.scalar('loss_test_autoencoder', loss_test_batch_average_autoencoder.result(), step=epoch)
+                tf.summary.scalar('loss_test_forward_problem', loss_test_batch_average_forward_problem.result(), step=epoch)
+                tf.summary.scalar('relative_error_parameter_autoencoder', relative_error_batch_average_parameter_autoencoder.result(), step=epoch)
+                tf.summary.scalar('relative_error_parameter_inverse_problem', relative_error_batch_average_parameter_inverse_problem.result(), step=epoch)
+                tf.summary.scalar('relative_error_state_obs', relative_error_batch_average_state_obs.result(), step=epoch)
+                for w in NN.weights:
+                    tf.summary.histogram(w.name, w, step=epoch)
+                l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
+                for gradient, variable in zip(gradients, NN.trainable_variables):
+                    tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient), step = epoch)              
                 
         #=== Update Storage Arrays ===#
         storage_array_loss_train = np.append(storage_array_loss_train, loss_train_batch_average.result())

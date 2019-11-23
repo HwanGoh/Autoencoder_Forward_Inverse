@@ -34,7 +34,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Choose Which GPU to Use ===#
-        self.which_gpu = '2'
+        self.which_gpu = '1'
         
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
@@ -47,6 +47,9 @@ class RunOptions:
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 0
         self.fin_dimensions_3D = 1
+        
+        #=== Use Tensorboard ===#
+        self.use_tensorboard = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
