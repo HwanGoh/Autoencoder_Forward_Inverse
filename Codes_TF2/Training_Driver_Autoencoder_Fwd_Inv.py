@@ -29,7 +29,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 500
     
 class RunOptions:
     def __init__(self): 
@@ -41,7 +41,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 200
+        self.num_training_data = 50000
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
