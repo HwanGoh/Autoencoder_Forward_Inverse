@@ -29,7 +29,7 @@ def relative_error(prediction, true):
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
+def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train, which_gpu):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -85,7 +85,7 @@ def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_a
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print(run_options.filename)
-        print('GPU: ' + hyperp.gpu + '\n')
+        print('GPU: ' + which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():

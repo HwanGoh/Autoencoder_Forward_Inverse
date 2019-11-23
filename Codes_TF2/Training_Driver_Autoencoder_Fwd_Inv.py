@@ -17,6 +17,8 @@ from Utilities.optimize_autoencoder import optimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
+which_gpu = '0'
+
 ###############################################################################
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
@@ -29,7 +31,6 @@ class Hyperparameters:
     penalty           = 50
     batch_size        = 1000
     num_epochs        = 2
-    gpu               = '0'
     
 class RunOptions:
     def __init__(self, hyperp): 
@@ -99,10 +100,10 @@ class RunOptions:
 ###############################################################################
 #                                  Training                                   #
 ###############################################################################
-def trainer(hyperp, run_options):
+def trainer(hyperp, run_options, which_gpu):
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = hyperp.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = which_gpu
     
     #=== Loading Data and Constructing Batches ===#        
     obs_indices, parameter_train, state_obs_train, parameter_test, state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_data(run_options, run_options.num_training_data) 
@@ -112,7 +113,7 @@ def trainer(hyperp, run_options):
     NN = AutoencoderFwdInv(hyperp, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
     
     #=== Training ===#
-    storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs  = optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
+    storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs  = optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train, which_gpu)
 
     #=== Saving Metrics ===#
     metrics_dict = {}
@@ -144,13 +145,13 @@ if __name__ == "__main__":
         hyperp.penalty           = float(sys.argv[5])
         hyperp.batch_size        = int(sys.argv[6])
         hyperp.num_epochs        = int(sys.argv[7])
-        hyperp.gpu               = str(sys.argv[8])
+        which_gpu                = str(sys.argv[8])
         
     #=== Set run options ===#         
     run_options = RunOptions(hyperp)
     
     #=== Initiate training ===#
-    trainer(hyperp, run_options) 
+    trainer(hyperp, run_options, which_gpu) 
     
      
      
