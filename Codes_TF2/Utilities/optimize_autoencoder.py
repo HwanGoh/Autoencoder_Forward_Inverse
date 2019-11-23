@@ -65,6 +65,21 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
 
 ###############################################################################
+#                                Training Step                                #
+###############################################################################
+    @tf.function
+    def train_step(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem):
+        with tf.GradientTape() as tape:
+            parameter_pred_train_AE = NN(parameter_train)
+            state_pred_train = NN.encoder(parameter_train)
+            loss_train_batch_autoencoder = loss_autoencoder(parameter_pred_train_AE, parameter_train)
+            loss_train_batch_forward_problem = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
+            loss_train_batch = loss_train_batch_autoencoder + loss_train_batch_forward_problem
+            gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
+            optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
+            return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients
+
+###############################################################################
 #                          Train Neural Network                               #
 ############################################################################### 
     print('Beginning Training')
@@ -77,21 +92,31 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():
-            with tf.GradientTape() as tape:
-                start_time_batch = time.time()
-                parameter_pred_train_AE = NN(parameter_train)
-                state_pred_train = NN.encoder(parameter_train)
-                #=== Display Model Summary ===#
-                if batch_num == 0 and epoch == 0:
-                    NN.summary()
-                loss_train_batch_autoencoder = loss_autoencoder(parameter_pred_train_AE, parameter_train)
-                loss_train_batch_forward_problem = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
-                loss_train_batch = loss_train_batch_autoencoder + loss_train_batch_forward_problem
-                gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
-                optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-                elapsed_time_batch = time.time() - start_time_batch
-                if batch_num  == 0:
-                    print('Time per Batch: %.2f' %(elapsed_time_batch))
+            start_time_batch = time.time()
+            loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients\
+            = train_step(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem)
+            #=== Display Model Summary ===#
+            if batch_num == 0 and epoch == 0:
+                NN.summary()
+            elapsed_time_batch = time.time() - start_time_batch
+            if batch_num  == 0:
+                print('Time per Batch: %.2f' %(elapsed_time_batch))
+# =============================================================================
+#             with tf.GradientTape() as tape:
+#                 parameter_pred_train_AE = NN(parameter_train)
+#                 state_pred_train = NN.encoder(parameter_train)
+#                 #=== Display Model Summary ===#
+#                 if batch_num == 0 and epoch == 0:
+#                     NN.summary()
+#                 loss_train_batch_autoencoder = loss_autoencoder(parameter_pred_train_AE, parameter_train)
+#                 loss_train_batch_forward_problem = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
+#                 loss_train_batch = loss_train_batch_autoencoder + loss_train_batch_forward_problem
+#                 gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
+#                 optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
+#                 elapsed_time_batch = time.time() - start_time_batch
+#                 if batch_num  == 0:
+#                     print('Time per Batch: %.2f' %(elapsed_time_batch))
+# =============================================================================
             loss_train_batch_average(loss_train_batch) 
             loss_train_batch_average_autoencoder(loss_train_batch_autoencoder)
             loss_train_batch_average_forward_problem(loss_train_batch_forward_problem)
