@@ -12,7 +12,7 @@ import tensorflow as tf
 #                          Update Tensorflow Metrics                          #
 ###############################################################################
 @tf.function
-def update_tf_metrics_validation(NN, parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem):
+def update_tf_metrics_validation(NN, parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem, penalty):
     parameter_pred_val_batch_AE = NN(parameter_val)
     state_pred_val_batch = NN.encoder(parameter_val)
     loss_val_batch_autoencoder = loss_autoencoder(parameter_pred_val_batch_AE, parameter_val)
