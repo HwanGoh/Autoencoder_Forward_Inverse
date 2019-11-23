@@ -55,7 +55,6 @@ if __name__ == '__main__':
         scenarios_class_instances = []
         for scenario_values in permutations_list: 
             hyperp_scenario = Hyperparameters()
-            pdb.set_trace()
             for i in range(0, len(scenario_values)):
                 setattr(hyperp_scenario, hyperp_keys[i], scenario_values[i])
             scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
