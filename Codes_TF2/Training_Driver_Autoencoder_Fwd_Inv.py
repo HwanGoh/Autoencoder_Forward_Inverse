@@ -48,9 +48,6 @@ class RunOptions:
         self.fin_dimensions_2D = 0
         self.fin_dimensions_3D = 1
         
-        #=== Use Tensorboard ===#
-        self.use_tensorboard = 1
-        
         #=== Random Seed ===#
         self.random_seed = 1234
 
