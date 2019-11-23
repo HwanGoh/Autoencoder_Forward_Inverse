@@ -116,7 +116,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
                 optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
                 elapsed_time_batch = time.time() - start_time_batch
                 if batch_num  == 0:
-                    print('Time per Batch: %.2f' %(elapsed_time_batch))
+                    print('Time per Batch: %.4f' %(elapsed_time_batch))
             loss_train_batch_average(loss_train_batch) 
             loss_train_batch_average_autoencoder(loss_train_batch_autoencoder)
             loss_train_batch_average_forward_problem(loss_train_batch_forward_problem)
@@ -184,7 +184,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
             
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
-        print('Time per Epoch: %.2f\n' %(elapsed_time_epoch))
+        print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
         print('Train Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_train_batch_average.result(), loss_train_batch_average_autoencoder.result(), loss_train_batch_average_forward_problem.result()))
         print('Val Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_val_batch_average.result(), loss_val_batch_average_autoencoder.result(), loss_val_batch_average_forward_problem.result()))
         print('Test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_test_batch_average.result(), loss_test_batch_average_autoencoder.result(), loss_test_batch_average_forward_problem.result()))
