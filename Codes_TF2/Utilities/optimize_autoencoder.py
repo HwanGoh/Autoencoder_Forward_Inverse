@@ -13,7 +13,7 @@ import tensorflow as tf
 import numpy as np
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-zz
+
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
