@@ -55,10 +55,11 @@ if __name__ == '__main__':
         scenarios_class_instances = []
         for scenario_values in permutations_list: 
             hyperp_scenario = Hyperparameters()
+            setattr(hyperp_scenario, 'which_gpu', '0') # Set gpu number as hyperp attribute so that MPI can pass it around with the other hyperparameters
             for i in range(0, len(scenario_values)):
                 setattr(hyperp_scenario, hyperp_keys[i], scenario_values[i])
             scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
-            
+
         # Schedule and run processes
         schedule_runs(scenarios_class_instances, nprocs, comm)  
         

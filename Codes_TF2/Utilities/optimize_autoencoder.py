@@ -5,31 +5,19 @@ Created on Fri Oct 25 12:31:44 2019
 
 @author: hwan
 """
-import tensorflow as tf
-import numpy as np
-
 import shutil # for deleting directories
 import os
 import time
 
+import tensorflow as tf
+import numpy as np
+
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-
-###############################################################################
-#                          Loss and Relative Errors                           #
-###############################################################################
-def loss_autoencoder(autoencoder_pred, parameter_true):
-    return tf.reduce_mean(tf.norm(tf.subtract(parameter_true, autoencoder_pred),2))
-
-def loss_forward_problem(state_obs_pred, state_obs_true, penalty):
-    return penalty*tf.reduce_mean(tf.norm(tf.subtract(state_obs_pred, state_obs_true),2))
-
-def relative_error(prediction, true):
-    return tf.norm(true - prediction, 2)/tf.norm(true, 2)
 
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train, which_gpu):
+def optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train, which_gpu):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -68,13 +56,13 @@ def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_a
     storage_array_relative_error_state_obs = np.array([])
     
     #=== Creating Directory for Trained Neural Network ===#
-    if not os.path.exists(run_options.NN_savefile_directory):
-        os.makedirs(run_options.NN_savefile_directory)
+    if not os.path.exists(file_paths.NN_savefile_directory):
+        os.makedirs(file_paths.NN_savefile_directory)
     
     #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists(run_options.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
-        shutil.rmtree(run_options.tensorboard_directory)  
-    summary_writer = tf.summary.create_file_writer(run_options.tensorboard_directory)
+    if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
+        shutil.rmtree(file_paths.tensorboard_directory)  
+    summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
 
 ###############################################################################
 #                          Train Neural Network                               #
@@ -84,7 +72,7 @@ def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_a
         print('================================')
         print('            Epoch %d            ' %(epoch))
         print('================================')
-        print(run_options.filename)
+        print(file_paths.filename)
         print('GPU: ' + which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
@@ -179,7 +167,7 @@ def optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_a
         start_time_epoch = time.time()   
             
     #=== Save final model ===#
-    NN.save_weights(run_options.NN_savefile_name)
+    NN.save_weights(file_paths.NN_savefile_name)
     print('Final Model Saved') 
 
     return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs 

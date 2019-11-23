@@ -21,56 +21,58 @@ from Utilities.plot_and_save import plot_and_save
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                       HyperParameters and RunOptions                        #
+#                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    data_type         = 'bnd'
+    num_hidden_layers = 7
+    truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
+    activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 500
-    gpu               = '0'
+    num_epochs        = 2
     
 class RunOptions:
-    def __init__(self, hyperp): 
+    def __init__(self): 
         #=== Data Set ===#
-        data_thermal_fin_nine = 0
-        data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 50000
+        self.num_training_data = 200
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
 
-###############################################################################
-#                                 File Name                                   #
-###############################################################################                
         #=== Parameter and Observation Dimensions === #
         if self.fin_dimensions_2D == 1:
             self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
             self.full_domain_dimensions = 4090 
-        if data_thermal_fin_nine == 1:
+        if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
-        if data_thermal_fin_vary == 1:
+        if self.data_thermal_fin_vary == 1:
             self.parameter_dimensions = self.full_domain_dimensions
-        
-        #=== File name ===#
-        if data_thermal_fin_nine == 1:
+
+###############################################################################
+#                                 File Name                                   #
+###############################################################################                
+class FilePaths():              
+    def __init__(self, hyperp, run_options): 
+        #=== Declaring File Name Components ===#
+        if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
-        if data_thermal_fin_vary == 1:
+        if run_options.data_thermal_fin_vary == 1:
             self.dataset = 'thermalfinvary'
-        if self.fin_dimensions_2D == 1:
+        if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
-        if self.fin_dimensions_3D == 1:
+        if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
         if hyperp.penalty >= 1:
             hyperp.penalty = int(hyperp.penalty)
@@ -78,16 +80,17 @@ class RunOptions:
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
-
-        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, penalty_string, self.num_training_data, hyperp.batch_size, hyperp.num_epochs)
-
-###############################################################################
-#                                 File Paths                                  #
-###############################################################################         
-        #=== Save File Name ===#
+            
+        #=== File Name ===#
+        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_training_data, hyperp.batch_size, hyperp.num_epochs)
+       
+        #=== Save File Directory ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
   
+        #=== Save File Path ===#
+        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
+    
         #=== Save File Path for One Instance of Test Data ===#
         self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
         if hyperp.data_type == 'full':
@@ -116,8 +119,9 @@ class RunOptions:
 ###############################################################################
 if __name__ == "__main__":
     
-    #=== Set hyperparameters ===#
+    #=== Hyperparameters and Run Options ===#    
     hyperp = Hyperparameters()
+    run_options = RunOptions()
     
     if len(sys.argv) > 1:
         hyperp.data_type         = str(sys.argv[1])
@@ -127,13 +131,12 @@ if __name__ == "__main__":
         hyperp.penalty           = float(sys.argv[5])
         hyperp.batch_size        = int(sys.argv[6])
         hyperp.num_epochs        = int(sys.argv[7])
-        hyperp.gpu               = str(sys.argv[8])
-        
-    #=== Set run options ===#        
-    run_options = RunOptions(hyperp)
+
+    #=== File Names ===#
+    file_paths = FilePaths(hyperp, run_options)
     
-    #=== Predict and Save ===#
-    plot_and_save(hyperp, run_options)
+    #=== Plot and Save ===#
+    plot_and_save(hyperp, run_options, file_paths)
     
 
 
