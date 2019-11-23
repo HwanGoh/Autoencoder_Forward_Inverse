@@ -23,9 +23,11 @@ from skopt import dump, load
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_forward_problem, relative_error
 from Utilities.optimize_autoencoder import optimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 #=== Choose GPU to Use ===#
 which_gpu = '1'
 
@@ -40,7 +42,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 10
+    num_epochs        = 1
     
 class RunOptions:
     def __init__(self): 
@@ -97,10 +99,10 @@ class FilePaths():
  
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
-        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(self.num_training_data) + fin_dimension + parameter_type
-        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(self.num_training_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
-        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(self.num_testing_data) + fin_dimension + parameter_type 
-        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(self.num_testing_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
+        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_training_data) + fin_dimension + parameter_type
+        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_training_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
+        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_testing_data) + fin_dimension + parameter_type 
+        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_testing_data) + fin_dimension + '_' + hyperp.data_type + parameter_type
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.hyperp_opt_Trained_NNs_directory = '../Hyperparameter_Optimization/Trained_NNs'
@@ -148,14 +150,18 @@ if __name__ == "__main__":
     
     #=== Instantiate Hyperparameters and Run Options to Load Data ===#
     hyperp = Hyperparameters()
-    run_options = RunOptions(hyperp)
+    run_options = RunOptions()
+    file_paths = FilePaths(hyperp, run_options)
     
     #=== Load Data ===#
-    obs_indices, parameter_train, state_obs_train, parameter_test, state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_data(run_options, run_options.num_training_data) 
+    obs_indices, parameter_train, state_obs_train,\
+    parameter_test, state_obs_test,\
+    data_input_shape, parameter_dimension\
+    = load_thermal_fin_data(file_paths, run_options.num_training_data, run_options.num_testing_data, run_options.parameter_dimensions)    
     
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = hyperp.gpu
+    os.environ["CUDA_VISIBLE_DEVICES"] = which_gpu
     
     ############################
     #   Objective Functional   #
@@ -167,17 +173,25 @@ if __name__ == "__main__":
             setattr(hyperp, key, val)        
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
         
-        #=== Update Run_Options ===#
-        run_options = RunOptions(hyperp)
+        #=== Update File Paths with New Hyperparameters ===#
+        file_paths = FilePaths(hyperp, run_options)
         
         #=== Construct Validation Set and Batches ===#        
-        parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, num_training_data, num_batches_train, num_batches_val = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
+        parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
+        num_training_data, num_batches_train, num_batches_val\
+        = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, run_options, parameter_dimension, run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+        NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices, file_paths.NN_savefile_name)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs  = optimize(hyperp, run_options, NN, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train)
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
+        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+        = optimize(hyperp, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+                   parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
+                   parameter_dimension, num_batches_train, which_gpu)
     
         #=== Saving Metrics ===#
         metrics_dict = {}
@@ -191,7 +205,7 @@ if __name__ == "__main__":
         metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
         metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(run_options.NN_savefile_name + "_metrics" + '.csv', index=False)     
+        df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)     
         
         return storage_array_loss_val[-1]
     
@@ -215,10 +229,10 @@ if __name__ == "__main__":
     #   Save Optimization Information   #
     #####################################
     #=== Save .pkl File ===#
-    dump(hyperp_opt_result, run_options.hyperp_opt_skopt_res_savefile_name, store_objective=False)
+    dump(hyperp_opt_result, file_paths.hyperp_opt_skopt_res_savefile_name, store_objective=False)
     
     #=== Write Optimal Set Hyperparameters ===#
-    with open(run_options.hyperp_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
+    with open(file_paths.hyperp_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
         optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(hyperp_opt_result.fun))
         optimal_set_txt.write('\n')
         optimal_set_txt.write('Optimized parameters:\n')      
@@ -226,7 +240,7 @@ if __name__ == "__main__":
             optimal_set_txt.write(parameter_name + ': {}\n'.format(hyperp_opt_result.x[n]))
             
     #=== Write List of Scenarios Trained ===#
-    with open(run_options.hyperp_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
+    with open(file_paths.hyperp_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
         for scenario in hyperp_opt_result.x_iters:
             scenarios_trained_txt.write("%s\n" % scenario)      
             
@@ -234,11 +248,11 @@ if __name__ == "__main__":
     validation_losses_dict = {}
     validation_losses_dict['validation_losses'] = hyperp_opt_result.func_vals
     df_validation_losses = pd.DataFrame(validation_losses_dict)
-    df_validation_losses.to_csv(run_options.hyperp_opt_validation_losses_savefile_name, index=False)    
+    df_validation_losses.to_csv(file_paths.hyperp_opt_validation_losses_savefile_name, index=False)    
         
     #=== Convergence Plot ===#    
     plot_convergence(hyperp_opt_result)
-    plt.savefig(run_options.hyperp_opt_convergence_savefile_name)
+    plt.savefig(file_paths.hyperp_opt_convergence_savefile_name)
     
     print('Outputs Saved')
     
@@ -250,16 +264,16 @@ if __name__ == "__main__":
         setattr(hyperp, parameter, hyperp_opt_result.x[num])
     hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
     
-    #=== Updating Run Options ===#
-    run_options = RunOptions(hyperp)
+    #=== Updating File Paths with Optimal Hyperparameters ===#
+    file_paths = FilePaths(hyperp, run_options)
     
     #=== Deleting Suboptimal Neural Networks ===#
-    directories_list_Trained_NNs = os.listdir(path=run_options.hyperp_opt_Trained_NNs_directory)
-    directories_list_Tensorboard = os.listdir(path=run_options.hyperp_opt_Tensorboard_directory)
+    directories_list_Trained_NNs = os.listdir(path=file_paths.hyperp_opt_Trained_NNs_directory)
+    directories_list_Tensorboard = os.listdir(path=file_paths.hyperp_opt_Tensorboard_directory)
     for filename in directories_list_Trained_NNs:
-        if filename != run_options.filename:
-            shutil.rmtree(run_options.hyperp_opt_Trained_NNs_directory + '/' + filename) 
-            shutil.rmtree(run_options.hyperp_opt_Tensorboard_directory + '/' + filename) 
+        if filename != file_paths.filename:
+            shutil.rmtree(file_paths.hyperp_opt_Trained_NNs_directory + '/' + filename) 
+            shutil.rmtree(file_paths.hyperp_opt_Tensorboard_directory + '/' + filename) 
     
     print('Suboptimal Trained Networks Deleted')
     
