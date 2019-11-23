@@ -13,18 +13,16 @@ from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def predict_and_save(hyperp, run_options, file_paths):    
+def predict_and_save(hyperp, run_options):    
     #=== Load testing data ===# 
-    obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension\
-    = load_thermal_fin_test_data(file_paths, run_options.num_testing_data, run_options.parameter_dimensions,\
-                                 hyperp.batch_size, run_options.random_seed) 
+    obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension = load_thermal_fin_test_data(run_options, hyperp.batch_size, run_options.random_seed) 
 
     ####################################
     #   Import Trained Neural Network  #
     ####################################        
     #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, data_input_shape[0], run_options.full_domain_dimensions, obs_indices, file_paths.NN_savefile_name)
-    NN.load_weights(file_paths.NN_savefile_name)     
+    NN = AutoencoderFwdInv(hyperp, run_options, data_input_shape[0], run_options.full_domain_dimensions, obs_indices, run_options.NN_savefile_name)
+    NN.load_weights(run_options.NN_savefile_name)     
     
     #######################
     #   Form Predictions  #
@@ -61,14 +59,14 @@ def predict_and_save(hyperp, run_options, file_paths):
     #   Save Test Case and Predictions  #
     #####################################  
     df_parameter_test = pd.DataFrame({'parameter_test': parameter_test})
-    df_parameter_test.to_csv(file_paths.savefile_name_parameter_test + '.csv', index=False)  
+    df_parameter_test.to_csv(run_options.savefile_name_parameter_test + '.csv', index=False)  
     df_parameter_pred = pd.DataFrame({'parameter_pred': parameter_pred})
-    df_parameter_pred.to_csv(file_paths.savefile_name_parameter_pred + '.csv', index=False)  
+    df_parameter_pred.to_csv(run_options.savefile_name_parameter_pred + '.csv', index=False)  
     df_state_test = pd.DataFrame({'state_test': state_test})
-    df_state_test.to_csv(file_paths.savefile_name_state_test + '.csv', index=False)  
+    df_state_test.to_csv(run_options.savefile_name_state_test + '.csv', index=False)  
     df_state_pred = pd.DataFrame({'state_pred': state_pred})
-    df_state_pred.to_csv(file_paths.savefile_name_state_pred + '.csv', index=False)  
+    df_state_pred.to_csv(run_options.savefile_name_state_pred + '.csv', index=False)  
 
-    print('\nPredictions Saved to ' + file_paths.NN_savefile_directory)
+    print('\nPredictions Saved to ' + run_options.NN_savefile_directory)
         
     

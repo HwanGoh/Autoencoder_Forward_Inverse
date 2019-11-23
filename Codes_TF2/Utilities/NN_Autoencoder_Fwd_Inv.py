@@ -12,7 +12,7 @@ from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class AutoencoderFwdInv(tf.keras.Model):
-    def __init__(self, hyperp, parameter_dimension, state_dimension, obs_indices, savefilepath):
+    def __init__(self, hyperp, run_options, parameter_dimension, state_dimension, obs_indices, savefilepath):
         super(AutoencoderFwdInv, self).__init__()
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
