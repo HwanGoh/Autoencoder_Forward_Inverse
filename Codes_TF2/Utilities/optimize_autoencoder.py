@@ -76,7 +76,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
 #                                Training Step                                #
 ###############################################################################
     @tf.function
-    def train_step(parameter_train, state_obs_train):
+    def train_step():
         with tf.GradientTape() as tape:
             parameter_pred_train_AE = NN(parameter_train)
             state_pred_train = NN.encoder(parameter_train)
