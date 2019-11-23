@@ -41,10 +41,10 @@ if __name__ == '__main__':
         for i in range(0, len(scenario_values)):
             setattr(hyperp_scenario, hyperp_keys[i], scenario_values[i])
         scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
-    
+
     for scenario in scenarios_class_instances:
-        proc = subprocess.Popen(['./Prediction_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
-        #proc = subprocess.Popen(['./Plotting_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.2f}', f'{scenario.num_training_data}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
+        proc = subprocess.Popen(['./Prediction_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}']) 
+        #proc = subprocess.Popen(['./Plotting_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.penalty:.2f}', f'{scenario.num_training_data}', f'{scenario.batch_size}', f'{scenario.num_epochs}',  f'{scenario.gpu}']) 
         proc.wait()
         
     print('All scenarios computed')

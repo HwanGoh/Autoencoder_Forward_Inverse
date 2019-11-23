@@ -21,7 +21,7 @@ from Thermal_Fin_Heat_Simulator.Utilities.plot_3D import plot_3D
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def plot_and_save(hyperp, run_options, file_paths):
+def plot_and_save(hyperp, run_options):
 ###############################################################################
 #                     Form Fenics Domain and Load Predictions                 #
 ###############################################################################
@@ -34,22 +34,22 @@ def plot_and_save(hyperp, run_options, file_paths):
     solver = Fin(V) 
     
     #=== Load Observation Indices, Test and Predicted Parameters and State ===#
-    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')    
+    df_obs_indices = pd.read_csv('../../Datasets/Thermal_Fin/' + 'obs_indices_bnd' + '.csv')    
     obs_indices = df_obs_indices.to_numpy() 
     
-    df_parameter_test = pd.read_csv(file_paths.savefile_name_parameter_test + '.csv')
+    df_parameter_test = pd.read_csv(run_options.savefile_name_parameter_test + '.csv')
     parameter_test = df_parameter_test.to_numpy()
-    df_parameter_pred = pd.read_csv(file_paths.savefile_name_parameter_pred + '.csv')
+    df_parameter_pred = pd.read_csv(run_options.savefile_name_parameter_pred + '.csv')
     parameter_pred = df_parameter_pred.to_numpy()
     
-    df_state_pred = pd.read_csv(file_paths.savefile_name_state_pred + '.csv')
+    df_state_pred = pd.read_csv(run_options.savefile_name_state_pred + '.csv')
     state_pred = df_state_pred.to_numpy()
     
 ###############################################################################
 #                             Plotting Predictions                            #
 ###############################################################################
     #=== Converting Test Parameter Into Dolfin Object and Computed State Observation ===#       
-    if run_options.data_thermal_fin_nine == 1:
+    if run_options.dataset == 'thermalfin9':
         parameter_test_dl = solver.nine_param_to_function(parameter_test)
         if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
             parameter_values = parameter_test_dl.vector().get_local()  
@@ -57,7 +57,7 @@ def plot_and_save(hyperp, run_options, file_paths):
             for ind in zero_indices:
                 parameter_values[ind] = parameter_values[ind-1]
             parameter_test_dl = convert_array_to_dolfin_function(V, parameter_values)
-    if run_options.data_thermal_fin_vary == 1:
+    if run_options.dataset == 'thermalfinvary':
         parameter_test_dl = convert_array_to_dolfin_function(V,parameter_test)
     
     state_test_dl, _ = solver.forward(parameter_test_dl) # generate true state for comparison
@@ -72,8 +72,8 @@ def plot_and_save(hyperp, run_options, file_paths):
     if run_options.fin_dimensions_3D == 1:
         p_test_fig = plot_3D(parameter_test_dl, 'True Parameter', angle_1 = 90, angle_2 = 270)
     plt.colorbar(p_test_fig)
-    plt.savefig(file_paths.figures_savefile_name_parameter_test, dpi=300)
-    print('Figure saved to ' + file_paths.figures_savefile_name_parameter_test)   
+    plt.savefig(run_options.figures_savefile_name_parameter_test, dpi=300)
+    print('Figure saved to ' + run_options.figures_savefile_name_parameter_test)   
     plt.show()
     
     if hyperp.data_type == 'full': # No state prediction for bnd only data
@@ -83,12 +83,12 @@ def plot_and_save(hyperp, run_options, file_paths):
         if run_options.fin_dimensions_3D == 1:
             s_test_fig = plot_3D(state_test_dl, 'True State', angle_1 = 90, angle_2 = 270)
         plt.colorbar(s_test_fig)
-        plt.savefig(file_paths.figures_savefile_name_state_test, dpi=300)
-        print('Figure saved to ' + file_paths.figures_savefile_name_state_test) 
+        plt.savefig(run_options.figures_savefile_name_state_test, dpi=300)
+        print('Figure saved to ' + run_options.figures_savefile_name_state_test) 
         plt.show()
     
     #=== Converting Predicted Parameter into Dolfin Object ===# 
-    if run_options.data_thermal_fin_nine == 1:
+    if run_options.dataset == 'thermalfin9':
         parameter_pred_dl = solver.nine_param_to_function(parameter_pred)
         if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
             parameter_values = parameter_pred_dl.vector().get_local()  
@@ -96,7 +96,7 @@ def plot_and_save(hyperp, run_options, file_paths):
             for ind in zero_indices:
                 parameter_values[ind] = parameter_values[ind-1]
             parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_values)
-    if run_options.data_thermal_fin_vary == 1:
+    if run_options.dataset == 'thermalfinvary':
         parameter_pred_dl = convert_array_to_dolfin_function(V,parameter_pred)   
     
     #=== Plotting Predicted Parameter and State ===#
@@ -106,8 +106,8 @@ def plot_and_save(hyperp, run_options, file_paths):
     if run_options.fin_dimensions_3D == 1:
         p_pred_fig = plot_3D(parameter_pred_dl, 'Decoder Estimation of True Parameter', angle_1 = 90, angle_2 = 270)
     plt.colorbar(p_test_fig)
-    plt.savefig(file_paths.figures_savefile_name_parameter_pred, dpi=300)
-    print('Figure saved to ' + file_paths.figures_savefile_name_parameter_pred) 
+    plt.savefig(run_options.figures_savefile_name_parameter_pred, dpi=300)
+    print('Figure saved to ' + run_options.figures_savefile_name_parameter_pred) 
     plt.show()
     parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
     print('Parameter prediction relative error: %.7f' %parameter_pred_error)
@@ -120,8 +120,8 @@ def plot_and_save(hyperp, run_options, file_paths):
         if run_options.fin_dimensions_3D == 1:
             s_pred_fig = plot_3D(state_pred_dl, 'Encoder Estimation of True State', angle_1 = 90, angle_2 = 270)
         plt.colorbar(s_test_fig)
-        plt.savefig(file_paths.figures_savefile_name_state_pred, dpi=300)
-        print('Figure saved to ' + file_paths.figures_savefile_name_state_pred) 
+        plt.savefig(run_options.figures_savefile_name_state_pred, dpi=300)
+        print('Figure saved to ' + run_options.figures_savefile_name_state_pred) 
         plt.show()
     state_pred_error = np.linalg.norm(state_pred - state_test,2)/np.linalg.norm(state_test,2)
     print('State observation prediction relative error: %.7f' %state_pred_error)
@@ -129,7 +129,7 @@ def plot_and_save(hyperp, run_options, file_paths):
 ###############################################################################
 #                               Plotting Metrics                              #
 ###############################################################################      
-    df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
+    df_metrics = pd.read_csv(run_options.NN_savefile_name + "_metrics" + '.csv')
     array_metrics = df_metrics.to_numpy()
     x_axis = np.linspace(1, hyperp.num_epochs-1, hyperp.num_epochs-1, endpoint = True)
 
@@ -149,7 +149,7 @@ def plot_and_save(hyperp, run_options, file_paths):
     plt.legend()
     
     #=== Saving Figure ===#
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'loss' + '_autoencoder_' + file_paths.filename + '.png'
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_autoencoder_' + run_options.filename + '.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
 
@@ -169,7 +169,7 @@ def plot_and_save(hyperp, run_options, file_paths):
     plt.legend()
     
     #=== Saving Figure ===#
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'loss' + '_parameter_data_' + file_paths.filename + '.png'
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_parameter_data_' + run_options.filename + '.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
     
@@ -189,7 +189,7 @@ def plot_and_save(hyperp, run_options, file_paths):
     plt.legend()
     
     #=== Saving Figure ===#
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'loss' + '_state_data_' + file_paths.filename + '.png'
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'loss' + '_state_data_' + run_options.filename + '.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
     
@@ -209,7 +209,7 @@ def plot_and_save(hyperp, run_options, file_paths):
     plt.legend()
     
     #=== Saving Figure ===#
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'relative_error' + '_parameter_' + file_paths.filename + '.png'
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'relative_error' + '_parameter_' + run_options.filename + '.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
     
@@ -229,6 +229,6 @@ def plot_and_save(hyperp, run_options, file_paths):
     plt.legend()
     
     #=== Saving Figure ===#
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'relative_error' + '_state_' + file_paths.filename + '.png'
+    figures_savefile_name = run_options.figures_savefile_directory + '/' + 'relative_error' + '_state_' + run_options.filename + '.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
