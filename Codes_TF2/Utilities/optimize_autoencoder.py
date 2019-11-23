@@ -91,7 +91,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
 #                          Update Tensorflow Metrics                          #
 ###############################################################################
     @tf.function
-    def update_tf_metrics_validation(parameter_val, state_obs_val):
+    def update_tf_metrics_validation():
         parameter_pred_val_batch_AE = NN(parameter_val)
         state_pred_val_batch = NN.encoder(parameter_val)
         loss_val_batch_autoencoder = loss_autoencoder(parameter_pred_val_batch_AE, parameter_val)
@@ -100,7 +100,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         return loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem
     
     @tf.function
-    def update_tf_metrics_test(parameter_test, state_obs_test):
+    def update_tf_metrics_test():
         parameter_pred_test_batch_AE = NN(parameter_test)
         parameter_pred_test_batch_Inverse_problem = NN.decoder(state_obs_test)
         state_pred_test_batch = NN.encoder(parameter_test)
