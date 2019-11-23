@@ -12,28 +12,28 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                 All Data                                    #
 ###############################################################################
-def load_thermal_fin_data(run_options, num_training_data):
+def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, parameter_dimensions):
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
+    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')    
     obs_indices = df_obs_indices.to_numpy() 
 
     #=== Load Train and Test Data ===#  
     print('Loading Training Data')
-    df_parameter_train = pd.read_csv(run_options.parameter_train_savefilepath + '.csv')
-    df_state_obs_train = pd.read_csv(run_options.state_obs_train_savefilepath + '.csv')
+    df_parameter_train = pd.read_csv(file_paths.parameter_train_savefilepath + '.csv')
+    df_state_obs_train = pd.read_csv(file_paths.state_obs_train_savefilepath + '.csv')
     parameter_train = df_parameter_train.to_numpy()
     state_obs_train = df_state_obs_train.to_numpy()
-    parameter_train = parameter_train.reshape((num_training_data, run_options.parameter_dimensions))
+    parameter_train = parameter_train.reshape((num_training_data, parameter_dimensions))
     state_obs_train = state_obs_train.reshape((num_training_data, len(obs_indices)))
     print('Loading Testing Data')
-    df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
-    df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
+    df_parameter_test = pd.read_csv(file_paths.parameter_test_savefilepath + '.csv')
+    df_state_obs_test = pd.read_csv(file_paths.state_obs_test_savefilepath + '.csv')
     parameter_test = df_parameter_test.to_numpy()
     state_obs_test = df_state_obs_test.to_numpy()
-    parameter_test = parameter_test.reshape((run_options.num_testing_data, run_options.parameter_dimensions))
-    state_obs_test = state_obs_test.reshape((run_options.num_testing_data, len(obs_indices)))
+    parameter_test = parameter_test.reshape((num_testing_data, parameter_dimensions))
+    state_obs_test = state_obs_test.reshape((num_testing_data, len(obs_indices)))
 
     #=== Casting as float32 ===#
     parameter_train = tf.cast(parameter_train,tf.float32)
@@ -50,20 +50,20 @@ def load_thermal_fin_data(run_options, num_training_data):
 ###############################################################################
 #                                 Test Data                                   #
 ###############################################################################
-def load_thermal_fin_test_data(run_options, batch_size, random_seed):
+def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimensions, batch_size, random_seed):
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(run_options.observation_indices_savefilepath + '.csv')    
+    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')    
     obs_indices = df_obs_indices.to_numpy() 
 
     print('Loading Testing Data')
-    df_parameter_test = pd.read_csv(run_options.parameter_test_savefilepath + '.csv')
-    df_state_obs_test = pd.read_csv(run_options.state_obs_test_savefilepath + '.csv')
+    df_parameter_test = pd.read_csv(file_paths.parameter_test_savefilepath + '.csv')
+    df_state_obs_test = pd.read_csv(file_paths.state_obs_test_savefilepath + '.csv')
     parameter_test = df_parameter_test.to_numpy()
     state_obs_test = df_state_obs_test.to_numpy()
-    parameter_test = parameter_test.reshape((run_options.num_testing_data, run_options.parameter_dimensions))
-    state_obs_test = state_obs_test.reshape((run_options.num_testing_data, len(obs_indices)))
+    parameter_test = parameter_test.reshape((num_testing_data, parameter_dimensions))
+    state_obs_test = state_obs_test.reshape((num_testing_data, len(obs_indices)))
 
     #=== Casting as float32 ===#
     parameter_test = tf.cast(parameter_test, tf.float32)
