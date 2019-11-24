@@ -111,8 +111,16 @@ class FilePaths():
 #                                  Training                                   #
 ###############################################################################
 def trainer(hyperp, run_options, file_paths):
-    pdb.set_trace()
-    
+    #=== GPU Settings ===# Must put this first! Because TF2 will automatically work on a GPU and it may clash with used ones if the visible device list is not yet specified
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+    if run_options.use_distributed_training == 0:
+        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
+    if run_options.use_distributed_training == 1:
+        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        print(gpus)
+        pdb.set_trace()
+        
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
@@ -125,11 +133,7 @@ def trainer(hyperp, run_options, file_paths):
     = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
     #=== Non-distributed Training ===#
-    if run_options.use_distributed_training == 0:
-        #=== Which GPU to Use ===#
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
-        
+    if run_options.use_distributed_training == 0:        
         #=== Neural Network ===#
         NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
@@ -144,11 +148,6 @@ def trainer(hyperp, run_options, file_paths):
     
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
-        #=== Which GPU to Use ===#
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        print(gpus)
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
