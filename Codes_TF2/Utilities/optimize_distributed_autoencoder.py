@@ -26,10 +26,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
-    #=== Distribution Setup ===#
+    #=== Distributed Data Setup ===#
     parameter_and_state_obs_train = dist_strategy.experimental_distribute_dataset(parameter_and_state_obs_train)
-    loss_autoencoder = tf.nn.compute_average_loss(loss_autoencoder, global_batch_size = hyperp.batch_size)
-    loss_forward_problem = tf.nn.compute_average_loss(loss_forward_problem, global_batch_size = hyperp.batch_size)
     
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
@@ -88,6 +86,9 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
             loss_train_batch_autoencoder = loss_autoencoder(parameter_pred_train_AE, parameter_train)
             loss_train_batch_forward_problem = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
             loss_train_batch = loss_train_batch_autoencoder + loss_train_batch_forward_problem
+            loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder, global_batch_size = hyperp.batch_size)
+            loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem, global_batch_size = hyperp.batch_size)
+            loss_train_batch = tf.nn.compute_average_loss(loss_train_batch, global_batch_size = hyperp.batch_size)
         gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients
@@ -133,19 +134,21 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         print('GPU: ' + run_options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
-        for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():
+        batch_counter = 0
+        for parameter_train, state_obs_train in parameter_and_state_obs_train:
             start_time_batch = time.time()
             loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients\
             = train_step(parameter_train, state_obs_train, 
                          loss_autoencoder, loss_forward_problem)
             elapsed_time_batch = time.time() - start_time_batch
             #=== Display Model Summary ===#
-            if batch_num == 0 and epoch == 0:
+            if batch_counter == 0 and epoch == 0:
                 NN.summary()
-            if batch_num  == 0:
+            if batch_counter  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
             loss_train_batch_average_autoencoder(loss_train_batch_autoencoder)
             loss_train_batch_average_forward_problem(loss_train_batch_forward_problem)
+            batch_counter += 1
         
         #=== Computing Relative Errors Validation ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:
