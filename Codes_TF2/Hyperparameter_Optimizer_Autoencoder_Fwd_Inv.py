@@ -43,8 +43,14 @@ class Hyperparameters: # Choose defaults, hyperparameters of interest wil be ove
     
 class RunOptions:
     def __init__(self): 
-        #=== Choose Which GPU to Use ===#
-        self.which_gpu = '0'
+        #=== Use Distributed Strategy ===#
+        self.use_distributed_training = 1
+        
+        #=== Which GPUs to use ===#
+        self.dist_which_gpus = '1,2,3'
+        
+        #=== Use Single GPU ===#
+        self.which_gpu = '1'
         
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
@@ -153,15 +159,15 @@ if __name__ == "__main__":
     run_options = RunOptions()
     file_paths = FilePaths(hyperp, run_options)
     
+    #=== GPU Settings ===#
+    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+    os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
+    
     #=== Load Data ===#
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
     data_input_shape, parameter_dimension\
     = load_thermal_fin_data(file_paths, run_options.num_training_data, run_options.num_testing_data, run_options.parameter_dimensions)    
-    
-    #=== GPU Settings ===#
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
     
     ############################
     #   Objective Functional   #
