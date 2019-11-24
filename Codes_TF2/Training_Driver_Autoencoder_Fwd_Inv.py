@@ -126,7 +126,7 @@ def trainer(hyperp, run_options, file_paths):
     if run_options.distributed_training == 0:
         #=== Which GPU to Use ===#
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
+        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
         
         #=== Neural Network ===#
         NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
@@ -144,7 +144,10 @@ def trainer(hyperp, run_options, file_paths):
     if run_options.distributed_training == 1:
         #=== Which GPU to Use ===#
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
+        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        print(gpus)
+        pdb.set_trace
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
