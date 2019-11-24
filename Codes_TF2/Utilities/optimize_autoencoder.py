@@ -75,7 +75,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
 ###############################################################################
 #                                Training Step                                #
 ###############################################################################
-    #@tf.function
+    @tf.function
     def train_step(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem):
         with tf.GradientTape() as tape:
             parameter_pred_train_AE = NN(parameter_train)
@@ -90,7 +90,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
 ###############################################################################
 #                          Update Tensorflow Metrics                          #
 ###############################################################################
-    @tf.function
+    #@tf.function
     def update_tf_metrics_validation(parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem):
         parameter_pred_val_batch_AE = NN(parameter_val)
         state_pred_val_batch = NN.encoder(parameter_val)
@@ -99,7 +99,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         loss_val_batch = loss_val_batch_autoencoder + loss_val_batch_forward_problem
         return loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem
     
-    @tf.function
+    #@tf.function
     def update_tf_metrics_test(parameter_test, state_obs_test,loss_autoencoder, loss_forward_problem, relative_error):
         parameter_pred_test_batch_AE = NN(parameter_test)
         parameter_pred_test_batch_Inverse_problem = NN.decoder(state_obs_test)
