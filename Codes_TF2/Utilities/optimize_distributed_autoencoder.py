@@ -137,7 +137,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         for parameter_train, state_obs_train in parameter_and_state_obs_train:
             start_time_batch = time.time()
             loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients\
-            = train_step(parameter_train, state_obs_train)
+            = dist_train_step(parameter_train, state_obs_train)
             elapsed_time_batch = time.time() - start_time_batch
             #=== Display Model Summary ===#
             if batch_counter == 0 and epoch == 0:
