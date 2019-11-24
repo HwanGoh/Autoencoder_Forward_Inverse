@@ -39,7 +39,7 @@ class RunOptions:
         self.use_distributed_training = 1
         
         #=== Which GPUs to use ===#
-        self.dist_which_gpus = ['1', '2', '3']
+        self.dist_which_gpus = '1,2,3'
         
         #=== Use Single GPU ===#
         self.which_gpu = '1'
@@ -111,13 +111,13 @@ class FilePaths():
 #                                  Training                                   #
 ###############################################################################
 def trainer(hyperp, run_options, file_paths):
+    pdb.set_trace()
+    
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
     data_input_shape, parameter_dimension\
     = load_thermal_fin_data(file_paths, run_options.num_training_data, run_options.num_testing_data, run_options.parameter_dimensions)    
-    
-    pdb.set_trace()
     
     #=== Construct Validation Set and Batches ===#   
     parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
@@ -149,7 +149,6 @@ def trainer(hyperp, run_options, file_paths):
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
         print(gpus)
-        pdb.set_trace()
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
