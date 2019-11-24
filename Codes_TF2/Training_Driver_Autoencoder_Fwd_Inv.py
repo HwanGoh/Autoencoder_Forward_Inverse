@@ -36,7 +36,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Use Distributed Strategy ===#
-        self.distributed_training = 1
+        self.use_distributed_training = 1
         
         #=== Which GPUs to use ===#
         self.dist_which_gpus = ['1', '2', '3']
@@ -122,8 +122,10 @@ def trainer(hyperp, run_options, file_paths):
     num_training_data, num_batches_train, num_batches_val\
     = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
+    pdb.set_trace()
+    
     #=== Non-distributed Training ===#
-    if run_options.distributed_training == 0:
+    if run_options.use_distributed_training == 0:
         #=== Which GPU to Use ===#
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
@@ -140,9 +142,8 @@ def trainer(hyperp, run_options, file_paths):
                    parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
                    parameter_dimension, num_batches_train)
     
-    pdb.set_trace()
     #=== Distributed Training ===#
-    if run_options.distributed_training == 1:
+    if run_options.use_distributed_training == 1:
         #=== Which GPU to Use ===#
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
