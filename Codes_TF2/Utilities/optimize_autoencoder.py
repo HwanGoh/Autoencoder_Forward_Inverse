@@ -77,7 +77,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
 ###############################################################################
 #                                Training Step                                #
 ###############################################################################
-    @tf.function
+    #@tf.function
     def train_step(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem):
         with tf.GradientTape() as tape:
             parameter_pred_train_AE = NN(parameter_train)
@@ -92,7 +92,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
 ###############################################################################
 #                          Update Tensorflow Metrics                          #
 ###############################################################################
-    @tf.function
+    #@tf.function
     def update_tf_metrics_validation(parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem):
         parameter_pred_val_batch_AE = NN(parameter_val)
         state_pred_val_batch = NN.encoder(parameter_val)
@@ -101,7 +101,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         loss_val_batch = loss_val_batch_autoencoder + loss_val_batch_forward_problem
         return loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem
     
-    @tf.function
+    #@tf.function
     def update_tf_metrics_test(parameter_test, state_obs_test,loss_autoencoder, loss_forward_problem, relative_error):
         parameter_pred_test_batch_AE = NN(parameter_test)
         parameter_pred_test_batch_Inverse_problem = NN.decoder(state_obs_test)
@@ -211,6 +211,6 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
     print('Final Model Saved') 
     
     #=== Export Profiler ===#
-    tf.summary.trace_export(profiler_outdir = file_paths.tensorboard_directory)
+    tf.summary.trace_export(name = 'test', profiler_outdir = file_paths.tensorboard_directory)
 
     return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs 

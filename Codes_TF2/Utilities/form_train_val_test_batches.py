@@ -18,5 +18,9 @@ def form_train_val_test_batches(num_training_data, data_train, labels_train, dat
     data_and_labels_val = data_and_labels_train_full.skip(num_training_data).batch(batch_size)    
     num_batches_train = len(list(data_and_labels_train))
     num_batches_val = len(list(data_and_labels_val))
-
+    
+    #=== Prefetch Data ===# Prepares batch for next training step during previous training step
+    data_and_labels_train.prefetch
+    data_and_labels_val.prefetch
+    
     return data_and_labels_train, data_and_labels_val, data_and_labels_test, num_training_data, num_batches_train, num_batches_val
