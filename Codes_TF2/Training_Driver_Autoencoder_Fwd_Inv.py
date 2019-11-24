@@ -38,7 +38,10 @@ class RunOptions:
         #=== Use Distributed Strategy ===#
         self.distributed_training = 1
         
-        #=== Choose Which GPU to Use ===#
+        #=== Which GPUs to use ===#
+        self.dist_which_gpus = ["gpu:1", "gpu:2", "gpu:3"]
+        
+        #=== Use Single GPU ===#
         self.which_gpu = '1'
         
         #=== Data Set ===#
@@ -108,11 +111,6 @@ class FilePaths():
 #                                  Training                                   #
 ###############################################################################
 def trainer(hyperp, run_options, file_paths):
-    if run_options.distributed_training == 0:
-        #=== GPU Settings ===#
-        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
-    
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
@@ -126,6 +124,10 @@ def trainer(hyperp, run_options, file_paths):
     
     #=== Non-distributed Training ===#
     if run_options.distributed_training == 0:
+        #=== Which GPU to Use ===#
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
+        
         #=== Neural Network ===#
         NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
@@ -140,7 +142,7 @@ def trainer(hyperp, run_options, file_paths):
     
     #=== Distributed Training ===#
     if run_options.distributed_training == 1:
-        dist_strategy = tf.distribute.MirroredStrategy()
+        dist_strategy = tf.distribute.MirroredStrategy(devices = run_options.dist_which_gpus)
         with dist_strategy.scope():
             #=== Neural Network ===#
             NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
