@@ -117,12 +117,12 @@ def trainer(hyperp, run_options, file_paths):
     data_input_shape, parameter_dimension\
     = load_thermal_fin_data(file_paths, run_options.num_training_data, run_options.num_testing_data, run_options.parameter_dimensions)    
     
+    pdb.set_trace()
+    
     #=== Construct Validation Set and Batches ===#   
     parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
     num_training_data, num_batches_train, num_batches_val\
     = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
-    
-    pdb.set_trace()
     
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:
