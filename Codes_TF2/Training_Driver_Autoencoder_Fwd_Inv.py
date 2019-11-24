@@ -152,14 +152,14 @@ def trainer(hyperp, run_options, file_paths):
             #=== Neural Network ===#
             NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
             
-            #=== Training ===#
-            storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
-            storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
-            storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
-            storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-            = optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
-                                   parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-                                   parameter_dimension, num_batches_train)
+        #=== Training ===#
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
+        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+        = optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+                               parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+                               parameter_dimension, num_batches_train)
 
     #=== Saving Metrics ===#
     metrics_dict = {}

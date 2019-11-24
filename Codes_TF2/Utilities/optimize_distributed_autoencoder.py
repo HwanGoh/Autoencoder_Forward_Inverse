@@ -26,8 +26,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train):
-    #=== Distributed Data Setup ===#
-    parameter_and_state_obs_train = dist_strategy.experimental_distribute_dataset(parameter_and_state_obs_train)
+    #=== Distribution Setup ===#
+    with dist_strategy.scope():
+        parameter_and_state_obs_train = dist_strategy.experimental_distribute_dataset(parameter_and_state_obs_train)
     
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
@@ -78,23 +79,24 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
 ###############################################################################
 #                                Training Step                                #
 ###############################################################################
-    def train_step(parameter_train, state_obs_train):
-        with tf.GradientTape() as tape:
-            parameter_pred_train_AE = NN(parameter_train)
-            state_pred_train = NN.encoder(parameter_train)
-            loss_train_batch_autoencoder_replica = loss_autoencoder(parameter_pred_train_AE, parameter_train)
-            loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
-            loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
-            loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder_replica, global_batch_size = hyperp.batch_size)
-            loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem_replica, global_batch_size = hyperp.batch_size)
-            loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = hyperp.batch_size)
-        gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
-        optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-        return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients
-    
-    @tf.function
-    def dist_train_step(parameter_train, state_obs_train):
-        return dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train))
+    with dist_strategy.scope():
+        def train_step(parameter_train, state_obs_train):
+            with tf.GradientTape() as tape:
+                parameter_pred_train_AE = NN(parameter_train)
+                state_pred_train = NN.encoder(parameter_train)
+                loss_train_batch_autoencoder_replica = loss_autoencoder(parameter_pred_train_AE, parameter_train)
+                loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
+                loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
+                loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder_replica, global_batch_size = hyperp.batch_size)
+                loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem_replica, global_batch_size = hyperp.batch_size)
+                loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = hyperp.batch_size)
+            gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
+            optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
+            return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients
+        
+        @tf.function
+        def dist_train_step(parameter_train, state_obs_train):
+            return dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train))
 
 ###############################################################################
 #                          Update Tensorflow Metrics                          #
