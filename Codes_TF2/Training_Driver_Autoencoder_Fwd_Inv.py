@@ -36,7 +36,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Use Distributed Strategy ===#
-        self.distributed = 1
+        self.distributed_training = 1
         
         #=== Choose Which GPU to Use ===#
         self.which_gpu = '1'
@@ -108,7 +108,7 @@ class FilePaths():
 #                                  Training                                   #
 ###############################################################################
 def trainer(hyperp, run_options, file_paths):
-    if run_options.use_distributed == 0:
+    if run_options.distributed_training == 0:
         #=== GPU Settings ===#
         os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
@@ -124,7 +124,8 @@ def trainer(hyperp, run_options, file_paths):
     num_training_data, num_batches_train, num_batches_val\
     = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
-    if run_options.use_distributed == 0:
+    #=== Non-distributed Training ===#
+    if run_options.distributed_training == 0:
         #=== Neural Network ===#
         NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
@@ -137,7 +138,8 @@ def trainer(hyperp, run_options, file_paths):
                    parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
                    parameter_dimension, num_batches_train)
     
-    if run_options.use_distributed == 1:
+    #=== Distributed Training ===#
+    if run_options.distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
