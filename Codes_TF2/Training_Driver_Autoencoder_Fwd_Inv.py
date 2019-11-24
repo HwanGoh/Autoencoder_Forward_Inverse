@@ -8,6 +8,7 @@ Created on Sat Sep 14 14:35:58 2019
 import os
 import sys
 
+import tensorflow as tf
 import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
@@ -15,6 +16,7 @@ from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, loss_forward_problem, relative_error
 from Utilities.optimize_autoencoder import optimize
+from Utilities.optimize_distributed_autoencoder import optimize_distributed
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -33,6 +35,9 @@ class Hyperparameters:
     
 class RunOptions:
     def __init__(self): 
+        #=== Use Distributed Strategy ===#
+        self.distributed = 1
+        
         #=== Choose Which GPU to Use ===#
         self.which_gpu = '1'
         
@@ -103,9 +108,10 @@ class FilePaths():
 #                                  Training                                   #
 ###############################################################################
 def trainer(hyperp, run_options, file_paths):
-    #=== GPU Settings ===#
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
+    if run_options.use_distributed == 0:
+        #=== GPU Settings ===#
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
     
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\
@@ -118,17 +124,33 @@ def trainer(hyperp, run_options, file_paths):
     num_training_data, num_batches_train, num_batches_val\
     = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
-    #=== Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+    if run_options.use_distributed == 0:
+        #=== Neural Network ===#
+        NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+        
+        #=== Training ===#
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
+        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+                   parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
+                   parameter_dimension, num_batches_train)
     
-    #=== Training ===#
-    storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
-    storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
-    storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
-    storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-    = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
-               parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
-               parameter_dimension, num_batches_train)
+    if run_options.use_distributed == 1:
+        dist_strategy = tf.distribute.MirroredStrategy()
+        with dist_strategy.scope():
+            #=== Neural Network ===#
+            NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+            
+            #=== Training ===#
+            storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
+            storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
+            storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
+            storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+            = optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+                                   parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
+                                   parameter_dimension, num_batches_train)
 
     #=== Saving Metrics ===#
     metrics_dict = {}
