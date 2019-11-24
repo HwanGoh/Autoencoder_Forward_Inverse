@@ -140,6 +140,7 @@ def trainer(hyperp, run_options, file_paths):
                    parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
                    parameter_dimension, num_batches_train)
     
+    pdb.set_trace()
     #=== Distributed Training ===#
     if run_options.distributed_training == 1:
         #=== Which GPU to Use ===#
