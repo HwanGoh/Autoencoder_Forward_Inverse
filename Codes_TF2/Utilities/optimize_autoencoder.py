@@ -28,7 +28,6 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
-    #tf.config.optimizer.set_jit(True)
 
     #=== Define Metrics ===#
     loss_train_batch_average = tf.keras.metrics.Mean()

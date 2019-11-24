@@ -19,10 +19,4 @@ def form_train_val_test_batches(num_training_data, data_train, labels_train, dat
     num_batches_train = len(list(data_and_labels_train))
     num_batches_val = len(list(data_and_labels_val))
     
-    #=== Prefetch Data ===# Prepares batch for next training step during previous training step
-    AUTOTUNE = tf.data.experimental.AUTOTUNE
-    data_and_labels_train.prefetch(buffer_size = AUTOTUNE)
-    data_and_labels_val.prefetch(buffer_size = AUTOTUNE)
-    data_and_labels_test.prefetch(buffer_size = AUTOTUNE)
-    
     return data_and_labels_train, data_and_labels_val, data_and_labels_test, num_training_data, num_batches_train, num_batches_val
