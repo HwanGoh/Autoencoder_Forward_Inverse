@@ -117,9 +117,9 @@ def trainer(hyperp, run_options, file_paths):
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
     if run_options.use_distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        print(gpus)
-        pdb.set_trace()
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    print(gpus)
+    pdb.set_trace()
         
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\
