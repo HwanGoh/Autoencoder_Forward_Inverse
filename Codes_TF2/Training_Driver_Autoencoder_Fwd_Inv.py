@@ -36,7 +36,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 0
+        self.use_distributed_training = 1
         
         #=== Which GPUs to use ===#
         self.dist_which_gpus = '1,2,3'
