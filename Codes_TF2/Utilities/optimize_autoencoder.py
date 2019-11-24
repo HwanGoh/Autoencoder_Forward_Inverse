@@ -72,6 +72,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
     if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
         shutil.rmtree(file_paths.tensorboard_directory)  
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+    tf.summary.trace_on(profiler = True)
 
 ###############################################################################
 #                                Training Step                                #
@@ -205,8 +206,11 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         print('Rel Errors: AE: %.3e, Inverse: %.3e, Forward: %.3e\n' %(relative_error_batch_average_parameter_autoencoder.result(), relative_error_batch_average_parameter_inverse_problem.result(), relative_error_batch_average_state_obs.result()))
         start_time_epoch = time.time()   
             
-    #=== Save final model ===#
+    #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)
     print('Final Model Saved') 
+    
+    #=== Export Profiler ===#
+    tf.summary.trace_export(name = 'test', profiler_outdir = file_paths.tensorboard_directory)
 
     return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs 
