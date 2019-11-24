@@ -147,7 +147,7 @@ def trainer(hyperp, run_options, file_paths):
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
         print(gpus)
-        pdb.set_trace
+        pdb.set_trace()
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
