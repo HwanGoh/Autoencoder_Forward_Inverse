@@ -183,7 +183,7 @@ if __name__ == "__main__":
         file_paths = FilePaths(hyperp, run_options)
         
         #=== Construct Validation Set and Batches ===#        
-        parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
+        parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
         num_training_data, num_batches_train, num_batches_val\
         = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     

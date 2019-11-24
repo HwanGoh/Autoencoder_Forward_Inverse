@@ -30,16 +30,16 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 50
-    batch_size        = 100
-    num_epochs        = 20
+    batch_size        = 1000
+    num_epochs        = 2000
     
 class RunOptions:
     def __init__(self): 
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 1
+        self.use_distributed_training = 0
         
         #=== Which GPUs to use ===#
-        self.dist_which_gpus = '1,2,3'
+        self.dist_which_gpus = '0,2,3'
         
         #=== Use Single GPU ===#
         self.which_gpu = '1'
@@ -53,8 +53,8 @@ class RunOptions:
         self.num_testing_data = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -127,9 +127,9 @@ def trainer(hyperp, run_options, file_paths):
     = load_thermal_fin_data(file_paths, run_options.num_training_data, run_options.num_testing_data, run_options.parameter_dimensions)    
     
     #=== Construct Validation Set and Batches ===#   
-    parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
-    num_training_data, num_batches_train, num_batches_val\
-    = form_train_val_test_batches(run_options.num_training_data, parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
+    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+    run_options.num_training_data, run_options.num_testing_data, num_batches_train, num_batches_val\
+    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
@@ -142,7 +142,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
-                   parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
+                   parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
     #=== Distributed Training ===#
@@ -158,7 +158,7 @@ def trainer(hyperp, run_options, file_paths):
             storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
             storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
             = optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
-                                   parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val,\
+                                   parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                                    parameter_dimension, num_batches_train)
 
     #=== Saving Metrics ===#

@@ -25,7 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -137,6 +137,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
             loss_train_batch_average_autoencoder(loss_train_batch_autoencoder)
             loss_train_batch_average_forward_problem(loss_train_batch_forward_problem)
+            
         
         #=== Computing Relative Errors Validation ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:

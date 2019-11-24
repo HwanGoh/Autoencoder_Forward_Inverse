@@ -25,7 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_test, parameter_and_state_obs_val, parameter_dimension, num_batches_train):
+def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train):
     #=== Distributed Data Setup ===#
     parameter_and_state_obs_train = dist_strategy.experimental_distribute_dataset(parameter_and_state_obs_train)
     
@@ -78,30 +78,29 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
 ###############################################################################
 #                                Training Step                                #
 ###############################################################################
-    @tf.function
-    def train_step(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem):
+    def train_step(parameter_train, state_obs_train):
         with tf.GradientTape() as tape:
             parameter_pred_train_AE = NN(parameter_train)
             state_pred_train = NN.encoder(parameter_train)
-            loss_train_batch_autoencoder = loss_autoencoder(parameter_pred_train_AE, parameter_train)
-            loss_train_batch_forward_problem = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
-            loss_train_batch = loss_train_batch_autoencoder + loss_train_batch_forward_problem
-            loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder, global_batch_size = hyperp.batch_size)
-            loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem, global_batch_size = hyperp.batch_size)
-            loss_train_batch = tf.nn.compute_average_loss(loss_train_batch, global_batch_size = hyperp.batch_size)
+            loss_train_batch_autoencoder_replica = loss_autoencoder(parameter_pred_train_AE, parameter_train)
+            loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
+            loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
+            loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder_replica, global_batch_size = hyperp.batch_size)
+            loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem_replica, global_batch_size = hyperp.batch_size)
+            loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = hyperp.batch_size)
         gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients
     
     @tf.function
-    def dist_train_step(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem):
-        return dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train, loss_autoencoder, loss_forward_problem))
+    def dist_train_step(parameter_train, state_obs_train):
+        return dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train))
 
 ###############################################################################
 #                          Update Tensorflow Metrics                          #
 ###############################################################################
     @tf.function
-    def update_tf_metrics_validation(parameter_val, state_obs_val, loss_autoencoder, loss_forward_problem):
+    def update_tf_metrics_validation(parameter_val, state_obs_val):
         parameter_pred_val_batch_AE = NN(parameter_val)
         state_pred_val_batch = NN.encoder(parameter_val)
         loss_val_batch_autoencoder = loss_autoencoder(parameter_pred_val_batch_AE, parameter_val)
@@ -110,7 +109,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         return loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem
     
     @tf.function
-    def update_tf_metrics_test(parameter_test, state_obs_test,loss_autoencoder, loss_forward_problem, relative_error):
+    def update_tf_metrics_test(parameter_test, state_obs_test):
         parameter_pred_test_batch_AE = NN(parameter_test)
         parameter_pred_test_batch_Inverse_problem = NN.decoder(state_obs_test)
         state_pred_test_batch = NN.encoder(parameter_test)
@@ -138,8 +137,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         for parameter_train, state_obs_train in parameter_and_state_obs_train:
             start_time_batch = time.time()
             loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients\
-            = train_step(parameter_train, state_obs_train, 
-                         loss_autoencoder, loss_forward_problem)
+            = train_step(parameter_train, state_obs_train)
             elapsed_time_batch = time.time() - start_time_batch
             #=== Display Model Summary ===#
             if batch_counter == 0 and epoch == 0:
@@ -153,8 +151,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         #=== Computing Relative Errors Validation ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:
             loss_val_batch, loss_val_batch_autoencoder, loss_val_batch_forward_problem\
-            = update_tf_metrics_validation(parameter_val, state_obs_val,
-                                           loss_autoencoder, loss_forward_problem)
+            = update_tf_metrics_validation(parameter_val, state_obs_val)
             loss_val_batch_average(loss_val_batch)
             loss_val_batch_average_autoencoder(loss_val_batch_autoencoder)
             loss_val_batch_average_forward_problem(loss_val_batch_forward_problem)
@@ -163,9 +160,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         for parameter_test, state_obs_test in parameter_and_state_obs_test:
             loss_test_batch, loss_test_batch_autoencoder, loss_test_batch_forward_problem,\
             relative_error_batch_parameter_autoencoder, relative_error_batch_parameter_inverse_problem, relative_error_batch_state_obs \
-            = update_tf_metrics_test(parameter_test, state_obs_test,
-                                     loss_autoencoder, loss_forward_problem,
-                                     relative_error)
+            = update_tf_metrics_test(parameter_test, state_obs_test)
             loss_test_batch_average(loss_test_batch)
             loss_test_batch_average_autoencoder(loss_test_batch_autoencoder)
             loss_test_batch_average_forward_problem(loss_test_batch_forward_problem)
