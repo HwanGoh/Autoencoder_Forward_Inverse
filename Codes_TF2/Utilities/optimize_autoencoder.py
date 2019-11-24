@@ -211,6 +211,6 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
     print('Final Model Saved') 
     
     #=== Export Profiler ===#
-    tf.summary.trace_export(name = 'test', profiler_outdir = file_paths.tensorboard_directory)
+    tf.summary.trace_export(profiler_outdir = file_paths.tensorboard_directory)
 
     return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs 
