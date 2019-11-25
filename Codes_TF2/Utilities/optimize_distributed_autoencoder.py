@@ -91,7 +91,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
                 loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
                 loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
                 pdb.set_trace()
-                loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = GLOBAL_BATCH_SIZE)
+                loss_train_batch = loss_train_batch_replica * (1/GLOBAL_BATCH_SIZE)
             gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
             loss_train_batch_average_autoencoder(loss_train_batch_autoencoder_replica)
