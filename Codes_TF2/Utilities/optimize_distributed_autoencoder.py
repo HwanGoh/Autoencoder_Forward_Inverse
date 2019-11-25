@@ -25,7 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train):
+def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train, GLOBAL_BATCH_SIZE):
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
     print('Number of Replicas in Sync: %d' %(dist_strategy.num_replicas_in_sync))   
     
@@ -87,9 +87,9 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
                 loss_train_batch_autoencoder_replica = loss_autoencoder(parameter_pred_train_AE, parameter_train)
                 loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
                 loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
-                loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder_replica, global_batch_size = hyperp.batch_size)
-                loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem_replica, global_batch_size = hyperp.batch_size)
-                loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = hyperp.batch_size)
+                loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder_replica, global_batch_size = GLOBAL_BATCH_SIZE)
+                loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem_replica, global_batch_size = GLOBAL_BATCH_SIZE)
+                loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = GLOBAL_BATCH_SIZE)
             gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
             return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem
