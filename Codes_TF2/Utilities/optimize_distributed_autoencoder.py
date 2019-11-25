@@ -82,7 +82,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     with dist_strategy.scope():
-        #=== Train Step ===#
+        #=== Training Step ===#
         def train_step(parameter_train, state_obs_train):
             with tf.GradientTape() as tape:
                 parameter_pred_train_AE = NN(parameter_train)
@@ -90,6 +90,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
                 loss_train_batch_autoencoder_replica = loss_autoencoder(parameter_pred_train_AE, parameter_train)
                 loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
                 loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
+                pdb.set_trace()
                 loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = GLOBAL_BATCH_SIZE)
             gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -101,9 +102,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         def dist_train_step(parameter_train, state_obs_train):
             per_replica_losses = dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train))
             return dist_strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
-                
-        #=== Remaining Train Losses ===# Seems like dist_strategy.experimental_run_v2 only accepts train_steps with one output, so we compute the remaining losses here
-        
+                        
         #=== Validation Step ===#
         def val_step(parameter_val, state_obs_val, penalty):
             parameter_pred_val_batch_AE = NN(parameter_val)
