@@ -46,7 +46,7 @@ class Hyperparameters: # Choose defaults, hyperparameters of interest wil be ove
 class RunOptions:
     def __init__(self): 
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 1
+        self.use_distributed_training = 0
         
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,2,3'

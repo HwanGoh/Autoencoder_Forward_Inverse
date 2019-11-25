@@ -178,7 +178,7 @@ def trainer(hyperp, run_options, file_paths):
     df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
 
 ###############################################################################
-#                                 Driver                                      #
+#                                    Driver                                   #
 ###############################################################################     
 if __name__ == "__main__":     
 
