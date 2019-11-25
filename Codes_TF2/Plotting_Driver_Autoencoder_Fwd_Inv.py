@@ -40,8 +40,8 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 50000
-        self.num_testing_data = 200
+        self.num_data_train = 50000
+        self.num_data_test = 200
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
@@ -82,7 +82,7 @@ class FilePaths():
             penalty_string = 'pt' + penalty_string[2:]
             
         #=== File Name ===#
-        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_training_data, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
        
         #=== Save File Directory ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename

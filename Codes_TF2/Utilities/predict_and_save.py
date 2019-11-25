@@ -16,7 +16,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def predict_and_save(hyperp, run_options, file_paths):    
     #=== Load testing data ===# 
     obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension\
-    = load_thermal_fin_test_data(file_paths, run_options.num_testing_data, run_options.parameter_dimensions,\
+    = load_thermal_fin_test_data(file_paths, run_options.num_data_test, run_options.parameter_dimensions,\
                                  hyperp.batch_size, run_options.random_seed) 
 
     ####################################
