@@ -49,8 +49,8 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_training_data = 50000
-        self.num_testing_data = 200
+        self.num_data_train = 50000
+        self.num_data_test = 200
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
@@ -128,7 +128,8 @@ def trainer(hyperp, run_options, file_paths):
     
     #=== Construct Validation Set and Batches ===#   
     parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-    run_options.num_training_data, run_options.num_testing_data, num_batches_train, num_batches_val\
+    run_options.num_data_train, num_data_val, run_options.num_data_test,\
+    num_batches_train, num_batches_val, num_batches_test\
     = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
     
     #=== Non-distributed Training ===#
@@ -153,13 +154,14 @@ def trainer(hyperp, run_options, file_paths):
             NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
             
         #=== Training ===#
+        GLOBAL_BATCH_SIZE = hyperp.batch_size*dist_strategy.num_replicas_in_sync
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
                                parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-                               parameter_dimension, num_batches_train)
+                               parameter_dimension, num_batches_train, GLOBAL_BATCH_SIZE)
 
     #=== Saving Metrics ===#
     metrics_dict = {}
