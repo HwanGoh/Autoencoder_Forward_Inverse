@@ -37,6 +37,9 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         optimizer = tf.keras.optimizers.Adam()
 
         #=== Define Metrics ===#        
+        loss_train_batch_average_autoencoder = tf.keras.metrics.Mean() 
+        loss_train_batch_average_forward_problem = tf.keras.metrics.Mean()
+        
         loss_val_batch_average = tf.keras.metrics.Mean()
         loss_val_batch_average_autoencoder = tf.keras.metrics.Mean()
         loss_val_batch_average_forward_problem = tf.keras.metrics.Mean()
@@ -87,12 +90,12 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
                 loss_train_batch_autoencoder_replica = loss_autoencoder(parameter_pred_train_AE, parameter_train)
                 loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
                 loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
-                loss_train_batch_autoencoder = tf.nn.compute_average_loss(loss_train_batch_autoencoder_replica, global_batch_size = GLOBAL_BATCH_SIZE)
-                loss_train_batch_forward_problem = tf.nn.compute_average_loss(loss_train_batch_forward_problem_replica, global_batch_size = GLOBAL_BATCH_SIZE)
                 loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size = GLOBAL_BATCH_SIZE)
             gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-            return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem
+            loss_train_batch_average_autoencoder(loss_train_batch_autoencoder_replica)
+            loss_train_batch_average_forward_problem(loss_train_batch_forward_problem_replica)
+            return loss_train_batch
         
         @tf.function
         def dist_train_step(parameter_train, state_obs_train):
@@ -100,6 +103,8 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
             per_replica_losses = dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train))
             return dist_strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
                 
+        #=== Remaining Train Losses ===# Seems like dist_strategy.experimental_run_v2 only accepts train_steps with one output, so we compute the remaining losses here
+        
         #=== Validation Step ===#
         def val_step(parameter_val, state_obs_val, penalty):
             parameter_pred_val_batch_AE = NN(parameter_val)
@@ -165,8 +170,6 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
             batch_counter += 1
         loss_train = total_loss_train/batch_counter
-        loss_train_autoencoder = total_loss_train_autoencoder/batch_counter
-        loss_train_forward_problem = total_loss_train_forward_problem/batch_counter
         
         #=== Computing Validation Metrics ===#
         for parameter_val, state_obs_val in parameter_and_state_obs_val:
@@ -179,8 +182,8 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         #=== Track Training Metrics, Weights and Gradients ===#
         with summary_writer.as_default():
             tf.summary.scalar('loss_training', loss_train, step=epoch)
-            tf.summary.scalar('loss_training_autoencoder', loss_train_autoencoder, step=epoch)
-            tf.summary.scalar('loss_training_forward_problem', loss_train_forward_problem, step=epoch)
+            tf.summary.scalar('loss_training_autoencoder', loss_train_batch_average_autoencoder.result(), step=epoch)
+            tf.summary.scalar('loss_training_forward_problem', loss_train_batch_average_forward_problem.result(), step=epoch)
             tf.summary.scalar('loss_val', loss_val_batch_average.result(), step=epoch)
             tf.summary.scalar('loss_val_autoencoder', loss_val_batch_average_autoencoder.result(), step=epoch)
             tf.summary.scalar('loss_val_forward_problem', loss_val_batch_average_forward_problem.result(), step=epoch)
@@ -193,8 +196,8 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
                 
         #=== Update Storage Arrays ===#
         storage_array_loss_train = np.append(storage_array_loss_train, loss_train)
-        storage_array_loss_train_autoencoder = np.append(storage_array_loss_train_autoencoder, loss_train_autoencoder)
-        storage_array_loss_train_forward_problem = np.append(storage_array_loss_train_forward_problem, loss_train_forward_problem)
+        storage_array_loss_train_autoencoder = np.append(storage_array_loss_train_autoencoder, loss_train_batch_average_autoencoder.result())
+        storage_array_loss_train_forward_problem = np.append(storage_array_loss_train_forward_problem, loss_train_batch_average_forward_problem.result())
         storage_array_loss_val = np.append(storage_array_loss_val, loss_val_batch_average.result())
         storage_array_loss_val_autoencoder = np.append(storage_array_loss_val_autoencoder, loss_val_batch_average_autoencoder.result())
         storage_array_loss_val_forward_problem = np.append(storage_array_loss_val_forward_problem, loss_val_batch_average_forward_problem.result())
@@ -208,13 +211,15 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
-        print('Train Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_train, loss_train_autoencoder, loss_train_forward_problem))
+        print('Train Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_train, loss_train_batch_average_autoencoder.result(), loss_train_batch_average_forward_problem.result()))
         print('Val Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_val_batch_average.result(), loss_val_batch_average_autoencoder.result(), loss_val_batch_average_forward_problem.result()))
         print('Test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_test_batch_average.result(), loss_test_batch_average_autoencoder.result(), loss_test_batch_average_forward_problem.result()))
         print('Rel Errors: AE: %.3e, Inverse: %.3e, Forward: %.3e\n' %(relative_error_batch_average_parameter_autoencoder.result(), relative_error_batch_average_parameter_inverse_problem.result(), relative_error_batch_average_state_obs.result()))
         start_time_epoch = time.time()   
         
         #=== Resetting Metrics ===#
+        loss_train_batch_average_autoencoder.reset_states()
+        loss_train_batch_average_forward_problem.reset_states()
         loss_val_batch_average.reset_states()
         loss_val_batch_average_autoencoder.reset_states()
         loss_val_batch_average_forward_problem.reset_states()    
