@@ -139,7 +139,7 @@ if __name__ == "__main__":
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyperp_of_interest_dict = {}
-    hyperp_of_interest_dict['num_hidden_layers'] = Integer(3, 20, name='num_hidden_layers')
+    hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 20, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
     hyperp_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
     #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
