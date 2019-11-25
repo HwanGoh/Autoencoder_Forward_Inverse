@@ -85,7 +85,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
             loss_train_batch = loss_train_batch_autoencoder + loss_train_batch_forward_problem
         gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-        return loss_train_batch, loss_train_batch_autoencoder, loss_train_batch_forward_problem, gradients
+        return loss_train_batch, gradients
 
 ###############################################################################
 #                          Update Tensorflow Metrics                          #

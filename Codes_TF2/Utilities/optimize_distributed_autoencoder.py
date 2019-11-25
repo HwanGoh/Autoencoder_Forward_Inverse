@@ -90,8 +90,7 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
                 loss_train_batch_autoencoder_replica = loss_autoencoder(parameter_pred_train_AE, parameter_train)
                 loss_train_batch_forward_problem_replica = loss_forward_problem(state_pred_train, state_obs_train, hyperp.penalty)
                 loss_train_batch_replica = loss_train_batch_autoencoder_replica + loss_train_batch_forward_problem_replica
-                pdb.set_trace()
-                loss_train_batch = loss_train_batch_replica * (1/GLOBAL_BATCH_SIZE)
+                loss_train_batch = tf.nn.compute_average_loss(loss_train_batch_replica, global_batch_size=GLOBAL_BATCH_SIZE)
             gradients = tape.gradient(loss_train_batch, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
             loss_train_batch_average_autoencoder(loss_train_batch_autoencoder_replica)
@@ -151,15 +150,10 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         start_time_epoch = time.time()
         batch_counter = 0
         total_loss_train = 0
-        total_loss_train_autoencoder = 0
-        total_loss_train_forward_problem = 0
         for parameter_train, state_obs_train in parameter_and_state_obs_train:
             start_time_batch = time.time()
-            dist_loss_train_batch, dist_loss_train_batch_autoencoder, dist_loss_train_batch_forward_problem\
-            = dist_train_step(parameter_train, state_obs_train)
+            dist_loss_train_batch = dist_train_step(parameter_train, state_obs_train)
             total_loss_train += dist_loss_train_batch
-            total_loss_train_autoencoder += dist_loss_train_batch_autoencoder
-            total_loss_train_forward_problem += dist_loss_train_batch_forward_problem
             elapsed_time_batch = time.time() - start_time_batch
             #=== Display Model Summary ===#
             if batch_counter == 0 and epoch == 0:
