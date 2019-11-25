@@ -212,12 +212,12 @@ if __name__ == "__main__":
         #=== Distributed Training ===#
         if run_options.use_distributed_training == 1:
             dist_strategy = tf.distribute.MirroredStrategy()
+            GLOBAL_BATCH_SIZE = hyperp.batch_size*dist_strategy.num_replicas_in_sync
             with dist_strategy.scope():
                 #=== Neural Network ===#
                 NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
                 
             #=== Training ===#
-            GLOBAL_BATCH_SIZE = hyperp.batch_size*dist_strategy.num_replicas_in_sync
             storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
             storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
             storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
