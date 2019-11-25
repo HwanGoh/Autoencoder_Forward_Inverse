@@ -96,8 +96,8 @@ def optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, los
         
         @tf.function
         def dist_train_step(parameter_train, state_obs_train):
-            per_replica_losses = dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train))
             pdb.set_trace()
+            per_replica_losses = dist_strategy.experimental_run_v2(train_step, args=(parameter_train, state_obs_train))
             return dist_strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
                 
         #=== Validation Step ===#
