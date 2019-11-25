@@ -190,7 +190,20 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         print('Val Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_val_batch_average.result(), loss_val_batch_average_autoencoder.result(), loss_val_batch_average_forward_problem.result()))
         print('Test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(loss_test_batch_average.result(), loss_test_batch_average_autoencoder.result(), loss_test_batch_average_forward_problem.result()))
         print('Rel Errors: AE: %.3e, Inverse: %.3e, Forward: %.3e\n' %(relative_error_batch_average_parameter_autoencoder.result(), relative_error_batch_average_parameter_inverse_problem.result(), relative_error_batch_average_state_obs.result()))
-        start_time_epoch = time.time()   
+        start_time_epoch = time.time()
+        
+        #=== Resetting Metrics ===#
+        loss_train_batch_average_autoencoder.reset_states()
+        loss_train_batch_average_forward_problem.reset_states()
+        loss_val_batch_average.reset_states()
+        loss_val_batch_average_autoencoder.reset_states()
+        loss_val_batch_average_forward_problem.reset_states()    
+        loss_test_batch_average.reset_states()
+        loss_test_batch_average_autoencoder.reset_states()
+        loss_test_batch_average_forward_problem.reset_states()
+        relative_error_batch_average_parameter_autoencoder.reset_states()
+        relative_error_batch_average_parameter_inverse_problem.reset_states()
+        relative_error_batch_average_state_obs.reset_states()
             
     #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)
