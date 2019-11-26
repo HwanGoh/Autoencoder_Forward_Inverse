@@ -41,7 +41,7 @@ class Hyperparameters: # Choose defaults, hyperparameters of interest wil be ove
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 1
     
 class RunOptions:
     def __init__(self): 
@@ -64,8 +64,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -198,7 +198,7 @@ if __name__ == "__main__":
         parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test\
-        = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
+        = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
     
         #=== Non-distributed Training ===#
         if run_options.use_distributed_training == 0:        
