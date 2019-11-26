@@ -40,6 +40,7 @@ class RunOptions:
         
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2,3'
+        self.num_gpus = 4
         
         #=== Which Single GPU to Use ===#
         self.which_gpu = '1'
@@ -115,8 +116,10 @@ def trainer(hyperp, run_options, file_paths):
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
     if run_options.use_distributed_training == 0:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
+        GLOBAL_BATCH_SIZE = hyperp.batch_size
     if run_options.use_distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
+        GLOBAL_BATCH_SIZE = hyperp.batch_size * run_options.num_gpus # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
     gpus = tf.config.experimental.list_physical_devices('GPU')
     print(gpus)
         
@@ -130,7 +133,7 @@ def trainer(hyperp, run_options, file_paths):
     parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
     run_options.num_data_train, num_data_val, run_options.num_data_test,\
     num_batches_train, num_batches_val, num_batches_test\
-    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, hyperp.batch_size, run_options.random_seed)
+    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
     
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
@@ -149,7 +152,6 @@ def trainer(hyperp, run_options, file_paths):
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
-        GLOBAL_BATCH_SIZE = hyperp.batch_size*dist_strategy.num_replicas_in_sync
         with dist_strategy.scope():
             #=== Neural Network ===#
             NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
@@ -159,9 +161,10 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+        = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
+                               hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
                                parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-                               parameter_dimension, num_batches_train, GLOBAL_BATCH_SIZE)
+                               parameter_dimension, num_batches_train)
 
     #=== Saving Metrics ===#
     metrics_dict = {}
