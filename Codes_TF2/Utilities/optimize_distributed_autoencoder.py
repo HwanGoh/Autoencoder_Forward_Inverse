@@ -102,7 +102,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         @tf.function
         def dist_train_step(batch_parameter_train, batch_state_obs_train):
             per_replica_losses = dist_strategy.experimental_run_v2(train_step, args=(batch_parameter_train, batch_state_obs_train))
-            return dist_strategy.reduce(tf.distribute.ReduceOp.MEAN, per_replica_losses, axis=None)
+            return dist_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
                         
         #=== Validation Step ===#
         def val_step(batch_parameter_val, batch_state_obs_val):
@@ -168,8 +168,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         #=== Computing Validation Metrics ===#
         for batch_parameter_val, batch_state_obs_val in dist_parameter_and_state_obs_val:
             dist_val_step(batch_parameter_val, batch_state_obs_val)
-        
-        
+                
         #=== Computing Test Metrics ===#
         for batch_parameter_test, batch_state_obs_test in dist_parameter_and_state_obs_test:
             dist_test_step(batch_parameter_test, batch_state_obs_test)
