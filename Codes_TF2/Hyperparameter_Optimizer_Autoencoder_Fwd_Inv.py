@@ -60,7 +60,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 25
+    n_calls = 10
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyperp_of_interest_dict = {}
@@ -227,9 +227,9 @@ if __name__ == "__main__":
             storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
             storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
             storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-            = optimize_distributed(dist_strategy, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+            = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
                                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-                                   parameter_dimension, num_batches_train, GLOBAL_BATCH_SIZE)
+                                   parameter_dimension, num_batches_train)
 
         #=== Saving Metrics ===#
         metrics_dict = {}
