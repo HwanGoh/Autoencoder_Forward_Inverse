@@ -40,7 +40,6 @@ class RunOptions:
         
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2,3'
-        self.num_gpus = 4
         
         #=== Which Single GPU to Use ===#
         self.which_gpu = '1'
@@ -119,9 +118,8 @@ def trainer(hyperp, run_options, file_paths):
         GLOBAL_BATCH_SIZE = hyperp.batch_size
     if run_options.use_distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
-        GLOBAL_BATCH_SIZE = hyperp.batch_size * run_options.num_gpus # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    print(gpus)
+        gpus = tf.config.experimental.list_physical_devices('GPU')
+        GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus) # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
         
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\

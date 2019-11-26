@@ -168,8 +168,7 @@ if __name__ == "__main__":
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
     if run_options.use_distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    print(gpus)
+        gpus = tf.config.experimental.list_physical_devices('GPU')
     
     #=== Load Data ===#       
     obs_indices, parameter_train, state_obs_train,\
@@ -194,7 +193,7 @@ if __name__ == "__main__":
         if run_options.use_distributed_training == 0:
             GLOBAL_BATCH_SIZE = hyperp.batch_size
         if run_options.use_distributed_training == 1:
-            GLOBAL_BATCH_SIZE = hyperp.batch_size * run_options.num_gpus # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
+            GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus) # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
         parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test\
