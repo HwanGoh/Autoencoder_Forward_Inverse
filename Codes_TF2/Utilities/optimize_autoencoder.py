@@ -89,7 +89,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         mean_loss_train(batch_loss_train)
         mean_loss_train_autoencoder(batch_loss_train_autoencoder)
         mean_loss_train_forward_problem(batch_loss_train_forward_problem)
-        return batch_loss_train, gradients
+        return gradients
 
     #=== Validation Step ===#
     @tf.function
@@ -131,9 +131,9 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         print('GPU: ' + run_options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
-        for batch_num, (parameter_train, state_obs_train) in parameter_and_state_obs_train.enumerate():
+        for batch_num, (batch_parameter_train, batch_state_obs_train) in parameter_and_state_obs_train.enumerate():
             start_time_batch = time.time()
-            batch_loss_train, gradients = train_step(parameter_train, state_obs_train)
+            gradients = train_step(batch_parameter_train, batch_state_obs_train)
             elapsed_time_batch = time.time() - start_time_batch
             #=== Display Model Summary ===#
             if batch_num == 0 and epoch == 0:

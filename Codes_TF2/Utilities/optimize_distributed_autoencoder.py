@@ -147,7 +147,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print(file_paths.filename)
-        print('GPU: ' + run_options.which_gpu + '\n')
+        print('GPUs: ' + run_options.dist_which_gpus + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         batch_counter = 0
@@ -192,7 +192,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         storage_array_loss_train = np.append(storage_array_loss_train, mean_loss_train)
         storage_array_loss_train_autoencoder = np.append(storage_array_loss_train_autoencoder, mean_loss_train_autoencoder.result())
         storage_array_loss_train_forward_problem = np.append(storage_array_loss_train_forward_problem, mean_loss_train_forward_problem.result())
-        storage_array_loss_val = np.append(storage_array_loss_val, mean_loss_val)
+        storage_array_loss_val = np.append(storage_array_loss_val, mean_loss_val.result())
         storage_array_loss_val_autoencoder = np.append(storage_array_loss_val_autoencoder, mean_loss_val_autoencoder.result())
         storage_array_loss_val_forward_problem = np.append(storage_array_loss_val_forward_problem, mean_loss_val_forward_problem.result())
         storage_array_loss_test = np.append(storage_array_loss_test, mean_loss_test)
