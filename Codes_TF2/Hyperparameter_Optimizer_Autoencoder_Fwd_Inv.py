@@ -41,7 +41,7 @@ class Hyperparameters: # Choose defaults, hyperparameters of interest wil be ove
     activation        = 'relu'
     penalty           = 50
     batch_size        = 1000
-    num_epochs        = 1
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
@@ -64,8 +64,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 10
+    n_calls = 25
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyperp_of_interest_dict = {}
