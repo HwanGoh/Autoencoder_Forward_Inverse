@@ -50,6 +50,7 @@ class RunOptions:
         
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2,3'
+        self.num_gpus = 4
         
         #=== Which Single GPU to Use ===#
         self.which_gpu = '1'
@@ -189,7 +190,11 @@ if __name__ == "__main__":
         #=== Update File Paths with New Hyperparameters ===#
         file_paths = FilePaths(hyperp, run_options)
         
-        #=== Construct Validation Set and Batches ===#   
+        #=== Construct Validation Set and Batches ===# 
+        if run_options.use_distributed_training == 0:
+            GLOBAL_BATCH_SIZE = hyperp.batch_size
+        if run_options.use_distributed_training == 1:
+            GLOBAL_BATCH_SIZE = hyperp.batch_size * run_options.num_gpus # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
         parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test\
