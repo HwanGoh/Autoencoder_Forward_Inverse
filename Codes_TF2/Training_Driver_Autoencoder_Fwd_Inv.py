@@ -39,7 +39,7 @@ class RunOptions:
         self.use_distributed_training = 0
         
         #=== Which GPUs to Use for Distributed Strategy ===#
-        self.dist_which_gpus = '0,1,2,3'
+        self.dist_which_gpus = '0,1,2'
         
         #=== Which Single GPU to Use ===#
         self.which_gpu = '1'
