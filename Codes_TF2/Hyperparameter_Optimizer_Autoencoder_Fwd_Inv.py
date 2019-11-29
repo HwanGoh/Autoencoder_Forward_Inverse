@@ -35,11 +35,11 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class Hyperparameters: # Choose defaults, hyperparameters of interest wil be overwritten later
     data_type         = 'full'
-    num_hidden_layers = 7
+    num_hidden_layers = 6
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
+    num_hidden_nodes  = 519
     activation        = 'relu'
-    penalty           = 50
+    penalty           = 1
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -139,11 +139,11 @@ if __name__ == "__main__":
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyperp_of_interest_dict = {}
-    hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 20, name='num_hidden_layers')
-    hyperp_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
-    hyperp_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
-    #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
-    #hyperp_of_interest_dict['batch_size'] = Integer(100, 1000, name='batch_size')
+    #hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 20, name='num_hidden_layers')
+    #hyperp_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
+    #hyperp_of_interest_dict['penalty'] = Integer(1, 200, name='penalty')
+    hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    hyperp_of_interest_dict['batch_size'] = Integer(20, 1000, name='batch_size')
     
     #####################
     #   Initial Setup   #
