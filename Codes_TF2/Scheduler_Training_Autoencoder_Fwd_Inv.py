@@ -40,12 +40,12 @@ if __name__ == '__main__':
         hyperp = Hyperparameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU
         
         # assign instance attributes for hyperp
-        hyperp.data_type         = ['bnd']
+        hyperp.data_type         = ['full', 'bnd']
         hyperp.num_hidden_layers = [5]
         hyperp.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
         hyperp.num_hidden_nodes  = [500]
         hyperp.activation        = ['relu']
-        hyperp.penalty           = [0.01, 1, 10, 50]
+        hyperp.penalty           = [0.01, 1]
         hyperp.batch_size        = [1000]
         hyperp.num_epochs        = [1000]
         
