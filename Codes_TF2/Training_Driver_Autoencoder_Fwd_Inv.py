@@ -201,7 +201,7 @@ if __name__ == "__main__":
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
 
-    #=== Initiate training ===#
+    #=== Initiate Training ===#
     trainer(hyperp, run_options, file_paths) 
     
      
