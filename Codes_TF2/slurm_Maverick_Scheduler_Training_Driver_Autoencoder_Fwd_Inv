@@ -1,11 +1,11 @@
 #!/bin/bash
 
-#SBATCH -J AEFwdInv_Scheduled_2D_vary
+#SBATCH -J AEFwdInv_Scheduled_3D_vary_bnd
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 5
 #SBATCH -t 24:00:00
-#SBATCH -o AEFwdInv_Scheduled_2D_vary.out
+#SBATCH -o AEFwdInv_Scheduled_3D_vary_bnd.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all
 
