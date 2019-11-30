@@ -24,7 +24,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
@@ -42,7 +42,7 @@ class RunOptions:
         self.dist_which_gpus = '0,1,2'
         
         #=== Which Single GPU to Use ===#
-        self.which_gpu = '1'
+        self.which_gpu = '3'
         
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
