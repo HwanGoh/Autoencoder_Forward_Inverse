@@ -68,7 +68,7 @@ def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
                 proc = available_processes.pop(0) # removes all leftover processes in the event that all scenarios are complete
                 comm.send([], proc, flags.EXIT)
 
-        sleep(90) # Tensorflow environment takes a while to fill up the GPU. This sleep command gives tensorflow time to fill up the GPU before checking if its available       
+        sleep(120) # Tensorflow environment takes a while to fill up the GPU. This sleep command gives tensorflow time to fill up the GPU before checking if its available       
     
 def available_GPUs(total_gpus):
     available_gpus = []
