@@ -81,8 +81,8 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         with tf.GradientTape() as tape:
             batch_parameter_pred_train_AE = NN(batch_parameter_train)
             batch_state_pred_train = NN.encoder(batch_parameter_train)
-            batch_loss_train_autoencoder = tf.reduce_mean(loss_autoencoder(batch_parameter_pred_train_AE, batch_parameter_train))
-            batch_loss_train_forward_problem = tf.reduce_mean(loss_forward_problem(batch_state_pred_train, batch_state_obs_train, hyperp.penalty))
+            batch_loss_train_autoencoder = loss_autoencoder(batch_parameter_pred_train_AE, batch_parameter_train)
+            batch_loss_train_forward_problem = loss_forward_problem(batch_state_pred_train, batch_state_obs_train, hyperp.penalty)
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_forward_problem
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -96,8 +96,8 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
     def val_step(batch_parameter_val, batch_state_obs_val):
         batch_parameter_pred_val_AE = NN(batch_parameter_val)
         batch_state_pred_val = NN.encoder(batch_parameter_val)
-        batch_loss_val_autoencoder = tf.reduce_mean(loss_autoencoder(batch_parameter_pred_val_AE, batch_parameter_val))
-        batch_loss_val_forward_problem = tf.reduce_mean(loss_forward_problem(batch_state_pred_val, batch_state_obs_val, hyperp.penalty))
+        batch_loss_val_autoencoder = loss_autoencoder(batch_parameter_pred_val_AE, batch_parameter_val)
+        batch_loss_val_forward_problem = loss_forward_problem(batch_state_pred_val, batch_state_obs_val, hyperp.penalty)
         batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_forward_problem
         mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         mean_loss_val_forward_problem(batch_loss_val_forward_problem)
@@ -109,15 +109,15 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward
         batch_parameter_pred_test_AE = NN(batch_parameter_test)
         batch_parameter_pred_test_Inverse_problem = NN.decoder(batch_state_obs_test)
         batch_state_pred_test = NN.encoder(batch_parameter_test)
-        batch_loss_test_autoencoder = tf.reduce_mean(loss_autoencoder(batch_parameter_pred_test_AE, batch_parameter_test))
-        batch_loss_test_forward_problem = tf.reduce_mean(loss_forward_problem(batch_state_pred_test, batch_state_obs_test, hyperp.penalty))
+        batch_loss_test_autoencoder = loss_autoencoder(batch_parameter_pred_test_AE, batch_parameter_test)
+        batch_loss_test_forward_problem = loss_forward_problem(batch_state_pred_test, batch_state_obs_test, hyperp.penalty)
         batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_forward_problem
         mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         mean_loss_test_forward_problem(batch_loss_test_forward_problem)
         mean_loss_test(batch_loss_test)
-        mean_relative_error_parameter_autoencoder(tf.reduce_mean(relative_error(batch_parameter_pred_test_AE, batch_parameter_test)))
-        mean_relative_error_parameter_inverse_problem(tf.reduce_mean(relative_error(batch_parameter_pred_test_Inverse_problem, batch_parameter_test)))
-        mean_relative_error_state_obs(tf.reduce_mean(relative_error(batch_state_pred_test, batch_state_obs_test)))
+        mean_relative_error_parameter_autoencoder(relative_error(batch_parameter_pred_test_AE, batch_parameter_test))
+        mean_relative_error_parameter_inverse_problem(relative_error(batch_parameter_pred_test_Inverse_problem, batch_parameter_test))
+        mean_relative_error_state_obs(relative_error(batch_state_pred_test, batch_state_obs_test))
         
 ###############################################################################
 #                             Train Neural Network                            #
