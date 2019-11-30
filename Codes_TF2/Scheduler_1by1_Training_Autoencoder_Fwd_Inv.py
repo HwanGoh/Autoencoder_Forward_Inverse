@@ -28,7 +28,7 @@ if __name__ == '__main__':
     hyperp.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
     hyperp.num_hidden_nodes  = [500]
     hyperp.activation        = ['relu']
-    hyperp.penalty           = [0.01, 1, 10, 50]
+    hyperp.penalty           = [1, 10]
     hyperp.batch_size        = [1000]
     hyperp.num_epochs        = [500]
     
@@ -43,9 +43,9 @@ if __name__ == '__main__':
             setattr(hyperp_scenario, hyperp_keys[i], scenario_values[i])
         scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
     
-    for scenario in scenarios_class_instances:
-        scenario.which_gpu = '3'
+    for num, scenario in enumerate(scenarios_class_instances):
+        scenario.which_gpu = str(num)
         proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}', f'{scenario.which_gpu}']) 
-        proc.wait()
+        #proc.wait()
         
     print('All scenarios computed')
