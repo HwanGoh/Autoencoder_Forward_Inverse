@@ -41,10 +41,10 @@ if __name__ == '__main__':
         
         # assign instance attributes for hyperp
         hyperp.data_type         = ['full', 'bnd']
-        hyperp.num_hidden_layers = [3]
-        hyperp.truncation_layer  = [2] # Indexing includes input and output layer with input layer indexed by 0
-        hyperp.num_hidden_nodes  = [50, 100, 500, 1000]
-        hyperp.penalty           = [50]
+        hyperp.num_hidden_layers = [5]
+        hyperp.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
+        hyperp.num_hidden_nodes  = [500]
+        hyperp.penalty           = [0.01, 1]
         hyperp.batch_size        = [1000]
         hyperp.num_epochs        = [500]
         
