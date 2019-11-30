@@ -11,4 +11,4 @@
 
 module load intel/17.0.4 python3/3.6.3 cuda/10.0 cudnn/7.6.2 nccl/2.4.7
 
-ibrun -np 4 ./Scheduler_Training_Autoencoder_Fwd_Inv.py
+ibrun -np 4 python3 Scheduler_Training_Autoencoder_Fwd_Inv.py
