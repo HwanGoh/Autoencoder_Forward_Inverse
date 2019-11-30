@@ -7,12 +7,14 @@ Created on Sun Nov  3 10:16:28 2019
 """
 import tensorflow as tf
 import pandas as pd
+import time
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                                 All Data                                    #
 ###############################################################################
 def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, parameter_dimensions):
+    start_time_load_data = time.time()
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
@@ -44,6 +46,9 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
     #=== Define Outputs ===#
     data_input_shape = parameter_train.shape[1:]
     parameter_dimension = parameter_train.shape[-1]
+    
+    elapsed_time_load_data = time.time() - start_time_load_data
+    print('Time taken to load data: %.4f' %(elapsed_time_load_data))
 
     return obs_indices, parameter_train, state_obs_train, parameter_test, state_obs_test, data_input_shape, parameter_dimension
 

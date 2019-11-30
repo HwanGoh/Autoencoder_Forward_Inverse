@@ -121,12 +121,12 @@ def trainer(hyperp, run_options, file_paths):
         gpus = tf.config.experimental.list_physical_devices('GPU')
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus) # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
         
-    #=== Load Data ===#       
+    #=== Load Data ===#     
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
     data_input_shape, parameter_dimension\
     = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions)    
-    
+       
     #=== Construct Validation Set and Batches ===#   
     parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
     run_options.num_data_train, num_data_val, run_options.num_data_test,\

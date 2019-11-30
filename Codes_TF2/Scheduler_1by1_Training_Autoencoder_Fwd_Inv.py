@@ -44,7 +44,7 @@ if __name__ == '__main__':
         scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
     
     for num, scenario in enumerate(scenarios_class_instances):
-        scenario.which_gpu = str(num)
+        scenario.which_gpu = '3'
         proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}', f'{scenario.which_gpu}']) 
         proc.wait()
         
