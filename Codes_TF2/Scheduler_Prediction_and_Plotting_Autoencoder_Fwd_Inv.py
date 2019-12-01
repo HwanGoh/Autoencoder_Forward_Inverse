@@ -9,7 +9,7 @@ Created on Wed Sep 18 20:53:06 2019
 import subprocess
 import copy
 from Utilities.get_hyperparameter_permutations import get_hyperparameter_permutations
-from Training_Driver_Autoencoder_Fwd_Inv import Hyperparameters
+from Plotting_Driver_Autoencoder_Fwd_Inv import Hyperparameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
@@ -23,11 +23,11 @@ if __name__ == '__main__':
     hyperp = Hyperparameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU
     
     # assign instance attributes for hyperp
-    hyperp.data_type         = ['bnd','full']
+    hyperp.data_type         = ['bnd']
     hyperp.num_hidden_layers = [5]
     hyperp.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
     hyperp.num_hidden_nodes  = [500]
-    hyperp.penalty           = [0.01, 1]
+    hyperp.penalty           = [0.01, 1, 10, 50]
     hyperp.batch_size        = [1000]
     hyperp.num_epochs        = [1000]
     

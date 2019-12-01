@@ -34,8 +34,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -95,8 +95,8 @@ class FilePaths():
             self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension
          
         #=== Save File Path for Predictions ===#    
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/' + 'parameter_test'
-        self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test'
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/' + 'parameter_test' + fin_dimension + parameter_type
+        self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred' + fin_dimension
         self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension     
             

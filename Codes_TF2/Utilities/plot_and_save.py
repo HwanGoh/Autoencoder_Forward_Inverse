@@ -36,7 +36,7 @@ def plot_and_save(hyperp, run_options, file_paths):
     #=== Load Observation Indices, Test and Predicted Parameters and State ===#
     df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')    
     obs_indices = df_obs_indices.to_numpy() 
-    
+
     df_parameter_test = pd.read_csv(file_paths.savefile_name_parameter_test + '.csv')
     parameter_test = df_parameter_test.to_numpy()
     df_parameter_pred = pd.read_csv(file_paths.savefile_name_parameter_pred + '.csv')
