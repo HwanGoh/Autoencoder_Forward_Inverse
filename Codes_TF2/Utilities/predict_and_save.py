@@ -34,8 +34,15 @@ def predict_and_save(hyperp, run_options, file_paths):
     parameter_test = df_parameter_test.to_numpy()
     df_state_test = pd.read_csv(file_paths.savefile_name_state_test + '.csv')
     state_test = df_state_test.to_numpy()
-    parameter_pred = NN.decoder(state_test.T)
+    
     state_pred = NN.encoder(parameter_test.T)
+    if hyperp.data_type == 'bnd':
+        state_test_bnd = state_test[obs_indices].flatten()
+        state_test_bnd = state_test_bnd.reshape(state_test_bnd.shape[0], 1)
+        parameter_pred = NN.decoder(state_test_bnd.T) 
+    else:
+        parameter_pred = NN.decoder(state_test.T) 
+    
     parameter_test = parameter_test.flatten()
     state_test = state_test.flatten()
     parameter_pred = parameter_pred.numpy().flatten()

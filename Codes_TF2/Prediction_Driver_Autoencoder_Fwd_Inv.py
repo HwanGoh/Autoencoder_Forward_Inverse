@@ -14,20 +14,20 @@ import sys
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty           = 50
+    penalty           = 1
     batch_size        = 1000
-    num_epochs        = 500
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 0
-        self.data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 1
+        self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
         self.num_data_train = 50000
@@ -114,9 +114,10 @@ if __name__ == "__main__":
         hyperp.num_hidden_layers = int(sys.argv[2])
         hyperp.truncation_layer  = int(sys.argv[3])
         hyperp.num_hidden_nodes  = int(sys.argv[4])
-        hyperp.penalty           = float(sys.argv[5])
-        hyperp.batch_size        = int(sys.argv[6])
-        hyperp.num_epochs        = int(sys.argv[7])
+        hyperp.activation        = str(sys.argv[5])
+        hyperp.penalty           = float(sys.argv[6])
+        hyperp.batch_size        = int(sys.argv[7])
+        hyperp.num_epochs        = int(sys.argv[8])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
