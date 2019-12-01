@@ -97,8 +97,8 @@ class FilePaths():
         #=== Save File Path for Predictions ===#    
         self.savefile_name_parameter_test = self.NN_savefile_directory + '/' + 'parameter_test' + fin_dimension + parameter_type
         self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred' + fin_dimension
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension     
+        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'     
             
 ###############################################################################
 #                                  Driver                                     #

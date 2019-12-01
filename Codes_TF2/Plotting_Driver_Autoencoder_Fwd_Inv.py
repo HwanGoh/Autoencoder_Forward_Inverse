@@ -24,7 +24,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'bnd'
+    data_type         = 'full'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
@@ -101,16 +101,16 @@ class FilePaths():
             self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension + parameter_type           
             
         #=== Loading Predictions ===#    
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred' + fin_dimension
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred' + fin_dimension
+        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
+        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'
             
         #=== Savefile Path for Figures ===#    
         self.figures_savefile_directory = '../Figures/' + self.filename
         self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
         self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test' + fin_dimension + parameter_type
         self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
-        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred' + fin_dimension
-        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred' + fin_dimension
+        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
+        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
         
         #=== Creating Directories ===#
         if not os.path.exists(self.figures_savefile_directory):

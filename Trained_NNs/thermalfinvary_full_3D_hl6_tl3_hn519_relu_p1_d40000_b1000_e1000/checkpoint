@@ -1,0 +1,2 @@
+model_checkpoint_path: "thermalfinvary_full_3D_hl6_tl3_hn519_relu_p1_d40000_b1000_e1000"
+all_model_checkpoint_paths: "thermalfinvary_full_3D_hl6_tl3_hn519_relu_p1_d40000_b1000_e1000"
