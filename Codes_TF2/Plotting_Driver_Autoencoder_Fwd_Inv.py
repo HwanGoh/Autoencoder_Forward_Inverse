@@ -24,28 +24,28 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
-    num_hidden_layers = 6
+    data_type         = 'bnd'
+    num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 519
-    activation        = 'elu'
+    num_hidden_nodes  = 500
+    activation        = 'relu'
     penalty           = 1
-    batch_size        = 214
+    batch_size        = 1000
     num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 0
-        self.data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 1
+        self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
-        self.num_data_train = 40000
+        self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -93,10 +93,10 @@ class FilePaths():
         #=== Save File Path ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
     
-        #=== Save File Path for One Instance of Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension + parameter_type
+        #=== Save File Path for Test Data ===#
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
         if hyperp.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension + parameter_type
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
         if hyperp.data_type == 'bndonly':
             self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension + parameter_type           
             
@@ -139,7 +139,8 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and Save ===#
-    plot_and_save(hyperp, run_options, file_paths)
+    fig_size = (6,6)
+    plot_and_save(hyperp, run_options, file_paths, fig_size)
     
 
 

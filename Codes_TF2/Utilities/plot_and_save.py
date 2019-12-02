@@ -17,11 +17,12 @@ from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_s
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
 from Thermal_Fin_Heat_Simulator.Utilities import gaussian_field
 from Thermal_Fin_Heat_Simulator.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
+from Thermal_Fin_Heat_Simulator.Utilities.plot_2D import plot_2D
 from Thermal_Fin_Heat_Simulator.Utilities.plot_3D import plot_3D
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def plot_and_save(hyperp, run_options, file_paths):
+def plot_and_save(hyperp, run_options, file_paths, fig_size):
 ###############################################################################
 #                     Form Fenics Domain and Load Predictions                 #
 ###############################################################################
@@ -67,19 +68,17 @@ def plot_and_save(hyperp, run_options, file_paths):
     
     #=== Plotting Test Parameter and Test State ===#  
     if run_options.fin_dimensions_2D == 1:
-        p_test_fig = dl.plot(parameter_test_dl)
-        p_test_fig.ax.set_title('True Parameter', fontsize=13)  
+        p_test_fig = plot_2D(parameter_test_dl, 'True Parameter', fig_size)
     if run_options.fin_dimensions_3D == 1:
         p_test_fig = plot_3D(parameter_test_dl, 'True Parameter', angle_1 = 90, angle_2 = 270)
-    plt.colorbar(p_test_fig)
+    plt.colorbar(p_test_fig)  
     plt.savefig(file_paths.figures_savefile_name_parameter_test, dpi=300)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_test)   
     plt.show()
     
     if hyperp.data_type == 'full': # No state prediction for bnd only data
         if run_options.fin_dimensions_2D == 1:
-            s_test_fig = dl.plot(state_test_dl)
-            s_test_fig.ax.set_title('True State', fontsize=13) 
+            s_test_fig = plot_2D(state_test_dl, 'True State', fig_size)
         if run_options.fin_dimensions_3D == 1:
             s_test_fig = plot_3D(state_test_dl, 'True State', angle_1 = 90, angle_2 = 270)
         plt.colorbar(s_test_fig)
@@ -101,8 +100,7 @@ def plot_and_save(hyperp, run_options, file_paths):
     
     #=== Plotting Predicted Parameter and State ===#
     if run_options.fin_dimensions_2D == 1:
-        p_pred_fig = dl.plot(parameter_pred_dl)
-        p_pred_fig.ax.set_title('Decoder Estimation of True Parameter', fontsize=13)  
+        p_pred_fig = plot_2D(parameter_pred_dl, 'Decoder Estimation of True Parameter', fig_size)
     if run_options.fin_dimensions_3D == 1:
         p_pred_fig = plot_3D(parameter_pred_dl, 'Decoder Estimation of True Parameter', angle_1 = 90, angle_2 = 270)
     plt.colorbar(p_test_fig)
@@ -115,8 +113,7 @@ def plot_and_save(hyperp, run_options, file_paths):
     if hyperp.data_type == 'full': # No visualization of state prediction if the truncation layer only consists of the boundary observations
         state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         if run_options.fin_dimensions_2D == 1:
-            s_pred_fig = dl.plot(state_pred_dl)
-            s_pred_fig.ax.set_title('Encoder Estimation of True State', fontsize=13)  
+            s_pred_fig = plot_2D(state_pred_dl, 'Encoder Estimation of True State', fig_size)
         if run_options.fin_dimensions_3D == 1:
             s_pred_fig = plot_3D(state_pred_dl, 'Encoder Estimation of True State', angle_1 = 90, angle_2 = 270)
         plt.colorbar(s_test_fig)
