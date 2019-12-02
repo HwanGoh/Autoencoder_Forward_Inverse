@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#SBATCH -J AEFwdInv_Scheduled_3D_9_full
+#SBATCH -J AEFwdInv_HyperparameterOpt_bnd
 #SBATCH -p gtx
 #SBATCH -N 1
-#SBATCH -n 5
+#SBATCH -n 1
 #SBATCH -t 24:00:00
-#SBATCH -o AEFwdInv_Scheduled_3D_9_full.out
+#SBATCH -o AEFwdInv_HyperparameterOpt_bnd.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all
 
 module load intel/17.0.4 python3/3.6.3 cuda/10.0 cudnn/7.6.2 nccl/2.4.7
 
-ibrun -np 5 python3 Hyperparameter_Optimizer_Autoencoder_Fwd_Inv.py
+ibrun ./Hyperparameter_Optimizer_Autoencoder_Fwd_Inv.py
