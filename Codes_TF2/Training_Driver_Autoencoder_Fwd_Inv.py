@@ -31,7 +31,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty           = 1
     batch_size        = 1000
-    num_epochs        = 10000
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
