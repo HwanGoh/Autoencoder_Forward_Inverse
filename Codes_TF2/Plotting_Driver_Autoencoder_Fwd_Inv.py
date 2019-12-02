@@ -25,22 +25,22 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class Hyperparameters:
     data_type         = 'full'
-    num_hidden_layers = 5
+    num_hidden_layers = 6
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
-    activation        = 'relu'
+    num_hidden_nodes  = 519
+    activation        = 'elu'
     penalty           = 1
-    batch_size        = 1000
+    batch_size        = 214
     num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
+        self.num_data_train = 40000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
