@@ -135,7 +135,7 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 10
+    n_calls = 20
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyperp_of_interest_dict = {}
@@ -143,7 +143,7 @@ if __name__ == "__main__":
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
     hyperp_of_interest_dict['penalty'] = Integer(0.01, 50, name='penalty')
     hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
-    hyperp_of_interest_dict['batch_size'] = Integer(20, 500, name='batch_size')
+    hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
     
     #####################
     #   Initial Setup   #
