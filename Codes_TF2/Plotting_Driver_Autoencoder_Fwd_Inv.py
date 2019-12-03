@@ -139,7 +139,7 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and Save ===#
-    fig_size = (6,6)
+    fig_size = (5,5)
     plot_and_save(hyperp, run_options, file_paths, fig_size)
     
 

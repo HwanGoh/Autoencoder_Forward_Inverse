@@ -8,6 +8,7 @@ Created on Fri Nov 15 14:01:27 2019
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 import dolfin as dl
 
 import sys
@@ -68,20 +69,24 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     
     #=== Plotting Test Parameter and Test State ===#  
     if run_options.fin_dimensions_2D == 1:
-        p_test_fig = plot_2D(parameter_test_dl, 'True Parameter', fig_size)
+        p_test_fig, ax = plot_2D(parameter_test_dl, 'True Parameter', fig_size)
     if run_options.fin_dimensions_3D == 1:
         p_test_fig = plot_3D(parameter_test_dl, 'True Parameter', angle_1 = 90, angle_2 = 270)
-    plt.colorbar(p_test_fig)  
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    plt.colorbar(p_test_fig, cax = cax)  
     plt.savefig(file_paths.figures_savefile_name_parameter_test, dpi=300)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_test)   
     plt.show()
     
     if hyperp.data_type == 'full': # No state prediction for bnd only data
         if run_options.fin_dimensions_2D == 1:
-            s_test_fig = plot_2D(state_test_dl, 'True State', fig_size)
+            s_test_fig, ax = plot_2D(state_test_dl, 'True State', fig_size)
         if run_options.fin_dimensions_3D == 1:
             s_test_fig = plot_3D(state_test_dl, 'True State', angle_1 = 90, angle_2 = 270)
-        plt.colorbar(s_test_fig)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        plt.colorbar(s_test_fig, cax = cax)
         plt.savefig(file_paths.figures_savefile_name_state_test, dpi=300)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_test) 
         plt.show()
@@ -100,10 +105,12 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     
     #=== Plotting Predicted Parameter and State ===#
     if run_options.fin_dimensions_2D == 1:
-        p_pred_fig = plot_2D(parameter_pred_dl, 'Decoder Estimation of True Parameter', fig_size)
+        p_pred_fig, ax = plot_2D(parameter_pred_dl, 'Decoder Estimation of True Parameter', fig_size)
     if run_options.fin_dimensions_3D == 1:
         p_pred_fig = plot_3D(parameter_pred_dl, 'Decoder Estimation of True Parameter', angle_1 = 90, angle_2 = 270)
-    plt.colorbar(p_test_fig)
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    plt.colorbar(p_test_fig, cax = cax)
     plt.savefig(file_paths.figures_savefile_name_parameter_pred, dpi=300)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_pred) 
     plt.show()
@@ -113,10 +120,12 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     if hyperp.data_type == 'full': # No visualization of state prediction if the truncation layer only consists of the boundary observations
         state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         if run_options.fin_dimensions_2D == 1:
-            s_pred_fig = plot_2D(state_pred_dl, 'Encoder Estimation of True State', fig_size)
+            s_pred_fig, ax = plot_2D(state_pred_dl, 'Encoder Estimation of True State', fig_size)
         if run_options.fin_dimensions_3D == 1:
             s_pred_fig = plot_3D(state_pred_dl, 'Encoder Estimation of True State', angle_1 = 90, angle_2 = 270)
-        plt.colorbar(s_test_fig)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        plt.colorbar(s_test_fig, cax = cax)
         plt.savefig(file_paths.figures_savefile_name_state_pred, dpi=300)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_pred) 
         plt.show()
