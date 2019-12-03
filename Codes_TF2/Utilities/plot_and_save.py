@@ -75,7 +75,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(p_test_fig, cax = cax)  
-    plt.savefig(file_paths.figures_savefile_name_parameter_test, dpi=300)
+    plt.savefig(file_paths.figures_savefile_name_parameter_test, dpi=300, bbox_inches = 'tight', pad_inches = 0)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_test)   
     plt.show()
     
@@ -87,7 +87,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt.colorbar(s_test_fig, cax = cax)
-        plt.savefig(file_paths.figures_savefile_name_state_test, dpi=300)
+        plt.savefig(file_paths.figures_savefile_name_state_test, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_test) 
         plt.show()
     
@@ -111,7 +111,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)
     plt.colorbar(p_test_fig, cax = cax)
-    plt.savefig(file_paths.figures_savefile_name_parameter_pred, dpi=300)
+    plt.savefig(file_paths.figures_savefile_name_parameter_pred, dpi=300, bbox_inches = 'tight', pad_inches = 0)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_pred) 
     plt.show()
     parameter_pred_error = np.linalg.norm(parameter_pred - parameter_test,2)/np.linalg.norm(parameter_test,2)
@@ -126,7 +126,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
         divider = make_axes_locatable(ax)
         cax = divider.append_axes("right", size="5%", pad=0.05)
         plt.colorbar(s_test_fig, cax = cax)
-        plt.savefig(file_paths.figures_savefile_name_state_pred, dpi=300)
+        plt.savefig(file_paths.figures_savefile_name_state_pred, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_pred) 
         plt.show()
     state_pred_error = np.linalg.norm(state_pred - state_test,2)/np.linalg.norm(state_test,2)
@@ -156,7 +156,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     
     #=== Saving Figure ===#
     figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'loss' + '_autoencoder_' + file_paths.filename + '.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, bbox_inches = 'tight', pad_inches = 0)
     plt.close(fig_loss)
 
     ####################
@@ -176,7 +176,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     
     #=== Saving Figure ===#
     figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'loss' + '_parameter_data_' + file_paths.filename + '.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, bbox_inches = 'tight', pad_inches = 0)
     plt.close(fig_loss)
     
     ################
@@ -196,7 +196,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     
     #=== Saving Figure ===#
     figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'loss' + '_state_data_' + file_paths.filename + '.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, bbox_inches = 'tight', pad_inches = 0)
     plt.close(fig_loss)
     
     ##############################
@@ -216,7 +216,7 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     
     #=== Saving Figure ===#
     figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'relative_error' + '_parameter_' + file_paths.filename + '.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, bbox_inches = 'tight', pad_inches = 0)
     plt.close(fig_loss)
     
     ##########################
@@ -236,5 +236,5 @@ def plot_and_save(hyperp, run_options, file_paths, fig_size):
     
     #=== Saving Figure ===#
     figures_savefile_name = file_paths.figures_savefile_directory + '/' + 'relative_error' + '_state_' + file_paths.filename + '.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, bbox_inches = 'tight', pad_inches = 0)
     plt.close(fig_loss)
