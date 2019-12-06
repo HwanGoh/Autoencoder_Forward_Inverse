@@ -11,7 +11,7 @@ from mpi4py import MPI
 import copy
 from Utilities.get_hyperparameter_permutations import get_hyperparameter_permutations
 from Utilities.schedule_and_run import schedule_runs
-from Training_Driver_Autoencoder_Fwd_Inv import Hyperparameters
+from Training_Driver_Model_Aware_Autoencoder import Hyperparameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class FLAGS:
@@ -25,14 +25,14 @@ class FLAGS:
 ###############################################################################
 if __name__ == '__main__':
                     
-    # To run this code "mpirun -n 5 ./Scheduler_Training_Autoencoder_Fwd_Inv.py" in command line
+    # To run this code "mpirun -n 5 ./Scheduler_Training_Driver_Model_Aware_Autoencoder.py" in command line
     
     # mpi stuff
     comm   = MPI.COMM_WORLD
     nprocs = comm.Get_size()
     rank   = comm.Get_rank()
     
-    # By running "mpirun -n <number> ./Scheduler_Training_Autoencoder_Fwd_Inv.py", each process is cycled through by their rank
+    # By running "mpirun -n <number> ./Scheduler_Training_Driver_Model_Aware_Autoencoder.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action 
         #########################
         #   Get Scenarios List  #
@@ -71,7 +71,7 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Training_Driver_Autoencoder_Fwd_Inv.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
+            proc = subprocess.Popen(['./Training_Driver_Model_Aware_Autoencoder.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
             proc.wait() # without this, the process will detach itself once the python code is done running
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)

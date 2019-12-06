@@ -1,14 +1,14 @@
 #!/bin/bash
 
-#SBATCH -J Autoencoder_Forward_Inverse_3D_bnd_vary_10k
+#SBATCH -J Model_Aware_Autoencoder_3D_bnd_vary_10k
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 4
 #SBATCH -t 12:00:00
-#SBATCH -o Autoencoder_Forward_Inverse_3D_bnd_vary_10k.out
+#SBATCH -o Model_Aware_Autoencoder_3D_bnd_vary_10k.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all
 
 module load intel/17.0.4 python3/3.6.3 cuda/10.0 cudnn/7.6.2 nccl/2.4.7
 
-ibrun ./Training_Driver_Autoencoder_Fwd_Inv.py
+ibrun ./Training_Driver_Model_Aware_Autoencoder.py
