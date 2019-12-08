@@ -17,7 +17,7 @@ from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, relative_error
 from Utilities.loss_model_augmented_thermal_fin import loss_model_augmented
 from Utilities.optimize_model_augmented_autoencoder import optimize
-from Utilities.optimize_distributed_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
+from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -87,9 +87,9 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyperp.penalty >= 1:
-            hyperp.penalty = int(hyperp.penalty)
-            penalty_string = str(hyperp.penalty)
+        if hyperp.penalty_aug >= 1:
+            hyperp.penalty_aug = int(hyperp.penalty_aug)
+            penalty_string = str(hyperp.penalty_aug)
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]

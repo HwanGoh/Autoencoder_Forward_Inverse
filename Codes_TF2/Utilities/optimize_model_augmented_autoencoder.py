@@ -14,7 +14,7 @@ Created on Fri Oct 25 12:31:44 2019
 @author: hwan
 """
 import sys
-sys.path.append('..')
+sys.path.append('../..')
 
 import shutil # for deleting directories
 import os
