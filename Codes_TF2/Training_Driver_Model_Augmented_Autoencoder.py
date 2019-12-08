@@ -16,8 +16,8 @@ from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, relative_error
 from Utilities.loss_model_augmented_thermal_fin import loss_model_augmented
-from Utilities.optimize_standard_autoencoder import optimize
-from Utilities.optimize_distributed_autoencoder import optimize_distributed
+from Utilities.optimize_model_augmented_autoencoder import optimize
+from Utilities.optimize_distributed_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

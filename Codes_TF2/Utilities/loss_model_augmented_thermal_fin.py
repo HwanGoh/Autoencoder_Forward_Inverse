@@ -5,15 +5,12 @@ Created on Fri Nov 22 20:42:39 2019
 
 @author: hwan
 """
+import sys
+sys.path.append('..')
 
 import tensorflow as tf
 import dolfin as dl
 import numpy as np
-import pandas as pd
-import matplotlib as plt
-from Thermal_Fin_Heat_Simulator.Utilities.gaussian_field import make_cov_chol
-from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
-from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
 
 ###############################################################################
 #                                   Loss                                      #
