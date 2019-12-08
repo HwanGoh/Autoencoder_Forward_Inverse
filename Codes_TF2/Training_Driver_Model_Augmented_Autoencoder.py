@@ -30,7 +30,7 @@ class Hyperparameters:
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty           = 1
+    penalty_aug       = 1
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -145,7 +145,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_model_augmented, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
@@ -162,7 +162,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, loss_autoencoder, loss_model_augmented, relative_error,\
+                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
                                parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                                parameter_dimension, num_batches_train)
 
@@ -195,7 +195,7 @@ if __name__ == "__main__":
         hyperp.truncation_layer  = int(sys.argv[3])
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
-        hyperp.penalty           = float(sys.argv[6])
+        hyperp.penalty_aug       = float(sys.argv[6])
         hyperp.batch_size        = int(sys.argv[7])
         hyperp.num_epochs        = int(sys.argv[8])
         run_options.which_gpu    = str(sys.argv[9])

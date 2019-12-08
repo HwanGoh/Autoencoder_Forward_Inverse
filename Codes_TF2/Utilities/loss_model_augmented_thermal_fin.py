@@ -18,7 +18,7 @@ from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_s
 ###############################################################################
 #                                   Loss                                      #
 ###############################################################################
-def loss_model_augmented(hyperp, run_options, V, solver, obs_indices_bnd, state_obs_true, autoencoder_pred, parameter_true):
+def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_true, autoencoder_pred, penalty_aug):
     if run_options.data_thermal_fin_nine == 1:
         autoencoder_pred_dl = parameter_convert_nine(run_options, V, solver, autoencoder_pred)   
     if run_options.data_thermal_fin_vary == 1:
@@ -26,9 +26,9 @@ def loss_model_augmented(hyperp, run_options, V, solver, obs_indices_bnd, state_
     state_dl, _ = solver.forward(autoencoder_pred_dl)    
     state_data = state_dl.vector().get_local()
     if hyperp.data_type == 'bnd':
-        state_data = state_data[obs_indices_bnd]    
+        state_data = state_data[obs_indices]    
     
-    return tf.norm(tf.subtract(state_obs_true, state_data), 2, axis = 1)
+    return penalty_aug*tf.norm(tf.subtract(state_obs_true, state_data), 2, axis = 1)
 
 ###############################################################################
 #                              Fenics Functions                               #
