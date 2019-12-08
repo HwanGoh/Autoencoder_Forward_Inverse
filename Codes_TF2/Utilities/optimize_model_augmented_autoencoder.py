@@ -89,7 +89,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    @tf.function
+    #@tf.function
     def train_step(batch_parameter_train, batch_state_obs_train):
         with tf.GradientTape() as tape:
             batch_parameter_pred_train_AE = NN(batch_parameter_train)
@@ -104,7 +104,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         return gradients
 
     #=== Validation Step ===#
-    @tf.function
+    #@tf.function
     def val_step(batch_parameter_val, batch_state_obs_val):
         batch_parameter_pred_val_AE = NN(batch_parameter_val)
         batch_loss_val_autoencoder = loss_autoencoder(batch_parameter_pred_val_AE, batch_parameter_val)
@@ -115,7 +115,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         mean_loss_val(batch_loss_val)     
     
     #=== Test Step ===#
-    @tf.function
+    #@tf.function
     def test_step(batch_parameter_test, batch_state_obs_test):
         batch_parameter_pred_test_AE = NN(batch_parameter_test)
         batch_parameter_pred_test_Inverse_problem = NN.decoder(batch_state_obs_test)

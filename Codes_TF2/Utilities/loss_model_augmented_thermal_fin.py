@@ -12,6 +12,8 @@ import tensorflow as tf
 import dolfin as dl
 import numpy as np
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 ###############################################################################
 #                                   Loss                                      #
 ###############################################################################
@@ -31,6 +33,7 @@ def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_
 #                              Fenics Functions                               #
 ###############################################################################
 def parameter_convert_nine(run_options, V, solver, autoencoder_pred):
+    pdb.set_trace()
     parameter_dl = solver.nine_param_to_function(autoencoder_pred)
     if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
         parameter_values = parameter_dl.vector().get_local()  
