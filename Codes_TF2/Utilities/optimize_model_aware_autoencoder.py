@@ -19,13 +19,27 @@ import time
 
 import tensorflow as tf
 import numpy as np
+import dolfin as dl
+import pandas as pd
+import matplotlib as plt
+from Thermal_Fin_Heat_Simulator.Utilities.gaussian_field import make_cov_chol
+from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
+from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_model_augmented, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train):
+    #=== Generate Dolfin function space and mesh ===#
+    if run_options.fin_dimensions_2D == 1:
+        V, mesh = get_space_2D(40)
+    if run_options.fin_dimensions_3D == 1:    
+        V, mesh = get_space_3D(40)
+    solver = Fin(V)
+    print(V.dim())  
+    
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
