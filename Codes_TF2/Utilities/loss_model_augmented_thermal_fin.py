@@ -30,7 +30,7 @@ def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_
         if hyperp.data_type == 'full':
             fenics_state_pred[m,:] = state_data_values
         if hyperp.data_type == 'bnd':
-            fenics_state_pred[m,:] = state_data_values[obs_indices]   
+            fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()   
             
     return penalty_aug*tf.norm(tf.subtract(state_obs_true, fenics_state_pred), 2, axis = 1)
 
