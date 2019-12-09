@@ -51,7 +51,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
-        self.num_data_train = 200
+        self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -77,7 +77,7 @@ class RunOptions:
 class FilePaths():              
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
-        autoencoder_type = 'maug'
+        autoencoder_type = 'mind'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
