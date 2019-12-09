@@ -15,8 +15,9 @@ from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, loss_forward_problem, relative_error
-from Utilities.optimize_model_aware_autoencoder import optimize
-from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
+from Utilities.loss_model_augmented_thermal_fin import loss_model_augmented
+from Utilities.optimize_model_induced_autoencoder import optimize
+from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -30,6 +31,7 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
+    penalty_aug       = 1
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -75,7 +77,7 @@ class RunOptions:
 class FilePaths():              
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
-        autoencoder_type = 'maware'
+        autoencoder_type = 'maug'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
@@ -86,9 +88,9 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyperp.penalty >= 1:
-            hyperp.penalty = int(hyperp.penalty)
-            penalty_string = str(hyperp.penalty)
+        if hyperp.penalty_aug >= 1:
+            hyperp.penalty_aug = int(hyperp.penalty_aug)
+            penalty_string = str(hyperp.penalty_aug)
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
@@ -121,7 +123,7 @@ def trainer(hyperp, run_options, file_paths):
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus) # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
-          
+        
     #=== Load Data ===#     
     obs_indices, parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
@@ -140,11 +142,11 @@ def trainer(hyperp, run_options, file_paths):
         NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_model_augmented,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_forward_problem, loss_model_augmented, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
@@ -156,12 +158,12 @@ def trainer(hyperp, run_options, file_paths):
             NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
             
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_model_augmented,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_model_augmented,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, loss_autoencoder, loss_forward_problem, relative_error,\
+                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
                                parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                                parameter_dimension, num_batches_train)
 
@@ -169,10 +171,10 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict = {}
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
-    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_forward_problem
+    metrics_dict['loss_train_model_augmented'] = storage_array_loss_train_model_augmented
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
-    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
+    metrics_dict['loss_val_model_augmented'] = storage_array_loss_val_model_augmented
     metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
     metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
@@ -195,9 +197,10 @@ if __name__ == "__main__":
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
         hyperp.penalty           = float(sys.argv[6])
-        hyperp.batch_size        = int(sys.argv[7])
-        hyperp.num_epochs        = int(sys.argv[8])
-        run_options.which_gpu    = str(sys.argv[9])
+        hyperp.penalty_aug       = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
+        run_options.which_gpu    = str(sys.argv[10])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
