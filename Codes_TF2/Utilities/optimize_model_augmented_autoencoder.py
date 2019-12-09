@@ -31,7 +31,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error, parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test, parameter_dimension, num_batches_train):
-    #=== Generate Dolfin function space and mesh ===#
+    #=== Generate Dolfin Function Space and Mesh ===#
     if run_options.fin_dimensions_2D == 1:
         V, mesh = get_space_2D(40)
     if run_options.fin_dimensions_3D == 1:    

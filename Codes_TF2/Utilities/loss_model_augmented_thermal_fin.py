@@ -10,6 +10,7 @@ sys.path.append('..')
 
 import tensorflow as tf
 import dolfin as dl
+dl.set_log_level(30)
 import numpy as np
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -18,22 +19,25 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                   Loss                                      #
 ###############################################################################
 def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_true, autoencoder_pred, penalty_aug):
-    if run_options.data_thermal_fin_nine == 1:
-        autoencoder_pred_dl = parameter_convert_nine(run_options, V, solver, autoencoder_pred)   
-    if run_options.data_thermal_fin_vary == 1:
-        autoencoder_pred_dl = convert_array_to_dolfin_function(V, autoencoder_pred)
-    state_dl, _ = solver.forward(autoencoder_pred_dl)    
-    state_data = state_dl.vector().get_local()
-    if hyperp.data_type == 'bnd':
-        state_data = state_data[obs_indices]    
-    
-    return penalty_aug*tf.norm(tf.subtract(state_obs_true, state_data), 2, axis = 1)
+    fenics_state_pred = np.zeros((state_obs_true.shape[0], state_obs_true.shape[1]))
+    for m in range(len(autoencoder_pred)):
+        if run_options.data_thermal_fin_nine == 1:
+            autoencoder_pred_dl = parameter_convert_nine(run_options, V, solver, autoencoder_pred[m,:])   
+        if run_options.data_thermal_fin_vary == 1:
+            autoencoder_pred_dl = convert_array_to_dolfin_function(V, autoencoder_pred[m,:])
+        state_dl, _ = solver.forward(autoencoder_pred_dl)    
+        state_data_values = state_dl.vector().get_local()
+        if hyperp.data_type == 'full':
+            fenics_state_pred[m,:] = state_data_values
+        if hyperp.data_type == 'bnd':
+            fenics_state_pred[m,:] = state_data_values[obs_indices]   
+            
+    return penalty_aug*tf.norm(tf.subtract(state_obs_true, fenics_state_pred), 2, axis = 1)
 
 ###############################################################################
 #                              Fenics Functions                               #
 ###############################################################################
 def parameter_convert_nine(run_options, V, solver, autoencoder_pred):
-    pdb.set_trace()
     parameter_dl = solver.nine_param_to_function(autoencoder_pred)
     if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
         parameter_values = parameter_dl.vector().get_local()  
