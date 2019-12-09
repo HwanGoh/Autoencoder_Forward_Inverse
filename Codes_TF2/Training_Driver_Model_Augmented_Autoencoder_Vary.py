@@ -14,9 +14,9 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_forward_problem, relative_error
+from Utilities.loss_and_relative_errors import loss_autoencoder, relative_error
 from Utilities.loss_model_augmented_thermal_fin import loss_model_augmented
-from Utilities.optimize_model_induced_autoencoder import optimize
+from Utilities.optimize_model_augmented_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -25,12 +25,11 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty           = 1
     penalty_aug       = 1
     batch_size        = 1000
     num_epochs        = 1000
@@ -47,11 +46,11 @@ class RunOptions:
         self.which_gpu = '3'
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 200
+        self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -92,7 +91,7 @@ class FilePaths():
             hyperp.penalty_aug = int(hyperp.penalty_aug)
             penalty_string = str(hyperp.penalty_aug)
         else:
-            penalty_string = str(hyperp.penalty)
+            penalty_string = str(hyperp.penalty_aug)
             penalty_string = 'pt' + penalty_string[2:]
         
         #=== File Name ===#
@@ -142,11 +141,11 @@ def trainer(hyperp, run_options, file_paths):
         NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_model_augmented,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_model_augmented,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_model_augmented,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_model_augmented,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_forward_problem, loss_model_augmented, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
@@ -196,11 +195,10 @@ if __name__ == "__main__":
         hyperp.truncation_layer  = int(sys.argv[3])
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
-        hyperp.penalty           = float(sys.argv[6])
-        hyperp.penalty_aug       = float(sys.argv[7])
-        hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
-        run_options.which_gpu    = str(sys.argv[10])
+        hyperp.penalty_aug       = float(sys.argv[6])
+        hyperp.batch_size        = int(sys.argv[7])
+        hyperp.num_epochs        = int(sys.argv[8])
+        run_options.which_gpu    = str(sys.argv[9])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
