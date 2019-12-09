@@ -76,7 +76,7 @@ class RunOptions:
 class FilePaths():              
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
-        autoencoder_type = 'stdae'
+        autoencoder_type = 'maug'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
