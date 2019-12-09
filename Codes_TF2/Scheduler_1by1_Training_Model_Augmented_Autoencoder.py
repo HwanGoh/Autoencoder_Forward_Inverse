@@ -30,7 +30,7 @@ if __name__ == '__main__':
     hyperp.activation        = ['relu']
     hyperp.penalty_aug       = [50, 10, 1, 0.01]
     hyperp.batch_size        = [1000]
-    hyperp.num_epochs        = [2]
+    hyperp.num_epochs        = [1000]
     
     permutations_list, hyperp_keys = get_hyperparameter_permutations(hyperp) 
     print('permutations_list generated')
