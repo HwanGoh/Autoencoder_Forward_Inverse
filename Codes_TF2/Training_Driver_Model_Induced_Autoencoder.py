@@ -33,7 +33,7 @@ class Hyperparameters:
     penalty           = 1
     penalty_aug       = 1
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 100
     
 class RunOptions:
     def __init__(self): 
