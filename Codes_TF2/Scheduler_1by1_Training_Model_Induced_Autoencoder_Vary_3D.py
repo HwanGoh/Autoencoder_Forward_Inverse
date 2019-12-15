@@ -9,7 +9,7 @@ Created on Wed Sep 18 20:53:06 2019
 import subprocess
 import copy
 from Utilities.get_hyperparameter_permutations import get_hyperparameter_permutations
-from Training_Driver_Model_Induced_Autoencoder_Vary import Hyperparameters
+from Training_Driver_Model_Induced_Autoencoder_Vary_3D import Hyperparameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
@@ -46,7 +46,7 @@ if __name__ == '__main__':
     
     for num, scenario in enumerate(scenarios_class_instances):
         scenario.which_gpu = '3'
-        proc = subprocess.Popen(['./Training_Driver_Model_Induced_Autoencoder_Vary.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.4f}', f'{scenario.penalty_aug:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}', f'{scenario.which_gpu}']) 
+        proc = subprocess.Popen(['./Training_Driver_Model_Induced_Autoencoder_Vary_3D.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.4f}', f'{scenario.penalty_aug:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}', f'{scenario.which_gpu}']) 
         proc.wait()
         
     print('All scenarios computed')
