@@ -88,15 +88,21 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyperp.penalty_aug >= 1:
-            hyperp.penalty_aug = int(hyperp.penalty_aug)
-            penalty_string = str(hyperp.penalty_aug)
+        if hyperp.penalty >= 1:
+            hyperp.penalty = int(hyperp.penalty)
+            penalty_string = str(hyperp.penalty)
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
+        if hyperp.penalty_aug >= 1:
+            hyperp.penalty_aug = int(hyperp.penalty_aug)
+            penalty_string_aug = str(hyperp.penalty_aug)
+        else:
+            penalty_string_aug = str(hyperp.penalty_aug)
+            penalty_string_aug = 'pt' + penalty_string_aug[2:]
         
         #=== File Name ===#
-        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
