@@ -48,9 +48,9 @@ class AutoencoderFwdInv(tf.keras.Model):
 #                          Autoencoder Propagation                            #    
 ###############################################################################            
     def call(self, X):
-        fwd_problem_solution = self.encoder(X)
-        inv_problem_solution = self.decoder(fwd_problem_solution)
-        return inv_problem_solution
+        inv_problem_solution = self.encoder(X)
+        fwd_problem_solution = self.decoder(inv_problem_solution)
+        return fwd_problem_solution
             
 ###############################################################################
 #                                  Encoder                                    # 

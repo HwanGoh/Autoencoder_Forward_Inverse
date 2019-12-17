@@ -11,11 +11,14 @@ import tensorflow as tf
 ###############################################################################
 #                                   Loss                                      #
 ###############################################################################
-def loss_autoencoder(autoencoder_pred, parameter_true):
-    return tf.norm(tf.subtract(parameter_true, autoencoder_pred), 2, axis = 1)
+def loss_autoencoder(parameter_pred, parameter_true):
+    return tf.norm(tf.subtract(parameter_true, parameter_pred), 2, axis = 1)
 
 def loss_forward_problem(state_obs_pred, state_obs_true, penalty):
     return penalty*tf.norm(tf.subtract(state_obs_pred, state_obs_true), 2, axis = 1)
+
+def loss_inverse_problem(parameter_pred, parameter_true, penalty):
+    return penalty*tf.norm(tf.subtract(parameter_pred, parameter_true), 2, axis = 1)
 
 ###############################################################################
 #                               Relative Error                                #
