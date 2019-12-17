@@ -15,12 +15,12 @@ import sys
 ###############################################################################
 class Hyperparameters:
     data_type         = 'full'
-    num_hidden_layers = 6
+    num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 519
-    activation        = 'elu'
+    num_hidden_nodes  = 500
+    activation        = 'relu'
     penalty           = 1
-    batch_size        = 214
+    batch_size        = 1000
     num_epochs        = 1000
     
 class RunOptions:
@@ -30,12 +30,12 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 40000
+        self.num_data_train = 10000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
