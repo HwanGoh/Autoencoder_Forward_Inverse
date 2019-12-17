@@ -194,10 +194,9 @@ if __name__ == "__main__":
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
         hyperp.penalty           = float(sys.argv[6])
-        hyperp.penalty_aug       = float(sys.argv[7])
-        hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
-        run_options.which_gpu    = str(sys.argv[10])
+        hyperp.batch_size        = int(sys.argv[7])
+        hyperp.num_epochs        = int(sys.argv[8])
+        run_options.which_gpu    = str(sys.argv[9])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
