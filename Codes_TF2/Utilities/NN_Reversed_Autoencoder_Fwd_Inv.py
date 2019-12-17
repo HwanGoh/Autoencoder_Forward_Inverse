@@ -11,9 +11,9 @@ from tensorflow.keras.layers import Dense, Conv2D, Flatten
 from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-class AutoencoderFwdInv(tf.keras.Model):
+class ReversedAutoencoderFwdInv(tf.keras.Model):
     def __init__(self, hyperp, parameter_dimension, state_dimension, obs_indices):
-        super(AutoencoderFwdInv, self).__init__()
+        super(ReversedAutoencoderFwdInv, self).__init__()
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
 ############################################################################### 

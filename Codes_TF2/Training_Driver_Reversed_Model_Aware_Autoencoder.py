@@ -16,7 +16,7 @@ from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Reversed_Autoencoder_Fwd_Inv import ReversedAutoencoderFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, loss_inverse_problem, relative_error
 from Utilities.optimize_reversed_model_aware_autoencoder import optimize
-from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
+from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -50,7 +50,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -145,7 +145,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_state_forward_problem, storage_array_relative_error_parameter\
-        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_inverse_problem, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_inverse_problem, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
