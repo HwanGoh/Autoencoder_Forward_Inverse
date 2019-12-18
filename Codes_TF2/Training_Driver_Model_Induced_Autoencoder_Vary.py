@@ -164,9 +164,9 @@ def trainer(hyperp, run_options, file_paths):
             NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
             
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_model_augmented,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_model_augmented,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_model_augmented,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_model_augmented,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
@@ -177,9 +177,11 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict = {}
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
+    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_forward_problem
     metrics_dict['loss_train_model_augmented'] = storage_array_loss_train_model_augmented
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
+    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
     metrics_dict['loss_val_model_augmented'] = storage_array_loss_val_model_augmented
     metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
