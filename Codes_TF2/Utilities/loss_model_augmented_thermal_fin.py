@@ -18,14 +18,14 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                   Loss                                      #
 ###############################################################################
-def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_true, autoencoder_pred, penalty_aug):
+def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_true, parameter_pred, penalty_aug):
     fenics_state_pred = np.zeros((state_obs_true.shape[0], state_obs_true.shape[1]))
-    for m in range(len(autoencoder_pred)):
+    for m in range(len(parameter_pred)):
         if run_options.data_thermal_fin_nine == 1:
-            autoencoder_pred_dl = parameter_convert_nine(run_options, V, solver, autoencoder_pred[m,:])   
+            parameter_pred_dl = parameter_convert_nine(run_options, V, solver, parameter_pred[m,:])   
         if run_options.data_thermal_fin_vary == 1:
-            autoencoder_pred_dl = convert_array_to_dolfin_function(V, autoencoder_pred[m,:])
-        state_dl, _ = solver.forward(autoencoder_pred_dl)    
+            parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_pred[m,:])
+        state_dl, _ = solver.forward(parameter_pred_dl)    
         state_data_values = state_dl.vector().get_local()
         if hyperp.data_type == 'full':
             fenics_state_pred[m,:] = state_data_values
@@ -37,8 +37,8 @@ def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_
 ###############################################################################
 #                              Fenics Functions                               #
 ###############################################################################
-def parameter_convert_nine(run_options, V, solver, autoencoder_pred):
-    parameter_dl = solver.nine_param_to_function(autoencoder_pred)
+def parameter_convert_nine(run_options, V, solver, parameter_pred):
+    parameter_dl = solver.nine_param_to_function(parameter_pred)
     if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
         parameter_values = parameter_dl.vector().get_local()  
         zero_indices = np.where(parameter_values == 0)[0]
