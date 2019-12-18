@@ -186,10 +186,10 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_inverse
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
-        print('Train Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(mean_loss_train.result(), mean_loss_train_autoencoder.result(), mean_loss_train_inverse_problem.result()))
-        print('Val Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_inverse_problem.result()))
-        print('Test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_inverse_problem.result()))
-        print('Rel Errors: AE: %.3e, Inverse: %.3e, inverse: %.3e\n' %(mean_relative_error_state_autoencoder.result(), mean_relative_error_state_forward_problem.result(), mean_relative_error_parameter.result()))
+        print('Train Loss: Full: %.3e, State: %.3e, Parameter: %.3e' %(mean_loss_train.result(), mean_loss_train_autoencoder.result(), mean_loss_train_inverse_problem.result()))
+        print('Val Loss: Full: %.3e, State: %.3e, Parameter: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_inverse_problem.result()))
+        print('Test Loss: Full: %.3e, State: %.3e, Parameter: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_inverse_problem.result()))
+        print('Rel Errors: AE: %.3e, Forward: %.3e, Inverse: %.3e\n' %(mean_relative_error_state_autoencoder.result(), mean_relative_error_state_forward_problem.result(), mean_relative_error_parameter.result()))
         start_time_epoch = time.time()
         
         #=== Resetting Metrics ===#
