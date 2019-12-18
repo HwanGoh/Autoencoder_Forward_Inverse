@@ -5,6 +5,9 @@ Created on Sat Nov 23 10:53:31 2019
 
 @author: hwan
 """
+import sys
+sys.path.append('../..')
+
 import shutil # for deleting directories
 import os
 import time
@@ -78,7 +81,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    @tf.function
+    #@tf.function
     def train_step(batch_parameter_train, batch_state_obs_train):
         with tf.GradientTape() as tape:
             batch_state_pred_train_AE = NN(batch_state_obs_train)
@@ -94,7 +97,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         return gradients
 
     #=== Validation Step ===#
-    @tf.function
+    #@tf.function
     def val_step(batch_parameter_val, batch_state_obs_val):
         batch_state_pred_val_AE = NN(batch_state_obs_val)
         batch_parameter_pred_val = NN.encoder(batch_state_obs_val)
@@ -106,7 +109,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         mean_loss_val(batch_loss_val)     
     
     #=== Test Step ===#
-    @tf.function
+    #@tf.function
     def test_step(batch_parameter_test, batch_state_obs_test):
         batch_state_pred_test_AE = NN(batch_state_obs_test)
         batch_state_pred_test_forward_problem = NN.decoder(batch_parameter_test)

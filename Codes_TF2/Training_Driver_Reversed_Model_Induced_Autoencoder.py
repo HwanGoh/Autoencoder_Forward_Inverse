@@ -13,10 +13,10 @@ import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
-from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_forward_problem, relative_error
+from Utilities.NN_Reversed_Autoencoder_Fwd_Inv import ReversedAutoencoderFwdInv
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_inverse_problem, relative_error
 from Utilities.loss_model_augmented_thermal_fin import loss_model_augmented
-from Utilities.optimize_model_induced_autoencoder import optimize
+from Utilities.optimize_reversed_model_induced_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -25,7 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
@@ -77,7 +77,7 @@ class RunOptions:
 class FilePaths():              
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
-        autoencoder_type = 'mind'
+        autoencoder_type = 'rev_mind'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
@@ -88,21 +88,15 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyperp.penalty >= 1:
-            hyperp.penalty = int(hyperp.penalty)
-            penalty_string = str(hyperp.penalty)
-        else:
-            penalty_string = str(hyperp.penalty)
-            penalty_string = 'pt' + penalty_string[2:]
         if hyperp.penalty_aug >= 1:
             hyperp.penalty_aug = int(hyperp.penalty_aug)
-            penalty_string_aug = str(hyperp.penalty_aug)
+            penalty_string = str(hyperp.penalty_aug)
         else:
-            penalty_string_aug = str(hyperp.penalty_aug)
-            penalty_string_aug = 'pt' + penalty_string_aug[2:]    
+            penalty_string = str(hyperp.penalty_aug)
+            penalty_string = 'pt' + penalty_string[2:]
         
         #=== File Name ===#
-        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
@@ -145,14 +139,14 @@ def trainer(hyperp, run_options, file_paths):
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+        NN = ReversedAutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_model_augmented,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_model_augmented,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem, storage_array_loss_train_model_augmented,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem, storage_array_loss_val_model_augmented,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_forward_problem, loss_model_augmented, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_inverse_problem, loss_model_augmented, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
@@ -161,12 +155,12 @@ def trainer(hyperp, run_options, file_paths):
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+            NN = ReversedAutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
             
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_model_augmented,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_model_augmented,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_model_augmented,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_model_augmented,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
@@ -177,11 +171,11 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict = {}
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
-    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_forward_problem
+    metrics_dict['loss_train_inverse_problem'] = storage_array_loss_train_inverse_problem
     metrics_dict['loss_train_model_augmented'] = storage_array_loss_train_model_augmented
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
-    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
+    metrics_dict['loss_val_inverse_problem'] = storage_array_loss_val_inverse_problem
     metrics_dict['loss_val_model_augmented'] = storage_array_loss_val_model_augmented
     metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
