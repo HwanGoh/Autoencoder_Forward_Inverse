@@ -1,2 +1,0 @@
-model_checkpoint_path: "maware_thermalfinvary_full_hl5_tl3_hn500_relu_p1_d200_b1000_e3"
-all_model_checkpoint_paths: "maware_thermalfinvary_full_hl5_tl3_hn500_relu_p1_d200_b1000_e3"
