@@ -15,7 +15,7 @@ from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error
-from Utilities.optimize_reversed_model_aware_autoencoder import optimize
+from Utilities.optimize_model_aware_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -31,7 +31,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty           = 1
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 100
     
 class RunOptions:
     def __init__(self): 
@@ -49,12 +49,12 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -75,7 +75,8 @@ class RunOptions:
 class FilePaths():              
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
-        autoencoder_type = 'rev_maware'
+        self.autoencoder_type = 'rev_'
+        self.autoencoder_loss = 'maware'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
@@ -94,7 +95,7 @@ class FilePaths():
             penalty_string = 'pt' + penalty_string[2:] 
         
         #=== File Name ===#
-        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
@@ -150,7 +151,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
-        storage_array_relative_error_state_autoencoder, storage_array_relative_error_state_forward_problem, storage_array_relative_error_parameter\
+        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter, storage_array_relative_error_state_forward_problem\
         = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    parameter_dimension, num_batches_train)
@@ -166,9 +167,9 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
-        storage_array_relative_error_state_autoencoder, storage_array_relative_error_state_forward_problem, storage_array_relative_error_parameter\
+        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter, storage_array_relative_error_state_forward_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, relative_error,\
+                               hyperp, run_options, file_paths, NN, loss_autoencoder, relative_error,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                                parameter_dimension, num_batches_train)
 
@@ -179,8 +180,8 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
     metrics_dict['relative_error_state_autoencoder'] = storage_array_relative_error_state_autoencoder
-    metrics_dict['relative_error_state_forward_problem'] = storage_array_relative_error_state_forward_problem
     metrics_dict['relative_error_parameter'] = storage_array_relative_error_parameter
+    metrics_dict['relative_error_state_forward_problem'] = storage_array_relative_error_state_forward_problem
     df_metrics = pd.DataFrame(metrics_dict)
     df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
 

@@ -102,7 +102,13 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             batch_latent_pred_train = NN.encoder(batch_data_train)
             batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)                    
             batch_loss_train_encoder = loss_encoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty)
-            batch_loss_train_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_latent_train, batch_data_pred_train_AE, hyperp.penalty_aug)
+            if file_paths.autoencoder_type == 'rev_':
+                batch_state_obs_train = batch_data_train
+                batch_parameter_pred = NN.encoder(batch_data_train)
+            else:
+                batch_state_obs_train = batch_latent_train
+                batch_parameter_pred = batch_data_pred_train_AE
+            batch_loss_train_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_loss_train_model_augmented
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -119,7 +125,13 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         batch_latent_pred_val = NN.encoder(batch_data_val)
         batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, batch_data_val)
         batch_loss_val_encoder = loss_encoder(batch_latent_pred_val, batch_latent_val, hyperp.penalty)
-        batch_loss_val_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_latent_val, batch_data_pred_val_AE, hyperp.penalty_aug)
+        if file_paths.autoencoder_type == 'rev_':
+            batch_state_obs_val = batch_data_val
+            batch_parameter_pred = NN.encoder(batch_data_val)
+        else:
+            batch_state_obs_val = batch_latent_val
+            batch_parameter_pred = batch_data_pred_val_AE
+        batch_loss_val_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_state_obs_val, batch_parameter_pred, hyperp.penalty_aug)
         batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_encoder + batch_loss_val_model_augmented
         mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         mean_loss_val_encoder(batch_loss_val_encoder)
@@ -134,7 +146,13 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         batch_latent_pred_test = NN.encoder(batch_data_test)
         batch_loss_test_autoencoder = loss_autoencoder(batch_data_pred_test_AE, batch_data_test)
         batch_loss_test_encoder = loss_encoder(batch_latent_pred_test, batch_latent_test, hyperp.penalty)
-        batch_loss_test_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_latent_test, batch_data_pred_test_AE, hyperp.penalty_aug)
+        if file_paths.autoencoder_type == 'rev_':
+            batch_state_obs_test = batch_data_test
+            batch_parameter_pred = NN.encoder(batch_data_test)
+        else:
+            batch_state_obs_test = batch_latent_test
+            batch_parameter_pred = batch_data_pred_test_AE
+        batch_loss_test_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_state_obs_test, batch_parameter_pred, hyperp.penalty_aug)
         batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder + batch_loss_test_model_augmented
         mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         mean_loss_test_encoder(batch_loss_test_encoder)
