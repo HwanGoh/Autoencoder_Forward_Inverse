@@ -55,7 +55,7 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
 ###############################################################################
 #                                 Test Data                                   #
 ###############################################################################
-def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimensions, batch_size, random_seed):
+def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimensions):
     
     #=== Load observation indices ===# 
     print('Loading Boundary Indices')
@@ -78,7 +78,4 @@ def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimension
     data_input_shape = parameter_test.shape[1:]
     parameter_dimension = parameter_test.shape[-1]
     
-    #=== Shuffling Data ===#
-    parameter_and_state_obs_test = tf.data.Dataset.from_tensor_slices((parameter_test, state_obs_test)).shuffle(8192, seed=random_seed).batch(batch_size)
-    
-    return obs_indices, parameter_and_state_obs_test, data_input_shape, parameter_dimension
+    return obs_indices, parameter_test, state_obs_test, data_input_shape, parameter_dimension

@@ -26,7 +26,7 @@ class AutoencoderFwdInv(tf.keras.Model):
         #=== Define Other Attributes ===#
         self.hidden_layers_decoder = [] # This will be a list of layers
         activation = hyperp.activation
-        self.activations = ['linear'] + [activation]*hyperp.num_hidden_layers + ['linear']
+        self.activations = ['not required'] + [activation]*hyperp.num_hidden_layers + ['linear']
         self.activations[hyperp.truncation_layer] = 'linear' # This is the identity activation
         
         #=== Weights and Biases Initializer ===#

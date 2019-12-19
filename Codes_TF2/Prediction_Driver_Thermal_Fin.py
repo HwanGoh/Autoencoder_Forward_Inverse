@@ -5,6 +5,9 @@ Created on Sun Sep 15 15:34:49 2019
 
 @author: hwan
 """
+import tensorflow as tf
+from Utilities.get_thermal_fin_data import load_thermal_fin_test_data
+from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.predict_and_save import predict_and_save
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -20,11 +23,21 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
+    penalty_aug       = 1
     batch_size        = 1000
     num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
+        #=== Autoencoder Type ===#
+        self.use_standard_autoencoder = 1
+        self.use_reverse_autoencoder = 0
+        
+        #=== Autoencoder Loss ===#
+        self.use_model_aware = 1
+        self.use_model_augmented = 0
+        self.use_model_induced = 0
+        
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
@@ -56,7 +69,16 @@ class RunOptions:
 class FilePaths():              
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
-        autoencoder_type = 'maware'
+        if run_options.use_standard_autoencoder == 1:
+            self.autoencoder_type = ''
+        if run_options.use_reverse_autoencoder == 1:
+            self.autoencoder_type = 'rev_'
+        if run_options.use_model_aware == 1:
+            self.autoencoder_loss = 'maware'
+        if run_options.use_model_augmented == 1:
+            self.autoencoder_loss = 'maug'
+        if run_options.use_model_induced == 1:
+            self.autoencoder_loss = 'mind'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
@@ -73,9 +95,20 @@ class FilePaths():
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
-        
+        if hyperp.penalty_aug >= 1:
+            hyperp.penalty_aug = int(hyperp.penalty_aug)
+            penalty_string_aug = str(hyperp.penalty_aug)
+        else:
+            penalty_string_aug = str(hyperp.penalty_aug)
+            penalty_string_aug = 'pt' + penalty_string_aug[2:]    
+ 
         #=== File Name ===#
-        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        if run_options.use_model_aware == 1:
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        if run_options.use_model_augmented == 1:
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        if run_options.use_model_induced == 1:
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
@@ -100,9 +133,42 @@ class FilePaths():
         self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
         self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'     
-            
+
 ###############################################################################
-#                                  Driver                                     #
+#                 Load Testing Data and Trained Neural Network                #
+###############################################################################
+def load_predict_save(hyperp, run_options, file_paths): 
+    #=== Load Testing Data ===# 
+    obs_indices, parameter_test, state_obs_test, data_input_shape, parameter_dimension\
+    = load_thermal_fin_test_data(file_paths, run_options.num_data_test, run_options.parameter_dimensions) 
+
+    #=== Shuffling Data and Forming Batches ===#
+    parameter_and_state_obs_test = tf.data.Dataset.from_tensor_slices((parameter_test, state_obs_test)).shuffle(8192, seed=run_options.random_seed).batch(hyperp.batch_size)
+
+    #=== Data and Latent Dimensions of Autoencoder ===#    
+    if run_options.use_standard_autoencoder == 1:
+        data_dimension = parameter_dimension
+        if hyperp.data_type == 'full':
+            latent_dimension = run_options.full_domain_dimensions
+        if hyperp.data_type == 'bnd':
+            latent_dimension = len(obs_indices)
+    
+    if run_options.use_reverse_autoencoder == 1:
+        if hyperp.data_type == 'full':
+            data_dimension = run_options.full_domain_dimensions
+        if hyperp.data_type == 'bnd':
+            data_dimension = len(obs_indices)
+        latent_dimension = parameter_dimension
+        
+    #=== Load Trained Neural Network ===#
+    NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension, obs_indices)
+    NN.load_weights(file_paths.NN_savefile_name)  
+    
+    #=== Predict and Save ===#
+    predict_and_save(hyperp, run_options, file_paths, NN, parameter_and_state_obs_test, obs_indices)
+
+###############################################################################
+#                                    Driver                                   #
 ###############################################################################
 if __name__ == "__main__":
     
@@ -117,12 +183,13 @@ if __name__ == "__main__":
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
         hyperp.penalty           = float(sys.argv[6])
-        hyperp.batch_size        = int(sys.argv[7])
-        hyperp.num_epochs        = int(sys.argv[8])
+        hyperp.penalty_aug       = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Predict and Save ===#
-    predict_and_save(hyperp, run_options, file_paths)
+    load_predict_save(hyperp, run_options, file_paths)
     
