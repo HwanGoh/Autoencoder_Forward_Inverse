@@ -13,8 +13,8 @@ import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
-from Utilities.NN_Reversed_Autoencoder_Fwd_Inv import ReversedAutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_inverse_problem, relative_error
+from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error
 from Utilities.optimize_reversed_model_aware_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
@@ -129,23 +129,30 @@ def trainer(hyperp, run_options, file_paths):
     = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions)    
        
     #=== Construct Validation Set and Batches ===#   
-    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
     run_options.num_data_train, num_data_val, run_options.num_data_test,\
     num_batches_train, num_batches_val, num_batches_test\
-    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
+    = form_train_val_test_batches(state_obs_train, parameter_train, state_obs_test, parameter_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
+    
+    #=== Data and Latent Dimensions of Autoencoder ===#        
+    if hyperp.data_type == 'full':
+        data_dimension = run_options.full_domain_dimensions
+    if hyperp.data_type == 'bnd':
+        data_dimension = len(obs_indices)
+    latent_dimension = parameter_dimension
     
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
         #=== Neural Network ===#
-        NN = ReversedAutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+        NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
         
         #=== Training ===#
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_state_forward_problem, storage_array_relative_error_parameter\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_inverse_problem, relative_error,\
-                   parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
+                   state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    parameter_dimension, num_batches_train)
     
     #=== Distributed Training ===#
@@ -153,7 +160,7 @@ def trainer(hyperp, run_options, file_paths):
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = ReversedAutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
             
         #=== Training ===#
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
@@ -162,7 +169,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_state_forward_problem, storage_array_relative_error_parameter\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, relative_error,\
-                               parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+                               state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                                parameter_dimension, num_batches_train)
 
     #=== Saving Metrics ===#

@@ -13,8 +13,8 @@ import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
-from Utilities.NN_Reversed_Autoencoder_Fwd_Inv import ReversedAutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_inverse_problem, relative_error
+from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error
 from Utilities.loss_model_augmented_thermal_fin import loss_model_augmented
 from Utilities.optimize_reversed_model_induced_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
@@ -139,14 +139,14 @@ def trainer(hyperp, run_options, file_paths):
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
         #=== Neural Network ===#
-        NN = ReversedAutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+        NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
         
         #=== Training ===#
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem, storage_array_loss_train_model_augmented,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem, storage_array_loss_val_model_augmented,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_inverse_problem, loss_model_augmented, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder, loss_model_augmented, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
@@ -155,7 +155,7 @@ def trainer(hyperp, run_options, file_paths):
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = ReversedAutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+            NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
             
         #=== Training ===#
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_model_augmented,\
@@ -163,7 +163,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
+                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder, relative_error,\
                                parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                                parameter_dimension, num_batches_train)
 

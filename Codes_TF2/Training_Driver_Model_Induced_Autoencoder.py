@@ -33,7 +33,7 @@ class Hyperparameters:
     penalty           = 1
     penalty_aug       = 1
     batch_size        = 1000
-    num_epochs        = 3
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
@@ -51,7 +51,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
-        self.num_data_train = 200
+        self.num_data_train = 10000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -142,10 +142,17 @@ def trainer(hyperp, run_options, file_paths):
     num_batches_train, num_batches_val, num_batches_test\
     = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
     
+    #=== Data and Latent Dimensions of Autoencoder ===#        
+    data_dimension = parameter_dimension
+    if hyperp.data_type == 'full':
+        latent_dimension = run_options.full_domain_dimensions
+    if hyperp.data_type == 'bnd':
+        latent_dimension = len(obs_indices)
+    
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+        NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
         
         #=== Training ===#
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
@@ -161,7 +168,7 @@ def trainer(hyperp, run_options, file_paths):
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
             
         #=== Training ===#
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
