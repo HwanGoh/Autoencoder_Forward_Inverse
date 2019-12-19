@@ -5,13 +5,15 @@ Created on Sun Sep 15 15:34:49 2019
 
 @author: hwan
 """
+import sys
+
 import tensorflow as tf
 from Utilities.get_thermal_fin_data import load_thermal_fin_test_data
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.predict_and_save import predict_and_save
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
-import sys
+
 
 ###############################################################################
 #                       Hyperparameters and Run_Options                       #
@@ -43,7 +45,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -110,14 +112,14 @@ class FilePaths():
         if run_options.use_model_induced == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-        #=== Loading and saving data ===#
+        #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
         self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + fin_dimension + parameter_type
         self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + fin_dimension + '_' + hyperp.data_type + parameter_type
         self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + fin_dimension + parameter_type 
         self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + fin_dimension + '_' + hyperp.data_type + parameter_type
         
-        #=== Save File Name ===#
+        #=== Save File Directory ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
         
@@ -161,7 +163,7 @@ def load_predict_save(hyperp, run_options, file_paths):
         latent_dimension = parameter_dimension
         
     #=== Load Trained Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension, obs_indices)
+    NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
     NN.load_weights(file_paths.NN_savefile_name)  
     
     #=== Predict and Save ===#

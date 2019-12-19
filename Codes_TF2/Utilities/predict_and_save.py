@@ -30,7 +30,7 @@ def predict_and_save(hyperp, run_options, file_paths, NN, parameter_and_state_ob
             parameter_pred = NN.decoder(state_test.T) 
             
     #=== Predictions for Reversed Autoencoder ===#
-    if run_options.use_reversed_autoencoder == 1:
+    if run_options.use_reverse_autoencoder == 1:
         state_pred = NN.decoder(parameter_test.T)
         if hyperp.data_type == 'bnd':
             state_test_bnd = state_test[obs_indices].flatten()

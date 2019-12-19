@@ -9,7 +9,7 @@ Created on Wed Sep 18 20:53:06 2019
 import subprocess
 import copy
 from Utilities.get_hyperparameter_permutations import get_hyperparameter_permutations
-from Plotting_Driver_Model_Aware_Autoencoder import Hyperparameters
+from Plotting_Driver_Thermal_Fin import Hyperparameters
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
@@ -28,6 +28,7 @@ if __name__ == '__main__':
     hyperp.truncation_layer  = [3] # Indexing includes input and output layer with input layer indexed by 0
     hyperp.num_hidden_nodes  = [500]
     hyperp.penalty           = [0.01, 1]
+    hyperp.penalty_aug       = [1]
     hyperp.batch_size        = [1000]
     hyperp.num_epochs        = [1000]
     
@@ -43,8 +44,8 @@ if __name__ == '__main__':
         scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
     
     for scenario in scenarios_class_instances:
-        #proc = subprocess.Popen(['./Prediction_Driver_Model_Aware_Autoencoder.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
-        proc = subprocess.Popen(['./Plotting_Driver_Model_Aware_Autoencoder.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.2f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
+        #proc = subprocess.Popen(['./Prediction_Driver_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.3f}', f'{scenario.penalty_aug:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
+        proc = subprocess.Popen(['./Plotting_Driver_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.2f}', f'{scenario.penalty_aug:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
         proc.wait()
         
     print('All scenarios computed')
