@@ -91,15 +91,15 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         def train_step(batch_data_train, batch_latent_train):
             with tf.GradientTape() as tape:
                 batch_data_pred_train_AE = NN(batch_data_train)
-                batch_state_pred_train = NN.encoder(batch_data_train)
+                batch_latent_pred_train = NN.encoder(batch_data_train)
                 unscaled_replica_batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)
-                unscaled_replica_batch_loss_train_encoder = loss_encoder(batch_state_pred_train, batch_latent_train, hyperp.penalty)
-                unscaled_replica_batch_loss_train_batch = unscaled_replica_batch_loss_train_autoencoder + unscaled_replica_batch_loss_train_encoder
-                scaled_replica_batch_loss_train = tf.reduce_sum(unscaled_replica_batch_loss_train_batch * (1./GLOBAL_BATCH_SIZE))
+                unscaled_replica_batch_loss_train_encoder = loss_encoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty)
+                unscaled_replica_batch_loss_train = unscaled_replica_batch_loss_train_autoencoder + unscaled_replica_batch_loss_train_encoder
+                scaled_replica_batch_loss_train = tf.reduce_sum(unscaled_replica_batch_loss_train * (1./GLOBAL_BATCH_SIZE))
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
             mean_loss_train_autoencoder(unscaled_replica_batch_loss_train_autoencoder)
-            mean_loss_train_encoder(unscaled_replica_batch_loss_train_batch)
+            mean_loss_train_encoder(unscaled_replica_batch_loss_train)
             return scaled_replica_batch_loss_train
         
         @tf.function
@@ -110,9 +110,9 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         #=== Validation Step ===#
         def val_step(batch_data_val, batch_latent_val):
             batch_data_pred_val_AE = NN(batch_data_val)
-            batch_state_pred_val = NN.encoder(batch_data_val)
+            batch_latent_pred_val = NN.encoder(batch_data_val)
             unscaled_replica_batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, batch_data_val)
-            unscaled_replica_batch_loss_val_encoder = loss_encoder(batch_state_pred_val, batch_latent_val, hyperp.penalty)
+            unscaled_replica_batch_loss_val_encoder = loss_encoder(batch_latent_pred_val, batch_latent_val, hyperp.penalty)
             unscaled_replica_batch_loss_val = unscaled_replica_batch_loss_val_autoencoder + unscaled_replica_batch_loss_val_encoder
             mean_loss_val_autoencoder(unscaled_replica_batch_loss_val_autoencoder)
             mean_loss_val_encoder(unscaled_replica_batch_loss_val_encoder)
@@ -126,15 +126,15 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         def test_step(batch_data_test, batch_latent_test):
             batch_data_pred_test_AE = NN(batch_data_test)
             batch_data_pred_test_decoder = NN.decoder(batch_latent_test)
-            batch_state_pred_test = NN.encoder(batch_data_test)
+            batch_latent_pred_test = NN.encoder(batch_data_test)
             unscaled_replica_batch_loss_test_autoencoder = loss_autoencoder(batch_data_pred_test_AE, batch_data_test)
-            unscaled_replica_batch_loss_test_encoder = loss_encoder(batch_state_pred_test, batch_latent_test, hyperp.penalty)
+            unscaled_replica_batch_loss_test_encoder = loss_encoder(batch_latent_pred_test, batch_latent_test, hyperp.penalty)
             unscaled_replica_batch_loss_test = unscaled_replica_batch_loss_test_autoencoder + unscaled_replica_batch_loss_test_encoder
             mean_loss_test_autoencoder(unscaled_replica_batch_loss_test_autoencoder)
             mean_loss_test_encoder(unscaled_replica_batch_loss_test_encoder)
             mean_loss_test(unscaled_replica_batch_loss_test)
             mean_relative_error_data_autoencoder(relative_error(batch_data_pred_test_AE, batch_data_test))
-            mean_relative_error_latent_encoder(relative_error(batch_state_pred_test, batch_latent_test))
+            mean_relative_error_latent_encoder(relative_error(batch_latent_pred_test, batch_latent_test))
             mean_relative_error_data_decoder(relative_error(batch_data_pred_test_decoder, batch_data_test))
         
         @tf.function
@@ -208,9 +208,9 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
-        print('Train Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(mean_loss_train, mean_loss_train_autoencoder.result(), mean_loss_train_encoder.result()))
-        print('Val Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_encoder.result()))
-        print('Test Loss: Full: %.3e, Parameter: %.3e, State: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_encoder.result()))
+        print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e' %(mean_loss_train, mean_loss_train_autoencoder.result(), mean_loss_train_encoder.result()))
+        print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_encoder.result()))
+        print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_encoder.result()))
         print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e\n' %(mean_relative_error_data_autoencoder.result(), mean_relative_error_latent_encoder.result(), mean_relative_error_data_decoder.result()))
         start_time_epoch = time.time()   
         

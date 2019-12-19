@@ -208,7 +208,7 @@ if __name__ == "__main__":
             storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
             storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
             storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
-            storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+            storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
             = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
                        parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                        parameter_dimension, num_batches_train)
@@ -225,7 +225,7 @@ if __name__ == "__main__":
                 storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
                 storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
                 storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
-                storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+                storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
                 = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
                                        parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                                        parameter_dimension, num_batches_train)
@@ -239,8 +239,8 @@ if __name__ == "__main__":
         metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
         metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
         metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
-        metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
         metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
+        metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
         df_metrics = pd.DataFrame(metrics_dict)
         df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
         

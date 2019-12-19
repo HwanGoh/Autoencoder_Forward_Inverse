@@ -31,7 +31,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty           = 1
     batch_size        = 1000
-    num_epochs        = 3
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
@@ -49,7 +49,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 200
+        self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -174,8 +174,8 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
     metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
     metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
-    metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
     metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
+    metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
     df_metrics = pd.DataFrame(metrics_dict)
     df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
 
