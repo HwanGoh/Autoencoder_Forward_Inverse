@@ -32,8 +32,8 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.use_standard_autoencoder = 0
+        self.use_reverse_autoencoder = 1
         
         #=== Autoencoder Loss ===#
         self.use_model_aware = 1
@@ -123,14 +123,11 @@ class FilePaths():
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
         
-        #=== Save File Path for One Instance of Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension
-        if hyperp.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension
-        if hyperp.data_type == 'bnd':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension
-         
-        #=== Save File Path for Predictions ===#    
+        #=== File Path for Loading One Instance of Test Data ===#
+        self.loadfile_name_parameter_test = '../../Datasets/Thermal_Fin/' + '/parameter_test' + fin_dimension + parameter_type
+        self.loadfile_name_state_test = '../../Datasets/Thermal_Fin/' + '/state_test' + fin_dimension + parameter_type
+       
+        #=== Save File Path for Predictions ===#
         self.savefile_name_parameter_test = self.NN_savefile_directory + '/' + 'parameter_test' + fin_dimension + parameter_type
         self.savefile_name_state_test = self.NN_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'

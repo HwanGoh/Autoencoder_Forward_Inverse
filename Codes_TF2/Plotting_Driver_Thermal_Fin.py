@@ -29,8 +29,8 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.use_standard_autoencoder = 0
+        self.use_reverse_autoencoder = 1
         
         #=== Autoencoder Loss ===#
         self.use_model_aware = 1
@@ -38,8 +38,8 @@ class RunOptions:
         self.use_model_induced = 0
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 0
-        self.data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 1
+        self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
         self.num_data_train = 50000

@@ -14,9 +14,9 @@ def predict_and_save(hyperp, run_options, file_paths, NN, parameter_and_state_ob
     #   Form Predictions  #
     #######################      
     #=== From Parameter Instance ===#
-    df_parameter_test = pd.read_csv(file_paths.savefile_name_parameter_test + '.csv')
+    df_parameter_test = pd.read_csv(file_paths.loadfile_name_parameter_test + '.csv')
     parameter_test = df_parameter_test.to_numpy()
-    df_state_test = pd.read_csv(file_paths.savefile_name_state_test + '.csv')
+    df_state_test = pd.read_csv(file_paths.loadfile_name_state_test + '.csv')
     state_test = df_state_test.to_numpy()
     
     #=== Predictions for Standard Autoencoder ===#

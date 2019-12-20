@@ -177,8 +177,10 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict = {}
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
+    metrics_dict['loss_train_inverse_problem'] = storage_array_loss_train_inverse_problem
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
+    metrics_dict['loss_val_inverse_problem'] = storage_array_loss_val_inverse_problem
     metrics_dict['relative_error_state_autoencoder'] = storage_array_relative_error_state_autoencoder
     metrics_dict['relative_error_parameter'] = storage_array_relative_error_parameter
     metrics_dict['relative_error_state_forward_problem'] = storage_array_relative_error_state_forward_problem
