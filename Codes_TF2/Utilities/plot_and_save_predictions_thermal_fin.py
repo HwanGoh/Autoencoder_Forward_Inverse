@@ -68,11 +68,12 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
     #=== Plotting Test Parameter and Test State ===#  
     if run_options.fin_dimensions_2D == 1:
         p_test_fig, ax = plot_2D(parameter_test_dl, 'True Parameter', fig_size)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        plt.colorbar(p_test_fig, cax = cax)  
     if run_options.fin_dimensions_3D == 1:
-        p_test_fig = plot_3D(parameter_test_dl, 'True Parameter', angle_1 = 90, angle_2 = 270)
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-    plt.colorbar(p_test_fig, cax = cax)  
+        p_test_fig, ax = plot_3D(parameter_test_dl, 'True Parameter', angle_1 = 90, angle_2 = 270)
+        plt.colorbar(p_test_fig)  
     plt.savefig(file_paths.figures_savefile_name_parameter_test, dpi=300, bbox_inches = 'tight', pad_inches = 0)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_test)   
     plt.show()
@@ -80,11 +81,12 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
     if hyperp.data_type == 'full': # No state prediction for bnd only data
         if run_options.fin_dimensions_2D == 1:
             s_test_fig, ax = plot_2D(state_test_dl, 'True State', fig_size)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="5%", pad=0.05)
+            plt.colorbar(s_test_fig, cax = cax)
         if run_options.fin_dimensions_3D == 1:
-            s_test_fig = plot_3D(state_test_dl, 'True State', angle_1 = 90, angle_2 = 270)
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
-        plt.colorbar(s_test_fig, cax = cax)
+            s_test_fig, ax = plot_3D(state_test_dl, 'True State', angle_1 = 90, angle_2 = 270)
+            plt.colorbar(s_test_fig)
         plt.savefig(file_paths.figures_savefile_name_state_test, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_test) 
         plt.show()
@@ -104,11 +106,12 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
     #=== Plotting Predicted Parameter and State ===#
     if run_options.fin_dimensions_2D == 1:
         p_pred_fig, ax = plot_2D(parameter_pred_dl, 'Decoder Estimation of True Parameter', fig_size)
+        divider = make_axes_locatable(ax)
+        cax = divider.append_axes("right", size="5%", pad=0.05)
+        plt.colorbar(p_test_fig, cax = cax)
     if run_options.fin_dimensions_3D == 1:
-        p_pred_fig = plot_3D(parameter_pred_dl, 'Decoder Estimation of True Parameter', angle_1 = 90, angle_2 = 270)
-    divider = make_axes_locatable(ax)
-    cax = divider.append_axes("right", size="5%", pad=0.05)
-    plt.colorbar(p_test_fig, cax = cax)
+        p_pred_fig, ax = plot_3D(parameter_pred_dl, 'Decoder Estimation of True Parameter', angle_1 = 90, angle_2 = 270)
+        plt.colorbar(p_test_fig)
     plt.savefig(file_paths.figures_savefile_name_parameter_pred, dpi=300, bbox_inches = 'tight', pad_inches = 0)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_pred) 
     plt.show()
@@ -119,11 +122,12 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
         state_pred_dl = convert_array_to_dolfin_function(V, state_pred)
         if run_options.fin_dimensions_2D == 1:
             s_pred_fig, ax = plot_2D(state_pred_dl, 'Encoder Estimation of True State', fig_size)
+            divider = make_axes_locatable(ax)
+            cax = divider.append_axes("right", size="5%", pad=0.05)
+            plt.colorbar(s_test_fig, cax = cax)
         if run_options.fin_dimensions_3D == 1:
-            s_pred_fig = plot_3D(state_pred_dl, 'Encoder Estimation of True State', angle_1 = 90, angle_2 = 270)
-        divider = make_axes_locatable(ax)
-        cax = divider.append_axes("right", size="5%", pad=0.05)
-        plt.colorbar(s_test_fig, cax = cax)
+            s_pred_fig, ax = plot_3D(state_pred_dl, 'Encoder Estimation of True State', angle_1 = 90, angle_2 = 270)
+            plt.colorbar(s_test_fig)
         plt.savefig(file_paths.figures_savefile_name_state_pred, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_pred) 
         plt.show()
