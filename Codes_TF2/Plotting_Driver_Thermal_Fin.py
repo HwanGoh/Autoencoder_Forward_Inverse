@@ -38,8 +38,8 @@ class RunOptions:
         self.use_model_induced = 0
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
         self.num_data_train = 50000
@@ -73,7 +73,7 @@ class FilePaths():
         if run_options.use_reverse_autoencoder == 1:
             self.autoencoder_type = 'rev_'
         if run_options.use_model_aware == 1:
-            self.autoencoder_loss = 'maware'
+            self.autoencoder_loss = ''
         if run_options.use_model_augmented == 1:
             self.autoencoder_loss = 'maug'
         if run_options.use_model_induced == 1:
@@ -103,7 +103,7 @@ class FilePaths():
  
         #=== File Name ===#
         if run_options.use_model_aware == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_augmented == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:

@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 import sys
 sys.path.append('../..')
@@ -73,7 +74,8 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
         plt.colorbar(p_test_fig, cax = cax)  
     if run_options.fin_dimensions_3D == 1:
         p_test_fig, ax = plot_3D(parameter_test_dl, 'True Parameter', angle_1 = 90, angle_2 = 270)
-        plt.colorbar(p_test_fig)  
+        caxis = inset_axes(ax, width="5%", height="100%", loc='right')
+        plt.colorbar(p_test_fig, cax=caxis, ticks=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0])  
     plt.savefig(file_paths.figures_savefile_name_parameter_test, dpi=300, bbox_inches = 'tight', pad_inches = 0)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_test)   
     plt.show()
@@ -86,7 +88,8 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
             plt.colorbar(s_test_fig, cax = cax)
         if run_options.fin_dimensions_3D == 1:
             s_test_fig, ax = plot_3D(state_test_dl, 'True State', angle_1 = 90, angle_2 = 270)
-            plt.colorbar(s_test_fig)
+            caxis = inset_axes(ax, width="5%", height="60%", loc='right')
+            plt.colorbar(s_test_fig, cax=caxis, ticks=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0])
         plt.savefig(file_paths.figures_savefile_name_state_test, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_test) 
         plt.show()
@@ -111,7 +114,8 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
         plt.colorbar(p_test_fig, cax = cax)
     if run_options.fin_dimensions_3D == 1:
         p_pred_fig, ax = plot_3D(parameter_pred_dl, 'Decoder Estimation of True Parameter', angle_1 = 90, angle_2 = 270)
-        plt.colorbar(p_test_fig)
+        caxis = inset_axes(ax, width="5%", height="60%", loc='right')
+        plt.colorbar(p_test_fig, cax=caxis, ticks=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0])
     plt.savefig(file_paths.figures_savefile_name_parameter_pred, dpi=300, bbox_inches = 'tight', pad_inches = 0)
     print('Figure saved to ' + file_paths.figures_savefile_name_parameter_pred) 
     plt.show()
@@ -127,7 +131,8 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
             plt.colorbar(s_test_fig, cax = cax)
         if run_options.fin_dimensions_3D == 1:
             s_pred_fig, ax = plot_3D(state_pred_dl, 'Encoder Estimation of True State', angle_1 = 90, angle_2 = 270)
-            plt.colorbar(s_test_fig)
+            caxis = inset_axes(ax, width="5%", height="60%", loc='right')
+            plt.colorbar(s_test_fig, cax=caxis, ticks=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0])
         plt.savefig(file_paths.figures_savefile_name_state_pred, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_pred) 
         plt.show()
