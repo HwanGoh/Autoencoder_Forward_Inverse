@@ -49,7 +49,7 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
 ###############################################################################
 #                             Plotting Predictions                            #
 ###############################################################################
-    #=== Converting Test Parameter Into Dolfin Object and Computed State Observation ===#       
+    #=== Converting Test Parameter Into Dolfin Object and Computing State Observation ===#       
     if run_options.data_thermal_fin_nine == 1:
         parameter_test_dl = solver.nine_param_to_function(parameter_test)
         if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
@@ -89,7 +89,8 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
         if run_options.fin_dimensions_3D == 1:
             s_test_fig, ax = plot_3D(state_test_dl, 'True State', angle_1 = 90, angle_2 = 270, fig_size=fig_size)
             caxis = inset_axes(ax, width="5%", height="60%", loc='right')
-            plt.colorbar(s_test_fig, cax=caxis, ticks=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0])
+            plt.colorbar(s_test_fig, cax=caxis, ticks=[0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4]) # piecewise constant
+            #plt.colorbar(s_test_fig, cax=caxis, ticks=[0.0,0.2,0.4,0.6,0.8,1.0]) # spatially varying
         plt.savefig(file_paths.figures_savefile_name_state_test, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_test) 
         plt.show()
@@ -132,7 +133,8 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
         if run_options.fin_dimensions_3D == 1:
             s_pred_fig, ax = plot_3D(state_pred_dl, 'Encoder Estimation of True State', angle_1 = 90, angle_2 = 270, fig_size=fig_size)
             caxis = inset_axes(ax, width="5%", height="60%", loc='right')
-            plt.colorbar(s_test_fig, cax=caxis, ticks=[0.5,1.0,1.5,2.0,2.5,3.0,3.5,4.0])
+            plt.colorbar(s_test_fig, cax=caxis, ticks=[0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4]) # piecewise constant
+            #plt.colorbar(s_test_fig, cax=caxis, ticks=[0.0,0.2,0.4,0.6,0.8,1.0]) # spatially varying
         plt.savefig(file_paths.figures_savefile_name_state_pred, dpi=300, bbox_inches = 'tight', pad_inches = 0)
         print('Figure saved to ' + file_paths.figures_savefile_name_state_pred) 
         plt.show()
