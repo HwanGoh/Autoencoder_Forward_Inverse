@@ -107,27 +107,9 @@ class FilePaths():
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
-        
-        #=== Save File Directory ===#
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
-  
-        #=== Save File Path Observation Indices ===#
-        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
-    
-        #=== Save File Path for Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension + parameter_type
-        if hyperp.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension + parameter_type
-        if hyperp.data_type == 'bndonly':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension + parameter_type           
-            
-        #=== Loading Predictions ===#    
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'
             
         #=== Savefile Path for Figures ===#    
-        self.figures_savefile_directory = '../Figures/' + self.filename
+        self.figures_savefile_directory = '/home/hwan/Documents/Github_Codes/Autoencoder_Forward_Inverse/Figures/' + self.filename
         self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
         self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test' + fin_dimension + parameter_type
         self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
@@ -162,7 +144,11 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and Save Paraview ===#
-    plot_and_save_predictions_paraview(file_paths)
+    if run_options.data_thermal_fin_vary == 1:
+        cbar_RGB_parameter_test = [0.30348012, 0.231373, 0.298039, 0.752941, 1.88775191, 0.865003, 0.865003, 0.865003, 3.4720237000000003, 0.705882, 0.0156863, 0.14902]
+        cbar_RGB_state_test = [0.004351256241582283, 0.231373, 0.298039, 0.752941, 0.5831443090996347, 0.865003, 0.865003, 0.865003, 1.1619373619576872, 0.705882, 0.0156863, 0.14902]
+    
+    plot_and_save_predictions_paraview(file_paths, cbar_RGB_parameter_test, cbar_RGB_state_test)
     
     
     
