@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<VTKFile type="Collection" version="0.1">
-  <Collection>
-    <DataSet timestep="0" part="0" file="rev_maware_thermalfinvary_full_3D_hl5_tl3_hn500_relu_p10_d50000_b1000_e1000_state_pred000000.vtu" />
-  </Collection>
-</VTKFile>

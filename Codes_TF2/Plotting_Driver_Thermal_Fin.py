@@ -8,9 +8,9 @@ Created on Sun Sep 15 15:34:49 2019
 import sys
 import os
 from Utilities.plot_and_save_predictions_thermal_fin import plot_and_save_predictions
-from Utilities.plot_and_save_predictions_paraview_thermal_fin import plot_and_save_predictions_paraview
+from Utilities.plot_and_save_predictions_vtkfiles_thermal_fin import plot_and_save_predictions_vtkfiles
 from Utilities.plot_and_save_metrics import plot_and_save_metrics
-from Utilities.save_paraview_png import save_paraview_png
+from Utilities.plot_and_save_predictions_paraview import plot_and_save_predictions_paraview
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -164,8 +164,14 @@ if __name__ == "__main__":
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
     
-    #=== Plot and Save ===#
+    #=== Plot and Save Matplotlib ===#
     fig_size = (5,5)
     #plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
-    plot_and_save_predictions_paraview(hyperp, run_options, file_paths)
     #plot_and_save_metrics(hyperp, run_options, file_paths, fig_size)
+    
+    #=== Plot and Save Paraview ===#
+    #plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
+    plot_and_save_predictions_paraview(file_paths)
+    
+    
+    
