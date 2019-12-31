@@ -18,7 +18,6 @@ sys.path.append('../..')
 from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
 from Thermal_Fin_Heat_Simulator.Generate_and_Save_Thermal_Fin_Data import convert_array_to_dolfin_function
-from Utilities.save_paraview_png import save_paraview_png
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -90,8 +89,9 @@ def plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths):
     #=== Saving as vtkfile ===#
     vtkfile_parameter_pred = File(file_paths.figures_savefile_name_parameter_pred + '.pvd')
     vtkfile_parameter_pred << parameter_pred_dl
-    vtkfile_state_pred = File(file_paths.figures_savefile_name_state_pred + '.pvd')
-    vtkfile_state_pred << state_pred_dl
+    if hyperp.data_type == 'full': # No visualization of state prediction if the truncation layer only consists of the boundary observations
+        vtkfile_state_pred = File(file_paths.figures_savefile_name_state_pred + '.pvd')
+        vtkfile_state_pred << state_pred_dl
     
     
     

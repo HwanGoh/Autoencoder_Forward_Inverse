@@ -8,7 +8,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                       Plot and Save Parameter and State                     #
 ###############################################################################
-def plot_and_save_predictions_paraview(file_paths, cbar_RGB_parameter_test, cbar_RGB_state_test):
+def plot_and_save_predictions_paraview(hyperp, file_paths, cbar_RGB_parameter_test, cbar_RGB_state_test):
     #=== Parameter Test ===#
     pvd_load_filepath = file_paths.figures_savefile_name_parameter_test + '.pvd'
     figure_save_filepath = file_paths.figures_savefile_name_parameter_test + '.png'
@@ -25,9 +25,10 @@ def plot_and_save_predictions_paraview(file_paths, cbar_RGB_parameter_test, cbar
     save_png(pvd_load_filepath, figure_save_filepath, cbar_RGB_parameter_test)
     
     #=== State Predictions ===#
-    pvd_load_filepath = file_paths.figures_savefile_name_state_pred + '.pvd'
-    figure_save_filepath = file_paths.figures_savefile_name_state_pred+ '.png'
-    save_png(pvd_load_filepath, figure_save_filepath, cbar_RGB_state_test)
+    if hyperp.data_type == 'full':
+        pvd_load_filepath = file_paths.figures_savefile_name_state_pred + '.pvd'
+        figure_save_filepath = file_paths.figures_savefile_name_state_pred+ '.png'
+        save_png(pvd_load_filepath, figure_save_filepath, cbar_RGB_state_test)
 
 ###############################################################################
 #                             Save Paraview Plot                              #
@@ -54,14 +55,14 @@ def save_png(pvd_load_filepath, figure_save_filepath, cbar_RGB):
     f_110LUTColorBar.Title = ''
     f_110LUTColorBar.ComponentTitle = ''
     f_110LUTColorBar.WindowLocation = 'AnyLocation'
-    f_110LUTColorBar.Position = [0.7332402234636871, 0.21437578814627997]
-    f_110LUTColorBar.ScalarBarLength = 0.5582471626733922
+    f_110LUTColorBar.Position = [0.85, 0.09205548549810864]
+    f_110LUTColorBar.ScalarBarLength = 0.81045397225725
     f_110LUTColorBar.ScalarBarThickness = 5
     f_110LUTColorBar.LabelFontSize = 5
     f_110LUTColorBar.LabelColor = [0.0, 0.0, 0.0]
     
     # current camera placement for renderView1
-    renderView1.CameraPosition = [3.0, 2.0, 14.214227679878107]
+    renderView1.CameraPosition = [3.0, 2.0, 9.787755399138105]
     renderView1.CameraFocalPoint = [3.0, 2.0, 0.25]
     renderView1.CameraParallelScale = 3.61420807370024
     

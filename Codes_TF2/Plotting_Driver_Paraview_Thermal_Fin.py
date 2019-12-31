@@ -7,6 +7,7 @@ Created on Sun Sep 15 15:34:49 2019
 """
 import sys
 import os
+
 from Utilities.plot_and_save_predictions_paraview import plot_and_save_predictions_paraview
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -28,8 +29,8 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 0
-        self.use_reverse_autoencoder = 1
+        self.use_standard_autoencoder = 1
+        self.use_reverse_autoencoder = 0
         
         #=== Autoencoder Loss ===#
         self.use_model_aware = 1
@@ -72,7 +73,7 @@ class FilePaths():
         if run_options.use_reverse_autoencoder == 1:
             self.autoencoder_type = 'rev_'
         if run_options.use_model_aware == 1:
-            self.autoencoder_loss = 'maware'
+            self.autoencoder_loss = ''
         if run_options.use_model_augmented == 1:
             self.autoencoder_loss = 'maug'
         if run_options.use_model_induced == 1:
@@ -102,7 +103,7 @@ class FilePaths():
  
         #=== File Name ===#
         if run_options.use_model_aware == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_augmented == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:
@@ -144,11 +145,14 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and Save Paraview ===#
+    if run_options.data_thermal_fin_nine == 1:
+        cbar_RGB_parameter_test = [0.5035549, 0.231373, 0.298039, 0.752941, 1.3869196499999998, 0.865003, 0.865003, 0.865003, 2.2702843999999995, 0.705882, 0.0156863, 0.14902]
+        cbar_RGB_state_test = [0.0018624861168711026, 0.231373, 0.298039, 0.752941, 0.7141493372496077, 0.865003, 0.865003, 0.865003, 1.4264361883823442, 0.705882, 0.0156863, 0.14902]
     if run_options.data_thermal_fin_vary == 1:
         cbar_RGB_parameter_test = [0.30348012, 0.231373, 0.298039, 0.752941, 1.88775191, 0.865003, 0.865003, 0.865003, 3.4720237000000003, 0.705882, 0.0156863, 0.14902]
         cbar_RGB_state_test = [0.004351256241582283, 0.231373, 0.298039, 0.752941, 0.5831443090996347, 0.865003, 0.865003, 0.865003, 1.1619373619576872, 0.705882, 0.0156863, 0.14902]
     
-    plot_and_save_predictions_paraview(file_paths, cbar_RGB_parameter_test, cbar_RGB_state_test)
+    plot_and_save_predictions_paraview(hyperp, file_paths, cbar_RGB_parameter_test, cbar_RGB_state_test)
     
     
     

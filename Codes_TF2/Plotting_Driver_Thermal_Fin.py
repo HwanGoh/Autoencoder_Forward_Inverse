@@ -10,7 +10,6 @@ import os
 from Utilities.plot_and_save_predictions_thermal_fin import plot_and_save_predictions
 from Utilities.plot_and_save_predictions_vtkfiles_thermal_fin import plot_and_save_predictions_vtkfiles
 from Utilities.plot_and_save_metrics import plot_and_save_metrics
-from Utilities.plot_and_save_predictions_paraview import plot_and_save_predictions_paraview
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -18,7 +17,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
@@ -31,8 +30,8 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 0
-        self.use_reverse_autoencoder = 1
+        self.use_standard_autoencoder = 1
+        self.use_reverse_autoencoder = 0
         
         #=== Autoencoder Loss ===#
         self.use_model_aware = 1
@@ -75,7 +74,7 @@ class FilePaths():
         if run_options.use_reverse_autoencoder == 1:
             self.autoencoder_type = 'rev_'
         if run_options.use_model_aware == 1:
-            self.autoencoder_loss = 'maware'
+            self.autoencoder_loss = ''
         if run_options.use_model_augmented == 1:
             self.autoencoder_loss = 'maug'
         if run_options.use_model_induced == 1:
@@ -105,7 +104,7 @@ class FilePaths():
  
         #=== File Name ===#
         if run_options.use_model_aware == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_augmented == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:
@@ -169,9 +168,8 @@ if __name__ == "__main__":
     #plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
     #plot_and_save_metrics(hyperp, run_options, file_paths, fig_size)
     
-    #=== Plot and Save Paraview ===#
-    #plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
-    plot_and_save_predictions_paraview(file_paths)
+    #=== Plot and Save vtkfiles ===#
+    plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
     
     
     
