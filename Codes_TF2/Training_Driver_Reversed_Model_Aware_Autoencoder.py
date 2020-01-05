@@ -86,6 +86,7 @@ class FilePaths():
         if run_options.data_thermal_fin_vary == 1:
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
+        self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
