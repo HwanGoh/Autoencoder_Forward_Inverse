@@ -70,7 +70,7 @@ class RunOptions:
 
         #=== Parameter and Observation Dimensions ===#
         if self.fin_dimensions_2D == 1:
-            self.full_domain_dimensions = 1446 
+            self.full_domain_dimensions = 4658 
         if self.fin_dimensions_3D == 1:
             self.full_domain_dimensions = 5047 
         if self.data_thermal_fin_nine == 1:
