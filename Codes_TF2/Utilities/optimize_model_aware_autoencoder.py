@@ -5,14 +5,6 @@ Created on Sat Nov 23 10:53:31 2019
 
 @author: hwan
 """
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Oct 25 12:31:44 2019
-
-@author: hwan
-"""
 import sys
 sys.path.append('../..')
 

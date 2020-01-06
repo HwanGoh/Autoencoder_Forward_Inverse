@@ -30,7 +30,7 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
-    penalty_pr        = 0.5
+    penalty_pr        = 0
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -54,8 +54,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
@@ -68,11 +68,11 @@ class RunOptions:
         #=== Random Seed ===#
         self.random_seed = 1234
 
-        #=== Parameter and Observation Dimensions === \#
+        #=== Parameter and Observation Dimensions ===#
         if self.fin_dimensions_2D == 1:
             self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
-            self.full_domain_dimensions = 4090 
+            self.full_domain_dimensions = 5047 
         if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if self.data_thermal_fin_vary == 1:

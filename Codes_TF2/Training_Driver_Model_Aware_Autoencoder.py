@@ -30,7 +30,7 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
-    penalty_pr        = 0
+    penalty_pr        = 0.5
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -50,12 +50,12 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
@@ -121,7 +121,7 @@ class FilePaths():
         prior_cov_length_string = str(run_options.prior_cov_length)
         prior_cov_length_string = 'pt' + prior_cov_length_string[2:]
         self.prior_file_name = 'prior' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
-        self.prior_savefilepath = '../Datasets/Thermal_Fin/' + self.prior_file_name
+        self.prior_savefilepath = '../../Datasets/Thermal_Fin/' + self.prior_file_name
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
