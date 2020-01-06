@@ -46,6 +46,7 @@ if __name__ == '__main__':
         hyperp.num_hidden_nodes  = [500]
         hyperp.activation        = ['relu']
         hyperp.penalty           = [0.01, 1, 10, 50]
+        hyperp.penalty_pr        = [0.0]
         hyperp.batch_size        = [1000]
         hyperp.num_epochs        = [1000]
         

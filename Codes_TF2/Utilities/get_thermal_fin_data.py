@@ -38,7 +38,7 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
     state_obs_test = state_obs_test.reshape((num_testing_data, len(obs_indices)))
 
     #=== Casting as float32 ===#
-    parameter_train = tf.cast(parameter_train,tf.float32)
+    parameter_train = tf.cast(parameter_train, tf.float32)
     state_obs_train = tf.cast(state_obs_train, tf.float32)
     parameter_test = tf.cast(parameter_test, tf.float32)
     state_obs_test = tf.cast(state_obs_test, tf.float32)

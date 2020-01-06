@@ -30,6 +30,7 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
+    penalty_pr        = 0.5
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -97,9 +98,15 @@ class FilePaths():
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:] 
+        if hyperp.penalty_pr >= 1:
+            hyperp.penalty_pr = int(hyperp.penalty_pr)
+            penalty_pr_string = str(hyperp.penalty_pr)
+        else:
+            penalty_pr_string = str(hyperp.penalty_pr)
+            penalty_pr_string = 'pt' + penalty_pr_string[2:]
         
         #=== File Name ===#
-        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
@@ -207,9 +214,10 @@ if __name__ == "__main__":
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
         hyperp.penalty           = float(sys.argv[6])
-        hyperp.batch_size        = int(sys.argv[7])
-        hyperp.num_epochs        = int(sys.argv[8])
-        run_options.which_gpu    = str(sys.argv[9])
+        hyperp.penalty_pr        = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
+        run_options.which_gpu    = str(sys.argv[10])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)

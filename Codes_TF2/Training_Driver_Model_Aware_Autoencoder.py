@@ -30,6 +30,7 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
+    penalty_pr        = 0
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -49,19 +50,27 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
         self.fin_dimensions_3D = 0
         
+        #=== Prior Properties ===#
+        if self.fin_dimensions_2D == 1:
+            self.kern_type = 'm32'
+            self.prior_cov_length = 0.8
+        if self.fin_dimensions_3D == 1:    
+            self.kern_type = 'm52'
+            self.prior_cov_length = 0.8
+        
         #=== Random Seed ===#
         self.random_seed = 1234
 
         #=== Parameter and Observation Dimensions === #
         if self.fin_dimensions_2D == 1:
-            self.full_domain_dimensions = 4658 
+            self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
             self.full_domain_dimensions = 5047 
         if self.data_thermal_fin_nine == 1:
@@ -84,6 +93,10 @@ class FilePaths():
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
         self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
+        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
+            self.N_Nodes = ''
+        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
+            self.N_Nodes = ''
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
@@ -94,9 +107,21 @@ class FilePaths():
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
+        if hyperp.penalty_pr >= 1:
+            hyperp.penalty_pr = int(hyperp.penalty_pr)
+            penalty_pr_string = str(hyperp.penalty_pr)
+        else:
+            penalty_pr_string = str(hyperp.penalty_pr)
+            penalty_pr_string = 'pt' + penalty_pr_string[2:]
         
         #=== File Name ===#
-        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+
+        #=== Prior File Name ===#
+        prior_cov_length_string = str(run_options.prior_cov_length)
+        prior_cov_length_string = 'pt' + prior_cov_length_string[2:]
+        self.prior_file_name = 'prior' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
+        self.prior_savefilepath = '../Datasets/Thermal_Fin/' + self.prior_file_name
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
@@ -143,6 +168,15 @@ def trainer(hyperp, run_options, file_paths):
     if hyperp.data_type == 'bnd':
         latent_dimension = len(obs_indices)
     
+    #=== Prior Regularization ===# 
+    if hyperp.penalty_pr != 0:
+        print('Loading Prior Matrix')
+        df_L_pr = pd.read_csv(file_paths.prior_savefilepath + '.csv')
+        L_pr = df_L_pr.to_numpy()
+        L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
+    else:
+        L_pr = 'not required'
+
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
         #=== Neural Network ===#
@@ -153,7 +187,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, L_pr,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
@@ -204,9 +238,10 @@ if __name__ == "__main__":
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
         hyperp.penalty           = float(sys.argv[6])
-        hyperp.batch_size        = int(sys.argv[7])
-        hyperp.num_epochs        = int(sys.argv[8])
-        run_options.which_gpu    = str(sys.argv[9])
+        hyperp.penalty_pr        = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
+        run_options.which_gpu    = str(sys.argv[10])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)

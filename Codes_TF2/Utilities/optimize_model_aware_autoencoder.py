@@ -28,7 +28,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, L_pr, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
