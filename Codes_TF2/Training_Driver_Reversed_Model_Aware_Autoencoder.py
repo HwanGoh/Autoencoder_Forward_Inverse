@@ -57,8 +57,13 @@ class RunOptions:
         self.fin_dimensions_2D = 0
         self.fin_dimensions_3D = 1
         
-        #=== Number of Nodes ===#
-        self.N_Nodes = '_4658' # Must begin with an underscore!
+        #=== Prior Properties ===#
+        if self.fin_dimensions_2D == 1:
+            self.kern_type = 'm32'
+            self.prior_cov_length = 0.8
+        if self.fin_dimensions_3D == 1:    
+            self.kern_type = 'm52'
+            self.prior_cov_length = 0.8
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -108,6 +113,12 @@ class FilePaths():
         #=== File Name ===#
         self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
+        #=== Prior File Name ===#
+        prior_cov_length_string = str(run_options.prior_cov_length)
+        prior_cov_length_string = 'pt' + prior_cov_length_string[2:]
+        self.prior_file_name = 'prior' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
+        self.prior_savefilepath = '../Datasets/Thermal_Fin/' + self.prior_file_name
+
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
         self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + parameter_type
@@ -153,6 +164,15 @@ def trainer(hyperp, run_options, file_paths):
         data_dimension = len(obs_indices)
     latent_dimension = parameter_dimension
     
+    #=== Prior Regularization ===# 
+    if hyperp.penalty_pr != 0:
+        print('Loading Prior Matrix')
+        df_L_pr = pd.read_csv(file_paths.prior_savefilepath + '.csv')
+        L_pr = df_L_pr.to_numpy()
+        L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
+    else:
+        L_pr = 'not required'
+    
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
         #=== Neural Network ===#
@@ -163,7 +183,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter, storage_array_relative_error_state_forward_problem\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, L_pr,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    parameter_dimension, num_batches_train)
     
