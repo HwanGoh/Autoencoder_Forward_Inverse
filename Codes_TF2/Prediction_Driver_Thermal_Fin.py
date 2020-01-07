@@ -26,6 +26,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty           = 10
     penalty_aug       = 1
+    penalty_pr        = 0.5
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -51,6 +52,16 @@ class RunOptions:
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 0
         self.fin_dimensions_3D = 1
+        
+        #=== Prior Properties ===#
+        if self.fin_dimensions_2D == 1:
+            self.kern_type = 'm32'
+            self.prior_cov_length = 0.8
+            self.prior_mean = 0.0
+        if self.fin_dimensions_3D == 1:    
+            self.kern_type = 'm52'
+            self.prior_cov_length = 0.8
+            self.prior_mean = 0.0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -87,6 +98,11 @@ class FilePaths():
         if run_options.data_thermal_fin_vary == 1:
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
+        self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
+        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
+            self.N_Nodes = ''
+        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
+            self.N_Nodes = ''
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
@@ -102,15 +118,21 @@ class FilePaths():
             penalty_string_aug = str(hyperp.penalty_aug)
         else:
             penalty_string_aug = str(hyperp.penalty_aug)
-            penalty_string_aug = 'pt' + penalty_string_aug[2:]    
+            penalty_string_aug = 'pt' + penalty_string_aug[2:]  
+        if hyperp.penalty_pr >= 1:
+            hyperp.penalty_pr = int(hyperp.penalty_pr)
+            penalty_pr_string = str(hyperp.penalty_pr)
+        else:
+            penalty_pr_string = str(hyperp.penalty_pr)
+            penalty_pr_string = 'pt' + penalty_pr_string[2:]
  
         #=== File Name ===#
         if run_options.use_model_aware == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_augmented == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
