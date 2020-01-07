@@ -7,6 +7,7 @@ Created on Fri Nov 22 20:42:39 2019
 """
 
 import tensorflow as tf
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                                   Loss                                      #
@@ -18,7 +19,8 @@ def loss_encoder(latent_pred, latent_true, penalty):
     return penalty*tf.norm(tf.subtract(latent_pred, latent_true), 2, axis = 1)
 
 def reg_prior(parameter, prior_mean, L_pr, penalty):
-    return penalty*tf.norm(tf.linalg.matmul(L_pr, tf.subtract(parameter, prior_mean)), 2, axis = 1)
+    pdb.set_trace()
+    return penalty*tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean),L_pr), 2, axis = 1)
 
 ###############################################################################
 #                               Relative Error                                #

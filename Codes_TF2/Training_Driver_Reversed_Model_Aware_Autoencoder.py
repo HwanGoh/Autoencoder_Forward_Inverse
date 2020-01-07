@@ -47,33 +47,33 @@ class RunOptions:
         self.which_gpu = '3'
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 0
-        self.data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 1
+        self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
             self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
-            self.prior_mean = 0
+            self.prior_mean = 0.0
         if self.fin_dimensions_3D == 1:    
             self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
-            self.prior_mean = 0
+            self.prior_mean = 0.0
         
         #=== Random Seed ===#
         self.random_seed = 1234
 
         #=== Parameter and Observation Dimensions ===#
         if self.fin_dimensions_2D == 1:
-            self.full_domain_dimensions = 4658 
+            self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
             self.full_domain_dimensions = 5047 
         if self.data_thermal_fin_nine == 1:
@@ -96,6 +96,10 @@ class FilePaths():
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
         self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
+        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
+            self.N_Nodes = ''
+        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
+            self.N_Nodes = ''
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:

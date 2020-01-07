@@ -62,11 +62,11 @@ class RunOptions:
         if self.fin_dimensions_2D == 1:
             self.kern_type = 'm32'
             self.prior_cov_length = 0.8
-            self.prior_mean = 0
+            self.prior_mean = 0.0
         if self.fin_dimensions_3D == 1:    
             self.kern_type = 'm52'
             self.prior_cov_length = 0.8
-            self.prior_mean = 0
+            self.prior_mean = 0.0
         
         #=== Random Seed ===#
         self.random_seed = 1234
