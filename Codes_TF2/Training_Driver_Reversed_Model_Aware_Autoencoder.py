@@ -46,24 +46,26 @@ class RunOptions:
         self.which_gpu = '3'
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 0
-        self.data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 1
+        self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
         self.num_data_train = 10000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
-            self.kern_type = 'm32'
+            self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
+            self.prior_mean = 0
         if self.fin_dimensions_3D == 1:    
-            self.kern_type = 'm52'
+            self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
+            self.prior_mean = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234

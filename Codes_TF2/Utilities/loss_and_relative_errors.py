@@ -15,7 +15,10 @@ def loss_autoencoder(parameter_pred, parameter_true):
     return tf.norm(tf.subtract(parameter_true, parameter_pred), 2, axis = 1)
 
 def loss_encoder(latent_pred, latent_true, penalty):
-    return penalty*tf.norm(tf.subtract(latent_pred, latent_true), 2, axis = 1)
+    return AttributeError(args)penalty*tf.norm(tf.subtract(latent_pred, latent_true), 2, axis = 1)
+
+def prior(parameter, parameter_mean, penalty):
+    return penalty*tf.norm(tf.subtract(parameter, parameter_mean), 2, axis = 1)
 
 ###############################################################################
 #                               Relative Error                                #
