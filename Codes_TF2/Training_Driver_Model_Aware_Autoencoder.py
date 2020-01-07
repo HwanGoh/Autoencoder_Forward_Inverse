@@ -60,11 +60,11 @@ class RunOptions:
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
-            self.kern_type = 'm32'
+            self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
             self.prior_mean = 0.0
         if self.fin_dimensions_3D == 1:    
-            self.kern_type = 'm52'
+            self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
             self.prior_mean = 0.0
         
