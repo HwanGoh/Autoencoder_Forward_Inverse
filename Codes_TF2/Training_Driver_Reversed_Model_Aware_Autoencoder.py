@@ -14,7 +14,7 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error, reg_prior
 from Utilities.optimize_model_aware_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
@@ -185,7 +185,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter, storage_array_relative_error_state_forward_problem\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, L_pr,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, reg_prior, L_pr,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    parameter_dimension, num_batches_train)
     

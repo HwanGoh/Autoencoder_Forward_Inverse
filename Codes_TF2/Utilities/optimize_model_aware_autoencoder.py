@@ -20,7 +20,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, L_pr, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, reg_prior, L_pr, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -78,7 +78,11 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
             batch_latent_pred_train = NN.encoder(batch_data_train)
             batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)
             batch_loss_train_encoder = loss_encoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty)
-            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder
+            if file_paths.autoencoder_type == '_rev':
+                batch_reg_train_prior = reg_prior(batch_latent_pred_train, run_options.prior_mean, L_pr, hyperp.penalty_pr)
+            else:
+                batch_reg_train_prior = reg_prior(batch_data_pred_train_AE, run_options.prior_mean, L_pr, hyperp.penalty_pr)
+            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_reg_train_prior
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         mean_loss_train(batch_loss_train)
