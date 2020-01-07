@@ -9,6 +9,7 @@ import os
 import sys
 
 import tensorflow as tf
+import numpy as np
 import pandas as pd
 
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
@@ -176,7 +177,7 @@ def trainer(hyperp, run_options, file_paths):
         df_L_pr = pd.read_csv(file_paths.prior_savefilepath + '.csv')
         L_pr = df_L_pr.to_numpy()
         L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
-        L_pr = L_pr.astype(float)
+        L_pr = L_pr.astype(np.float32)
     else:
         L_pr = 'not required'
 
