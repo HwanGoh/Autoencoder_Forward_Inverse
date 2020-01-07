@@ -75,7 +75,7 @@ class RunOptions:
         if self.fin_dimensions_2D == 1:
             self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
-            self.full_domain_dimensions = 5047 
+            self.full_domain_dimensions = 4090 
         if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if self.data_thermal_fin_vary == 1:
