@@ -51,7 +51,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -179,7 +179,7 @@ def trainer(hyperp, run_options, file_paths):
         L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
         L_pr = L_pr.astype(np.float32)
     else:
-        L_pr = 'not required'
+        L_pr = 0.0
     
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        

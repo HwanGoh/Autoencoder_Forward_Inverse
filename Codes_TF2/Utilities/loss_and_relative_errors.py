@@ -19,7 +19,10 @@ def loss_encoder(latent_pred, latent_true, penalty):
     return penalty*tf.norm(tf.subtract(latent_pred, latent_true), 2, axis = 1)
 
 def reg_prior(parameter, prior_mean, L_pr, penalty):
-    return penalty*tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean), L_pr), 2, axis = 1)
+    if penalty != 0:
+        return penalty*tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean), L_pr), 2, axis = 1)
+    else:
+        return 0
 
 ###############################################################################
 #                               Relative Error                                #
