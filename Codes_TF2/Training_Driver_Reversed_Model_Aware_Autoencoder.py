@@ -124,7 +124,7 @@ class FilePaths():
         prior_cov_length_string = str(run_options.prior_cov_length)
         prior_cov_length_string = 'pt' + prior_cov_length_string[2:]
         self.prior_file_name = 'prior' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
-        self.prior_savefilepath = '../Datasets/Thermal_Fin/' + self.prior_file_name
+        self.prior_savefilepath = '../../Datasets/Thermal_Fin/' + self.prior_file_name
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
