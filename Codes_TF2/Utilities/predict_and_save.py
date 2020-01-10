@@ -55,7 +55,7 @@ def predict_and_save(hyperp, run_options, file_paths, NN, parameter_and_state_ob
 #             parameter_pred_batch = NN.encoder(state_obs_test)
 #             state_pred_batch = NN.decoder(parameter_test)
 #           
-#     test_index = 5        
+#     test_index = 6        
 #     parameter_test = parameter_test[test_index,:].numpy()
 #     parameter_pred = parameter_pred_batch[test_index,:].numpy()
 #     state_test = state_obs_test[test_index,:].numpy()
