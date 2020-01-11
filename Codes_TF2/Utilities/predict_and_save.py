@@ -44,21 +44,22 @@ def predict_and_save(hyperp, run_options, file_paths, NN, parameter_and_state_ob
     parameter_pred = parameter_pred.numpy().flatten()
     state_pred = state_pred.numpy().flatten()
     
-    #=== From Test Batch ===#
 # =============================================================================
+#     #=== From Test Batch ===#
 #     parameter_and_state_obs_test_draw = parameter_and_state_obs_test.take(1)
 #     for batch_num, (parameter_test, state_obs_test) in parameter_and_state_obs_test_draw.enumerate():
 #         if run_options.use_standard_autoencoder == 1:
 #             parameter_pred_batch = NN.decoder(state_obs_test)
 #             state_pred_batch = NN.encoder(parameter_test)
-#         if run_options.use_reversed_autoencoder == 1:
+#         if run_options.use_reverse_autoencoder == 1:
 #             parameter_pred_batch = NN.encoder(state_obs_test)
 #             state_pred_batch = NN.decoder(parameter_test)
 #           
-#     parameter_test = parameter_test[4,:].numpy()
-#     parameter_pred = parameter_pred_batch[4,:].numpy()
-#     state_test = state_obs_test[4,:].numpy()
-#     state_pred = state_pred_batch[4,:].numpy()
+#     test_index = 6        
+#     parameter_test = parameter_test[test_index,:].numpy()
+#     parameter_pred = parameter_pred_batch[test_index,:].numpy()
+#     state_test = state_obs_test[test_index,:].numpy()
+#     state_pred = state_pred_batch[test_index,:].numpy()
 # =============================================================================
     
     #####################################

@@ -17,14 +17,14 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'bnd'
+    data_type         = 'full'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 10
     penalty_aug       = 1
-    penalty_pr        = 0.5
+    penalty_pr        = 0.0
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -44,7 +44,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
+        self.num_data_train = 10000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -53,11 +53,11 @@ class RunOptions:
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
-            self.kern_type = 'm32'
+            self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
             self.prior_mean = 0.0
         if self.fin_dimensions_3D == 1:    
-            self.kern_type = 'm52'
+            self.kern_type = 'sq_exp'
             self.prior_cov_length = 0.8
             self.prior_mean = 0.0
         
@@ -66,9 +66,9 @@ class RunOptions:
 
         #=== Parameter and Observation Dimensions === #
         if self.fin_dimensions_2D == 1:
-            self.full_domain_dimensions = 1446 
+            self.full_domain_dimensions = 4658 
         if self.fin_dimensions_3D == 1:
-            self.full_domain_dimensions = 4090 
+            self.full_domain_dimensions = 5047 
         if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if self.data_thermal_fin_vary == 1:
@@ -85,7 +85,7 @@ class FilePaths():
         if run_options.use_reverse_autoencoder == 1:
             self.autoencoder_type = 'rev_'
         if run_options.use_model_aware == 1:
-            self.autoencoder_loss = ''
+            self.autoencoder_loss = 'maware'
         if run_options.use_model_augmented == 1:
             self.autoencoder_loss = 'maug'
         if run_options.use_model_induced == 1:
@@ -126,11 +126,11 @@ class FilePaths():
  
         #=== File Name ===#
         if run_options.use_model_aware == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_augmented == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_string_aug, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         
         #=== Save File Directory ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename
@@ -140,11 +140,11 @@ class FilePaths():
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
     
         #=== Save File Path for Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + fin_dimension + parameter_type
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test' + self.N_Nodes + fin_dimension + parameter_type
         if hyperp.data_type == 'full':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + fin_dimension + parameter_type
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test' + self.N_Nodes + fin_dimension + parameter_type
         if hyperp.data_type == 'bndonly':
-            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + fin_dimension + parameter_type           
+            self.savefile_name_state_test = self.NN_savefile_directory + '/state_test_bnd' + self.N_Nodes + fin_dimension + parameter_type           
             
         #=== Loading Predictions ===#    
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
@@ -153,8 +153,8 @@ class FilePaths():
         #=== Savefile Path for Figures ===#    
         self.figures_savefile_directory = '../Figures/' + self.filename
         self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
-        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test' + fin_dimension + parameter_type
-        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test' + fin_dimension + parameter_type
+        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' + 'parameter_test' + self.N_Nodes + fin_dimension + parameter_type
+        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' + 'state_test' + self.N_Nodes + fin_dimension + parameter_type
         self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
         self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
 
@@ -187,12 +187,12 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and Save Matplotlib ===#
-    fig_size = (5,5)
-    plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
-    plot_and_save_metrics(hyperp, run_options, file_paths, fig_size)
+    #fig_size = (5,5)
+    #plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
+    #plot_and_save_metrics(hyperp, run_options, file_paths, fig_size)
     
     #=== Plot and Save vtkfiles ===#
-    #plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
+    plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
     
     
     

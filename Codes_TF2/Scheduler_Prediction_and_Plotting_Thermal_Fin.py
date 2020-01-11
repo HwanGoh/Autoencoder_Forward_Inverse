@@ -46,9 +46,9 @@ if __name__ == '__main__':
         scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
     
     for scenario in scenarios_class_instances:
-        proc = subprocess.Popen(['./Prediction_Driver_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.3f}', f'{scenario.penalty_aug:.3f}', f'{scenario.penalty_pr:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
+        #proc = subprocess.Popen(['./Prediction_Driver_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.3f}', f'{scenario.penalty_aug:.3f}', f'{scenario.penalty_pr:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
         #proc = subprocess.Popen(['./Plotting_Driver_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.2f}', f'{scenario.penalty_aug:.3f}', f'{scenario.penalty_pr:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
-        #proc = subprocess.Popen(['./Plotting_Driver_Paraview_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.2f}', f'{scenario.penalty_aug:.3f}', f'{scenario.penalty_pr:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
+        proc = subprocess.Popen(['./Plotting_Driver_Paraview_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.2f}', f'{scenario.penalty_aug:.3f}', f'{scenario.penalty_pr:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) 
         proc.wait()
         
     print('All scenarios computed')
