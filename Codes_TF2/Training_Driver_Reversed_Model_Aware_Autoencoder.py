@@ -25,13 +25,13 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
-    penalty_pr        = 0
+    penalty_pr        = 0.5
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -51,7 +51,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#

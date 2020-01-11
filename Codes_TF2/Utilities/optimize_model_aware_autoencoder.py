@@ -78,7 +78,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
             batch_latent_pred_train = NN.encoder(batch_data_train)
             batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)
             batch_loss_train_encoder = loss_encoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty)
-            if file_paths.autoencoder_type == '_rev':
+            if file_paths.autoencoder_type == 'rev_':
                 batch_reg_train_prior = reg_prior(batch_latent_pred_train, run_options.prior_mean, L_pr, hyperp.penalty_pr)
             else:
                 batch_reg_train_prior = reg_prior(batch_data_pred_train_AE, run_options.prior_mean, L_pr, hyperp.penalty_pr)
