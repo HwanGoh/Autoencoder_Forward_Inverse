@@ -109,8 +109,10 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
                 batch_state_obs_train = batch_latent_train
                 batch_parameter_pred = batch_data_pred_train_AE
             batch_loss_train_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
+            batch_loss_train_NN = batch_loss_train_autoencoder + batch_loss_train_encoder
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_loss_train_fenics
-        gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
+        gradients_fenics = fenics_gradient(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
+        gradients_NN = tape.gradient(batch_loss_train_NN, NN.trainable_variables)
         pdb.set_trace()
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         mean_loss_train(batch_loss_train)

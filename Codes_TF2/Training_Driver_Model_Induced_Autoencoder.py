@@ -47,8 +47,8 @@ class RunOptions:
         self.which_gpu = '3'
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
         self.num_data_train = 200
