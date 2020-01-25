@@ -15,7 +15,7 @@ from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error
-from Utilities.loss_model_augmented_thermal_fin import loss_model_augmented
+from Utilities.loss_fenics_thermal_fin import loss_fenics
 from Utilities.optimize_model_induced_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
 
@@ -51,7 +51,7 @@ class RunOptions:
         self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -156,11 +156,11 @@ def trainer(hyperp, run_options, file_paths):
         NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_model_augmented,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_model_augmented,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_fenics,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_fenics,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_fenics,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
-        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder, loss_model_augmented, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder, loss_fenics, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     
@@ -172,12 +172,12 @@ def trainer(hyperp, run_options, file_paths):
             NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
             
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_model_augmented,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_model_augmented,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_model_augmented,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem, storage_array_loss_train_fenics,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem, storage_array_loss_val_fenics,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem, storage_array_loss_test_fenics,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
+                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_fenics, relative_error,\
                                parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                                parameter_dimension, num_batches_train)
 
@@ -186,11 +186,11 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
     metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_forward_problem
-    metrics_dict['loss_train_model_augmented'] = storage_array_loss_train_model_augmented
+    metrics_dict['loss_train_fenics'] = storage_array_loss_train_fenics
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
     metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
-    metrics_dict['loss_val_model_augmented'] = storage_array_loss_val_model_augmented
+    metrics_dict['loss_val_fenics'] = storage_array_loss_val_fenics
     metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
     metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem

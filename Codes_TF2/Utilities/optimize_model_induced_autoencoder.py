@@ -30,7 +30,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder, loss_model_augmented, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder, loss_fenics, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
     #=== Generate Dolfin Function Space and Mesh ===#
     if run_options.fin_dimensions_2D == 1:
         V, mesh = get_space_2D(40)
@@ -46,17 +46,17 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     mean_loss_train = tf.keras.metrics.Mean()
     mean_loss_train_autoencoder = tf.keras.metrics.Mean() 
     mean_loss_train_encoder = tf.keras.metrics.Mean()
-    mean_loss_train_model_augmented = tf.keras.metrics.Mean()
+    mean_loss_train_fenics = tf.keras.metrics.Mean()
     
     mean_loss_val = tf.keras.metrics.Mean()
     mean_loss_val_autoencoder = tf.keras.metrics.Mean()
     mean_loss_val_encoder = tf.keras.metrics.Mean()
-    mean_loss_val_model_augmented = tf.keras.metrics.Mean()
+    mean_loss_val_fenics = tf.keras.metrics.Mean()
     
     mean_loss_test = tf.keras.metrics.Mean()
     mean_loss_test_autoencoder = tf.keras.metrics.Mean()
     mean_loss_test_encoder = tf.keras.metrics.Mean()
-    mean_loss_test_model_augmented = tf.keras.metrics.Mean()    
+    mean_loss_test_fenics = tf.keras.metrics.Mean()    
     
     mean_relative_error_data_autoencoder = tf.keras.metrics.Mean()
     mean_relative_error_latent_encoder = tf.keras.metrics.Mean()
@@ -66,17 +66,17 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     storage_array_loss_train = np.array([])
     storage_array_loss_train_autoencoder = np.array([])
     storage_array_loss_train_encoder = np.array([])
-    storage_array_loss_train_model_augmented = np.array([])
+    storage_array_loss_train_fenics = np.array([])
     
     storage_array_loss_val = np.array([])
     storage_array_loss_val_autoencoder = np.array([])
     storage_array_loss_val_encoder = np.array([])
-    storage_array_loss_val_model_augmented = np.array([])
+    storage_array_loss_val_fenics = np.array([])
     
     storage_array_loss_test = np.array([])
     storage_array_loss_test_autoencoder = np.array([])
     storage_array_loss_test_encoder = np.array([])
-    storage_array_loss_test_model_augmented = np.array([])
+    storage_array_loss_test_fenics = np.array([])
     
     storage_array_relative_error_data_autoencoder = np.array([])
     storage_array_relative_error_latent_encoder = np.array([])
@@ -108,14 +108,15 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             else:
                 batch_state_obs_train = batch_latent_train
                 batch_parameter_pred = batch_data_pred_train_AE
-            batch_loss_train_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
-            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_loss_train_model_augmented
+            batch_loss_train_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
+            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_loss_train_fenics
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
+        pdb.set_trace()
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         mean_loss_train(batch_loss_train)
         mean_loss_train_autoencoder(batch_loss_train_autoencoder)
         mean_loss_train_encoder(batch_loss_train_encoder)
-        mean_loss_train_model_augmented(batch_loss_train_model_augmented)
+        mean_loss_train_fenics(batch_loss_train_fenics)
         return gradients
 
     #=== Validation Step ===#
@@ -131,11 +132,11 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         else:
             batch_state_obs_val = batch_latent_val
             batch_parameter_pred = batch_data_pred_val_AE
-        batch_loss_val_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_state_obs_val, batch_parameter_pred, hyperp.penalty_aug)
-        batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_encoder + batch_loss_val_model_augmented
+        batch_loss_val_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_val, batch_parameter_pred, hyperp.penalty_aug)
+        batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_encoder + batch_loss_val_fenics
         mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         mean_loss_val_encoder(batch_loss_val_encoder)
-        mean_loss_val_model_augmented(batch_loss_val_model_augmented)
+        mean_loss_val_fenics(batch_loss_val_fenics)
         mean_loss_val(batch_loss_val)     
     
     #=== Test Step ===#
@@ -152,11 +153,11 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         else:
             batch_state_obs_test = batch_latent_test
             batch_parameter_pred = batch_data_pred_test_AE
-        batch_loss_test_model_augmented = loss_model_augmented(hyperp, run_options, V, solver, obs_indices, batch_state_obs_test, batch_parameter_pred, hyperp.penalty_aug)
-        batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder + batch_loss_test_model_augmented
+        batch_loss_test_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_test, batch_parameter_pred, hyperp.penalty_aug)
+        batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder + batch_loss_test_fenics
         mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         mean_loss_test_encoder(batch_loss_test_encoder)
-        mean_loss_test_model_augmented(batch_loss_test_model_augmented)
+        mean_loss_test_fenics(batch_loss_test_fenics)
         mean_loss_test(batch_loss_test)
         mean_relative_error_data_autoencoder(relative_error(batch_data_pred_test_AE, batch_data_test))
         mean_relative_error_latent_encoder(relative_error(batch_latent_pred_test, batch_latent_test))
@@ -197,15 +198,15 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             tf.summary.scalar('loss_training', mean_loss_train.result(), step=epoch)
             tf.summary.scalar('loss_training_autoencoder', mean_loss_train_autoencoder.result(), step=epoch)
             tf.summary.scalar('loss_training_encoder', mean_loss_train_encoder.result(), step=epoch)
-            tf.summary.scalar('loss_training_model_augmented', mean_loss_train_model_augmented.result(), step=epoch)
+            tf.summary.scalar('loss_training_fenics', mean_loss_train_fenics.result(), step=epoch)
             tf.summary.scalar('loss_val', mean_loss_val.result(), step=epoch)
             tf.summary.scalar('loss_val_autoencoder', mean_loss_val_autoencoder.result(), step=epoch)
             tf.summary.scalar('loss_val_encoder', mean_loss_val_encoder.result(), step=epoch)
-            tf.summary.scalar('loss_val_model_augmented', mean_loss_val_model_augmented.result(), step=epoch)
+            tf.summary.scalar('loss_val_fenics', mean_loss_val_fenics.result(), step=epoch)
             tf.summary.scalar('loss_test', mean_loss_test.result(), step=epoch)
             tf.summary.scalar('loss_test_autoencoder', mean_loss_test_autoencoder.result(), step=epoch)
             tf.summary.scalar('loss_test_encoder', mean_loss_test_encoder.result(), step=epoch)
-            tf.summary.scalar('loss_test_model_augmented', mean_loss_test_model_augmented.result(), step=epoch)
+            tf.summary.scalar('loss_test_fenics', mean_loss_test_fenics.result(), step=epoch)
             tf.summary.scalar('relative_error_data_autoencoder', mean_relative_error_data_autoencoder.result(), step=epoch)
             tf.summary.scalar('relative_error_data_decoder', mean_relative_error_data_decoder.result(), step=epoch)
             tf.summary.scalar('relative_error_latent_encoder', mean_relative_error_latent_encoder.result(), step=epoch)
@@ -219,15 +220,15 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         storage_array_loss_train = np.append(storage_array_loss_train, mean_loss_train.result())
         storage_array_loss_train_autoencoder = np.append(storage_array_loss_train_autoencoder, mean_loss_train_autoencoder.result())
         storage_array_loss_train_encoder = np.append(storage_array_loss_train_encoder, mean_loss_train_encoder.result())
-        storage_array_loss_train_model_augmented = np.append(storage_array_loss_train_model_augmented, mean_loss_train_model_augmented.result())
+        storage_array_loss_train_fenics = np.append(storage_array_loss_train_fenics, mean_loss_train_fenics.result())
         storage_array_loss_val = np.append(storage_array_loss_val, mean_loss_val.result())
         storage_array_loss_val_autoencoder = np.append(storage_array_loss_val_autoencoder, mean_loss_val_autoencoder.result())
         storage_array_loss_val_encoder = np.append(storage_array_loss_val_encoder, mean_loss_val_encoder.result())
-        storage_array_loss_val_model_augmented = np.append(storage_array_loss_val_model_augmented, mean_loss_val_model_augmented.result())
+        storage_array_loss_val_fenics = np.append(storage_array_loss_val_fenics, mean_loss_val_fenics.result())
         storage_array_loss_test = np.append(storage_array_loss_test, mean_loss_test.result())
         storage_array_loss_test_autoencoder = np.append(storage_array_loss_test_autoencoder, mean_loss_test_autoencoder.result())
         storage_array_loss_test_encoder = np.append(storage_array_loss_test_encoder, mean_loss_test_encoder.result())
-        storage_array_loss_test_model_augmented = np.append(storage_array_loss_test_model_augmented, mean_loss_test_model_augmented.result())
+        storage_array_loss_test_fenics = np.append(storage_array_loss_test_fenics, mean_loss_test_fenics.result())
         storage_array_relative_error_data_autoencoder = np.append(storage_array_relative_error_data_autoencoder, mean_relative_error_data_autoencoder.result())
         storage_array_relative_error_latent_encoder = np.append(storage_array_relative_error_latent_encoder, mean_relative_error_latent_encoder.result())
         storage_array_relative_error_data_decoder = np.append(storage_array_relative_error_data_decoder, mean_relative_error_data_decoder.result())
@@ -235,9 +236,9 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
-        print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Aug: %.3e' %(mean_loss_train.result(), mean_loss_train_autoencoder.result(), mean_loss_train_encoder.result(), mean_loss_train_model_augmented.result()))
-        print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Aug: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_encoder.result(), mean_loss_val_model_augmented.result()))
-        print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Aug: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_encoder.result(), mean_loss_test_model_augmented.result()))
+        print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Aug: %.3e' %(mean_loss_train.result(), mean_loss_train_autoencoder.result(), mean_loss_train_encoder.result(), mean_loss_train_fenics.result()))
+        print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Aug: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_encoder.result(), mean_loss_val_fenics.result()))
+        print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Aug: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_encoder.result(), mean_loss_test_fenics.result()))
         print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e\n' %(mean_relative_error_data_autoencoder.result(), mean_relative_error_latent_encoder.result(), mean_relative_error_data_decoder.result()))
         start_time_epoch = time.time()
         
@@ -245,15 +246,15 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         mean_loss_train.reset_states()
         mean_loss_train_autoencoder.reset_states()
         mean_loss_train_encoder.reset_states()
-        mean_loss_train_model_augmented.reset_states()
+        mean_loss_train_fenics.reset_states()
         mean_loss_val.reset_states()
         mean_loss_val_autoencoder.reset_states()
         mean_loss_val_encoder.reset_states()    
-        mean_loss_val_model_augmented.reset_states()    
+        mean_loss_val_fenics.reset_states()    
         mean_loss_test.reset_states()
         mean_loss_test_autoencoder.reset_states()
         mean_loss_test_encoder.reset_states()
-        mean_loss_test_model_augmented.reset_states()
+        mean_loss_test_fenics.reset_states()
         mean_relative_error_data_autoencoder.reset_states()
         mean_relative_error_latent_encoder.reset_states()
         mean_relative_error_data_decoder.reset_states()
@@ -262,4 +263,4 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     NN.save_weights(file_paths.NN_savefile_name)
     print('Final Model Saved') 
     
-    return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_encoder, storage_array_loss_train_model_augmented, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_encoder, storage_array_loss_val_model_augmented, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_encoder, storage_array_loss_test_model_augmented, storage_array_relative_error_data_autoencoder, storage_array_relative_error_latent_encoder, storage_array_relative_error_data_decoder 
+    return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_encoder, storage_array_loss_train_fenics, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_encoder, storage_array_loss_val_fenics, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_encoder, storage_array_loss_test_fenics, storage_array_relative_error_data_autoencoder, storage_array_relative_error_latent_encoder, storage_array_relative_error_data_decoder 

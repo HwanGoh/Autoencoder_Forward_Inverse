@@ -18,7 +18,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                   Loss                                      #
 ###############################################################################
-def loss_model_augmented(hyperp, run_options, V, solver, obs_indices, state_obs_true, parameter_pred, penalty_aug):
+def loss_fenics(hyperp, run_options, V, solver, obs_indices, state_obs_true, parameter_pred, penalty_aug):
     fenics_state_pred = np.zeros((state_obs_true.shape[0], state_obs_true.shape[1]))
     for m in range(len(parameter_pred)):
         if run_options.data_thermal_fin_nine == 1:
