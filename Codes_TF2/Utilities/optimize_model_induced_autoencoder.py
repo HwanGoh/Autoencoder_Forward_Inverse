@@ -22,6 +22,7 @@ import time
 
 import tensorflow as tf
 import numpy as np
+from Utilites import compute_gradient_fenics
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
 from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
 
@@ -111,7 +112,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             batch_loss_train_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
             batch_loss_train_NN = batch_loss_train_autoencoder + batch_loss_train_encoder
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_loss_train_fenics
-        gradients_fenics = fenics_gradient(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
+        gradients_fenics = compute_gradient_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
         gradients_NN = tape.gradient(batch_loss_train_NN, NN.trainable_variables)
         pdb.set_trace()
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
