@@ -19,13 +19,17 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                   Gradients                                #
 ###############################################################################
-def compute_gradient_fenics(hyperp, run_options, V, solver, obs_indices, state_obs_true, parameter_pred, penalty_aug):
+def compute_gradient_fenics(hyperp, run_options, V, solver, obs_indices, state_obs_true, parameter_pred, penalty_aug, B_obs):    
+    gradients = np.zeros((len(parameter_pred), V.dim()))
     for m in range(len(parameter_pred)):
         if run_options.data_thermal_fin_nine == 1:
             parameter_pred_dl = parameter_convert_nine(run_options, V, solver, parameter_pred[m,:])   
         if run_options.data_thermal_fin_vary == 1:
             parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_pred[m,:])
-        gradient = solver.gradient(parameter_pred_dl, state_obs_true[m,:], hyperp.data_type)
+        gradient = solver.gradient(parameter_pred_dl, state_obs_true[m,:].numpy(), B_obs)
+        gradients[m,:] = gradient
+    
+    return gradients
         
 ###############################################################################
 #                              Fenics Functions                               #
