@@ -118,7 +118,6 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_loss_train_fenics
         gradients_fenics = compute_gradient_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug, B_obs)
         gradients_NN = tape.gradient(batch_loss_train_NN, NN.trainable_variables)
-        pdb.set_trace()
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         mean_loss_train(batch_loss_train)
         mean_loss_train_autoencoder(batch_loss_train_autoencoder)

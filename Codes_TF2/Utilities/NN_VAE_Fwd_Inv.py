@@ -19,7 +19,7 @@ class VAEFwdInv(tf.keras.Model):
 ############################################################################### 
         #=== Define Architecture and Create Layer Storage ===#
         self.architecture = [data_dimension] + [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [data_dimension]
-        self.architecture[hyperp.truncation_layer] = latent_dimension # Sets where the forward problem ends and the inverse problem begins
+        self.architecture[hyperp.truncation_layer] = latent_dimension + latent_dimension # Sets where the posterior statistics end and the likelihood statistics begin
         print(self.architecture)
         self.num_layers = len(self.architecture)    
        
@@ -65,7 +65,8 @@ class Encoder(tf.keras.layers.Layer):
     def call(self, X):
         for hidden_layer in self.hidden_layers_encoder:
             X = hidden_layer(X)
-        return X
+        mean, logvar = tf.split(X, num_or_size_splits=2, axis=1)
+        return mean, logvar
     
 ###############################################################################
 #                                  Decoder                                    # 
@@ -79,7 +80,8 @@ class Decoder(tf.keras.layers.Layer):
                                                          activation = activations[l], use_bias = True,
                                                          kernel_initializer = kernel_initializer, bias_initializer = bias_initializer,
                                                          name = "W" + str(l))
-            self.hidden_layers_decoder.append(hidden_layer_decoder)      
+            self.hidden_layers_decoder.append(hidden_layer_decoder) 
+            
     def call(self, X):
         for hidden_layer in self.hidden_layers_decoder:
             X = hidden_layer(X)
