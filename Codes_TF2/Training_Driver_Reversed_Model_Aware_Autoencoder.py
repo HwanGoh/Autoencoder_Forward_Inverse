@@ -193,7 +193,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter, storage_array_relative_error_state_forward_problem\
         = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, reg_prior, L_pr,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
-                   parameter_dimension, num_batches_train)
+                   data_dimension, num_batches_train)
     
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
@@ -210,7 +210,7 @@ def trainer(hyperp, run_options, file_paths):
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, loss_autoencoder, relative_error,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
-                               parameter_dimension, num_batches_train)
+                               data_dimension, num_batches_train)
 
     #=== Saving Metrics ===#
     metrics_dict = {}

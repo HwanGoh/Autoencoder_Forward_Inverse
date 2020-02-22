@@ -151,17 +151,17 @@ def trainer(hyperp, run_options, file_paths):
     = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions)    
        
     #=== Construct Validation Set and Batches ===#   
-    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
+    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
     run_options.num_data_train, num_data_val, run_options.num_data_test,\
     num_batches_train, num_batches_val, num_batches_test\
-    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
+    = form_train_val_test_batches(state_obs_train, parameter_train, state_obs_test, parameter_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
     
     #=== Data and Latent Dimensions of Autoencoder ===#        
-    data_dimension = parameter_dimension
     if hyperp.data_type == 'full':
-        latent_dimension = run_options.full_domain_dimensions
+        data_dimension = run_options.full_domain_dimensions
     if hyperp.data_type == 'bnd':
-        latent_dimension = len(obs_indices)
+        data_dimension = len(obs_indices)
+    latent_dimension = parameter_dimension
     
     #=== Prior Regularization ===# 
     print('Loading Prior Matrix')
@@ -181,8 +181,8 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
         = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KL_divergence, relative_error, prior_cov,\
-                   parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-                   parameter_dimension, num_batches_train)
+                   state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
+                   data_dimension, latent_dimension, num_batches_train)
     
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
@@ -198,8 +198,8 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
-                               parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-                               parameter_dimension, num_batches_train)
+                            state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
+                               data_dimension, latent_dimension, num_batches_train)
 
     #=== Saving Metrics ===#
     metrics_dict = {}

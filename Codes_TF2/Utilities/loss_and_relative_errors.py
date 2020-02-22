@@ -24,10 +24,11 @@ def reg_prior(parameter, prior_mean, L_pr, penalty):
     else:
         return 0
 
-def KL_divergence(post_mean, post_var, cov_prior_inv, det_cov_prior):
+def KL_divergence(post_mean, post_var, prior_mean, cov_prior_inv, det_cov_prior, latent_dimension):
     det_cov_post = tf.math.reduce_prod(post_var)
-    trace_cov_prior_inv_times_cov_post = 
-    return
+    trace_cov_prior_inv_times_cov_post = tf.tensordot(tf.linalg.diag_part(cov_prior_inv),post_var)
+    prior_weighted_prior_mean_minus_post_mean = tf.linalg.matmul(tf.transpose(prior_mean - post_mean), tf.linalg.matmul(cov_prior_inv, prior_mean - post_mean))
+    return 0.5*(trace_cov_prior_inv_times_cov_post + prior_weighted_prior_mean_minus_post_mean - latent_dimension + tf.math.log(det_cov_prior/det_cov_post))
     
 
 ###############################################################################

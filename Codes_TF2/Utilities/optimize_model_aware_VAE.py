@@ -20,7 +20,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KL_divergence, relative_error, cov_prior, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KL_divergence, relative_error, cov_prior, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, latent_dimension, num_batches_train):
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     cov_prior_inv = np.linalg.inv(cov_prior)
     det_cov_prior = np.linalg.det(cov_prior)
@@ -80,18 +80,14 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KL_divergenc
         with tf.GradientTape() as tape:
             batch_likelihood_train = NN(batch_data_train)
             batch_post_mean_train, batch_post_var_train = NN.encoder(batch_data_train)
-            batch_loss_train_autoencoder = loss_autoencoder(batch_likelihood_train, batch_data_train)
-            batch_loss_train_encoder = KL_divergence(batch_post_mean_train, batch_post_var_train, cov_prior_inv, det_cov_prior)
-            if file_paths.autoencoder_type == 'rev_':
-                batch_reg_train_prior = reg_prior(batch_latent_pred_train, run_options.prior_mean, L_pr, hyperp.penalty_pr)
-            else:
-                batch_reg_train_prior = reg_prior(batch_data_pred_train_AE, run_options.prior_mean, L_pr, hyperp.penalty_pr)
-            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_reg_train_prior
+            batch_loss_train_VAE = loss_autoencoder(batch_likelihood_train, batch_data_train)
+            batch_loss_train_KL_divergence = KL_divergence(batch_post_mean_train, batch_post_var_train, tf.zeros(latent_dimension), cov_prior_inv, det_cov_prior, latent_dimension)
+            batch_loss_train = batch_loss_train_VAE - batch_loss_train_KL_divergence
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         mean_loss_train(batch_loss_train)
-        mean_loss_train_autoencoder(batch_loss_train_autoencoder)
-        mean_loss_train_encoder(batch_loss_train_encoder)
+        mean_loss_train_autoencoder(batch_loss_train_VAE)
+        mean_loss_train_encoder(batch_loss_train_KL_divergence)
         return gradients
 
     #=== Validation Step ===#
