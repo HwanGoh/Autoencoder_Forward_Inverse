@@ -17,7 +17,7 @@ from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_VAE_Fwd_Inv import VAEFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, KLD, relative_error
-from Utilities.optimize_model_aware_autoencoder import optimize
+from Utilities.optimize_model_aware_VAE import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -47,12 +47,12 @@ class RunOptions:
         self.which_gpu = '3'
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
-        self.num_data_test = 200
+        self.num_data_train = 200
+        self.num_data_test = 20
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
@@ -90,10 +90,10 @@ class FilePaths():
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
         self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
-        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
-            self.N_Nodes = ''
-        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
-            self.N_Nodes = ''
+        #if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
+        #    self.N_Nodes = ''
+        #if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
+        #    self.N_Nodes = ''
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
@@ -116,14 +116,14 @@ class FilePaths():
 
         #=== Prior File Name ===#
         self.prior_file_name = 'prior_cov_elliptic' + '_%d_%d_%s' %(run_options.full_domain_dimensions,run_options.d_p,self.g_p_string)
-        self.prior_savefilepath = '../Datasets/Thermal_Fin/' + self.prior_file_name
+        self.prior_savefilepath = '../../Datasets/Thermal_Fin/' + self.prior_file_name
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
-        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + parameter_type
-        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type
-        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + parameter_type 
-        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type
+        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + parameter_type + '_elliptic'
+        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type + '_elliptic'
+        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + parameter_type + '_elliptic'
+        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type + '_elliptic'
         
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
