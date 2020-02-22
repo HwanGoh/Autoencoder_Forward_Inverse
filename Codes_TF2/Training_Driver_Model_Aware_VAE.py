@@ -16,7 +16,7 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_VAE_Fwd_Inv import VAEFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error, reg_prior
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error
 from Utilities.optimize_model_aware_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
@@ -32,7 +32,6 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
-    penalty_pr        = 0.5
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -105,12 +104,6 @@ class FilePaths():
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
-        if hyperp.penalty_pr >= 1:
-            hyperp.penalty_pr = int(hyperp.penalty_pr)
-            penalty_pr_string = str(hyperp.penalty_pr)
-        else:
-            penalty_pr_string = str(hyperp.penalty_pr)
-            penalty_pr_string = 'pt' + penalty_pr_string[2:]
         if run_options.g_p >= 1:
             run_options.g_p = int(run_options.g_p)
             self.g_p_string = str(run_options.g_p)
@@ -119,10 +112,10 @@ class FilePaths():
             self.g_p_string = 'pt' + self.g_p_string[2:]
         
         #=== File Name ===#
-        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Prior File Name ===#
-        self.prior_file_name = 'prior_elliptic' + '_%d_%d_%s' %(run_options.full_domain_dimensions,run_options.d_p,self.g_p_string)
+        self.prior_file_name = 'prior_cov_elliptic' + '_%d_%d_%s' %(run_options.full_domain_dimensions,run_options.d_p,self.g_p_string)
         self.prior_savefilepath = '../Datasets/Thermal_Fin/' + self.prior_file_name
 
         #=== Loading and Saving Data ===#
@@ -171,14 +164,11 @@ def trainer(hyperp, run_options, file_paths):
         latent_dimension = len(obs_indices)
     
     #=== Prior Regularization ===# 
-    if hyperp.penalty_pr != 0:
-        print('Loading Prior Matrix')
-        df_L_pr = pd.read_csv(file_paths.prior_savefilepath + '.csv')
-        L_pr = df_L_pr.to_numpy()
-        L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
-        L_pr = L_pr.astype(np.float32)
-    else:
-        L_pr = 0.0
+    print('Loading Prior Matrix')
+    df_cov = pd.read_csv(file_paths.prior_savefilepath + '.csv')
+    prior_cov = df_cov.to_numpy()
+    prior_cov = prior_cov.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
+    prior_cov = prior_cov.astype(np.float32)
 
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:        
@@ -190,7 +180,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, reg_prior, L_pr,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KL_divergence, relative_error, prior_cov,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     

@@ -42,12 +42,17 @@ class VAEFwdInv(tf.keras.Model):
                                self.num_layers)
         
 ###############################################################################
-#                          Autoencoder Propagation                            #    
-###############################################################################            
+#                    Variational Autoencoder Propagation                      #    
+###############################################################################                
+    def reparameterize(self, mean, var):
+        eps = tf.random.normal(shape=mean.shape)
+        return mean + eps * var
+    
     def call(self, X):
-        fwd_problem_solution = self.encoder(X)
-        inv_problem_solution = self.decoder(fwd_problem_solution)
-        return inv_problem_solution
+        post_mean, post_var = self.encoder(X)
+        z = self.reparameterize(post_mean, post_var)
+        likelihood_mean = self.decoder(z)
+        return likelihood_mean
             
 ###############################################################################
 #                                  Encoder                                    # 
@@ -65,8 +70,8 @@ class Encoder(tf.keras.layers.Layer):
     def call(self, X):
         for hidden_layer in self.hidden_layers_encoder:
             X = hidden_layer(X)
-        mean, logvar = tf.split(X, num_or_size_splits=2, axis=1)
-        return mean, logvar
+        post_mean, post_var = tf.split(X, num_or_size_splits=2, axis=1)
+        return post_mean, post_var
     
 ###############################################################################
 #                                  Decoder                                    # 
