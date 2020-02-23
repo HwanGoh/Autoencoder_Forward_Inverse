@@ -20,7 +20,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD, relative_error, cov_prior, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, latent_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal_post_cov, relative_error, cov_prior, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, latent_dimension, num_batches_train):
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     cov_prior_inv = np.linalg.inv(cov_prior)
     det_cov_prior = np.linalg.det(cov_prior)
@@ -81,7 +81,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD, relativ
             batch_likelihood_train = NN(batch_data_train)
             batch_post_mean_train, batch_post_var_train = NN.encoder(batch_data_train)
             batch_loss_train_VAE = loss_autoencoder(batch_likelihood_train, batch_data_train)
-            batch_loss_train_KLD = KLD(batch_post_mean_train, batch_post_var_train, tf.zeros(latent_dimension), cov_prior_inv, det_cov_prior, latent_dimension)
+            batch_loss_train_KLD = KLD_diagonal_post_cov(batch_post_mean_train, batch_post_var_train, tf.zeros(latent_dimension), cov_prior_inv, det_cov_prior, latent_dimension)
             batch_loss_train = batch_loss_train_VAE - batch_loss_train_KLD
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -96,7 +96,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD, relativ
         batch_likelihood_val = NN(batch_data_val)
         batch_post_mean_val, batch_post_var_val = NN.encoder(batch_data_val)
         batch_loss_val_VAE = loss_autoencoder(batch_likelihood_val, batch_data_val)
-        batch_loss_val_KLD = KLD(batch_post_mean_val, batch_post_var_val, tf.zeros(latent_dimension), cov_prior_inv, det_cov_prior, latent_dimension)
+        batch_loss_val_KLD = KLD_diagonal_post_cov(batch_post_mean_val, batch_post_var_val, tf.zeros(latent_dimension), cov_prior_inv, det_cov_prior, latent_dimension)
         batch_loss_val = batch_loss_val_VAE - batch_loss_val_KLD
         mean_loss_val_autoencoder(batch_loss_val_VAE)
         mean_loss_val_encoder(batch_loss_val_KLD)
@@ -109,7 +109,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD, relativ
         batch_post_mean_test, batch_post_var_test = NN.decoder(batch_latent_test)
         batch_post_mean_test, batch_post_var_test = NN.encoder(batch_data_test)
         batch_loss_test_VAE = loss_autoencoder(batch_likelihood_test, batch_data_test)
-        batch_loss_test_KLD = KLD(batch_post_mean_test, batch_post_var_test, tf.zeros(latent_dimension), cov_prior_inv, det_cov_prior, latent_dimension)
+        batch_loss_test_KLD = KLD_diagonal_post_cov(batch_post_mean_test, batch_post_var_test, tf.zeros(latent_dimension), cov_prior_inv, det_cov_prior, latent_dimension)
         batch_loss_test = batch_loss_test_VAE - batch_loss_test_KLD
         mean_loss_test_autoencoder(batch_loss_test_VAE)
         mean_loss_test_encoder(batch_loss_test_KLD)
