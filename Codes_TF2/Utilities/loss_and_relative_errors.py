@@ -25,10 +25,18 @@ def reg_prior(parameter, prior_mean, L_pr, penalty):
         return 0
 
 def KLD(post_mean, post_var, prior_mean, cov_prior_inv, det_cov_prior, latent_dimension):
-    det_cov_post = tf.math.reduce_prod(post_var)
-    trace_cov_prior_inv_times_cov_post = tf.tensordot(tf.linalg.diag_part(cov_prior_inv), post_var, axes=1)
-    prior_weighted_prior_mean_minus_post_mean = tf.linalg.matmul(tf.transpose(prior_mean - post_mean), tf.linalg.matmul(cov_prior_inv, prior_mean - post_mean))
-    return 0.5*(trace_cov_prior_inv_times_cov_post + prior_weighted_prior_mean_minus_post_mean - latent_dimension + tf.math.log(det_cov_prior/det_cov_post))
+    det_cov_post = tf.zeros([post_var.shape[0]])
+    trace_cov_prior_inv_times_cov_post = tf.zeros([post_var.shape[0]])
+    prior_weighted_prior_mean_minus_post_mean = tf.zeros([post_var.shape[0]])
+    log_det_cov_prior_divide_det_cov_post = tf.zeros([post_var.shape[0]])
+    
+    det_cov_post = tf.math.reduce_prod(post_var, axis=1)
+    for batch in range(post_var.shape[0]):          
+        trace_cov_prior_inv_times_cov_post[batch] = tf.tensordot(tf.linalg.diag_part(cov_prior_inv), post_var[batch,:], axes=1)
+        prior_weighted_prior_mean_minus_post_mean[batch] = tf.linalg.matmul(tf.transpose(prior_mean - post_mean[batch,:]), tf.linalg.matmul(cov_prior_inv, prior_mean - post_mean[batch,:]))
+        log_det_cov_prior_divide_det_cov_post[batch] = tf.math.log(det_cov_prior/det_cov_post[batch])
+    #output = 0.5*(trace_cov_prior_inv_times_cov_post + prior_weighted_prior_mean_minus_post_mean - latent_dimension + log_det_cov_prior_divide_det_cov_post)
+    return 0.5*(trace_cov_prior_inv_times_cov_post + prior_weighted_prior_mean_minus_post_mean - latent_dimension + log_det_cov_prior_divide_det_cov_post)
 
 ###############################################################################
 #                               Relative Error                                #
