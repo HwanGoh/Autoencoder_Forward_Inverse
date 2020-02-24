@@ -199,10 +199,17 @@ if __name__ == "__main__":
         num_batches_train, num_batches_val, num_batches_test\
         = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test, state_obs_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
     
+        #=== Data and Latent Dimensions of Autoencoder ===#        
+        data_dimension = parameter_dimension
+        if hyperp.data_type == 'full':
+            latent_dimension = run_options.full_domain_dimensions
+        if hyperp.data_type == 'bnd':
+            latent_dimension = len(obs_indices)
+    
         #=== Non-distributed Training ===#
         if run_options.use_distributed_training == 0:        
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
             
             #=== Training ===#
             storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
@@ -219,7 +226,7 @@ if __name__ == "__main__":
             GLOBAL_BATCH_SIZE = hyperp.batch_size*dist_strategy.num_replicas_in_sync
             with dist_strategy.scope():
                 #=== Neural Network ===#
-                NN = AutoencoderFwdInv(hyperp, parameter_dimension, run_options.full_domain_dimensions, obs_indices)
+                NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
                 
                 #=== Training ===#
                 storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
