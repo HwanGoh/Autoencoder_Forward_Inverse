@@ -34,10 +34,10 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                      Hyperparameters and Run_Options                        #
 ###############################################################################
 class Hyperparameters: # Choose defaults, hyperparameters of interest wil be overwritten later
-    data_type         = 'bnd'
-    num_hidden_layers = 6
-    truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 519
+    data_type         = 'full'
+    num_hidden_layers = 5
+    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
     batch_size        = 1000
@@ -46,7 +46,7 @@ class Hyperparameters: # Choose defaults, hyperparameters of interest wil be ove
 class RunOptions:
     def __init__(self): 
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 1
+        self.use_distributed_training = 0
         
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2,3'
@@ -63,8 +63,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -143,8 +143,8 @@ if __name__ == "__main__":
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
     hyperp_of_interest_dict['penalty'] = Integer(0.01, 50, name='penalty')
-    hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
-    hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
+    #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
     
     #####################
     #   Initial Setup   #
