@@ -212,7 +212,17 @@ if __name__ == "__main__":
             latent_dimension = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
             latent_dimension = len(obs_indices)
-    
+            
+        #=== Prior Regularization ===# 
+        if hyperp.penalty_pr != 0:
+            print('Loading Prior Matrix')
+            df_L_pr = pd.read_csv(file_paths.prior_savefilepath + '.csv')
+            L_pr = df_L_pr.to_numpy()
+            L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
+            L_pr = L_pr.astype(np.float32)
+        else:
+            L_pr = 0.0   
+            
         #=== Non-distributed Training ===#
         if run_options.use_distributed_training == 0:        
             #=== Neural Network ===#
