@@ -96,13 +96,19 @@ class RunOptions:
 class FilePaths():              
     def __init__(self, hyperp, run_options): 
         #=== Declaring File Name Components ===#
-        autoencoder_type = 'maae'
+        self.autoencoder_type = ''
+        self.autoencoder_loss = 'maware'
         if run_options.data_thermal_fin_nine == 1:
             self.dataset = 'thermalfin9'
             parameter_type = '_nine'
         if run_options.data_thermal_fin_vary == 1:
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
+        self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
+        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
+            self.N_Nodes = ''
+        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
+            self.N_Nodes = ''
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
@@ -121,7 +127,7 @@ class FilePaths():
             penalty_pr_string = 'pt' + penalty_pr_string[2:]
         
         #=== File Name ===#
-        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
  
         #=== Prior File Name ===#
         prior_cov_length_string = str(run_options.prior_cov_length)
