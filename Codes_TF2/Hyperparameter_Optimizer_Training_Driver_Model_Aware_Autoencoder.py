@@ -40,6 +40,7 @@ class Hyperparameters: # Choose defaults, hyperparameters of interest wil be ove
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
+    penalty_pr        = 0.5
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -102,9 +103,15 @@ class FilePaths():
         else:
             penalty_string = str(hyperp.penalty)
             penalty_string = 'pt' + penalty_string[2:]
+        if hyperp.penalty_pr >= 1:
+            hyperp.penalty_pr = int(hyperp.penalty_pr)
+            penalty_pr_string = str(hyperp.penalty_pr)
+        else:
+            penalty_pr_string = str(hyperp.penalty_pr)
+            penalty_pr_string = 'pt' + penalty_pr_string[2:]
         
         #=== File Name ===#
-        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = autoencoder_type + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
  
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
@@ -216,7 +223,7 @@ if __name__ == "__main__":
             storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
             storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
             storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
-            = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error,\
+            = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, reg_prior, L_pr,\
                        parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                        parameter_dimension, num_batches_train)
         
