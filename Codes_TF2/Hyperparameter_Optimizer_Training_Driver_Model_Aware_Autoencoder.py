@@ -67,6 +67,16 @@ class RunOptions:
         self.fin_dimensions_2D = 1
         self.fin_dimensions_3D = 0
         
+        #=== Prior Properties ===#
+        if self.fin_dimensions_2D == 1:
+            self.kern_type = 'sq_exp'
+            self.prior_cov_length = 0.8
+            self.prior_mean = 0.0
+        if self.fin_dimensions_3D == 1:    
+            self.kern_type = 'sq_exp'
+            self.prior_cov_length = 0.8
+            self.prior_mean = 0.0
+        
         #=== Random Seed ===#
         self.random_seed = 1234
 
