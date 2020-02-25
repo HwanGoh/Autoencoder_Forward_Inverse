@@ -40,7 +40,7 @@ class Hyperparameters: # Choose defaults, hyperparameters of interest wil be ove
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty           = 1
-    penalty_pr        = 0.5
+    penalty_pr        = 0.0
     batch_size        = 1000
     num_epochs        = 1000
     
