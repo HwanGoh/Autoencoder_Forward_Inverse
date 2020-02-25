@@ -24,7 +24,7 @@ from skopt import dump, load
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error, reg_prior
 from Utilities.optimize_model_aware_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
