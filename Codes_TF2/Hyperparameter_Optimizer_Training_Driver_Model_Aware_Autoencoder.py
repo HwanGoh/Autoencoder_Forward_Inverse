@@ -171,7 +171,7 @@ if __name__ == "__main__":
     hyperp_of_interest_dict = {}
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
-    hyperp_of_interest_dict['penalty'] = Integer(0.02, 50, name='penalty')
+    hyperp_of_interest_dict['penalty'] = Integer(0.01, 50, name='penalty')
     #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
     
