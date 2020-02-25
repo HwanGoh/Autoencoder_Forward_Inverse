@@ -217,6 +217,7 @@ if __name__ == "__main__":
         
         #=== Update File Paths with New Hyperparameters ===#
         file_paths = FilePaths(hyperp, run_options)
+        print(file_paths.filename)
         
         #=== Construct Validation Set and Batches ===# 
         if run_options.use_distributed_training == 0:
