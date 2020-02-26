@@ -165,7 +165,7 @@ if __name__ == "__main__":
     #   Select Optimization Options   #
     ###################################
     #=== Number of Iterations ===#
-    n_calls = 20
+    n_calls = 40
     
     #=== Select Hyperparameters of Interest ===# Note: you can just manually create a space of variables instead of using a dictionary, but I prefer to have the list of variable names on hand for use in the outputs later as well as the tuple to act as an argument to the objective function
     hyperp_of_interest_dict = {}
