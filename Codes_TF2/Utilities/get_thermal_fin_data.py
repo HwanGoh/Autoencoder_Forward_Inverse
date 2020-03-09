@@ -27,6 +27,10 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
     df_state_obs_train = pd.read_csv(file_paths.state_obs_train_savefilepath + '.csv')
     parameter_train = df_parameter_train.to_numpy()
     state_obs_train = df_state_obs_train.to_numpy()
+    
+    print(parameter_train.shape[0])
+    print(parameter_train.shape[1])
+    
     parameter_train = parameter_train.reshape((num_training_data, parameter_dimensions))
     state_obs_train = state_obs_train.reshape((num_training_data, len(obs_indices)))
     print('Loading Testing Data')
@@ -36,9 +40,6 @@ def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, param
     state_obs_test = df_state_obs_test.to_numpy()
     parameter_test = parameter_test.reshape((num_testing_data, parameter_dimensions))
     state_obs_test = state_obs_test.reshape((num_testing_data, len(obs_indices)))
-
-    print(parameter_train.shape[0])
-    print(parameter_train.shape[1])
 
     pdb.set_trace()
 
