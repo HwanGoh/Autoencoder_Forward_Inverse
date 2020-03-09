@@ -73,8 +73,8 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
             
-            proc = subprocess.Popen(['./Training_Driver_Model_Aware_Autoencoder.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty_encoder:.4f}', f'{data.penalty_decoder:.4f}', f'{data.penalty_prior:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
-            #proc = subprocess.Popen(['./Training_Driver_Reversed_Model_Aware_Autoencoder.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty_encoder:.4f}', f'{data.penalty_decoder:.4f}', f'{data.penalty_prior:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
+            #proc = subprocess.Popen(['./Training_Driver_Model_Aware_Autoencoder.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty_encoder:.4f}', f'{data.penalty_decoder:.4f}', f'{data.penalty_prior:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
+            proc = subprocess.Popen(['./Training_Driver_Reversed_Model_Aware_Autoencoder.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty_encoder:.4f}', f'{data.penalty_decoder:.4f}', f'{data.penalty_prior:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])
             proc.wait() # without this, the process will detach itself once the python code is done running
             
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
