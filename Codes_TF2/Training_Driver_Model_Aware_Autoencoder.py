@@ -34,7 +34,7 @@ class Hyperparameters:
     penalty_decoder   = 1
     penalty_prior     = 0.0
     batch_size        = 1000
-    num_epochs        = 100
+    num_epochs        = 1000
     
 class RunOptions:
     def __init__(self): 
@@ -48,11 +48,11 @@ class RunOptions:
         self.which_gpu = '3'
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 200
+        self.num_data_train = 50000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
