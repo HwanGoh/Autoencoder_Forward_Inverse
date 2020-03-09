@@ -164,7 +164,7 @@ def trainer(hyperp, run_options, file_paths):
     parameter_test, state_obs_test,\
     data_input_shape, parameter_dimension\
     = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions)    
-       
+    
     #=== Construct Validation Set and Batches ===#   
     state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
     run_options.num_data_train, num_data_val, run_options.num_data_test,\
