@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH -J MAAE_Scheduled_3D_9_full
+#SBATCH -J MAAE_Scheduled_2D_vary_full
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 5
