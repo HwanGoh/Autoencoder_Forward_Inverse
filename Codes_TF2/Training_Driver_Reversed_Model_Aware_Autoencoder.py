@@ -15,7 +15,7 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder, relative_error, reg_prior
+from Utilities.loss_and_relative_errors import loss_autoencoder, loss_encoder_or_decoder, relative_error, reg_prior
 from Utilities.optimize_model_aware_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
@@ -30,10 +30,11 @@ class Hyperparameters:
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty           = 1
-    penalty_pr        = 0.5
+    penalty_encoder   = 1
+    penalty_decoder   = 1
+    penalty_prior     = 0.0
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 100
     
 class RunOptions:
     def __init__(self): 
@@ -51,12 +52,12 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
@@ -104,21 +105,27 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
-        if hyperp.penalty >= 1:
-            hyperp.penalty = int(hyperp.penalty)
-            penalty_string = str(hyperp.penalty)
+        if hyperp.penalty_encoder >= 1:
+            hyperp.penalty_encoder = int(hyperp.penalty_encoder)
+            penalty_encoder_string = str(hyperp.penalty_encoder)
         else:
-            penalty_string = str(hyperp.penalty)
-            penalty_string = 'pt' + penalty_string[2:] 
-        if hyperp.penalty_pr >= 1:
-            hyperp.penalty_pr = int(hyperp.penalty_pr)
-            penalty_pr_string = str(hyperp.penalty_pr)
+            penalty_encoder_string = str(hyperp.penalty_encoder)
+            penalty_encoder_string = 'pt' + penalty_encoder_string[2:]
+        if hyperp.penalty_decoder >= 1:
+            hyperp.penalty_decoder = int(hyperp.penalty_decoder)
+            penalty_decoder_string = str(hyperp.penalty_decoder)
         else:
-            penalty_pr_string = str(hyperp.penalty_pr)
-            penalty_pr_string = 'pt' + penalty_pr_string[2:]
+            penalty_decoder_string = str(hyperp.penalty_decoder)
+            penalty_decoder_string = 'pt' + penalty_decoder_string[2:]
+        if hyperp.penalty_prior >= 1:
+            hyperp.penalty_prior = int(hyperp.penalty_prior)
+            penalty_prior_string = str(hyperp.penalty_prior)
+        else:
+            penalty_prior_string = str(hyperp.penalty_prior)
+            penalty_prior_string = 'pt' + penalty_prior_string[2:]
         
         #=== File Name ===#
-        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, penalty_pr_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_encoder_string, penalty_decoder_string, penalty_prior_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Prior File Name ===#
         prior_cov_length_string = str(run_options.prior_cov_length)
@@ -172,7 +179,7 @@ def trainer(hyperp, run_options, file_paths):
     latent_dimension = parameter_dimension
     
     #=== Prior Regularization ===# 
-    if hyperp.penalty_pr != 0:
+    if hyperp.penalty_prior != 0:
         print('Loading Prior Matrix')
         df_L_pr = pd.read_csv(file_paths.prior_savefilepath + '.csv')
         L_pr = df_L_pr.to_numpy()
@@ -187,11 +194,11 @@ def trainer(hyperp, run_options, file_paths):
         NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem, storage_array_loss_train_forward_problem,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem, storage_array_loss_val_forward_problem,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter, storage_array_relative_error_state_forward_problem\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, reg_prior, L_pr,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder_or_decoder, relative_error, reg_prior, L_pr,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    data_dimension, num_batches_train)
     
@@ -203,12 +210,12 @@ def trainer(hyperp, run_options, file_paths):
             NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
             
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem, storage_array_loss_train_forwawrd_problem,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem, storage_array_loss_val_forward_problem,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter, storage_array_relative_error_state_forward_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, loss_autoencoder, relative_error,\
+                               hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder_or_decoder, relative_error, reg_prior, L_pr,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                                data_dimension, num_batches_train)
 
@@ -217,9 +224,11 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
     metrics_dict['loss_train_inverse_problem'] = storage_array_loss_train_inverse_problem
+    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_forward_problem
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
     metrics_dict['loss_val_inverse_problem'] = storage_array_loss_val_inverse_problem
+    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
     metrics_dict['relative_error_state_autoencoder'] = storage_array_relative_error_state_autoencoder
     metrics_dict['relative_error_parameter'] = storage_array_relative_error_parameter
     metrics_dict['relative_error_state_forward_problem'] = storage_array_relative_error_state_forward_problem
@@ -241,11 +250,12 @@ if __name__ == "__main__":
         hyperp.truncation_layer  = int(sys.argv[3])
         hyperp.num_hidden_nodes  = int(sys.argv[4])
         hyperp.activation        = str(sys.argv[5])
-        hyperp.penalty           = float(sys.argv[6])
-        hyperp.penalty_pr        = float(sys.argv[7])
-        hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
-        run_options.which_gpu    = str(sys.argv[10])
+        hyperp.penalty_encoder   = float(sys.argv[6])
+        hyperp.penalty_decoder   = float(sys.argv[7])
+        hyperp.penalty_prior     = float(sys.argv[8])
+        hyperp.batch_size        = int(sys.argv[9])
+        hyperp.num_epochs        = int(sys.argv[10])
+        run_options.which_gpu    = str(sys.argv[11])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
