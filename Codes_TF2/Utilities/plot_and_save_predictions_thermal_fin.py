@@ -26,9 +26,9 @@ def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):
 ###############################################################################
 #                     Form Fenics Domain and Load Predictions                 #
 ###############################################################################
-    #=== Form Fenics Domain ===#
+    #=== Form Fenics Domain ===# # DON'T FORGET TO CHANGE THIS!!!
     if run_options.fin_dimensions_2D == 1:
-        V,_ = get_space_2D(75)
+        V,_ = get_space_2D(40)
     if run_options.fin_dimensions_3D == 1:
         V, mesh = get_space_3D(55)
     
