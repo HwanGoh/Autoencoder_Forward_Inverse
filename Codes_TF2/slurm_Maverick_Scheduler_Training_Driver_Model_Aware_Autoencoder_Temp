@@ -4,7 +4,7 @@
 #SBATCH -p gtx
 #SBATCH -N 1
 #SBATCH -n 5
-#SBATCH -t 48:00:00
+#SBATCH -t 24:00:00
 #SBATCH -o MAAE_Scheduled_3D_vary_rev.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all
