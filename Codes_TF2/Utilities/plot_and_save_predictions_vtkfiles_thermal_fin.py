@@ -27,9 +27,9 @@ def plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths):
 ###############################################################################
     #=== Form Fenics Domain ===#
     if run_options.fin_dimensions_2D == 1:
-        V,_ = get_space_2D(75)
+        V,_ = get_space_2D(40)
     if run_options.fin_dimensions_3D == 1:
-        V, mesh = get_space_3D(55)
+        V, mesh = get_space_3D(40)
     
     solver = Fin(V) 
     

@@ -34,8 +34,8 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.use_standard_autoencoder = 0
+        self.use_reverse_autoencoder = 1
         
         #=== Autoencoder Loss ===#
         self.use_model_aware = 1
@@ -51,8 +51,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
@@ -71,7 +71,7 @@ class RunOptions:
         if self.fin_dimensions_2D == 1:
             self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
-            self.full_domain_dimensions = 5047 
+            self.full_domain_dimensions = 4090 
         if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if self.data_thermal_fin_vary == 1:

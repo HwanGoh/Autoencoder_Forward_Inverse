@@ -49,8 +49,8 @@ class RunOptions:
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
+        self.fin_dimensions_2D = 0
+        self.fin_dimensions_3D = 1
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
@@ -69,7 +69,7 @@ class RunOptions:
         if self.fin_dimensions_2D == 1:
             self.full_domain_dimensions = 1446 
         if self.fin_dimensions_3D == 1:
-            self.full_domain_dimensions = 5047 
+            self.full_domain_dimensions = 4090 
         if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if self.data_thermal_fin_vary == 1:
@@ -195,12 +195,12 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and Save Matplotlib ===#
-    fig_size = (5,5)
-    plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
+    #fig_size = (5,5)
+    #plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
     #plot_and_save_metrics(hyperp, run_options, file_paths, fig_size)
     
     #=== Plot and Save vtkfiles ===#
-    #plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
+    plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
     
     
     
