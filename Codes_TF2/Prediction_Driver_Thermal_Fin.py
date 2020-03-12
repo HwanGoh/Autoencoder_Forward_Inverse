@@ -43,8 +43,8 @@ class RunOptions:
         self.use_model_induced = 0
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 0
-        self.data_thermal_fin_vary = 1
+        self.data_thermal_fin_nine = 1
+        self.data_thermal_fin_vary = 0
         
         #=== Data Set Size ===#
         self.num_data_train = 50000
