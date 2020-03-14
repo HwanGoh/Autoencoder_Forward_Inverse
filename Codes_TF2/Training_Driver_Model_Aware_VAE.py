@@ -31,8 +31,8 @@ class Hyperparameters:
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    batch_size        = 1000
-    num_epochs        = 1000
+    batch_size        = 100
+    num_epochs        = 10
     
 class RunOptions:
     def __init__(self): 
@@ -50,8 +50,8 @@ class RunOptions:
         self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
-        self.num_data_test = 200
+        self.num_data_train = 200
+        self.num_data_test = 20
         
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
