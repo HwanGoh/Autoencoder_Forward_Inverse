@@ -24,14 +24,15 @@ def reg_prior(parameter, prior_mean, L_pr, penalty):
     else:
         return 0
 
-def KLD_diagonal_post_cov(post_mean, post_var, prior_mean, cov_prior_inv, det_cov_prior, latent_dimension):    
-    trace_cov_prior_inv_times_cov_post = tf.reduce_sum(tf.multiply(tf.linalg.diag_part(cov_prior_inv), post_var), axis=1)
-    prior_weighted_prior_mean_minus_post_mean = tf.linalg.diag_part(tf.linalg.matmul(prior_mean - post_mean, tf.linalg.matmul(cov_prior_inv, tf.transpose(prior_mean - post_mean))))          
-    det_cov_post = tf.math.reduce_prod(post_var, axis=1)
-    log_det_cov_prior_divide_det_cov_post = (tf.math.log(det_cov_prior/det_cov_post))
-    return 0.5*(trace_cov_prior_inv_times_cov_post + prior_weighted_prior_mean_minus_post_mean - latent_dimension + log_det_cov_prior_divide_det_cov_post)
+def KLD_diagonal_post_cov(post_mean, post_var, prior_mean, prior_cov_inv, det_prior_cov, latent_dimension):    
+    trace_prior_cov_inv_times_cov_post = tf.reduce_sum(tf.multiply(tf.linalg.diag_part(prior_cov_inv), post_var), axis=1)
+    prior_weighted_prior_mean_minus_post_mean = tf.linalg.diag_part(tf.linalg.matmul(prior_mean - post_mean, tf.linalg.matmul(prior_cov_inv, tf.transpose(prior_mean - post_mean))))              
+    log_det_prior_cov_divide_det_cov_post = tf.math.log(det_prior_cov) # Going to form determinant by adding log(1/var) one by one to avoid numerical error
+    for n in range(0, post_var.shape[1]):
+        log_det_prior_cov_divide_det_cov_post += tf.math.log(1/post_var[:,n])
+    return 0.5*(trace_prior_cov_inv_times_cov_post + prior_weighted_prior_mean_minus_post_mean - latent_dimension + log_det_prior_cov_divide_det_cov_post)
 
-def KLD_full_post_cov(post_mean, post_var, prior_mean, cov_prior_inv, det_cov_prior, latent_dimension): 
+def KLD_full_post_cov(post_mean, post_var, prior_mean, prior_cov_inv, det_prior_cov, latent_dimension): 
     return 0
 
 ###############################################################################

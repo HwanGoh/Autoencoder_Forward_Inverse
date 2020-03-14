@@ -62,12 +62,12 @@ class RunOptions:
         self.full_posterior_covariance = 0
         
         #=== Matern and Square Exponential Prior Properties ===#
-        self.prior_type_nonelliptic = 1
+        self.prior_type_nonelliptic = 0
         self.kern_type = 'm32'
         self.prior_cov_length = 0.8
         
         #=== Elliptic Prior Properties ===#
-        self.prior_type_elliptic = 0
+        self.prior_type_elliptic = 1
         self.prior_type = 'elliptic'
         self.prior_elliptic_d_p = 1
         self.prior_elliptic_g_p = 0.0001
@@ -101,9 +101,9 @@ class FilePaths():
             parameter_type = '_vary'
         self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
         if run_options.diagonal_posterior_covariance == 1:
-            self.posterior_covariance_shape = 'diag_'
+            self.posterior_covariance_shape = 'diagpost_'
         if run_options.full_posterior_covariance == 1:
-            self.posterior_covariance_shape = 'full_'
+            self.posterior_covariance_shape = 'fullpost_'
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
@@ -135,20 +135,20 @@ class FilePaths():
 
         #=== Prior Covariance File Name ===#
         if run_options.prior_type_elliptic == 1:
-            self.prior_cov_file_name = 'prior_cov_elliptic' + '_%d_%d_%s' %(run_options.full_domain_dimensions, prior_elliptic_d_p_string, prior_elliptic_g_p_string)
+            self.prior_cov_file_name = 'prior_cov_elliptic' + '_%d_%s_%s' %(run_options.full_domain_dimensions, prior_elliptic_d_p_string, prior_elliptic_g_p_string)
         if run_options.prior_type_nonelliptic == 1:
             self.prior_cov_file_name = 'prior' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
         self.prior_savefilepath = '../../Datasets/Thermal_Fin/' + self.prior_cov_file_name
 
         #=== Loading and Saving Data ===#
-        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
-            self.N_Nodes = ''
-        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
-            self.N_Nodes = ''
         if run_options.prior_type_elliptic == 1:
             prior_type_string = '_elliptic'
         if run_options.prior_type_nonelliptic == 1:
             prior_type_string = ''
+        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446 and run_options.prior_type_nonelliptic == 1:
+            self.N_Nodes = ''
+        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090 and run_options.prior_type_nonelliptic == 1:
+            self.N_Nodes = ''
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
         self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + parameter_type + prior_type_string
         self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type + prior_type_string
