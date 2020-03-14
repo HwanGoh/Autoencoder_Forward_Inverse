@@ -62,12 +62,12 @@ class RunOptions:
         self.full_posterior_covariance = 0
         
         #=== Matern and Square Exponential Prior Properties ===#
-        self.prior_type_nonelliptic = 0
+        self.prior_type_nonelliptic = 1
         self.kern_type = 'm32'
         self.prior_cov_length = 0.8
         
         #=== Elliptic Prior Properties ===#
-        self.prior_type_elliptic = 1
+        self.prior_type_elliptic = 0
         self.prior_type = 'elliptic'
         self.prior_elliptic_d_p = 1
         self.prior_elliptic_g_p = 0.0001
