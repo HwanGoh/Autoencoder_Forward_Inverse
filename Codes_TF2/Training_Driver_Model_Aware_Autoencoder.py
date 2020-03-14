@@ -61,11 +61,11 @@ class RunOptions:
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
-            self.kern_type = 'sq_exp'
+            self.kern_type = 'm32'
             self.prior_cov_length = 0.8
             self.prior_mean = 0.0
         if self.fin_dimensions_3D == 1:    
-            self.kern_type = 'sq_exp'
+            self.kern_type = 'm52'
             self.prior_cov_length = 0.8
             self.prior_mean = 0.0
         
@@ -130,8 +130,8 @@ class FilePaths():
         #=== Prior File Name ===#
         prior_cov_length_string = str(run_options.prior_cov_length)
         prior_cov_length_string = 'pt' + prior_cov_length_string[2:]
-        self.prior_file_name = 'prior' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
-        self.prior_savefilepath = '../../Datasets/Thermal_Fin/' + self.prior_file_name
+        self.prior_chol_file_name = 'prior_chol' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
+        self.prior_chol_savefilepath = '../../Datasets/Thermal_Fin/' + self.prior_chol_file_name
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
@@ -181,7 +181,7 @@ def trainer(hyperp, run_options, file_paths):
     #=== Prior Regularization ===# 
     if hyperp.penalty_prior != 0:
         print('Loading Prior Matrix')
-        df_L_pr = pd.read_csv(file_paths.prior_savefilepath + '.csv')
+        df_L_pr = pd.read_csv(file_paths.prior_chol_savefilepath + '.csv')
         L_pr = df_L_pr.to_numpy()
         L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
         L_pr = L_pr.astype(np.float32)
