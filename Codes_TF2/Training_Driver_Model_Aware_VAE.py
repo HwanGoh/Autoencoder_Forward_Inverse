@@ -16,7 +16,7 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_VAE_Fwd_Inv import VAEFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, KLD_diagonal_post_cov, relative_error
+from Utilities.loss_and_relative_errors import loss_autoencoder, KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
 from Utilities.optimize_model_aware_VAE import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
 
@@ -57,7 +57,11 @@ class RunOptions:
         self.fin_dimensions_2D = 1
         self.fin_dimensions_3D = 0
         
-        #=== Matern and Square Exponential Prior Properties
+        #=== Posterior Covariance Shape ===#
+        self.diagonal_posterior_covariance = 1
+        self.full_posterior_covariance = 0
+        
+        #=== Matern and Square Exponential Prior Properties ===#
         self.prior_type_nonelliptic = 1
         self.kern_type = 'm32'
         self.prior_cov_length = 0.8
@@ -96,6 +100,10 @@ class FilePaths():
             self.dataset = 'thermalfinvary'
             parameter_type = '_vary'
         self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
+        if run_options.diagonal_posterior_covariance == 1:
+            self.posterior_covariance_shape = 'diag_'
+        if run_options.full_posterior_covariance == 1:
+            self.posterior_covariance_shape = 'full_'
         if run_options.fin_dimensions_2D == 1:
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
@@ -121,9 +129,9 @@ class FilePaths():
         
         #=== File Name ===#
         if run_options.prior_type_elliptic == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_' + run_options.prior_type + '_dp%s_gp%s' %(prior_elliptic_d_p_string, prior_elliptic_g_p_string) + '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.posterior_covariance_shape + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_' + run_options.prior_type + '_dp%s_gp%s' %(prior_elliptic_d_p_string, prior_elliptic_g_p_string) + '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.prior_type_nonelliptic == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_' + run_options.kern_type + '_cl%s' %(prior_cov_length_string) + '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.posterior_covariance_shape + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_' + run_options.kern_type + '_cl%s' %(prior_cov_length_string) + '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Prior Covariance File Name ===#
         if run_options.prior_type_elliptic == 1:
@@ -185,6 +193,12 @@ def trainer(hyperp, run_options, file_paths):
         data_dimension = len(obs_indices)
     latent_dimension = parameter_dimension
     
+    #=== Posterior Covariance Loss Functional ===#
+    if run_options.diagonal_posterior_covariance == 1:
+        KLD_loss = KLD_diagonal_post_cov
+    if run_options.full_posterior_covariance == 1:
+        KLD_loss = KLD_full_post_cov
+    
     #=== Prior Regularization ===# 
     print('Loading Prior Matrix')
     df_cov = pd.read_csv(file_paths.prior_savefilepath + '.csv')
@@ -202,7 +216,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal_post_cov, relative_error, prior_cov,\
+        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error, prior_cov,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    data_dimension, latent_dimension, num_batches_train)
     
@@ -219,8 +233,8 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal_post_cov, relative_error,\
-                            state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
+                               hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error,\
+                               state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                                data_dimension, latent_dimension, num_batches_train)
 
     #=== Saving Metrics ===#

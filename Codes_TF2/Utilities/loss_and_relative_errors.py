@@ -31,6 +31,9 @@ def KLD_diagonal_post_cov(post_mean, post_var, prior_mean, cov_prior_inv, det_co
     log_det_cov_prior_divide_det_cov_post = (tf.math.log(det_cov_prior/det_cov_post))
     return 0.5*(trace_cov_prior_inv_times_cov_post + prior_weighted_prior_mean_minus_post_mean - latent_dimension + log_det_cov_prior_divide_det_cov_post)
 
+def KLD_full_post_cov(post_mean, post_var, prior_mean, cov_prior_inv, det_cov_prior, latent_dimension): 
+    return 0
+
 ###############################################################################
 #                               Relative Error                                #
 ###############################################################################
