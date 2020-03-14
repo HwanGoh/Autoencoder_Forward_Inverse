@@ -212,10 +212,10 @@ def trainer(hyperp, run_options, file_paths):
         NN = VAEFwdInv(hyperp, data_dimension, latent_dimension)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
-        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
+        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_forward_problem\
         = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error, prior_cov,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    data_dimension, latent_dimension, num_batches_train)
@@ -228,10 +228,10 @@ def trainer(hyperp, run_options, file_paths):
             NN = VAEFwdInv(hyperp, data_dimension, latent_dimension)
             
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_problem,\
-        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
+        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_forward_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
@@ -241,13 +241,13 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict = {}
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
-    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_forward_problem
+    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_inverse_problem
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
-    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_forward_problem
-    metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
-    metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
+    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_inverse_problem
+    metrics_dict['relative_error_state_autoencoder'] = storage_array_relative_error_state_autoencoder
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
+    metrics_dict['relative_error_state_forward_problem'] = storage_array_relative_error_state_forward_problem
     df_metrics = pd.DataFrame(metrics_dict)
     df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
 
