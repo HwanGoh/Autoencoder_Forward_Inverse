@@ -93,7 +93,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
                 batch_data_pred_train_AE = NN(batch_data_train)
                 batch_latent_pred_train = NN.encoder(batch_data_train)
                 unscaled_replica_batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)
-                unscaled_replica_batch_loss_train_encoder = loss_encoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty)
+                unscaled_replica_batch_loss_train_encoder = loss_encoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
                 unscaled_replica_batch_loss_train = unscaled_replica_batch_loss_train_autoencoder + unscaled_replica_batch_loss_train_encoder
                 scaled_replica_batch_loss_train = tf.reduce_sum(unscaled_replica_batch_loss_train * (1./GLOBAL_BATCH_SIZE))
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
@@ -112,7 +112,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
             batch_data_pred_val_AE = NN(batch_data_val)
             batch_latent_pred_val = NN.encoder(batch_data_val)
             unscaled_replica_batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, batch_data_val)
-            unscaled_replica_batch_loss_val_encoder = loss_encoder(batch_latent_pred_val, batch_latent_val, hyperp.penalty)
+            unscaled_replica_batch_loss_val_encoder = loss_encoder(batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
             unscaled_replica_batch_loss_val = unscaled_replica_batch_loss_val_autoencoder + unscaled_replica_batch_loss_val_encoder
             mean_loss_val_autoencoder(unscaled_replica_batch_loss_val_autoencoder)
             mean_loss_val_encoder(unscaled_replica_batch_loss_val_encoder)
@@ -128,7 +128,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
             batch_data_pred_test_decoder = NN.decoder(batch_latent_test)
             batch_latent_pred_test = NN.encoder(batch_data_test)
             unscaled_replica_batch_loss_test_autoencoder = loss_autoencoder(batch_data_pred_test_AE, batch_data_test)
-            unscaled_replica_batch_loss_test_encoder = loss_encoder(batch_latent_pred_test, batch_latent_test, hyperp.penalty)
+            unscaled_replica_batch_loss_test_encoder = loss_encoder(batch_latent_pred_test, batch_latent_test, hyperp.penalty_encoder)
             unscaled_replica_batch_loss_test = unscaled_replica_batch_loss_test_autoencoder + unscaled_replica_batch_loss_test_encoder
             mean_loss_test_autoencoder(unscaled_replica_batch_loss_test_autoencoder)
             mean_loss_test_encoder(unscaled_replica_batch_loss_test_encoder)
