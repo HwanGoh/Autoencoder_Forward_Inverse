@@ -31,11 +31,12 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     if run_options.fin_dimensions_3D == 1:    
         V, mesh = get_space_3D(40)
     solver = Fin(V)
+    parameter_pred_dl = dl.Function(V)
     print(V.dim())  
     if run_options.data_thermal_fin_nine == 1:
         B_obs = solver.observation_operator()  
     else:
-        B_obs = np.zeros((len(obs_indices), V.dim()))
+        B_obs = np.zeros((len(obs_indices), V.dim()), dtype=np.float32)
         B_obs[np.arange(len(obs_indices)), obs_indices.flatten()] = 1
 
     #=== Optimizer ===#
@@ -89,39 +90,23 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
 ###############################################################################
     @tf.custom_gradient
     def fenics_forward(parameter_pred):
-        if run_options.data_thermal_fin_nine == 1:
-            parameter_pred_dl = parameter_convert_nine(run_options, V, solver, parameter_pred)   
-        if run_options.data_thermal_fin_vary == 1:
-            parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_pred)
-        state_dl, _ = solver.forward(parameter_pred_dl)    
-        state_data_values = state_dl.vector().get_local()
+        fenics_state_pred = np.zeros((parameter_pred.shape[0], len(obs_indices)))
+        for m in range(len(parameter_pred)):
+            parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy()) 
+            state_dl, _ = solver.forward(parameter_pred_dl)    
+            state_data_values = state_dl.vector().get_local()
         if hyperp.data_type == 'full':
-            fenics_state_pred = state_data_values
+            fenics_state_pred[m,:] = state_data_values
         if hyperp.data_type == 'bnd':
-            fenics_state_pred = state_data_values[obs_indices].flatten()
+            fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()
         def fenics_forward_grad(dy):
-            if run_options.data_thermal_fin_nine == 1:
-                parameter_pred_dl = parameter_convert_nine(run_options, V, solver, parameter_pred)   
-            if run_options.data_thermal_fin_vary == 1:
-                parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_pred)
-            fenics_forward_grad = solver.sensitivity(parameter_pred_dl, B_obs)
-            return dy*fenics_forward_grad
+            fenics_forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
+            for m in range(len(parameter_pred)):
+                parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy()) 
+                Jac_forward = solver.sensitivity(parameter_pred_dl, B_obs)
+                fenics_forward_grad[m,:] = tf.linalg.matmul(tf.expand_dims(dy[m,:],0), Jac_forward)
+            return fenics_forward_grad
         return fenics_state_pred, fenics_forward_grad
-                
-    def parameter_convert_nine(run_options, V, solver, parameter_pred):
-        parameter_dl = solver.nine_param_to_function(parameter_pred)
-        if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
-            parameter_values = parameter_dl.vector().get_local()  
-            zero_indices = np.where(parameter_values == 0)[0]
-            for ind in zero_indices:
-                parameter_values[ind] = parameter_values[ind-1]
-            parameter_dl = convert_array_to_dolfin_function(V, parameter_values) 
-        return parameter_dl
-    
-    def convert_array_to_dolfin_function(V, nodal_values):
-        nodal_values_dl = dl.Function(V)
-        nodal_values_dl.vector().set_local(np.squeeze(nodal_values))
-        return nodal_values_dl  
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
