@@ -96,10 +96,10 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy())
             state_dl, _ = solver.forward(parameter_pred_dl)  
             state_data_values = state_dl.vector().get_local()
-        if hyperp.data_type == 'full':
-            fenics_state_pred[m,:] = state_data_values
-        if hyperp.data_type == 'bnd':
-            fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()
+            if hyperp.data_type == 'full':
+                fenics_state_pred[m,:] = state_data_values
+            if hyperp.data_type == 'bnd':
+                fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()
         def fenics_forward_grad(dy):
             fenics_forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
             for m in range(parameter_pred.shape[0]):
