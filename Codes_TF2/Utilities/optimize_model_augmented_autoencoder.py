@@ -16,6 +16,7 @@ import tensorflow as tf
 import dolfin as dl
 dl.set_log_level(30)
 import numpy as np
+import pandas as pd
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
 from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
 
@@ -91,9 +92,9 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     @tf.custom_gradient
     def fenics_forward(parameter_pred):
         fenics_state_pred = np.zeros((parameter_pred.shape[0], len(obs_indices)))
-        for m in range(len(parameter_pred)):
-            parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy()) 
-            state_dl, _ = solver.forward(parameter_pred_dl)    
+        for m in range(parameter_pred.shape[0]):
+            parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy())
+            state_dl, _ = solver.forward(parameter_pred_dl)  
             state_data_values = state_dl.vector().get_local()
         if hyperp.data_type == 'full':
             fenics_state_pred[m,:] = state_data_values
@@ -101,7 +102,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()
         def fenics_forward_grad(dy):
             fenics_forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
-            for m in range(len(parameter_pred)):
+            for m in range(parameter_pred.shape[0]):
                 Jac_forward = solver.sensitivity(parameter_pred_dl, B_obs)
                 fenics_forward_grad[m,:] = tf.linalg.matmul(tf.expand_dims(dy[m,:],0), Jac_forward)
             return fenics_forward_grad
@@ -256,6 +257,23 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         mean_relative_error_data_autoencoder.reset_states()
         mean_relative_error_latent_encoder.reset_states()
         mean_relative_error_data_decoder.reset_states()
+        
+        #=== Save Current Model ===#
+        if epoch % 5 == 0:
+            NN.save_weights(file_paths.NN_savefile_name)
+            metrics_dict = {}
+            metrics_dict['loss_train'] = storage_array_loss_train
+            metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
+            metrics_dict['loss_train_fenics'] = storage_array_loss_train_fenics
+            metrics_dict['loss_val'] = storage_array_loss_val
+            metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
+            metrics_dict['loss_val_fenics'] = storage_array_loss_val_fenics
+            metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_data_autoencoder
+            metrics_dict['relative_error_state_obs'] = storage_array_relative_error_latent_encoder
+            metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_data_decoder
+            df_metrics = pd.DataFrame(metrics_dict)
+            df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
+            print('Current Model and Metrics Saved') 
             
     #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)

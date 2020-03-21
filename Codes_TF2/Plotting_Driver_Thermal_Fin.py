@@ -17,14 +17,14 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    data_type         = 'full'
+    data_type         = 'bnd'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty_encoder   = 0.01
-    penalty_decoder   = 0.01
-    penalty_aug       = 0
+    penalty_encoder   = 0.00
+    penalty_decoder   = 0.00
+    penalty_aug       = 1
     penalty_prior     = 0.0
     batch_size        = 1000
     num_epochs        = 1000
@@ -36,21 +36,21 @@ class RunOptions:
         self.use_reverse_autoencoder = 0
         
         #=== Autoencoder Loss ===#
-        self.use_model_aware = 1
-        self.use_model_augmented = 0
+        self.use_model_aware = 0
+        self.use_model_augmented = 1
         self.use_model_induced = 0
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 50000
+        self.num_data_train = 10000
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 0
-        self.fin_dimensions_3D = 1
+        self.fin_dimensions_2D = 1
+        self.fin_dimensions_3D = 0
         
         #=== Prior Properties ===#
         if self.fin_dimensions_2D == 1:
@@ -135,7 +135,7 @@ class FilePaths():
         if run_options.use_model_aware == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_encoder_string, penalty_decoder_string, penalty_prior_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_augmented == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_encoder_string, penalty_prior_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string_aug, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_paug%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_encoder_string, penalty_string_aug, penalty_prior_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         
@@ -195,12 +195,12 @@ if __name__ == "__main__":
     file_paths = FilePaths(hyperp, run_options)
     
     #=== Plot and Save Matplotlib ===#
-    #fig_size = (5,5)
-    #plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
-    #plot_and_save_metrics(hyperp, run_options, file_paths, fig_size)
+    fig_size = (5,5)
+    plot_and_save_predictions(hyperp, run_options, file_paths, fig_size)
+    plot_and_save_metrics(hyperp, run_options, file_paths, fig_size)
     
     #=== Plot and Save vtkfiles ===#
-    plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
+    #plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths)
     
     
     
