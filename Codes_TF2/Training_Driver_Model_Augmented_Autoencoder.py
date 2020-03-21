@@ -30,7 +30,7 @@ class Hyperparameters:
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty_aug       = 1
+    penalty_aug       = 50
     batch_size        = 1000
     num_epochs        = 1000
     
