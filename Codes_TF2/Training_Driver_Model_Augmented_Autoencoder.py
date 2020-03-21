@@ -46,11 +46,11 @@ class RunOptions:
         self.which_gpu = '3'
         
         #=== Data Set ===#
-        self.data_thermal_fin_nine = 1
-        self.data_thermal_fin_vary = 0
+        self.data_thermal_fin_nine = 0
+        self.data_thermal_fin_vary = 1
         
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
         
         #=== Data Dimensions ===#
@@ -88,6 +88,15 @@ class FilePaths():
             fin_dimension = ''
         if run_options.fin_dimensions_3D == 1:
             fin_dimension = '_3D'
+        self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
+        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
+            self.N_Nodes = ''
+        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
+            self.N_Nodes = ''
+        if run_options.fin_dimensions_2D == 1:
+            fin_dimension = ''
+        if run_options.fin_dimensions_3D == 1:
+            fin_dimension = '_3D'
         if hyperp.penalty_aug >= 1:
             hyperp.penalty_aug = int(hyperp.penalty_aug)
             penalty_string = str(hyperp.penalty_aug)
@@ -96,14 +105,14 @@ class FilePaths():
             penalty_string = 'pt' + penalty_string[2:]
         
         #=== File Name ===#
-        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and Saving Data ===#
-        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
-        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + fin_dimension + parameter_type
-        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + fin_dimension + '_' + hyperp.data_type + parameter_type
-        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + fin_dimension + parameter_type 
-        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + fin_dimension + '_' + hyperp.data_type + parameter_type
+        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
+        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + parameter_type
+        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type
+        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + parameter_type 
+        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type
         
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
@@ -153,7 +162,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_model_augmented,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_model_augmented,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_state_obs, storage_array_relative_error_parameter_inverse_problem\
-        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_model_augmented, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_fenics, relative_error,\
                    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
                    parameter_dimension, num_batches_train)
     

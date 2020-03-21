@@ -13,6 +13,8 @@ import os
 import time
 
 import tensorflow as tf
+import dolfin as dl
+dl.set_log_level(30)
 import numpy as np
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
 from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
@@ -23,14 +25,19 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_fenics, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
-    #=== Generate Dolfin Function Space and Mesh ===#
+    #=== Generate Dolfin Function Space and Mesh ===# These are in the scope and used below in the Fenics forward function and gradient
     if run_options.fin_dimensions_2D == 1:
         V, mesh = get_space_2D(40)
     if run_options.fin_dimensions_3D == 1:    
         V, mesh = get_space_3D(40)
     solver = Fin(V)
     print(V.dim())  
-    
+    if run_options.data_thermal_fin_nine == 1:
+        B_obs = solver.observation_operator()  
+    else:
+        B_obs = np.zeros((len(obs_indices), V.dim()))
+        B_obs[np.arange(len(obs_indices)), obs_indices.flatten()] = 1
+
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
@@ -76,6 +83,45 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
         shutil.rmtree(file_paths.tensorboard_directory)  
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+    
+###############################################################################
+#                     Fenics Forward Functions and Gradient                   #
+###############################################################################
+    @tf.custom_gradient
+    def fenics_forward(parameter_pred):
+        if run_options.data_thermal_fin_nine == 1:
+            parameter_pred_dl = parameter_convert_nine(run_options, V, solver, parameter_pred)   
+        if run_options.data_thermal_fin_vary == 1:
+            parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_pred)
+        state_dl, _ = solver.forward(parameter_pred_dl)    
+        state_data_values = state_dl.vector().get_local()
+        if hyperp.data_type == 'full':
+            fenics_state_pred = state_data_values
+        if hyperp.data_type == 'bnd':
+            fenics_state_pred = state_data_values[obs_indices].flatten()
+        def fenics_forward_grad(dy):
+            if run_options.data_thermal_fin_nine == 1:
+                parameter_pred_dl = parameter_convert_nine(run_options, V, solver, parameter_pred)   
+            if run_options.data_thermal_fin_vary == 1:
+                parameter_pred_dl = convert_array_to_dolfin_function(V, parameter_pred)
+            fenics_forward_grad = solver.sensitivity(parameter_pred_dl, B_obs)
+            return dy*fenics_forward_grad
+        return fenics_state_pred, fenics_forward_grad
+                
+    def parameter_convert_nine(run_options, V, solver, parameter_pred):
+        parameter_dl = solver.nine_param_to_function(parameter_pred)
+        if run_options.fin_dimensions_3D == 1: # Interpolation messes up sometimes and makes some values equal 0
+            parameter_values = parameter_dl.vector().get_local()  
+            zero_indices = np.where(parameter_values == 0)[0]
+            for ind in zero_indices:
+                parameter_values[ind] = parameter_values[ind-1]
+            parameter_dl = convert_array_to_dolfin_function(V, parameter_values) 
+        return parameter_dl
+    
+    def convert_array_to_dolfin_function(V, nodal_values):
+        nodal_values_dl = dl.Function(V)
+        nodal_values_dl.vector().set_local(np.squeeze(nodal_values))
+        return nodal_values_dl  
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -92,7 +138,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             else:
                 batch_state_obs_train = batch_latent_train
                 batch_parameter_pred = batch_data_pred_train_AE
-            batch_loss_train_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
+            batch_loss_train_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_fenics
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -112,7 +158,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         else:
             batch_state_obs_val = batch_latent_val
             batch_parameter_pred = batch_data_pred_val_AE
-        batch_loss_val_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_val, batch_parameter_pred, hyperp.penalty_aug)
+        batch_loss_val_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_val, batch_parameter_pred, hyperp.penalty_aug)
         batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_fenics
         mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         mean_loss_val_fenics(batch_loss_val_fenics)
@@ -131,7 +177,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         else:
             batch_state_obs_test = batch_latent_test
             batch_parameter_pred = batch_data_pred_test_AE
-        batch_loss_test_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, batch_state_obs_test, batch_parameter_pred, hyperp.penalty_aug)
+        batch_loss_test_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_test, batch_parameter_pred, hyperp.penalty_aug)
         batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_fenics
         mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         mean_loss_test_fenics(batch_loss_test_fenics)
