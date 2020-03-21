@@ -102,7 +102,6 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         def fenics_forward_grad(dy):
             fenics_forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
             for m in range(len(parameter_pred)):
-                parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy()) 
                 Jac_forward = solver.sensitivity(parameter_pred_dl, B_obs)
                 fenics_forward_grad[m,:] = tf.linalg.matmul(tf.expand_dims(dy[m,:],0), Jac_forward)
             return fenics_forward_grad
