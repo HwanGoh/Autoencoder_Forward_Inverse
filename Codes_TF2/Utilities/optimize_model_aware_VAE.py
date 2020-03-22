@@ -114,7 +114,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal
         batch_loss_test = -(batch_loss_test_VAE - batch_loss_test_KLD)
         mean_loss_test_autoencoder(batch_loss_test_VAE)
         mean_loss_test_encoder(batch_loss_test_KLD)
-        mean_loss_test(-batch_loss_test)
+        mean_loss_test(batch_loss_test)
         
         mean_relative_error_data_autoencoder(relative_error(batch_likelihood_test, batch_data_test))
         mean_relative_error_latent_encoder(relative_error(batch_post_mean_test, batch_latent_test))
