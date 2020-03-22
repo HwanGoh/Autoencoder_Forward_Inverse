@@ -1,2 +1,0 @@
-model_checkpoint_path: "maug_thermalfinvary_full_hl5_tl3_hn500_relu_p50_d200_b1000_e1000"
-all_model_checkpoint_paths: "maug_thermalfinvary_full_hl5_tl3_hn500_relu_p50_d200_b1000_e1000"
