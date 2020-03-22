@@ -37,7 +37,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self): 
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 0
+        self.use_distributed_training = 1
         
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2'
@@ -233,7 +233,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
         storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_forward_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error,\
+                               hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error, prior_cov,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                                data_dimension, latent_dimension, num_batches_train)
 

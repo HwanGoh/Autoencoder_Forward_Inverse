@@ -20,7 +20,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal_post_cov, relative_error, prior_cov, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, latent_dimension, num_batches_train):
+    #=== Matrix Determinants and Inverse of Prior Covariance ===#
+    prior_cov_inv = np.linalg.inv(prior_cov)
+    (sign, logdet) = np.linalg.slogdet(prior_cov)
+    log_det_prior_cov = sign*logdet
+    
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
     print('Number of Replicas in Sync: %d' %(dist_strategy.num_replicas_in_sync))   
     
@@ -82,16 +87,16 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         #=== Training Step ===#
         def train_step(batch_data_train, batch_latent_train):
             with tf.GradientTape() as tape:
-                batch_data_pred_train_AE = NN(batch_data_train)
-                batch_latent_pred_train = NN.encoder(batch_data_train)
-                unscaled_replica_batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)
-                unscaled_replica_batch_loss_train_encoder = loss_encoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
-                unscaled_replica_batch_loss_train = unscaled_replica_batch_loss_train_autoencoder + unscaled_replica_batch_loss_train_encoder
+                batch_likelihood_train = NN(batch_data_train)
+                batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_data_train)
+                unscaled_replica_batch_loss_train_VAE = loss_autoencoder(batch_likelihood_train, batch_data_train)
+                unscaled_replica_batch_loss_loss_train_KLD = KLD_diagonal_post_cov(batch_post_mean_train, batch_log_post_var_train, tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
+                unscaled_replica_batch_loss_train = -(unscaled_replica_batch_loss_train_VAE - unscaled_replica_batch_loss_loss_train_KLD)
                 scaled_replica_batch_loss_train = tf.reduce_sum(unscaled_replica_batch_loss_train * (1./GLOBAL_BATCH_SIZE))
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-            mean_loss_train_autoencoder(unscaled_replica_batch_loss_train_autoencoder)
-            mean_loss_train_encoder(unscaled_replica_batch_loss_train)
+            mean_loss_train_autoencoder(unscaled_replica_batch_loss_train_VAE)
+            mean_loss_train_encoder(unscaled_replica_batch_loss_loss_train_KLD)
             return scaled_replica_batch_loss_train
         
         @tf.function
@@ -101,13 +106,13 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
                         
         #=== Validation Step ===#
         def val_step(batch_data_val, batch_latent_val):
-            batch_data_pred_val_AE = NN(batch_data_val)
-            batch_latent_pred_val = NN.encoder(batch_data_val)
-            unscaled_replica_batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, batch_data_val)
-            unscaled_replica_batch_loss_val_encoder = loss_encoder(batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
-            unscaled_replica_batch_loss_val = unscaled_replica_batch_loss_val_autoencoder + unscaled_replica_batch_loss_val_encoder
-            mean_loss_val_autoencoder(unscaled_replica_batch_loss_val_autoencoder)
-            mean_loss_val_encoder(unscaled_replica_batch_loss_val_encoder)
+            batch_likelihood_val = NN(batch_data_val)
+            batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_data_val)
+            unscaled_replica_batch_loss_val_VAE = loss_autoencoder(batch_likelihood_val, batch_data_val)
+            unscaled_replica_batch_loss_val_KLD = KLD_diagonal_post_cov(batch_post_mean_val, batch_log_post_var_val, tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
+            unscaled_replica_batch_loss_val = -(unscaled_replica_batch_loss_val_VAE - unscaled_replica_batch_loss_val_KLD)
+            mean_loss_val_autoencoder(unscaled_replica_batch_loss_val_VAE)
+            mean_loss_val_encoder(unscaled_replica_batch_loss_val_KLD)
             mean_loss_val(unscaled_replica_batch_loss_val)
         
         @tf.function
@@ -116,18 +121,19 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, 
         
         #=== Test Step ===#
         def test_step(batch_data_test, batch_latent_test):
-            batch_data_pred_test_AE = NN(batch_data_test)
-            batch_data_pred_test_decoder = NN.decoder(batch_latent_test)
-            batch_latent_pred_test = NN.encoder(batch_data_test)
-            unscaled_replica_batch_loss_test_autoencoder = loss_autoencoder(batch_data_pred_test_AE, batch_data_test)
-            unscaled_replica_batch_loss_test_encoder = loss_encoder(batch_latent_pred_test, batch_latent_test, hyperp.penalty_encoder)
-            unscaled_replica_batch_loss_test = unscaled_replica_batch_loss_test_autoencoder + unscaled_replica_batch_loss_test_encoder
-            mean_loss_test_autoencoder(unscaled_replica_batch_loss_test_autoencoder)
-            mean_loss_test_encoder(unscaled_replica_batch_loss_test_encoder)
+            batch_data_likelihood_test = NN(batch_data_test)
+            batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_data_test)
+            batch_data_pred_test = NN.decoder(batch_latent_test)
+            unscaled_replica_batch_loss_test_VAE = loss_autoencoder(batch_data_likelihood_test, batch_data_test)
+            unscaled_replica_batch_loss_test_KLD = KLD_diagonal_post_cov(batch_post_mean_test, batch_log_post_var_test, tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
+            unscaled_replica_batch_loss_test = -(unscaled_replica_batch_loss_test_VAE - unscaled_replica_batch_loss_test_KLD)
+            mean_loss_test_autoencoder(unscaled_replica_batch_loss_test_VAE)
+            mean_loss_test_encoder(unscaled_replica_batch_loss_test_KLD)
             mean_loss_test(unscaled_replica_batch_loss_test)
-            mean_relative_error_data_autoencoder(relative_error(batch_data_pred_test_AE, batch_data_test))
-            mean_relative_error_latent_encoder(relative_error(batch_latent_pred_test, batch_latent_test))
-            mean_relative_error_data_decoder(relative_error(batch_data_pred_test_decoder, batch_data_test))
+            
+            mean_relative_error_data_autoencoder(relative_error(batch_data_likelihood_test, batch_data_test))
+            mean_relative_error_latent_encoder(relative_error(batch_post_mean_test, batch_latent_test))
+            mean_relative_error_data_decoder(relative_error(batch_data_pred_test, batch_data_test))
         
         @tf.function
         def dist_test_step(batch_data_test, batch_latent_test):
