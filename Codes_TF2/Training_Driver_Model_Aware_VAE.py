@@ -18,7 +18,7 @@ from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_VAE_Fwd_Inv import VAEFwdInv
 from Utilities.loss_and_relative_errors import loss_autoencoder, KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
 from Utilities.optimize_model_aware_VAE import optimize
-from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed
+from Utilities.optimize_distributed_VAE import optimize_distributed
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
