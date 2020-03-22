@@ -84,7 +84,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal
             batch_loss_train_VAE = loss_autoencoder(batch_likelihood_train, batch_data_train)
             batch_loss_train_KLD = KLD_diagonal_post_cov(batch_post_mean_train, batch_log_post_var_train, tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
             batch_loss_train = batch_loss_train_VAE - batch_loss_train_KLD
-        gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
+        gradients = tape.gradient(-batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         mean_loss_train(batch_loss_train)
         mean_loss_train_autoencoder(batch_loss_train_VAE)
@@ -99,7 +99,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal
         batch_loss_val_VAE = loss_autoencoder(batch_likelihood_val, batch_data_val)
         batch_loss_val_KLD = KLD_diagonal_post_cov(batch_post_mean_val, batch_log_post_var_val, tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_val = batch_loss_val_VAE - batch_loss_val_KLD
-        mean_loss_val_autoencoder(batch_loss_val_VAE)
+        mean_loss_val_autoencoder(-batch_loss_val_VAE)
         mean_loss_val_encoder(batch_loss_val_KLD)
         mean_loss_val(batch_loss_val)     
     
@@ -114,7 +114,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_diagonal
         batch_loss_test = batch_loss_test_VAE - batch_loss_test_KLD
         mean_loss_test_autoencoder(batch_loss_test_VAE)
         mean_loss_test_encoder(batch_loss_test_KLD)
-        mean_loss_test(batch_loss_test)
+        mean_loss_test(-batch_loss_test)
         
         mean_relative_error_data_autoencoder(relative_error(batch_likelihood_test, batch_data_test))
         mean_relative_error_latent_encoder(relative_error(batch_post_mean_test, batch_latent_test))
