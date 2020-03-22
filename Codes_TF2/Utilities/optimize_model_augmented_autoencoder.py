@@ -116,7 +116,8 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     def train_step(batch_data_train, batch_latent_train):
         with tf.GradientTape() as tape:
             batch_data_pred_train_AE = NN(batch_data_train)
-            batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)                    
+            if file_paths.autoencoder_type != 'rev_':
+                batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, tf.math.log(batch_data_train))                    
             if file_paths.autoencoder_type == 'rev_':
                 batch_state_obs_train = batch_data_train
                 batch_parameter_pred = NN.encoder(batch_data_train)
