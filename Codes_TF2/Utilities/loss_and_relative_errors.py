@@ -13,7 +13,6 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                   Loss                                      #
 ###############################################################################
 def loss_autoencoder(data_pred, data_true):
-    pdb.set_trace()
     return tf.norm(tf.subtract(data_true, data_pred), 2, axis = 1)
 
 def loss_encoder_or_decoder(pred, true, penalty):
