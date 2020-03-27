@@ -193,7 +193,6 @@ if __name__ == "__main__":
     hyperp_of_interest_dict = {}
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 30, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(500, 2000, name='num_hidden_nodes')
-    hyperp_of_interest_dict['penalty'] = Real(0.01, 50, name='penalty')
     hyperp_of_interest_dict['activation'] = Categorical(['sigmoid', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
     
