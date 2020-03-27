@@ -36,9 +36,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class Hyperparameters:
     data_type         = 'full'
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
+    num_hidden_layers = 13
+    truncation_layer  = 7 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 1000
     activation        = 'tanh'
     batch_size        = 100
     num_epochs        = 1000
@@ -194,7 +194,7 @@ if __name__ == "__main__":
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
     hyperp_of_interest_dict['penalty'] = Real(0.01, 50, name='penalty')
-    #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    hyperp_of_interest_dict['activation'] = Categorical(['sigmoid', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
     
     #####################
