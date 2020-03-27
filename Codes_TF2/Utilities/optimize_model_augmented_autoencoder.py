@@ -25,7 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_fenics, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_forward_model, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
     #=== Generate Dolfin Function Space and Mesh ===# These are in the scope and used below in the Fenics forward function and gradient
     if run_options.fin_dimensions_2D == 1:
         V, mesh = get_space_2D(40)
@@ -124,7 +124,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             else:
                 batch_state_obs_train = batch_latent_train
                 batch_parameter_pred = batch_data_pred_train_AE
-            batch_loss_train_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
+            batch_loss_train_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_train, batch_parameter_pred, hyperp.penalty_aug)
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_fenics
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -144,7 +144,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         else:
             batch_state_obs_val = batch_latent_val
             batch_parameter_pred = batch_data_pred_val_AE
-        batch_loss_val_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_val, batch_parameter_pred, hyperp.penalty_aug)
+        batch_loss_val_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_val, batch_parameter_pred, hyperp.penalty_aug)
         batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_fenics
         mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         mean_loss_val_fenics(batch_loss_val_fenics)
@@ -163,7 +163,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         else:
             batch_state_obs_test = batch_latent_test
             batch_parameter_pred = batch_data_pred_test_AE
-        batch_loss_test_fenics = loss_fenics(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_test, batch_parameter_pred, hyperp.penalty_aug)
+        batch_loss_test_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_test, batch_parameter_pred, hyperp.penalty_aug)
         batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_fenics
         mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         mean_loss_test_fenics(batch_loss_test_fenics)

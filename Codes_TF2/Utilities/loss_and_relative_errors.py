@@ -13,6 +13,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                   Loss                                      #
 ###############################################################################
 def loss_autoencoder(data_pred, data_true):
+    pdb.set_trace()
     return tf.norm(tf.subtract(data_true, data_pred), 2, axis = 1)
 
 def loss_encoder_or_decoder(pred, true, penalty):
@@ -23,6 +24,11 @@ def reg_prior(parameter, prior_mean, L_pr, penalty):
         return penalty*tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean), L_pr), 2, axis = 1)
     else:
         return 0
+
+def loss_forward_model(hyperp, run_options, V, solver, obs_indices, forward_model, state_obs_true, parameter_pred, penalty_aug):                 
+    forward_model_state_pred = forward_model(tf.math.exp(parameter_pred))
+    forward_model_state_pred = tf.cast(forward_model_state_pred, dtype=tf.float32)
+    return penalty_aug*tf.norm(tf.subtract(state_obs_true, forward_model_state_pred, 2), axis = 1)
 
 def KLD_diagonal_post_cov(post_mean, log_post_var, prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension):    
     trace_prior_cov_inv_times_cov_post = tf.reduce_sum(tf.multiply(tf.linalg.diag_part(prior_cov_inv), tf.math.exp(log_post_var)), axis=1)
