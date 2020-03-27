@@ -111,19 +111,17 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
-    #=== Train Step ===#
+    #=== Train Step ===# NOTE: NOT YET CODED FOR REVERSE AUTOENCODER. Becareful of the logs and exp
     #@tf.function
     def train_step(batch_data_train, batch_latent_train):
         with tf.GradientTape() as tape:
-            batch_data_pred_train_AE = NN(batch_data_train)
             if file_paths.autoencoder_type == 'rev_':
                 batch_state_obs_train = batch_data_train
                 batch_parameter_pred = NN.encoder(batch_data_train)
             else:
-                batch_state_obs_train = batch_latent_train
-                batch_parameter_pred = batch_data_pred_train_AE
-                batch_loss_train_autoencoder = loss_autoencoder(batch_parameter_pred, tf.math.log(batch_data_train))                    
-            batch_loss_train_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_train, tf.math.exp(batch_parameter_pred), hyperp.penalty_aug)
+                batch_data_pred_train_AE = NN(tf.math.log(batch_data_train))
+                batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, tf.math.log(batch_data_train))                    
+                batch_loss_train_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_latent_train, tf.math.exp(batch_data_pred_train_AE), hyperp.penalty_aug)
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_fenics
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -135,15 +133,13 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     #=== Validation Step ===#
     #@tf.function
     def val_step(batch_data_val, batch_latent_val):
-        batch_data_pred_val_AE = NN(batch_data_val)
         if file_paths.autoencoder_type == 'rev_':
             batch_state_obs_val = batch_data_val
             batch_parameter_pred = NN.encoder(batch_data_val)
         else:
-            batch_state_obs_val = batch_latent_val
-            batch_parameter_pred = batch_data_pred_val_AE
-            batch_loss_val_autoencoder = loss_autoencoder(batch_parameter_pred, tf.math.log(batch_data_val))                    
-        batch_loss_val_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_val, tf.math.exp(batch_parameter_pred), hyperp.penalty_aug)
+            batch_data_pred_val_AE = NN(tf.math.log(batch_data_val))
+            batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, tf.math.log(batch_data_val))                    
+            batch_loss_val_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_latent_val, tf.math.exp(batch_data_pred_val_AE), hyperp.penalty_aug)
         batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_fenics
         mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         mean_loss_val_fenics(batch_loss_val_fenics)
@@ -152,24 +148,24 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     #=== Test Step ===#
     #@tf.function
     def test_step(batch_data_test, batch_latent_test):
-        batch_data_pred_test_AE = NN(batch_data_test)
-        batch_data_pred_test_decoder = NN.decoder(batch_latent_test)
-        batch_latent_pred_test = NN.encoder(batch_data_test)
         if file_paths.autoencoder_type == 'rev_':
             batch_state_obs_test = batch_data_test
             batch_parameter_pred = NN.encoder(batch_data_test)
         else:
-            batch_state_obs_test = batch_latent_test
-            batch_parameter_pred = batch_data_pred_test_AE
-            batch_loss_test_autoencoder = loss_autoencoder(batch_parameter_pred, tf.math.log(batch_data_test))                    
-        batch_loss_test_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_state_obs_test, tf.math.exp(batch_parameter_pred), hyperp.penalty_aug)
+            batch_data_pred_test_AE = NN(tf.math.log(batch_data_test))            
+            batch_data_pred_test_decoder = NN.decoder(batch_latent_test)
+            batch_latent_pred_test = NN.encoder(tf.math.log(batch_data_test))
+            
+            batch_loss_test_autoencoder = loss_autoencoder(batch_data_pred_test_AE, tf.math.log(batch_data_test))                    
+            batch_loss_test_fenics = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_latent_test, tf.math.exp(batch_data_pred_test_AE), hyperp.penalty_aug)
+            
+            mean_relative_error_data_autoencoder(relative_error(batch_data_pred_test_AE, tf.math.log(batch_data_test)))
+            mean_relative_error_latent_encoder(relative_error(batch_latent_pred_test, batch_latent_test))
+            mean_relative_error_data_decoder(relative_error(batch_data_pred_test_decoder, tf.math.log(batch_data_test)))
         batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_fenics
         mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         mean_loss_test_fenics(batch_loss_test_fenics)
         mean_loss_test(batch_loss_test)
-        mean_relative_error_data_autoencoder(relative_error(batch_data_pred_test_AE, batch_data_test))
-        mean_relative_error_latent_encoder(relative_error(batch_latent_pred_test, batch_latent_test))
-        mean_relative_error_data_decoder(relative_error(batch_data_pred_test_decoder, batch_data_test))
         
 ###############################################################################
 #                             Train Neural Network                            #
