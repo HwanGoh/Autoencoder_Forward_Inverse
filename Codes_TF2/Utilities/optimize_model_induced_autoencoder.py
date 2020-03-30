@@ -132,9 +132,9 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
                 batch_parameter_pred = NN.encoder(batch_data_train)
             else:
                 batch_data_pred_train_AE = NN(tf.math.log(batch_data_train))
-                batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, tf.math.log(batch_data_train))                    
                 batch_latent_pred_train = NN.encoder(batch_data_train)
                 batch_data_pred_train = NN.decoder(batch_latent_train)
+                batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, tf.math.log(batch_data_train))                    
                 batch_loss_train_encoder = loss_encoder_or_decoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
                 batch_loss_train_decoder = loss_encoder_or_decoder(batch_data_pred_train, batch_data_train, hyperp.penalty_decoder)
                 batch_loss_train_forward_model = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_latent_train, tf.math.exp(batch_data_pred_train_AE), hyperp.penalty_aug)
@@ -156,9 +156,9 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             batch_parameter_pred = NN.encoder(batch_data_val)
         else:
             batch_data_pred_val_AE = NN(tf.math.log(batch_data_val))
-            batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, tf.math.log(batch_data_val))                    
             batch_latent_pred_val = NN.encoder(batch_data_val)
             batch_data_pred_val = NN.decoder(batch_latent_val)
+            batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, tf.math.log(batch_data_val))                    
             batch_loss_val_encoder = loss_encoder_or_decoder(batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
             batch_loss_val_decoder = loss_encoder_or_decoder(batch_data_pred_val, batch_data_val, hyperp.penalty_decoder)
             batch_loss_val_forward_model = loss_forward_model(hyperp, run_options, V, solver, obs_indices, fenics_forward, batch_latent_val, tf.math.exp(batch_data_pred_val_AE), hyperp.penalty_aug)
