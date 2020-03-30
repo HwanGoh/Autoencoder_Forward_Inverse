@@ -213,7 +213,6 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
         print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e\n' %(mean_relative_error_data_autoencoder.result(), mean_relative_error_latent_encoder.result(), mean_relative_error_data_decoder.result()))
         start_time_epoch = time.time()
         
-        
         #=== Resetting Metrics ===#
         mean_loss_train.reset_states()
         mean_loss_train_autoencoder.reset_states()
