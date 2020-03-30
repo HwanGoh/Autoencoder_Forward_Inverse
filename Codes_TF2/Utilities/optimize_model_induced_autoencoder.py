@@ -25,7 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder_or_decoder, loss_forward_model, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder_or_decoder, loss_forward_model, relative_error, reg_prior, L_pr, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
     #=== Generate Dolfin Function Space and Mesh ===# These are in the scope and used below in the Fenics forward function and gradient
     if run_options.fin_dimensions_2D == 1:
         V, mesh = get_space_2D(40)
@@ -118,7 +118,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
                 Jac_forward = solver.sensitivity(parameter_pred_dl, B_obs)
                 fenics_forward_grad[m,:] = tf.linalg.matmul(tf.expand_dims(dy[m,:],0), Jac_forward)
             return fenics_forward_grad
-        return fenics_state_pred, 
+        return fenics_state_pred, fenics_forward_grad
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #

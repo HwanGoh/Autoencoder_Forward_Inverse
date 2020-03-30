@@ -33,6 +33,7 @@ class Hyperparameters:
     penalty_encoder   = 1
     penalty_decoder   = 0
     penalty_aug       = 50
+    penalty_prior     = 0
     batch_size        = 1000
     num_epochs        = 1000
     
@@ -58,6 +59,16 @@ class RunOptions:
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
         self.fin_dimensions_3D = 0
+        
+        #=== Prior Properties ===#
+        if self.fin_dimensions_2D == 1:
+            self.kern_type = 'm32'
+            self.prior_cov_length = 0.8
+            self.prior_mean = 0.0
+        if self.fin_dimensions_3D == 1:    
+            self.kern_type = 'm52'
+            self.prior_cov_length = 0.8
+            self.prior_mean = 0.0
         
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -242,10 +253,11 @@ if __name__ == "__main__":
         hyperp.activation        = str(sys.argv[5])
         hyperp.penalty_encoder   = float(sys.argv[6])
         hyperp.penalty_decoder   = float(sys.argv[7])
-        hyperp.penalty_prior     = float(sys.argv[8])
-        hyperp.batch_size        = int(sys.argv[9])
-        hyperp.num_epochs        = int(sys.argv[10])
-        run_options.which_gpu    = str(sys.argv[11])
+        hyperp.penalty_aug       = float(sys.argv[8])
+        hyperp.penalty_prior     = float(sys.argv[9])
+        hyperp.batch_size        = int(sys.argv[10])
+        hyperp.num_epochs        = int(sys.argv[11])
+        run_options.which_gpu    = str(sys.argv[12])
 
     #=== File Names ===#
     file_paths = FilePaths(hyperp, run_options)
