@@ -14,9 +14,8 @@ import pandas as pd
 from Utilities.get_thermal_fin_data import load_thermal_fin_data
 from Utilities.form_train_val_test_batches import form_train_val_test_batches
 from Utilities.NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, relative_error
-from Utilities.loss_fenics_thermal_fin import loss_fenics
-from Utilities.optimize_fenics_autoencoder import optimize
+from Utilities.loss_and_relative_errors import loss_autoencoder, relative_error, loss_forward_model
+from Utilities.optimize_model_augmented_autoencoder import optimize
 from Utilities.optimize_distributed_model_aware_autoencoder import optimize_distributed # STILL NEED TO CODE THIS!
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -90,13 +89,13 @@ class FilePaths():
             fin_dimension = '_3D'
         if hyperp.penalty_aug >= 1:
             hyperp.penalty_aug = int(hyperp.penalty_aug)
-            penalty_string = str(hyperp.penalty_aug)
+            penalty_aug_string = str(hyperp.penalty_aug)
         else:
-            penalty_string = str(hyperp.penalty_aug)
-            penalty_string = 'pt' + penalty_string[2:]
+            penalty_aug_string = str(hyperp.penalty_aug)
+            penalty_aug_string = 'pt' + penalty_aug_string[2:]
         
         #=== File Name ===#
-        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_aug_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Loading and Saving Data ===#
         self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + fin_dimension
@@ -149,11 +148,11 @@ def trainer(hyperp, run_options, file_paths):
         NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
         
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_fenics,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_fenics,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_fenics,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_model,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_model,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_model,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
-        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_fenics, relative_error,\
+        = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_forward_model, relative_error,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    parameter_dimension, num_batches_train)
     
@@ -165,12 +164,12 @@ def trainer(hyperp, run_options, file_paths):
             NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
             
         #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_fenics,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_fenics,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_fenics,\
+        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_forward_model,\
+        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_forward_model,\
+        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_forward_model,\
         storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_fenics, relative_error,\
+                               hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_forward_model, relative_error,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                                parameter_dimension, num_batches_train)
 
@@ -178,10 +177,10 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict = {}
     metrics_dict['loss_train'] = storage_array_loss_train
     metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
-    metrics_dict['loss_train_fenics'] = storage_array_loss_train_fenics
+    metrics_dict['loss_train_forward_model'] = storage_array_loss_train_forward_model
     metrics_dict['loss_val'] = storage_array_loss_val
     metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
-    metrics_dict['loss_val_fenics'] = storage_array_loss_val_fenics
+    metrics_dict['loss_val_forward_model'] = storage_array_loss_val_forward_model
     metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
     metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
