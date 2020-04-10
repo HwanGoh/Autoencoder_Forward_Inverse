@@ -117,7 +117,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, re
         mean_loss_test(batch_loss_test)
         
         mean_relative_error_data_autoencoder(relative_error(batch_likelihood_test, batch_data_test))
-        mean_relative_error_latent_encoder(relative_error(batch_post_mean_test, batch_latent_test))
+        mean_relative_error_latent_encoder(relative_error(tf.math.exp(batch_post_mean_test), batch_latent_test))
         mean_relative_error_data_decoder(relative_error(batch_data_pred_test, batch_data_test))
         
 ###############################################################################
