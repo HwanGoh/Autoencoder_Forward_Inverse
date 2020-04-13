@@ -6,5 +6,3 @@ git checkout server_runs
 git reset --hard master
 
 git push -f origin server_runs
-
-git checkout master # and go back to master branch
