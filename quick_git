@@ -1,10 +1,10 @@
 #!/bin/bash
-# Make sure you are on the most updated branch (here it's master) before you run this!
-
-git rebase server_runs
+# Instead of master, you can use the "better branch" which you want to overwrite the server_runs branch with
 
 git checkout server_runs
 
-git merge master
+git reset --hard master
+
+git push -f origin server_runs
 
 git checkout master # and go back to master branch
