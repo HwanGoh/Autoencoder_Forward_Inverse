@@ -282,7 +282,8 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e, Aug: %.3e' %(mean_loss_train.result(), mean_loss_train_autoencoder.result(), mean_loss_train_encoder.result(), mean_loss_train_decoder.result(), mean_loss_train_forward_model.result()))
         print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e, Aug: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_encoder.result(), mean_loss_val_decoder.result(), mean_loss_val_forward_model.result()))
         print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e, Aug: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_encoder.result(), mean_loss_test_decoder.result(), mean_loss_test_forward_model.result()))
-        print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e\n' %(mean_relative_error_data_autoencoder.result(), mean_relative_error_latent_encoder.result(), mean_relative_error_data_decoder.result()))
+        print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e' %(mean_relative_error_data_autoencoder.result(), mean_relative_error_latent_encoder.result(), mean_relative_error_data_decoder.result()))
+        print('Relative Gradient Norm: %.4f\n' %(sum_gradient_norms/initial_sum_gradient_norms))
         start_time_epoch = time.time()
         
         #=== Resetting Metrics ===#
