@@ -4,4 +4,4 @@ git add .
 
 git commit -m "update for server run"
 
-git push origin server_runs --force
+git push -f origin server_runs
