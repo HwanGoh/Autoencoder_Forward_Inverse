@@ -1,13 +1,10 @@
 #!/bin/bash
+# Make sure you are on the most updated branch (here it's master) before you run this!
+
+git rebase server_runs
 
 git checkout server_runs
 
-git rebase master
+git merge master
 
-git add .
-
-git commit -m "update for server run"
-
-git push --force
-
-git checkout master
+git checkout master # and go back to master branch
