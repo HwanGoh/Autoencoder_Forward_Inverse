@@ -1,6 +1,6 @@
 #!/bin/bash
 
-git checkout -b server_runs
+git checkout server_runs
 
 git add .
 
