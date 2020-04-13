@@ -1,7 +1,13 @@
 #!/bin/bash
 
-git stash save 
+git checkout server_runs 2>/dev/null || git checkout -b server_runs
 
-git push --force origin "stash@{0}:master" 
+git push --set-upstream origin server_runs
 
-git stash pop
+git add .
+
+git commit -m "update for server run"
+
+git push
+
+git checkout master
