@@ -1,11 +1,7 @@
 #!/bin/bash
 
-git checkout server_runs
-
 git add .
 
 git commit -m "update for server run"
 
-git push
-
-git checkout master
+git push origin master:server_runs
