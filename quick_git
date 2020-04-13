@@ -1,7 +1,13 @@
 #!/bin/bash
 
+git checkout server_runs
+
+git rebase master
+
 git add .
 
 git commit -m "update for server run"
 
-git push -f origin server_runs
+git push --force
+
+git checkout master
