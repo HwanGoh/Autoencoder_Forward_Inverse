@@ -256,6 +256,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
             
         #=== Gradient Norm Termination Condition ===#
         if sum_gradient_norms/initial_sum_gradient_norms < 1e-6:
+            print('Gradient norm tolerance reached, breaking training loop')
             break
                         
     #=== Save Final Model ===#

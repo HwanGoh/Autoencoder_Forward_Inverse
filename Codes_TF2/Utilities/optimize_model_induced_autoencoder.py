@@ -323,7 +323,8 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             print('Current Model and Metrics Saved') 
             
         #=== Gradient Norm Termination Condition ===#
-        if sum_gradient_norms/initial_sum_gradient_norms < 1e-8:
+        if sum_gradient_norms/initial_sum_gradient_norms < 1e-6:
+            print('Gradient norm tolerance reached, breaking training loop')
             break
             
     #=== Save Final Model ===#
