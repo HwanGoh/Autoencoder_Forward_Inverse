@@ -1,8 +1,6 @@
 #!/bin/bash
 
-git checkout server_runs 2>/dev/null || git checkout -b server_runs
-
-git push --set-upstream origin server_runs
+git checkout -b server_runs
 
 git add .
 
