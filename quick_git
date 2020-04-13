@@ -2,6 +2,6 @@
 
 git add .
 
-git commit -m "small update"
+git commit --allow-empty
 
 git push
