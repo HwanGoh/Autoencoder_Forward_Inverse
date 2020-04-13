@@ -248,8 +248,13 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             for w in NN.weights:
                 tf.summary.histogram(w.name, w, step=epoch)
             l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
+            sum_gradient_norms = 0.0
             for gradient, variable in zip(gradients, NN.trainable_variables):
-                tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient), step = epoch)              
+                tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient), step = epoch)    
+                sum_gradient_norms += l2_norm(gradient)
+                if epoch == 0:
+                    initial_sum_gradient_norms = sum_gradient_norms
+            tf.summary.scalar('sum_gradient_norms', sum_gradient_norms, step=epoch)         
                 
         #=== Update Storage Arrays ===#
         storage_array_loss_train = np.append(storage_array_loss_train, mean_loss_train.result())
@@ -316,6 +321,10 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             df_metrics = pd.DataFrame(metrics_dict)
             df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
             print('Current Model and Metrics Saved') 
+            
+        #=== Gradient Norm Termination Condition ===#
+        if sum_gradient_norms/initial_sum_gradient_norms < 1e-8:
+            break
             
     #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)

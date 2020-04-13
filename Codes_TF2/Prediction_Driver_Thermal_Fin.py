@@ -39,7 +39,6 @@ class RunOptions:
         
         #=== Autoencoder Loss ===#
         self.use_model_aware = 0
-        self.use_model_augmented = 0
         self.use_model_induced = 1
         
         #=== Data Set ===#
@@ -89,8 +88,6 @@ class FilePaths():
             self.autoencoder_type = 'rev_'
         if run_options.use_model_aware == 1:
             self.autoencoder_loss = 'maware'
-        if run_options.use_model_augmented == 1:
-            self.autoencoder_loss = 'maug'
         if run_options.use_model_induced == 1:
             self.autoencoder_loss = 'mind'
         if run_options.data_thermal_fin_nine == 1:
@@ -136,8 +133,6 @@ class FilePaths():
         #=== File Name ===#
         if run_options.use_model_aware == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_encoder_string, penalty_decoder_string, penalty_prior_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
-        if run_options.use_model_augmented == 1:
-            self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_p%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_aug_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         if run_options.use_model_induced == 1:
             self.filename = self.autoencoder_type + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, penalty_encoder_string, penalty_decoder_string, penalty_aug_string, penalty_prior_string, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
         
