@@ -1,0 +1,21 @@
+#!/bin/bash
+
+dir_name=$(basename $PWD) #name of directory
+full_path=$PWD #full path of directory
+
+cd ../..
+
+two_levels_up=$PWD #full path of two levels up
+mkdir $dir_name
+
+cp -r $full_path $two_levels_up #copy to two-levels up
+
+cd $dir_name
+
+rm -rf .git #delete .git directory
+
+cd ..
+
+zip -r $dir_name.zip $dir_name
+
+
