@@ -213,7 +213,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem, storage_array_loss_train_forwawrd_problem,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem, storage_array_loss_val_forward_problem,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem, storage_array_loss_test_forward_problem,\
-        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_forward_problem, storage_array_relative_gradient_norm\
+        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_forward_problem\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder_or_decoder, relative_error, reg_prior, L_pr,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
@@ -232,7 +232,8 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict['relative_error_state_autoencoder'] = storage_array_relative_error_state_autoencoder
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
     metrics_dict['relative_error_state_forward_problem'] = storage_array_relative_error_state_forward_problem
-    metrics_dict['relative_gradient_norm'] = storage_array_relative_gradient_norm
+    if run_options.use_distributed_training == 0:
+        metrics_dict['relative_gradient_norm'] = storage_array_relative_gradient_norm
     df_metrics = pd.DataFrame(metrics_dict)
     df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
 
