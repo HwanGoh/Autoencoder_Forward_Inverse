@@ -316,13 +316,18 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             metrics_dict = {}
             metrics_dict['loss_train'] = storage_array_loss_train
             metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
+            metrics_dict['loss_train_encoder'] = storage_array_loss_train_encoder
+            metrics_dict['loss_train_decoder'] = storage_array_loss_train_decoder
             metrics_dict['loss_train_forward_model'] = storage_array_loss_train_forward_model
             metrics_dict['loss_val'] = storage_array_loss_val
             metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
+            metrics_dict['loss_val_encoder'] = storage_array_loss_val_encoder
+            metrics_dict['loss_val_decoder'] = storage_array_loss_val_decoder
             metrics_dict['loss_val_forward_model'] = storage_array_loss_val_forward_model
-            metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_data_autoencoder
-            metrics_dict['relative_error_state_obs'] = storage_array_relative_error_latent_encoder
-            metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_data_decoder
+            metrics_dict['relative_error_data_autoencoder'] = storage_array_relative_error_data_autoencoder
+            metrics_dict['relative_error_latent_encoder'] = storage_array_relative_error_latent_encoder
+            metrics_dict['relative_error_data_decoder'] = storage_array_relative_error_data_decoder
+            metrics_dict['relative_gradient_norm'] = storage_array_relative_gradient_norm
             df_metrics = pd.DataFrame(metrics_dict)
             df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
             print('Current Model and Metrics Saved') 

@@ -34,7 +34,7 @@ class Hyperparameters:
     penalty_decoder   = 1
     penalty_prior     = 0.0
     batch_size        = 1000
-    num_epochs        = 1000
+    num_epochs        = 20
     
 class RunOptions:
     def __init__(self): 
