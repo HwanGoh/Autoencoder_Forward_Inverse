@@ -196,7 +196,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem, storage_array_loss_train_forward_problem, storage_array_loss_train_forward_model,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem, storage_array_loss_val_forward_problem, storage_array_loss_val_forward_model,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem, storage_array_loss_val_forward_problem, storage_array_loss_test_forward_model,\
-        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs, storage_array_relative_gradient_norm\
         = optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder_or_decoder, loss_forward_model, relative_error,\
                    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
                    parameter_dimension, num_batches_train)
@@ -212,7 +212,7 @@ def trainer(hyperp, run_options, file_paths):
         storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem, storage_array_loss_train_forward_problem, storage_array_loss_train_forward_model,\
         storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem, storage_array_loss_val_forward_problem, storage_array_loss_val_forward_model,\
         storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem, storage_array_loss_val_forward_problem, storage_array_loss_test_forward_model,\
-        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs\
+        storage_array_relative_error_parameter_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_obs, storage_array_relative_gradient_norm\
         = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder_or_decoder, loss_forward_model, relative_error,\
                                state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
@@ -233,6 +233,7 @@ def trainer(hyperp, run_options, file_paths):
     metrics_dict['relative_error_parameter_autoencoder'] = storage_array_relative_error_parameter_autoencoder
     metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
     metrics_dict['relative_error_state_obs'] = storage_array_relative_error_state_obs
+    metrics_dict['relative_gradient_norm'] = storage_array_relative_gradient_norm
     df_metrics = pd.DataFrame(metrics_dict)
     df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
 

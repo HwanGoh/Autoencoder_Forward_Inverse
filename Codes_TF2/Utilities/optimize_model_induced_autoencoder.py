@@ -89,6 +89,8 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     storage_array_relative_error_latent_encoder = np.array([])
     storage_array_relative_error_data_decoder = np.array([])
     
+    storage_array_relative_gradient_norm = np.array([])
+
     #=== Creating Directory for Trained Neural Network ===#
     if not os.path.exists(file_paths.NN_savefile_directory):
         os.makedirs(file_paths.NN_savefile_directory)
@@ -255,7 +257,8 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
                 if epoch == 0:
                     initial_sum_gradient_norms = sum_gradient_norms
             tf.summary.scalar('sum_gradient_norms', sum_gradient_norms, step=epoch)         
-                
+            relative_gradient_norm = sum_gradient_norms/initial_sum_gradient_norms
+
         #=== Update Storage Arrays ===#
         storage_array_loss_train = np.append(storage_array_loss_train, mean_loss_train.result())
         storage_array_loss_train_autoencoder = np.append(storage_array_loss_train_autoencoder, mean_loss_train_autoencoder.result())
@@ -275,7 +278,8 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         storage_array_relative_error_data_autoencoder = np.append(storage_array_relative_error_data_autoencoder, mean_relative_error_data_autoencoder.result())
         storage_array_relative_error_latent_encoder = np.append(storage_array_relative_error_latent_encoder, mean_relative_error_latent_encoder.result())
         storage_array_relative_error_data_decoder = np.append(storage_array_relative_error_data_decoder, mean_relative_error_data_decoder.result())
-            
+        storage_array_relative_gradient_norm = np.append(storage_array_relative_gradient_norm, relative_gradient_norm) 
+
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
@@ -283,7 +287,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
         print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e, Aug: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_encoder.result(), mean_loss_val_decoder.result(), mean_loss_val_forward_model.result()))
         print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e, Aug: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_encoder.result(), mean_loss_test_decoder.result(), mean_loss_test_forward_model.result()))
         print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e' %(mean_relative_error_data_autoencoder.result(), mean_relative_error_latent_encoder.result(), mean_relative_error_data_decoder.result()))
-        print('Relative Gradient Norm: %.4f\n' %(sum_gradient_norms/initial_sum_gradient_norms))
+        print('Relative Gradient Norm: %.4f\n' %(relative_gradient_norm))
         start_time_epoch = time.time()
         
         #=== Resetting Metrics ===#
@@ -324,7 +328,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
             print('Current Model and Metrics Saved') 
             
         #=== Gradient Norm Termination Condition ===#
-        if sum_gradient_norms/initial_sum_gradient_norms < 1e-6:
+        if relative_gradient_norm < 1e-6:
             print('Gradient norm tolerance reached, breaking training loop')
             break
             
@@ -332,4 +336,4 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder,
     NN.save_weights(file_paths.NN_savefile_name)
     print('Final Model Saved') 
     
-    return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_encoder, storage_array_loss_train_decoder, storage_array_loss_train_forward_model, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_encoder, storage_array_loss_val_decoder, storage_array_loss_val_forward_model, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_encoder, storage_array_loss_test_decoder, storage_array_loss_test_forward_model, storage_array_relative_error_data_autoencoder, storage_array_relative_error_latent_encoder, storage_array_relative_error_data_decoder 
+    return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_encoder, storage_array_loss_train_decoder, storage_array_loss_train_forward_model, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_encoder, storage_array_loss_val_decoder, storage_array_loss_val_forward_model, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_encoder, storage_array_loss_test_decoder, storage_array_loss_test_forward_model, storage_array_relative_error_data_autoencoder, storage_array_relative_error_latent_encoder, storage_array_relative_error_data_decoder, storage_array_relative_gradient_norm
