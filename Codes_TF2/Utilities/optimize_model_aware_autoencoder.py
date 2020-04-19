@@ -192,8 +192,8 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
                 sum_gradient_norms += l2_norm(gradient)
                 if epoch == 0:
                     initial_sum_gradient_norms = sum_gradient_norms
-            tf.summary.scalar('sum_gradient_norms', sum_gradient_norms, step=epoch)
             relative_gradient_norm = sum_gradient_norms/initial_sum_gradient_norms
+            tf.summary.scalar('relative_gradient_norm', relative_gradient_norm, step=epoch)
 
         #=== Update Storage Arrays ===#
         storage_array_loss_train = np.append(storage_array_loss_train, mean_loss_train.result())

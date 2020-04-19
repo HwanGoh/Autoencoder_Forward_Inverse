@@ -46,7 +46,7 @@ class RunOptions:
         
         #=== Which Single GPU to Use ===#
         self.which_gpu = '1'
-        
+       
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
@@ -264,16 +264,3 @@ if __name__ == "__main__":
 
     #=== Initiate Training ===#
     trainer(hyperp, run_options, file_paths) 
-    
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     
-     

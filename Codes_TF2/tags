@@ -1,0 +1,389 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+AutoencoderFwdInv	Utilities/NN_Autoencoder_Fwd_Inv.py	/^class AutoencoderFwdInv(tf.keras.Model):$/;"	c
+Decoder	Utilities/NN_Autoencoder_Fwd_Inv.py	/^class Decoder(tf.keras.layers.Layer):$/;"	c
+Decoder	Utilities/NN_VAE_Fwd_Inv.py	/^class Decoder(tf.keras.layers.Layer):$/;"	c
+EXIT	Scheduler_Training_Model_Aware_Autoencoder.py	/^    EXIT = 3$/;"	v	class:FLAGS
+EXIT	Scheduler_Training_Model_Induced_Autoencoder.py	/^    EXIT = 3$/;"	v	class:FLAGS
+EXIT	Utilities/schedule_and_run.py	/^    EXIT = 3$/;"	v	class:FLAGS
+Encoder	Utilities/NN_Autoencoder_Fwd_Inv.py	/^class Encoder(tf.keras.layers.Layer):$/;"	c
+Encoder	Utilities/NN_VAE_Fwd_Inv.py	/^class Encoder(tf.keras.layers.Layer):$/;"	c
+FLAGS	Scheduler_Training_Model_Aware_Autoencoder.py	/^class FLAGS:$/;"	c
+FLAGS	Scheduler_Training_Model_Induced_Autoencoder.py	/^class FLAGS:$/;"	c
+FLAGS	Utilities/schedule_and_run.py	/^class FLAGS:$/;"	c
+FilePaths	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^class FilePaths():              $/;"	c
+FilePaths	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^class FilePaths():              $/;"	c
+FilePaths	Plotting_Driver_Paraview_Thermal_Fin.py	/^class FilePaths():              $/;"	c
+FilePaths	Plotting_Driver_Thermal_Fin.py	/^class FilePaths():              $/;"	c
+FilePaths	Plotting_Driver_VAE_Thermal_Fin.py	/^class FilePaths():              $/;"	c
+FilePaths	Prediction_Driver_Thermal_Fin.py	/^class FilePaths():              $/;"	c
+FilePaths	Prediction_Driver_VAE_Thermal_Fin.py	/^class FilePaths():              $/;"	c
+FilePaths	Training_Driver_Model_Aware_Autoencoder.py	/^class FilePaths():              $/;"	c
+FilePaths	Training_Driver_Model_Aware_VAE.py	/^class FilePaths():              $/;"	c
+FilePaths	Training_Driver_Model_Induced_Autoencoder.py	/^class FilePaths():              $/;"	c
+FilePaths	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^class FilePaths():              $/;"	c
+FilePaths	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^class FilePaths():              $/;"	c
+Hyperparameters	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^class Hyperparameters: # Choose defaults, hyperparameters of interest wil be overwritten later$/;"	c
+Hyperparameters	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Plotting_Driver_Paraview_Thermal_Fin.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Plotting_Driver_Thermal_Fin.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Plotting_Driver_VAE_Thermal_Fin.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Prediction_Driver_Thermal_Fin.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Prediction_Driver_VAE_Thermal_Fin.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Training_Driver_Model_Aware_Autoencoder.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Training_Driver_Model_Aware_VAE.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Training_Driver_Model_Induced_Autoencoder.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^class Hyperparameters:$/;"	c
+Hyperparameters	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^class Hyperparameters:$/;"	c
+KLD_diagonal_post_cov	Utilities/loss_and_relative_errors.py	/^def KLD_diagonal_post_cov(post_mean, log_post_var, prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension):    $/;"	f
+KLD_full_post_cov	Utilities/loss_and_relative_errors.py	/^def KLD_full_post_cov(post_mean, post_var, prior_mean, prior_cov_inv, det_prior_cov, latent_dimension): $/;"	f
+NEW_RUN	Scheduler_Training_Model_Aware_Autoencoder.py	/^    NEW_RUN = 4$/;"	v	class:FLAGS
+NEW_RUN	Scheduler_Training_Model_Induced_Autoencoder.py	/^    NEW_RUN = 4$/;"	v	class:FLAGS
+NEW_RUN	Utilities/schedule_and_run.py	/^    NEW_RUN = 4            $/;"	v	class:FLAGS
+RECEIVED	Scheduler_Training_Model_Aware_Autoencoder.py	/^    RECEIVED = 1$/;"	v	class:FLAGS
+RECEIVED	Scheduler_Training_Model_Induced_Autoencoder.py	/^    RECEIVED = 1$/;"	v	class:FLAGS
+RECEIVED	Utilities/schedule_and_run.py	/^    RECEIVED = 1$/;"	v	class:FLAGS
+RUN_FINISHED	Scheduler_Training_Model_Aware_Autoencoder.py	/^    RUN_FINISHED = 2$/;"	v	class:FLAGS
+RUN_FINISHED	Scheduler_Training_Model_Induced_Autoencoder.py	/^    RUN_FINISHED = 2$/;"	v	class:FLAGS
+RUN_FINISHED	Utilities/schedule_and_run.py	/^    RUN_FINISHED = 2$/;"	v	class:FLAGS
+RunOptions	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^class RunOptions:$/;"	c
+RunOptions	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^class RunOptions:$/;"	c
+RunOptions	Plotting_Driver_Paraview_Thermal_Fin.py	/^class RunOptions:$/;"	c
+RunOptions	Plotting_Driver_Thermal_Fin.py	/^class RunOptions:$/;"	c
+RunOptions	Plotting_Driver_VAE_Thermal_Fin.py	/^class RunOptions:$/;"	c
+RunOptions	Prediction_Driver_Thermal_Fin.py	/^class RunOptions:$/;"	c
+RunOptions	Prediction_Driver_VAE_Thermal_Fin.py	/^class RunOptions:$/;"	c
+RunOptions	Training_Driver_Model_Aware_Autoencoder.py	/^class RunOptions:$/;"	c
+RunOptions	Training_Driver_Model_Aware_VAE.py	/^class RunOptions:$/;"	c
+RunOptions	Training_Driver_Model_Induced_Autoencoder.py	/^class RunOptions:$/;"	c
+RunOptions	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^class RunOptions:$/;"	c
+RunOptions	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^class RunOptions:$/;"	c
+SolverWrapper	Utilities/gradient_fd_test.py	/^class SolverWrapper:$/;"	c
+V	Utilities/gradient_fd_test.py	/^V = get_space(resolution)$/;"	v
+VAEFwdInv	Utilities/NN_VAE_Fwd_Inv.py	/^class VAEFwdInv(tf.keras.Model):$/;"	c
+__init__	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Plotting_Driver_Paraview_Thermal_Fin.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Plotting_Driver_Paraview_Thermal_Fin.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Plotting_Driver_Thermal_Fin.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Plotting_Driver_Thermal_Fin.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Plotting_Driver_VAE_Thermal_Fin.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Plotting_Driver_VAE_Thermal_Fin.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Prediction_Driver_Thermal_Fin.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Prediction_Driver_Thermal_Fin.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Prediction_Driver_VAE_Thermal_Fin.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Prediction_Driver_VAE_Thermal_Fin.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Training_Driver_Model_Aware_Autoencoder.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Training_Driver_Model_Aware_Autoencoder.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Training_Driver_Model_Aware_VAE.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Training_Driver_Model_Aware_VAE.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Training_Driver_Model_Induced_Autoencoder.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Training_Driver_Model_Induced_Autoencoder.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    def __init__(self): $/;"	m	class:RunOptions
+__init__	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    def __init__(self, hyperp, run_options): $/;"	m	class:FilePaths
+__init__	Utilities/NN_Autoencoder_Fwd_Inv.py	/^    def __init__(self, hyperp, data_dimension, latent_dimension):$/;"	m	class:AutoencoderFwdInv
+__init__	Utilities/NN_Autoencoder_Fwd_Inv.py	/^    def __init__(self, truncation_layer, architecture, activations, kernel_initializer, bias_initializer):$/;"	m	class:Encoder
+__init__	Utilities/NN_Autoencoder_Fwd_Inv.py	/^    def __init__(self, truncation_layer, architecture, activations, kernel_initializer, bias_initializer, num_layers):$/;"	m	class:Decoder
+__init__	Utilities/NN_VAE_Fwd_Inv.py	/^    def __init__(self, hyperp, data_dimension, latent_dimension):$/;"	m	class:VAEFwdInv
+__init__	Utilities/NN_VAE_Fwd_Inv.py	/^    def __init__(self, truncation_layer, architecture, activations, kernel_initializer, bias_initializer):$/;"	m	class:Encoder
+__init__	Utilities/NN_VAE_Fwd_Inv.py	/^    def __init__(self, truncation_layer, architecture, activations, kernel_initializer, bias_initializer, num_layers):$/;"	m	class:Decoder
+__init__	Utilities/gradient_fd_test.py	/^    def __init__(self, solver, data): $/;"	m	class:SolverWrapper
+a_g	Utilities/gradient_fd_test.py	/^    a_g = (pi_h - pi_0)\/h$/;"	v	class:SolverWrapper
+activation	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+activation	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    activation        = 'tanh'$/;"	v	class:Hyperparameters
+activation	Plotting_Driver_Paraview_Thermal_Fin.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+activation	Plotting_Driver_Thermal_Fin.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+activation	Plotting_Driver_VAE_Thermal_Fin.py	/^    activation        = 'tanh'$/;"	v	class:Hyperparameters
+activation	Prediction_Driver_Thermal_Fin.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+activation	Prediction_Driver_VAE_Thermal_Fin.py	/^    activation        = 'tanh'$/;"	v	class:Hyperparameters
+activation	Training_Driver_Model_Aware_Autoencoder.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+activation	Training_Driver_Model_Aware_VAE.py	/^    activation        = 'tanh'$/;"	v	class:Hyperparameters
+activation	Training_Driver_Model_Induced_Autoencoder.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+activation	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+activation	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    activation        = 'relu'$/;"	v	class:Hyperparameters
+assemble_permutations	Utilities/get_hyperparameter_permutations.py	/^def assemble_permutations(hyper_p_dict_list):$/;"	f
+available_GPUs	Utilities/schedule_and_run.py	/^def available_GPUs(total_gpus):$/;"	f
+batch_size	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+batch_size	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    batch_size        = 100$/;"	v	class:Hyperparameters
+batch_size	Plotting_Driver_Paraview_Thermal_Fin.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+batch_size	Plotting_Driver_Thermal_Fin.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+batch_size	Plotting_Driver_VAE_Thermal_Fin.py	/^    batch_size        = 100$/;"	v	class:Hyperparameters
+batch_size	Prediction_Driver_Thermal_Fin.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+batch_size	Prediction_Driver_VAE_Thermal_Fin.py	/^    batch_size        = 100$/;"	v	class:Hyperparameters
+batch_size	Training_Driver_Model_Aware_Autoencoder.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+batch_size	Training_Driver_Model_Aware_VAE.py	/^    batch_size        = 100$/;"	v	class:Hyperparameters
+batch_size	Training_Driver_Model_Induced_Autoencoder.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+batch_size	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+batch_size	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    batch_size        = 1000$/;"	v	class:Hyperparameters
+call	Utilities/NN_Autoencoder_Fwd_Inv.py	/^    def call(self, X):$/;"	m	class:AutoencoderFwdInv
+call	Utilities/NN_Autoencoder_Fwd_Inv.py	/^    def call(self, X):$/;"	m	class:Decoder
+call	Utilities/NN_Autoencoder_Fwd_Inv.py	/^    def call(self, X):$/;"	m	class:Encoder
+call	Utilities/NN_VAE_Fwd_Inv.py	/^    def call(self, X):$/;"	m	class:Decoder
+call	Utilities/NN_VAE_Fwd_Inv.py	/^    def call(self, X):$/;"	m	class:Encoder
+call	Utilities/NN_VAE_Fwd_Inv.py	/^    def call(self, X):$/;"	m	class:VAEFwdInv
+chol	Utilities/gradient_fd_test.py	/^chol = make_cov_chol(V, length=1.2)$/;"	v
+comm	Scheduler_Training_Model_Aware_Autoencoder.py	/^    comm   = MPI.COMM_WORLD$/;"	v
+comm	Scheduler_Training_Model_Induced_Autoencoder.py	/^    comm   = MPI.COMM_WORLD$/;"	v
+cost_function	Utilities/gradient_fd_test.py	/^    def cost_function(self, z_v):$/;"	m	class:SolverWrapper
+data	Scheduler_Training_Model_Aware_Autoencoder.py	/^            data = comm.recv(source=0, status=status)$/;"	v
+data	Scheduler_Training_Model_Induced_Autoencoder.py	/^            data = comm.recv(source=0, status=status)$/;"	v
+data	Utilities/gradient_fd_test.py	/^data = solver.qoi_operator(w)$/;"	v
+data_type	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    data_type         = 'full'$/;"	v	class:Hyperparameters
+data_type	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    data_type         = 'full'$/;"	v	class:Hyperparameters
+data_type	Plotting_Driver_Paraview_Thermal_Fin.py	/^    data_type         = 'full'$/;"	v	class:Hyperparameters
+data_type	Plotting_Driver_Thermal_Fin.py	/^    data_type         = 'bnd'$/;"	v	class:Hyperparameters
+data_type	Plotting_Driver_VAE_Thermal_Fin.py	/^    data_type         = 'full'$/;"	v	class:Hyperparameters
+data_type	Prediction_Driver_Thermal_Fin.py	/^    data_type         = 'bnd'$/;"	v	class:Hyperparameters
+data_type	Prediction_Driver_VAE_Thermal_Fin.py	/^    data_type         = 'full'$/;"	v	class:Hyperparameters
+data_type	Training_Driver_Model_Aware_Autoencoder.py	/^    data_type         = 'full'$/;"	v	class:Hyperparameters
+data_type	Training_Driver_Model_Aware_VAE.py	/^    data_type         = 'full'$/;"	v	class:Hyperparameters
+data_type	Training_Driver_Model_Induced_Autoencoder.py	/^    data_type         = 'bnd'$/;"	v	class:Hyperparameters
+data_type	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    data_type         = 'bnd'$/;"	v	class:Hyperparameters
+data_type	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    data_type         = 'bnd'$/;"	v	class:Hyperparameters
+df_validation_losses	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    df_validation_losses = pd.DataFrame(validation_losses_dict)$/;"	v	class:FilePaths
+df_validation_losses	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    df_validation_losses = pd.DataFrame(validation_losses_dict)$/;"	v	class:FilePaths
+dir_grad	Utilities/gradient_fd_test.py	/^dir_grad = np.dot(solver_w.gradient(z_), eps_z)$/;"	v
+directories_list_Tensorboard	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    directories_list_Tensorboard = os.listdir(path=file_paths.hyperp_opt_Tensorboard_directory)$/;"	v	class:FilePaths
+directories_list_Tensorboard	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    directories_list_Tensorboard = os.listdir(path=file_paths.hyperp_opt_Tensorboard_directory)$/;"	v	class:FilePaths
+directories_list_Trained_NNs	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    directories_list_Trained_NNs = os.listdir(path=file_paths.hyperp_opt_Trained_NNs_directory)$/;"	v	class:FilePaths
+directories_list_Trained_NNs	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    directories_list_Trained_NNs = os.listdir(path=file_paths.hyperp_opt_Trained_NNs_directory)$/;"	v	class:FilePaths
+dist_test_step	Utilities/optimize_distributed_model_aware_VAE.py	/^        def dist_test_step(batch_data_test, batch_latent_test):$/;"	f	function:optimize_distributed
+dist_test_step	Utilities/optimize_distributed_model_aware_autoencoder.py	/^        def dist_test_step(batch_data_test, batch_latent_test):$/;"	f	function:optimize_distributed
+dist_train_step	Utilities/optimize_distributed_model_aware_VAE.py	/^        def dist_train_step(batch_data_train, batch_latent_train):$/;"	f	function:optimize_distributed
+dist_train_step	Utilities/optimize_distributed_model_aware_autoencoder.py	/^        def dist_train_step(batch_data_train, batch_latent_train):$/;"	f	function:optimize_distributed
+dist_val_step	Utilities/optimize_distributed_model_aware_VAE.py	/^        def dist_val_step(batch_data_val, batch_latent_val):$/;"	f	function:optimize_distributed
+dist_val_step	Utilities/optimize_distributed_model_aware_autoencoder.py	/^        def dist_val_step(batch_data_val, batch_latent_val):$/;"	f	function:optimize_distributed
+eps_norm	Utilities/gradient_fd_test.py	/^eps_norm = dl.norm(z)$/;"	v
+eps_z	Utilities/gradient_fd_test.py	/^eps_z = eps_z\/eps_norm$/;"	v
+eps_z	Utilities/gradient_fd_test.py	/^eps_z = np.exp(0.5 * chol.T @ norm)$/;"	v
+err	Utilities/gradient_fd_test.py	/^    err = abs(a_g - dir_grad)\/abs(dir_grad)$/;"	v	class:SolverWrapper
+err_grads	Utilities/gradient_fd_test.py	/^err_grads = []$/;"	v
+fenics_forward	Utilities/optimize_model_induced_autoencoder.py	/^    def fenics_forward(parameter_pred):$/;"	f	function:optimize
+fenics_forward_grad	Utilities/optimize_model_induced_autoencoder.py	/^        def fenics_forward_grad(dy):$/;"	f	function:optimize.fenics_forward
+fig_size	Plotting_Driver_Thermal_Fin.py	/^    fig_size = (5,5)$/;"	v	class:FilePaths
+fig_size	Plotting_Driver_VAE_Thermal_Fin.py	/^    fig_size = (5,5)$/;"	v	class:FilePaths
+file_paths	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v	class:FilePaths
+file_paths	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v	class:FilePaths
+file_paths	Plotting_Driver_Paraview_Thermal_Fin.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v	class:FilePaths
+file_paths	Plotting_Driver_Thermal_Fin.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v	class:FilePaths
+file_paths	Plotting_Driver_VAE_Thermal_Fin.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v	class:FilePaths
+file_paths	Prediction_Driver_Thermal_Fin.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v
+file_paths	Prediction_Driver_VAE_Thermal_Fin.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v
+file_paths	Training_Driver_Model_Aware_Autoencoder.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v
+file_paths	Training_Driver_Model_Aware_VAE.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v
+file_paths	Training_Driver_Model_Induced_Autoencoder.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v
+file_paths	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v
+file_paths	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    file_paths = FilePaths(hyperp, run_options)$/;"	v
+form_train_val_test_batches	Utilities/form_train_val_test_batches.py	/^def form_train_val_test_batches(data_train, labels_train, data_test, labels_test, batch_size, random_seed):$/;"	f
+get_combinations	Utilities/get_hyperparameter_permutations.py	/^def get_combinations(hyper_p, hyper_p_dict_list):$/;"	f
+get_hyperparameter_permutations	Utilities/get_hyperparameter_permutations.py	/^def get_hyperparameter_permutations(hyper_p):$/;"	f
+gradient	Utilities/gradient_fd_test.py	/^    def gradient(self, z_v):$/;"	m	class:SolverWrapper
+grads	Utilities/gradient_fd_test.py	/^grads = []$/;"	v
+hs	Utilities/gradient_fd_test.py	/^hs = np.power(2., -np.arange(n_eps))$/;"	v
+hyperp	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    hyperp = Hyperparameters()$/;"	v	class:FilePaths
+hyperp	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    hyperp = Hyperparameters()$/;"	v	class:FilePaths
+hyperp	Plotting_Driver_Paraview_Thermal_Fin.py	/^    hyperp = Hyperparameters()$/;"	v	class:FilePaths
+hyperp	Plotting_Driver_Thermal_Fin.py	/^    hyperp = Hyperparameters()$/;"	v	class:FilePaths
+hyperp	Plotting_Driver_VAE_Thermal_Fin.py	/^    hyperp = Hyperparameters()$/;"	v	class:FilePaths
+hyperp	Prediction_Driver_Thermal_Fin.py	/^    hyperp = Hyperparameters()$/;"	v
+hyperp	Prediction_Driver_VAE_Thermal_Fin.py	/^    hyperp = Hyperparameters()$/;"	v
+hyperp	Scheduler_1by1_Training_Model_Aware_Autoencoder.py	/^    hyperp = Hyperparameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU$/;"	v
+hyperp	Scheduler_1by1_Training_Model_Induced_Autoencoder.py	/^    hyperp = Hyperparameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU$/;"	v
+hyperp	Scheduler_Prediction_and_Plotting_Thermal_Fin.py	/^    hyperp = Hyperparameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU$/;"	v
+hyperp	Scheduler_Training_Model_Aware_Autoencoder.py	/^        hyperp = Hyperparameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU$/;"	v
+hyperp	Scheduler_Training_Model_Induced_Autoencoder.py	/^        hyperp = Hyperparameters() # Assign instance attributes below, DO NOT assign an instance attribute to GPU$/;"	v
+hyperp	Training_Driver_Model_Aware_Autoencoder.py	/^    hyperp = Hyperparameters()$/;"	v
+hyperp	Training_Driver_Model_Aware_VAE.py	/^    hyperp = Hyperparameters()$/;"	v
+hyperp	Training_Driver_Model_Induced_Autoencoder.py	/^    hyperp = Hyperparameters()$/;"	v
+hyperp	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    hyperp = Hyperparameters()$/;"	v
+hyperp	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    hyperp = Hyperparameters()$/;"	v
+hyperp_of_interest_dict	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    hyperp_of_interest_dict = {}$/;"	v	class:FilePaths
+hyperp_of_interest_dict	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    hyperp_of_interest_dict = {}$/;"	v	class:FilePaths
+hyperp_of_interest_list	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys()) $/;"	v	class:FilePaths
+hyperp_of_interest_list	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys()) $/;"	v	class:FilePaths
+hyperp_of_interest_objective_args_tuple	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    hyperp_of_interest_objective_args_tuple = tuple(hyperp_of_interest_list)$/;"	v	class:FilePaths
+hyperp_of_interest_objective_args_tuple	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    hyperp_of_interest_objective_args_tuple = tuple(hyperp_of_interest_list)$/;"	v	class:FilePaths
+hyperp_opt_result	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    hyperp_opt_result = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)$/;"	v	class:FilePaths
+hyperp_opt_result	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    hyperp_opt_result = gp_minimize(objective_functional, space, n_calls=n_calls, random_state=None)$/;"	v	class:FilePaths
+hyperp_scenario	Scheduler_1by1_Training_Model_Aware_Autoencoder.py	/^        hyperp_scenario = Hyperparameters()$/;"	v
+hyperp_scenario	Scheduler_1by1_Training_Model_Induced_Autoencoder.py	/^        hyperp_scenario = Hyperparameters()$/;"	v
+hyperp_scenario	Scheduler_Prediction_and_Plotting_Thermal_Fin.py	/^        hyperp_scenario = Hyperparameters()$/;"	v
+hyperp_scenario	Scheduler_Training_Model_Aware_Autoencoder.py	/^            hyperp_scenario = Hyperparameters()$/;"	v
+hyperp_scenario	Scheduler_Training_Model_Induced_Autoencoder.py	/^            hyperp_scenario = Hyperparameters()$/;"	v
+load_predict_save	Prediction_Driver_Thermal_Fin.py	/^def load_predict_save(hyperp, run_options, file_paths): $/;"	f
+load_predict_save	Prediction_Driver_VAE_Thermal_Fin.py	/^def load_predict_save(hyperp, run_options, file_paths): $/;"	f
+load_thermal_fin_data	Utilities/get_thermal_fin_data.py	/^def load_thermal_fin_data(file_paths, num_training_data, num_testing_data, parameter_dimensions):$/;"	f
+load_thermal_fin_test_data	Utilities/get_thermal_fin_data.py	/^def load_thermal_fin_test_data(file_paths, num_testing_data, parameter_dimensions):$/;"	f
+load_wave_data	Utilities/get_wave_data.py	/^def load_wave_data(run_options, num_training_data, num_testing_data, batch_size, random_seed):$/;"	f
+loss_autoencoder	Utilities/loss_and_relative_errors.py	/^def loss_autoencoder(data_pred, data_true):$/;"	f
+loss_encoder_or_decoder	Utilities/loss_and_relative_errors.py	/^def loss_encoder_or_decoder(pred, true, penalty):$/;"	f
+loss_forward_model	Utilities/loss_and_relative_errors.py	/^def loss_forward_model(hyperp, run_options, V, solver, obs_indices, forward_model, state_obs_true, parameter_pred, penalty_aug):             $/;"	f
+n_calls	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    n_calls = 40$/;"	v	class:FilePaths
+n_calls	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    n_calls = 40$/;"	v	class:FilePaths
+n_eps	Utilities/gradient_fd_test.py	/^n_eps = 32$/;"	v
+nodal_vals	Utilities/gradient_fd_test.py	/^nodal_vals = np.exp(0.5 * chol.T @ norm)$/;"	v
+norm	Utilities/gradient_fd_test.py	/^norm = np.random.randn(len(chol))$/;"	v
+nprocs	Scheduler_Training_Model_Aware_Autoencoder.py	/^    nprocs = comm.Get_size()$/;"	v
+nprocs	Scheduler_Training_Model_Induced_Autoencoder.py	/^    nprocs = comm.Get_size()$/;"	v
+num_epochs	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Plotting_Driver_Paraview_Thermal_Fin.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Plotting_Driver_Thermal_Fin.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Plotting_Driver_VAE_Thermal_Fin.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Prediction_Driver_Thermal_Fin.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Prediction_Driver_VAE_Thermal_Fin.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Training_Driver_Model_Aware_Autoencoder.py	/^    num_epochs        = 20$/;"	v	class:Hyperparameters
+num_epochs	Training_Driver_Model_Aware_VAE.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Training_Driver_Model_Induced_Autoencoder.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_epochs	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    num_epochs        = 100$/;"	v	class:Hyperparameters
+num_epochs	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    num_epochs        = 1000$/;"	v	class:Hyperparameters
+num_hidden_layers	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    num_hidden_layers = 13$/;"	v	class:Hyperparameters
+num_hidden_layers	Plotting_Driver_Paraview_Thermal_Fin.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Plotting_Driver_Thermal_Fin.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Plotting_Driver_VAE_Thermal_Fin.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Prediction_Driver_Thermal_Fin.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Prediction_Driver_VAE_Thermal_Fin.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Training_Driver_Model_Aware_Autoencoder.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Training_Driver_Model_Aware_VAE.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Training_Driver_Model_Induced_Autoencoder.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_layers	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    num_hidden_layers = 5$/;"	v	class:Hyperparameters
+num_hidden_nodes	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    num_hidden_nodes  = 1000$/;"	v	class:Hyperparameters
+num_hidden_nodes	Plotting_Driver_Paraview_Thermal_Fin.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Plotting_Driver_Thermal_Fin.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Plotting_Driver_VAE_Thermal_Fin.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Prediction_Driver_Thermal_Fin.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Prediction_Driver_VAE_Thermal_Fin.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Training_Driver_Model_Aware_Autoencoder.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Training_Driver_Model_Aware_VAE.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Training_Driver_Model_Induced_Autoencoder.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+num_hidden_nodes	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    num_hidden_nodes  = 500$/;"	v	class:Hyperparameters
+objective_functional	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    def objective_functional(**hyperp_of_interest_objective_args_tuple):            $/;"	m	class:FilePaths
+objective_functional	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    def objective_functional(**hyperp_of_interest_objective_args_tuple):            $/;"	m	class:FilePaths
+optimize	Utilities/optimize_model_aware_VAE.py	/^def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error, prior_cov, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, latent_dimension, num_batches_train):$/;"	f
+optimize	Utilities/optimize_model_aware_autoencoder.py	/^def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder_or_decoder, relative_error, reg_prior, L_pr, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):$/;"	f
+optimize	Utilities/optimize_model_induced_autoencoder.py	/^def optimize(hyperp, run_options, file_paths, NN, obs_indices, loss_autoencoder, loss_encoder_or_decoder, loss_forward_model, relative_error, reg_prior, L_pr, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):$/;"	f
+optimize_distributed	Utilities/optimize_distributed_model_aware_VAE.py	/^def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error, prior_cov, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, latent_dimension, num_batches_train):$/;"	f
+optimize_distributed	Utilities/optimize_distributed_model_aware_autoencoder.py	/^def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE, hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder, relative_error, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):$/;"	f
+penalty	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    penalty           = 1$/;"	v	class:Hyperparameters
+penalty_aug	Plotting_Driver_Paraview_Thermal_Fin.py	/^    penalty_aug       = 0$/;"	v	class:Hyperparameters
+penalty_aug	Plotting_Driver_Thermal_Fin.py	/^    penalty_aug       = 50$/;"	v	class:Hyperparameters
+penalty_aug	Prediction_Driver_Thermal_Fin.py	/^    penalty_aug       = 50$/;"	v	class:Hyperparameters
+penalty_aug	Training_Driver_Model_Induced_Autoencoder.py	/^    penalty_aug       = 50$/;"	v	class:Hyperparameters
+penalty_aug	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    penalty_aug       = 50$/;"	v	class:Hyperparameters
+penalty_decoder	Plotting_Driver_Paraview_Thermal_Fin.py	/^    penalty_decoder   = 0.01$/;"	v	class:Hyperparameters
+penalty_decoder	Plotting_Driver_Thermal_Fin.py	/^    penalty_decoder   = 0$/;"	v	class:Hyperparameters
+penalty_decoder	Prediction_Driver_Thermal_Fin.py	/^    penalty_decoder   = 0$/;"	v	class:Hyperparameters
+penalty_decoder	Training_Driver_Model_Aware_Autoencoder.py	/^    penalty_decoder   = 1$/;"	v	class:Hyperparameters
+penalty_decoder	Training_Driver_Model_Induced_Autoencoder.py	/^    penalty_decoder   = 0$/;"	v	class:Hyperparameters
+penalty_decoder	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    penalty_decoder   = 1$/;"	v	class:Hyperparameters
+penalty_decoder	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    penalty_decoder   = 0$/;"	v	class:Hyperparameters
+penalty_encoder	Plotting_Driver_Paraview_Thermal_Fin.py	/^    penalty_encoder   = 0.01$/;"	v	class:Hyperparameters
+penalty_encoder	Plotting_Driver_Thermal_Fin.py	/^    penalty_encoder   = 1$/;"	v	class:Hyperparameters
+penalty_encoder	Prediction_Driver_Thermal_Fin.py	/^    penalty_encoder   = 1$/;"	v	class:Hyperparameters
+penalty_encoder	Training_Driver_Model_Aware_Autoencoder.py	/^    penalty_encoder   = 50$/;"	v	class:Hyperparameters
+penalty_encoder	Training_Driver_Model_Induced_Autoencoder.py	/^    penalty_encoder   = 1$/;"	v	class:Hyperparameters
+penalty_encoder	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    penalty_encoder   = 1$/;"	v	class:Hyperparameters
+penalty_encoder	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    penalty_encoder   = 1$/;"	v	class:Hyperparameters
+penalty_pr	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    penalty_pr        = 0.0$/;"	v	class:Hyperparameters
+penalty_prior	Plotting_Driver_Paraview_Thermal_Fin.py	/^    penalty_prior     = 0.0$/;"	v	class:Hyperparameters
+penalty_prior	Plotting_Driver_Thermal_Fin.py	/^    penalty_prior     = 0$/;"	v	class:Hyperparameters
+penalty_prior	Prediction_Driver_Thermal_Fin.py	/^    penalty_prior     = 0$/;"	v	class:Hyperparameters
+penalty_prior	Training_Driver_Model_Aware_Autoencoder.py	/^    penalty_prior     = 0.0$/;"	v	class:Hyperparameters
+penalty_prior	Training_Driver_Model_Induced_Autoencoder.py	/^    penalty_prior     = 0$/;"	v	class:Hyperparameters
+penalty_prior	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    penalty_prior     = 0.0$/;"	v	class:Hyperparameters
+penalty_prior	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    penalty_prior     = 0$/;"	v	class:Hyperparameters
+pi_0	Utilities/gradient_fd_test.py	/^    pi_0 = solver_w.cost_function(z_)$/;"	v	class:SolverWrapper
+pi_h	Utilities/gradient_fd_test.py	/^    pi_h = solver_w.cost_function(z_ + h * eps_z)$/;"	v	class:SolverWrapper
+plot_and_save_metrics	Utilities/plot_and_save_metrics.py	/^def plot_and_save_metrics(hyperp, run_options, file_paths, fig_size):$/;"	f
+plot_and_save_predictions	Utilities/plot_and_save_predictions_thermal_fin.py	/^def plot_and_save_predictions(hyperp, run_options, file_paths, fig_size):$/;"	f
+plot_and_save_predictions_paraview	Utilities/plot_and_save_predictions_paraview.py	/^def plot_and_save_predictions_paraview(hyperp, file_paths, cbar_RGB_parameter_test, cbar_RGB_state_test):$/;"	f
+plot_and_save_predictions_vtkfiles	Utilities/plot_and_save_predictions_vtkfiles_thermal_fin.py	/^def plot_and_save_predictions_vtkfiles(hyperp, run_options, file_paths):$/;"	f
+predict_and_save	Utilities/predict_and_save.py	/^def predict_and_save(hyperp, run_options, file_paths, NN, parameter_and_state_obs_test, obs_indices):        $/;"	f
+predict_and_save	Utilities/predict_and_save_VAE.py	/^def predict_and_save(hyperp, run_options, file_paths, NN, parameter_and_state_obs_test, obs_indices):        $/;"	f
+proc	Scheduler_1by1_Training_Model_Aware_Autoencoder.py	/^        proc = subprocess.Popen(['.\/Training_Driver_Model_Aware_Autoencoder.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}', f'{scenario.which_gpu}']) $/;"	v
+proc	Scheduler_1by1_Training_Model_Induced_Autoencoder.py	/^        proc = subprocess.Popen(['.\/Training_Driver_Model_Induced_Autoencoder.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty:.4f}', f'{scenario.penalty_aug:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}', f'{scenario.which_gpu}']) $/;"	v
+proc	Scheduler_Prediction_and_Plotting_Thermal_Fin.py	/^        proc = subprocess.Popen(['.\/Plotting_Driver_Paraview_Thermal_Fin.py', f'{scenario.data_type}', f'{scenario.num_hidden_layers}', f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}', f'{scenario.activation}', f'{scenario.penalty_encoder:.3f}', f'{scenario.penalty_decoder:.3f}', f'{scenario.penalty_aug:.3f}', f'{scenario.penalty_prior:.3f}', f'{scenario.batch_size}', f'{scenario.num_epochs}']) $/;"	v
+proc	Scheduler_Training_Model_Aware_Autoencoder.py	/^            proc = subprocess.Popen(['.\/Training_Driver_Reversed_Model_Aware_Autoencoder.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty_encoder:.4f}', f'{data.penalty_decoder:.4f}', f'{data.penalty_prior:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])$/;"	v
+proc	Scheduler_Training_Model_Induced_Autoencoder.py	/^            proc = subprocess.Popen(['.\/Training_Driver_Model_Induced_Autoencoder.py', f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}', f'{data.num_hidden_nodes}', f'{data.activation}', f'{data.penalty:.4f}', f'{data.penalty_aug:.4f}', f'{data.batch_size}', f'{data.num_epochs}',  f'{data.gpu}'])$/;"	v
+rank	Scheduler_Training_Model_Aware_Autoencoder.py	/^    rank   = comm.Get_rank()$/;"	v
+rank	Scheduler_Training_Model_Induced_Autoencoder.py	/^    rank   = comm.Get_rank()$/;"	v
+reg_prior	Utilities/loss_and_relative_errors.py	/^def reg_prior(parameter, prior_mean, L_pr, penalty):$/;"	f
+relative_error	Utilities/loss_and_relative_errors.py	/^def relative_error(prediction, true):$/;"	f
+reparameterize	Utilities/NN_VAE_Fwd_Inv.py	/^    def reparameterize(self, mean, log_var):$/;"	m	class:VAEFwdInv
+req	Scheduler_Training_Model_Aware_Autoencoder.py	/^            req = comm.isend([], 0, FLAGS.RUN_FINISHED)$/;"	v
+req	Scheduler_Training_Model_Induced_Autoencoder.py	/^            req = comm.isend([], 0, FLAGS.RUN_FINISHED)$/;"	v
+resolution	Utilities/gradient_fd_test.py	/^resolution = 40$/;"	v
+run_options	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    run_options = RunOptions()$/;"	v	class:FilePaths
+run_options	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    run_options = RunOptions()$/;"	v	class:FilePaths
+run_options	Plotting_Driver_Paraview_Thermal_Fin.py	/^    run_options = RunOptions()$/;"	v	class:FilePaths
+run_options	Plotting_Driver_Thermal_Fin.py	/^    run_options = RunOptions()$/;"	v	class:FilePaths
+run_options	Plotting_Driver_VAE_Thermal_Fin.py	/^    run_options = RunOptions()$/;"	v	class:FilePaths
+run_options	Prediction_Driver_Thermal_Fin.py	/^    run_options = RunOptions()$/;"	v
+run_options	Prediction_Driver_VAE_Thermal_Fin.py	/^    run_options = RunOptions()$/;"	v
+run_options	Training_Driver_Model_Aware_Autoencoder.py	/^    run_options = RunOptions()$/;"	v
+run_options	Training_Driver_Model_Aware_VAE.py	/^    run_options = RunOptions()$/;"	v
+run_options	Training_Driver_Model_Induced_Autoencoder.py	/^    run_options = RunOptions()$/;"	v
+run_options	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    run_options = RunOptions()$/;"	v
+run_options	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    run_options = RunOptions()$/;"	v
+save_png	Utilities/plot_and_save_predictions_paraview.py	/^def save_png(pvd_load_filepath, figure_save_filepath, cbar_RGB):$/;"	f
+scenarios_class_instances	Scheduler_1by1_Training_Model_Aware_Autoencoder.py	/^    scenarios_class_instances = []$/;"	v
+scenarios_class_instances	Scheduler_1by1_Training_Model_Induced_Autoencoder.py	/^    scenarios_class_instances = []$/;"	v
+scenarios_class_instances	Scheduler_Prediction_and_Plotting_Thermal_Fin.py	/^    scenarios_class_instances = []$/;"	v
+scenarios_class_instances	Scheduler_Training_Model_Aware_Autoencoder.py	/^        scenarios_class_instances = []$/;"	v
+scenarios_class_instances	Scheduler_Training_Model_Induced_Autoencoder.py	/^        scenarios_class_instances = []$/;"	v
+schedule_runs	Utilities/schedule_and_run.py	/^def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):$/;"	f
+solver	Utilities/gradient_fd_test.py	/^solver = Fin(V)$/;"	v
+solver_w	Utilities/gradient_fd_test.py	/^solver_w = SolverWrapper(solver, data)$/;"	v
+space	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    space = []$/;"	v	class:FilePaths
+space	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    space = []$/;"	v	class:FilePaths
+status	Scheduler_Training_Model_Aware_Autoencoder.py	/^            status = MPI.Status()$/;"	v
+status	Scheduler_Training_Model_Induced_Autoencoder.py	/^            status = MPI.Status()$/;"	v
+test_step	Utilities/optimize_distributed_model_aware_VAE.py	/^        def test_step(batch_data_test, batch_latent_test):$/;"	f	function:optimize_distributed
+test_step	Utilities/optimize_distributed_model_aware_autoencoder.py	/^        def test_step(batch_data_test, batch_latent_test):$/;"	f	function:optimize_distributed
+test_step	Utilities/optimize_model_aware_VAE.py	/^    def test_step(batch_data_test, batch_latent_test):$/;"	f	function:optimize
+test_step	Utilities/optimize_model_aware_autoencoder.py	/^    def test_step(batch_data_test, batch_latent_test):$/;"	f	function:optimize
+test_step	Utilities/optimize_model_induced_autoencoder.py	/^    def test_step(batch_data_test, batch_latent_test):$/;"	f	function:optimize
+train_step	Utilities/optimize_distributed_model_aware_VAE.py	/^        def train_step(batch_data_train, batch_latent_train):$/;"	f	function:optimize_distributed
+train_step	Utilities/optimize_distributed_model_aware_autoencoder.py	/^        def train_step(batch_data_train, batch_latent_train):$/;"	f	function:optimize_distributed
+train_step	Utilities/optimize_model_aware_VAE.py	/^    def train_step(batch_data_train, batch_latent_train):$/;"	f	function:optimize
+train_step	Utilities/optimize_model_aware_autoencoder.py	/^    def train_step(batch_data_train, batch_latent_train):$/;"	f	function:optimize
+train_step	Utilities/optimize_model_induced_autoencoder.py	/^    def train_step(batch_data_train, batch_latent_train):$/;"	f	function:optimize
+trainer	Training_Driver_Model_Aware_Autoencoder.py	/^def trainer(hyperp, run_options, file_paths):$/;"	f
+trainer	Training_Driver_Model_Aware_VAE.py	/^def trainer(hyperp, run_options, file_paths):$/;"	f
+trainer	Training_Driver_Model_Induced_Autoencoder.py	/^def trainer(hyperp, run_options, file_paths):$/;"	f
+trainer	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^def trainer(hyperp, run_options, file_paths):$/;"	f
+trainer	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^def trainer(hyperp, run_options, file_paths):$/;"	f
+truncation_layer	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    truncation_layer  = 7 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Plotting_Driver_Paraview_Thermal_Fin.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Plotting_Driver_Thermal_Fin.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Plotting_Driver_VAE_Thermal_Fin.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Prediction_Driver_Thermal_Fin.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Prediction_Driver_VAE_Thermal_Fin.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Training_Driver_Model_Aware_Autoencoder.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Training_Driver_Model_Aware_VAE.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Training_Driver_Model_Induced_Autoencoder.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Training_Driver_Reversed_Model_Aware_Autoencoder.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+truncation_layer	Training_Driver_Reversed_Model_Induced_Autoencoder.py	/^    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0$/;"	v	class:Hyperparameters
+val_step	Utilities/optimize_distributed_model_aware_VAE.py	/^        def val_step(batch_data_val, batch_latent_val):$/;"	f	function:optimize_distributed
+val_step	Utilities/optimize_distributed_model_aware_autoencoder.py	/^        def val_step(batch_data_val, batch_latent_val):$/;"	f	function:optimize_distributed
+val_step	Utilities/optimize_model_aware_VAE.py	/^    def val_step(batch_data_val, batch_latent_val):$/;"	f	function:optimize
+val_step	Utilities/optimize_model_aware_autoencoder.py	/^    def val_step(batch_data_val, batch_latent_val):$/;"	f	function:optimize
+val_step	Utilities/optimize_model_induced_autoencoder.py	/^    def val_step(batch_data_val, batch_latent_val):$/;"	f	function:optimize
+validation_losses_dict	Hyperparameter_Optimizer_Training_Driver_Model_Aware_Autoencoder.py	/^    validation_losses_dict = {}$/;"	v	class:FilePaths
+validation_losses_dict	Hyperparameter_Optimizer_Training_Driver_Model_Aware_VAE.py	/^    validation_losses_dict = {}$/;"	v	class:FilePaths
+z	Utilities/gradient_fd_test.py	/^z = dl.Function(V)$/;"	v
+z_	Utilities/gradient_fd_test.py	/^z_ = np.exp(0.5 * chol.T @ norm)$/;"	v
+z_true	Utilities/gradient_fd_test.py	/^z_true = dl.Function(V)$/;"	v
