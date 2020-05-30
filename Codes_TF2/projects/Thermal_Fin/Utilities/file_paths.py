@@ -46,12 +46,13 @@ def filename(hyperp, run_options, autoencoder_type, autoencoder_loss):
     else:
         penalty_decoder_string = str(hyperp.penalty_decoder)
         penalty_decoder_string = 'pt' + penalty_decoder_string[2:]
-    if hyperp.penalty_aug >= 1:
-        hyperp.penalty_aug = int(hyperp.penalty_aug)
-        penalty_aug_string = str(hyperp.penalty_aug)
-    else:
-        penalty_aug_string = str(hyperp.penalty_aug)
-        penalty_aug_string = 'pt' + penalty_aug_string[2:]
+    if autoencoder_loss == 'mind_':
+        if hyperp.penalty_aug >= 1:
+            hyperp.penalty_aug = int(hyperp.penalty_aug)
+            penalty_aug_string = str(hyperp.penalty_aug)
+        else:
+            penalty_aug_string = str(hyperp.penalty_aug)
+            penalty_aug_string = 'pt' + penalty_aug_string[2:]
     if hyperp.penalty_prior >= 1:
         hyperp.penalty_prior = int(hyperp.penalty_prior)
         penalty_prior_string = str(hyperp.penalty_prior)
@@ -60,7 +61,7 @@ def filename(hyperp, run_options, autoencoder_type, autoencoder_loss):
         penalty_prior_string = 'pt' + penalty_prior_string[2:]
 
     #=== File Name ===#
-    if autoencoder_loss == 'maware_'
+    if autoencoder_loss == 'maware_':
         filename = autoencoder_type + autoencoder_loss +\
                 data_string +\
                 '_hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
@@ -69,7 +70,7 @@ def filename(hyperp, run_options, autoencoder_type, autoencoder_loss):
                         penalty_prior_string,
                         run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-    if autoencoder_loss == 'mind_'
+    if autoencoder_loss == 'mind_':
         filename = autoencoder_type + autoencoder_loss +\
                 data_string +\
                 '_hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
