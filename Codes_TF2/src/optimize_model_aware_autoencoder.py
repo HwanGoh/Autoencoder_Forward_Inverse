@@ -21,59 +21,64 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder_or_decoder, relative_error, reg_prior, L_pr, data_and_latent_train, data_and_latent_val, data_and_latent_test, data_dimension, num_batches_train):
+def optimize(hyperp, run_options, file_paths, NN,
+        loss_autoencoder, loss_encoder_or_decoder, relative_error,
+        reg_prior, L_pr,
+        data_and_latent_train, data_and_latent_val, data_and_latent_test,
+        data_dimension, num_batches_train):
+
     #=== Optimizer ===#
     optimizer = tf.keras.optimizers.Adam()
 
     #=== Define Metrics ===#
     mean_loss_train = tf.keras.metrics.Mean()
-    mean_loss_train_autoencoder = tf.keras.metrics.Mean() 
+    mean_loss_train_autoencoder = tf.keras.metrics.Mean()
     mean_loss_train_encoder = tf.keras.metrics.Mean()
     mean_loss_train_decoder = tf.keras.metrics.Mean()
-    
+
     mean_loss_val = tf.keras.metrics.Mean()
     mean_loss_val_autoencoder = tf.keras.metrics.Mean()
     mean_loss_val_encoder = tf.keras.metrics.Mean()
     mean_loss_val_decoder = tf.keras.metrics.Mean()
-    
+
     mean_loss_test = tf.keras.metrics.Mean()
     mean_loss_test_autoencoder = tf.keras.metrics.Mean()
     mean_loss_test_encoder = tf.keras.metrics.Mean()
-    mean_loss_test_decoder = tf.keras.metrics.Mean()    
-    
+    mean_loss_test_decoder = tf.keras.metrics.Mean()
+
     mean_relative_error_data_autoencoder = tf.keras.metrics.Mean()
     mean_relative_error_latent_encoder = tf.keras.metrics.Mean()
     mean_relative_error_data_decoder = tf.keras.metrics.Mean()
-    
+
     #=== Initialize Metric Storage Arrays ===#
     storage_array_loss_train = np.array([])
     storage_array_loss_train_autoencoder = np.array([])
     storage_array_loss_train_encoder = np.array([])
     storage_array_loss_train_decoder = np.array([])
-    
+
     storage_array_loss_val = np.array([])
     storage_array_loss_val_autoencoder = np.array([])
     storage_array_loss_val_encoder = np.array([])
     storage_array_loss_val_decoder = np.array([])
-    
+
     storage_array_loss_test = np.array([])
     storage_array_loss_test_autoencoder = np.array([])
     storage_array_loss_test_encoder = np.array([])
     storage_array_loss_test_decoder = np.array([])
-    
+
     storage_array_relative_error_data_autoencoder = np.array([])
     storage_array_relative_error_latent_encoder = np.array([])
     storage_array_relative_error_data_decoder = np.array([])
-    
+
     storage_array_relative_gradient_norm = np.array([])
 
     #=== Creating Directory for Trained Neural Network ===#
     if not os.path.exists(file_paths.NN_savefile_directory):
         os.makedirs(file_paths.NN_savefile_directory)
-    
-    #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
-        shutil.rmtree(file_paths.tensorboard_directory)  
+
+    #=== Tensorboard ===# "tensorboard --logdir=Tensorboard"
+    if os.path.exists(file_paths.tensorboard_directory):
+        shutil.rmtree(file_paths.tensorboard_directory)
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
 
 ###############################################################################
@@ -86,14 +91,21 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
             batch_data_pred_train_AE = NN(batch_data_train)
             batch_latent_pred_train = NN.encoder(batch_data_train)
             batch_data_pred_train = NN.decoder(batch_latent_train)
-            batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE, batch_data_train)
-            batch_loss_train_encoder = loss_encoder_or_decoder(batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
-            batch_loss_train_decoder = loss_encoder_or_decoder(batch_data_pred_train, batch_data_train, hyperp.penalty_decoder)
+            batch_loss_train_autoencoder = loss_autoencoder(batch_data_pred_train_AE,
+                    batch_data_train)
+            batch_loss_train_encoder = loss_encoder_or_decoder(
+                    batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
+            batch_loss_train_decoder = loss_encoder_or_decoder(
+                    batch_data_pred_train, batch_data_train, hyperp.penalty_decoder)
             if file_paths.autoencoder_type == 'rev_':
-                batch_reg_train_prior = reg_prior(batch_latent_pred_train, run_options.prior_mean, L_pr, hyperp.penalty_prior)
+                batch_reg_train_prior = reg_prior(
+                        batch_latent_pred_train, run_options.prior_mean,
+                        L_pr, hyperp.penalty_prior)
             else:
-                batch_reg_train_prior = reg_prior(batch_data_pred_train_AE, run_options.prior_mean, L_pr, hyperp.penalty_prior)
-            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder + batch_loss_train_decoder + batch_reg_train_prior
+                batch_reg_train_prior = reg_prior(batch_data_pred_train_AE,
+                        run_options.prior_mean, L_pr, hyperp.penalty_prior)
+            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
+                    batch_loss_train_decoder + batch_reg_train_prior
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         mean_loss_train(batch_loss_train)
@@ -109,14 +121,16 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
         batch_latent_pred_val = NN.encoder(batch_data_val)
         batch_data_pred_val = NN.decoder(batch_latent_val)
         batch_loss_val_autoencoder = loss_autoencoder(batch_data_pred_val_AE, batch_data_val)
-        batch_loss_val_encoder = loss_encoder_or_decoder(batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
-        batch_loss_val_decoder = loss_encoder_or_decoder(batch_data_pred_val, batch_data_val, hyperp.penalty_decoder)
+        batch_loss_val_encoder = loss_encoder_or_decoder(
+                batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
+        batch_loss_val_decoder = loss_encoder_or_decoder(batch_data_pred_val, batch_data_val,
+                hyperp.penalty_decoder)
         batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_encoder + batch_loss_val_decoder
         mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         mean_loss_val_encoder(batch_loss_val_encoder)
         mean_loss_val_decoder(batch_loss_val_decoder)
-        mean_loss_val(batch_loss_val)     
-    
+        mean_loss_val(batch_loss_val)
+
     #=== Test Step ===#
     @tf.function
     def test_step(batch_data_test, batch_latent_test):
@@ -124,21 +138,25 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
         batch_latent_pred_test = NN.encoder(batch_data_test)
         batch_data_pred_test = NN.decoder(batch_latent_test)
         batch_loss_test_autoencoder = loss_autoencoder(batch_data_pred_test_AE, batch_data_test)
-        batch_loss_test_encoder = loss_encoder_or_decoder(batch_latent_pred_test, batch_latent_test, hyperp.penalty_encoder)
-        batch_loss_test_decoder = loss_encoder_or_decoder(batch_data_pred_test, batch_data_test, hyperp.penalty_decoder)
-        batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder + batch_loss_test_decoder
+        batch_loss_test_encoder = loss_encoder_or_decoder(
+                batch_latent_pred_test, batch_latent_test, hyperp.penalty_encoder)
+        batch_loss_test_decoder = loss_encoder_or_decoder(
+                batch_data_pred_test, batch_data_test, hyperp.penalty_decoder)
+        batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder +\
+                batch_loss_test_decoder
         mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         mean_loss_test_encoder(batch_loss_test_encoder)
         mean_loss_test_decoder(batch_loss_test_decoder)
         mean_loss_test(batch_loss_test)
-        
-        mean_relative_error_data_autoencoder(relative_error(batch_data_pred_test_AE, batch_data_test))
+
+        mean_relative_error_data_autoencoder(relative_error(batch_data_pred_test_AE,
+            batch_data_test))
         mean_relative_error_latent_encoder(relative_error(batch_latent_pred_test, batch_latent_test))
         mean_relative_error_data_decoder(relative_error(batch_data_pred_test, batch_data_test))
-        
+
 ###############################################################################
 #                             Train Neural Network                            #
-############################################################################### 
+###############################################################################
     print('Beginning Training')
     for epoch in range(hyperp.num_epochs):
         print('================================')
@@ -157,11 +175,11 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
                 NN.summary()
             if batch_num  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
-        
+
         #=== Computing Relative Errors Validation ===#
         for batch_data_val, batch_latent_val in data_and_latent_val:
             val_step(batch_data_val, batch_latent_val)
-            
+
         #=== Computing Relative Errors Test ===#
         for batch_data_test, batch_latent_test in data_and_latent_test:
             test_step(batch_data_test, batch_latent_test)
@@ -169,7 +187,8 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
         #=== Track Training Metrics, Weights and Gradients ===#
         with summary_writer.as_default():
             tf.summary.scalar('loss_training', mean_loss_train.result(), step=epoch)
-            tf.summary.scalar('loss_training_autoencoder', mean_loss_train_autoencoder.result(), step=epoch)
+            tf.summary.scalar('loss_training_autoencoder',
+                    mean_loss_train_autoencoder.result(), step=epoch)
             tf.summary.scalar('loss_training_encoder', mean_loss_train_encoder.result(), step=epoch)
             tf.summary.scalar('loss_training_decoder', mean_loss_train_decoder.result(), step=epoch)
             tf.summary.scalar('loss_val', mean_loss_val.result(), step=epoch)
@@ -177,18 +196,23 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
             tf.summary.scalar('loss_val_encoder', mean_loss_val_encoder.result(), step=epoch)
             tf.summary.scalar('loss_val_decoder', mean_loss_val_decoder.result(), step=epoch)
             tf.summary.scalar('loss_test', mean_loss_test.result(), step=epoch)
-            tf.summary.scalar('loss_test_autoencoder', mean_loss_test_autoencoder.result(), step=epoch)
+            tf.summary.scalar('loss_test_autoencoder', mean_loss_test_autoencoder.result(),
+                    step=epoch)
             tf.summary.scalar('loss_test_encoder', mean_loss_test_encoder.result(), step=epoch)
             tf.summary.scalar('loss_test_decoder', mean_loss_test_decoder.result(), step=epoch)
-            tf.summary.scalar('relative_error_data_autoencoder', mean_relative_error_data_autoencoder.result(), step=epoch)
-            tf.summary.scalar('relative_error_latent_encoder', mean_relative_error_latent_encoder.result(), step=epoch)
-            tf.summary.scalar('relative_error_data_decoder', mean_relative_error_data_decoder.result(), step=epoch)
+            tf.summary.scalar('relative_error_data_autoencoder',
+                    mean_relative_error_data_autoencoder.result(), step=epoch)
+            tf.summary.scalar('relative_error_latent_encoder',
+                    mean_relative_error_latent_encoder.result(), step=epoch)
+            tf.summary.scalar('relative_error_data_decoder',
+                    mean_relative_error_data_decoder.result(), step=epoch)
             for w in NN.weights:
                 tf.summary.histogram(w.name, w, step=epoch)
             l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
             sum_gradient_norms = 0.0
             for gradient, variable in zip(gradients, NN.trainable_variables):
-                tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient), step = epoch)    
+                tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient),
+                        step = epoch)
                 sum_gradient_norms += l2_norm(gradient)
                 if epoch == 0:
                     initial_sum_gradient_norms = sum_gradient_norms
@@ -196,33 +220,61 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
             tf.summary.scalar('relative_gradient_norm', relative_gradient_norm, step=epoch)
 
         #=== Update Storage Arrays ===#
-        storage_array_loss_train = np.append(storage_array_loss_train, mean_loss_train.result())
-        storage_array_loss_train_autoencoder = np.append(storage_array_loss_train_autoencoder, mean_loss_train_autoencoder.result())
-        storage_array_loss_train_encoder = np.append(storage_array_loss_train_encoder, mean_loss_train_encoder.result())
-        storage_array_loss_train_decoder = np.append(storage_array_loss_train_decoder, mean_loss_train_decoder.result())
-        storage_array_loss_val = np.append(storage_array_loss_val, mean_loss_val.result())
-        storage_array_loss_val_autoencoder = np.append(storage_array_loss_val_autoencoder, mean_loss_val_autoencoder.result())
-        storage_array_loss_val_encoder = np.append(storage_array_loss_val_encoder, mean_loss_val_encoder.result())
-        storage_array_loss_val_decoder = np.append(storage_array_loss_val_decoder, mean_loss_val_decoder.result())
-        storage_array_loss_test = np.append(storage_array_loss_test, mean_loss_test.result())
-        storage_array_loss_test_autoencoder = np.append(storage_array_loss_test_autoencoder, mean_loss_test_autoencoder.result())
-        storage_array_loss_test_encoder = np.append(storage_array_loss_test_encoder, mean_loss_test_encoder.result())
-        storage_array_loss_test_decoder = np.append(storage_array_loss_test_decoder, mean_loss_test_decoder.result())
-        storage_array_relative_error_data_autoencoder = np.append(storage_array_relative_error_data_autoencoder, mean_relative_error_data_autoencoder.result())
-        storage_array_relative_error_latent_encoder = np.append(storage_array_relative_error_latent_encoder, mean_relative_error_latent_encoder.result())
-        storage_array_relative_error_data_decoder = np.append(storage_array_relative_error_data_decoder, mean_relative_error_data_decoder.result())
-        storage_array_relative_gradient_norm = np.append(storage_array_relative_gradient_norm, relative_gradient_norm) 
+        storage_array_loss_train = np.append(storage_array_loss_train,
+                mean_loss_train.result())
+        storage_array_loss_train_autoencoder = np.append(storage_array_loss_train_autoencoder,
+                mean_loss_train_autoencoder.result())
+        storage_array_loss_train_encoder = np.append(storage_array_loss_train_encoder,
+                mean_loss_train_encoder.result())
+        storage_array_loss_train_decoder = np.append(storage_array_loss_train_decoder,
+                mean_loss_train_decoder.result())
+        storage_array_loss_val = np.append(storage_array_loss_val,
+                mean_loss_val.result())
+        storage_array_loss_val_autoencoder = np.append(storage_array_loss_val_autoencoder,
+                mean_loss_val_autoencoder.result())
+        storage_array_loss_val_encoder = np.append(storage_array_loss_val_encoder,
+                mean_loss_val_encoder.result())
+        storage_array_loss_val_decoder = np.append(storage_array_loss_val_decoder,
+                mean_loss_val_decoder.result())
+        storage_array_loss_test = np.append(storage_array_loss_test,
+                mean_loss_test.result())
+        storage_array_loss_test_autoencoder = np.append(storage_array_loss_test_autoencoder,
+                mean_loss_test_autoencoder.result())
+        storage_array_loss_test_encoder = np.append(storage_array_loss_test_encoder,
+                mean_loss_test_encoder.result())
+        storage_array_loss_test_decoder = np.append(storage_array_loss_test_decoder,
+                mean_loss_test_decoder.result())
+        storage_array_relative_error_data_autoencoder =\
+                np.append(storage_array_relative_error_data_autoencoder,
+                        mean_relative_error_data_autoencoder.result())
+        storage_array_relative_error_latent_encoder =\
+                np.append(storage_array_relative_error_latent_encoder,
+                        mean_relative_error_latent_encoder.result())
+        storage_array_relative_error_data_decoder =\
+                np.append(storage_array_relative_error_data_decoder,
+                        mean_relative_error_data_decoder.result())
+        storage_array_relative_gradient_norm = np.append(storage_array_relative_gradient_norm,
+                relative_gradient_norm)
 
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
-        print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e' %(mean_loss_train.result(), mean_loss_train_autoencoder.result(), mean_loss_train_encoder.result(), mean_loss_train_decoder.result()))
-        print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e' %(mean_loss_val.result(), mean_loss_val_autoencoder.result(), mean_loss_val_encoder.result(), mean_loss_val_decoder.result()))
-        print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e' %(mean_loss_test.result(), mean_loss_test_autoencoder.result(), mean_loss_test_encoder.result(), mean_loss_test_decoder.result()))
-        print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e' %(mean_relative_error_data_autoencoder.result(), mean_relative_error_latent_encoder.result(), mean_relative_error_data_decoder.result()))
+        print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
+                %(mean_loss_train.result(), mean_loss_train_autoencoder.result(),
+                    mean_loss_train_encoder.result(), mean_loss_train_decoder.result()))
+        print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
+                %(mean_loss_val.result(), mean_loss_val_autoencoder.result(),
+                    mean_loss_val_encoder.result(), mean_loss_val_decoder.result()))
+        print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
+                %(mean_loss_test.result(), mean_loss_test_autoencoder.result(),
+                    mean_loss_test_encoder.result(), mean_loss_test_decoder.result()))
+        print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
+                %(mean_relative_error_data_autoencoder.result(),
+                    mean_relative_error_latent_encoder.result(),
+                    mean_relative_error_data_decoder.result()))
         print('Relative Gradient Norm: %.4f\n' %(relative_gradient_norm))
         start_time_epoch = time.time()
-        
+
         #=== Resetting Metrics ===#
         mean_loss_train.reset_states()
         mean_loss_train_autoencoder.reset_states()
@@ -231,7 +283,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
         mean_loss_val.reset_states()
         mean_loss_val_autoencoder.reset_states()
         mean_loss_val_encoder.reset_states()
-        mean_loss_val_decoder.reset_states() 
+        mean_loss_val_decoder.reset_states()
         mean_loss_test.reset_states()
         mean_loss_test_autoencoder.reset_states()
         mean_loss_test_encoder.reset_states()
@@ -239,7 +291,7 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
         mean_relative_error_data_autoencoder.reset_states()
         mean_relative_error_latent_encoder.reset_states()
         mean_relative_error_data_decoder.reset_states()
-        
+
         #=== Save Current Model ===#
         if epoch % 100 == 0:
             NN.save_weights(file_paths.NN_savefile_name)
@@ -252,21 +304,37 @@ def optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, loss_encoder
             metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
             metrics_dict['loss_val_encoder'] = storage_array_loss_val_encoder
             metrics_dict['loss_val_decoder'] = storage_array_loss_val_decoder
-            metrics_dict['relative_error_data_autoencoder'] = storage_array_relative_error_data_autoencoder
-            metrics_dict['relative_error_latent_encoder'] = storage_array_relative_error_latent_encoder
+            metrics_dict['relative_error_data_autoencoder'] =\
+                    storage_array_relative_error_data_autoencoder
+            metrics_dict['relative_error_latent_encoder'] =\
+                    storage_array_relative_error_latent_encoder
             metrics_dict['relative_error_data_decoder'] = storage_array_relative_error_data_decoder
             metrics_dict['relative_gradient_norm'] = storage_array_relative_gradient_norm
             df_metrics = pd.DataFrame(metrics_dict)
             df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
-            print('Current Model and Metrics Saved') 
-            
+            print('Current Model and Metrics Saved')
+
         #=== Gradient Norm Termination Condition ===#
         if relative_gradient_norm < 1e-6:
             print('Gradient norm tolerance reached, breaking training loop')
             break
-                        
+
     #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)
-    print('Final Model Saved') 
-    
-    return storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_encoder, storage_array_loss_train_decoder, storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_encoder, storage_array_loss_val_decoder, storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_encoder, storage_array_loss_test_decoder, storage_array_relative_error_data_autoencoder, storage_array_relative_error_latent_encoder, storage_array_relative_error_data_decoder, storage_array_relative_gradient_norm 
+    metrics_dict = {}
+    metrics_dict['loss_train'] = storage_array_loss_train
+    metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
+    metrics_dict['loss_train_encoder'] = storage_array_loss_train_encoder
+    metrics_dict['loss_train_decoder'] = storage_array_loss_train_decoder
+    metrics_dict['loss_val'] = storage_array_loss_val
+    metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
+    metrics_dict['loss_val_encoder'] = storage_array_loss_val_encoder
+    metrics_dict['loss_val_decoder'] = storage_array_loss_val_decoder
+    metrics_dict['relative_error_data_autoencoder'] = storage_array_relative_error_data_autoencoder
+    metrics_dict['relative_error_latent_encoder'] = storage_array_relative_error_latent_encoder
+    metrics_dict['relative_error_data_decoder'] = storage_array_relative_error_data_decoder
+    metrics_dict['relative_gradient_norm'] = storage_array_relative_gradient_norm
+    df_metrics = pd.DataFrame(metrics_dict)
+    df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
+    print('Final Model Saved')
+
