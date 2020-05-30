@@ -7,4 +7,4 @@ git reset --hard master
 
 git push -f origin server_runs
 
-giet checkout master
+git checkout master
