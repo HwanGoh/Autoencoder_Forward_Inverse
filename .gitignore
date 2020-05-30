@@ -6,3 +6,5 @@
 *.data-00000-of-00001
 Tensorboard/
 Trained_NNs/
+Figures/
+Hyperparameter_Optimization/
