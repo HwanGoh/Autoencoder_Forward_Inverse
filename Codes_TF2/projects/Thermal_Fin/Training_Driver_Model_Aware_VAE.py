@@ -5,20 +5,13 @@ Created on Fri Feb 21 16:37:09 2020
 
 @author: hwan
 """
-
 import os
 import sys
+sys.path.insert(0, os.path.realpath('../../src'))
 
-import tensorflow as tf
-import numpy as np
-import pandas as pd
-
-from Utilities.get_thermal_fin_data import load_thermal_fin_data
-from Utilities.form_train_val_test_batches import form_train_val_test_batches
-from Utilities.NN_VAE_Fwd_Inv import VAEFwdInv
-from Utilities.loss_and_relative_errors import loss_autoencoder, KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
-from Utilities.optimize_model_aware_VAE import optimize
-from Utilities.optimize_distributed_model_aware_VAE import optimize_distributed
+# Import FilePaths class and training routine
+from Utilities.file_paths_VAE import FilePathsTraining
+from Utilities.training_routine_model_aware_VAE import trainer
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -32,234 +25,68 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'tanh'
     batch_size        = 100
-    num_epochs        = 1000
-    
+    num_epochs        = 10
+
 class RunOptions:
-    def __init__(self): 
+    def __init__(self):
         #=== Use Distributed Strategy ===#
         self.use_distributed_training = 0
-        
+
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2'
-        
+
         #=== Which Single GPU to Use ===#
         self.which_gpu = '3'
-        
+
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
-        
+
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 200
         self.num_data_test = 200
-        
+
         #=== Data Dimensions ===#
         self.fin_dimensions_2D = 1
         self.fin_dimensions_3D = 0
-        
+
         #=== Posterior Covariance Shape ===#
         self.diagonal_posterior_covariance = 1
         self.full_posterior_covariance = 0
-        
+
         #=== Matern and Square Exponential Prior Properties ===#
         self.prior_type_nonelliptic = 1
         self.kern_type = 'm32'
         self.prior_cov_length = 0.8
-        
+
         #=== Elliptic Prior Properties ===#
         self.prior_type_elliptic = 0
         self.prior_type = 'elliptic'
         self.prior_elliptic_d_p = 1
         self.prior_elliptic_g_p = 0.0001
-        
+
         #=== Random Seed ===#
         self.random_seed = 1234
 
         #=== Parameter and Observation Dimensions === #
         if self.fin_dimensions_2D == 1:
-            self.full_domain_dimensions = 1446 
+            self.full_domain_dimensions = 1446
         if self.fin_dimensions_3D == 1:
-            self.full_domain_dimensions = 4090 
+            self.full_domain_dimensions = 4090
         if self.data_thermal_fin_nine == 1:
             self.parameter_dimensions = 9
         if self.data_thermal_fin_vary == 1:
             self.parameter_dimensions = self.full_domain_dimensions
 
 ###############################################################################
-#                                 File Paths                                  #
-###############################################################################  
-class FilePaths():              
-    def __init__(self, hyperp, run_options): 
-        #=== Declaring File Name Components ===#
-        self.autoencoder_type = 'VAE_'
-        self.autoencoder_loss = 'maware'
-        if run_options.data_thermal_fin_nine == 1:
-            self.dataset = 'thermalfin9'
-            parameter_type = '_nine'
-        if run_options.data_thermal_fin_vary == 1:
-            self.dataset = 'thermalfinvary'
-            parameter_type = '_vary'
-        self.N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
-        if run_options.diagonal_posterior_covariance == 1:
-            self.posterior_covariance_shape = 'diagpost_'
-        if run_options.full_posterior_covariance == 1:
-            self.posterior_covariance_shape = 'fullpost_'
-        if run_options.fin_dimensions_2D == 1:
-            fin_dimension = ''
-        if run_options.fin_dimensions_3D == 1:
-            fin_dimension = '_3D'
-        if run_options.prior_cov_length >= 1:
-            run_options.prior_cov_length = int(run_options.prior_cov_length)
-            prior_cov_length_string = str(run_options.prior_cov_length)
-        else:
-            prior_cov_length_string = str(run_options.prior_cov_length)
-            prior_cov_length_string = 'pt' + prior_cov_length_string[2:]              
-        if run_options.prior_elliptic_d_p >= 1:
-            run_options.prior_elliptic_d_p = int(run_options.prior_elliptic_d_p)
-            prior_elliptic_d_p_string = str(run_options.prior_elliptic_d_p)
-        else:
-            prior_elliptic_d_p_string = str(run_options.prior_elliptic_d_p)
-            prior_elliptic_d_p_string = 'pt' + prior_elliptic_d_p_string[2:]
-        if run_options.prior_elliptic_g_p >= 1:
-            run_options.prior_elliptic_g_p = int(run_options.prior_elliptic_g_p)
-            prior_elliptic_g_p_string = str(run_options.prior_elliptic_g_p)
-        else:
-            prior_elliptic_g_p_string = str(run_options.prior_elliptic_g_p)
-            prior_elliptic_g_p_string = 'pt' + prior_elliptic_g_p_string[2:]
-        
-        #=== File Name ===#
-        if run_options.prior_type_elliptic == 1:
-            self.filename = self.autoencoder_type + self.posterior_covariance_shape + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_' + run_options.prior_type + '_dp%s_gp%s' %(prior_elliptic_d_p_string, prior_elliptic_g_p_string) + '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
-        if run_options.prior_type_nonelliptic == 1:
-            self.filename = self.autoencoder_type + self.posterior_covariance_shape + self.autoencoder_loss + '_' + self.dataset + self.N_Nodes + '_' + hyperp.data_type + fin_dimension + '_' + run_options.kern_type + '_cl%s' %(prior_cov_length_string) + '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation, run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
-
-        #=== Prior Covariance File Name ===#
-        if run_options.prior_type_elliptic == 1:
-            self.prior_cov_file_name = 'prior_cov_elliptic' + '_%d_%s_%s' %(run_options.full_domain_dimensions, prior_elliptic_d_p_string, prior_elliptic_g_p_string)
-        if run_options.prior_type_nonelliptic == 1:
-            self.prior_cov_file_name = 'prior' + '_' + run_options.kern_type + fin_dimension + '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
-        self.prior_savefilepath = '../../Datasets/Thermal_Fin/' + self.prior_cov_file_name
-
-        #=== Loading and Saving Data ===#
-        if run_options.prior_type_elliptic == 1:
-            prior_type_string = '_elliptic'
-        if run_options.prior_type_nonelliptic == 1:
-            prior_type_string = ''
-        if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446 and run_options.prior_type_nonelliptic == 1:
-            self.N_Nodes = ''
-        if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090 and run_options.prior_type_nonelliptic == 1:
-            self.N_Nodes = ''
-        self.observation_indices_savefilepath = '../../Datasets/Thermal_Fin/' + 'obs_indices' + '_' + hyperp.data_type + self.N_Nodes + fin_dimension
-        self.parameter_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + parameter_type + prior_type_string
-        self.state_obs_train_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_train_%d' %(run_options.num_data_train) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type + prior_type_string
-        self.parameter_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'parameter_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + parameter_type + prior_type_string
-        self.state_obs_test_savefilepath = '../../Datasets/Thermal_Fin/' + 'state_test_%d' %(run_options.num_data_test) + self.N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type + prior_type_string
-        
-        #=== Saving Trained Neural Network and Tensorboard ===#
-        self.NN_savefile_directory = '../Trained_NNs/' + self.filename # Since we need to save four different types of files to save a neural network model, we need to create a new folder for each model
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename # The file path and name for the four files
-        self.tensorboard_directory = '../Tensorboard/' + self.filename
-
-###############################################################################
-#                                  Training                                   #
-###############################################################################
-def trainer(hyperp, run_options, file_paths):
-    #=== GPU Settings ===# Must put this first! Because TF2 will automatically work on a GPU and it may clash with used ones if the visible device list is not yet specified
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-    if run_options.use_distributed_training == 0:
-        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
-        GLOBAL_BATCH_SIZE = hyperp.batch_size
-    if run_options.use_distributed_training == 1:
-        os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
-        gpus = tf.config.experimental.list_physical_devices('GPU')
-        GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus) # To avoid the core dump issue, have to do this instead of hyperp.batch_size * dist_strategy.num_replicas_in_sync
-          
-    #=== Load Data ===#     
-    obs_indices, parameter_train, state_obs_train,\
-    parameter_test, state_obs_test,\
-    data_input_shape, parameter_dimension\
-    = load_thermal_fin_data(file_paths, run_options.num_data_train, run_options.num_data_test, run_options.parameter_dimensions)    
-       
-    #=== Construct Validation Set and Batches ===#   
-    state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
-    run_options.num_data_train, num_data_val, run_options.num_data_test,\
-    num_batches_train, num_batches_val, num_batches_test\
-    = form_train_val_test_batches(state_obs_train, parameter_train, state_obs_test, parameter_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
-    
-    #=== Data and Latent Dimensions of Autoencoder ===#        
-    if hyperp.data_type == 'full':
-        data_dimension = run_options.full_domain_dimensions
-    if hyperp.data_type == 'bnd':
-        data_dimension = len(obs_indices)
-    latent_dimension = parameter_dimension
-    
-    #=== Posterior Covariance Loss Functional ===#
-    if run_options.diagonal_posterior_covariance == 1:
-        KLD_loss = KLD_diagonal_post_cov
-    if run_options.full_posterior_covariance == 1:
-        KLD_loss = KLD_full_post_cov
-    
-    #=== Prior Regularization ===# 
-    print('Loading Prior Matrix')
-    df_cov = pd.read_csv(file_paths.prior_savefilepath + '.csv')
-    prior_cov = df_cov.to_numpy()
-    prior_cov = prior_cov.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
-    prior_cov = prior_cov.astype(np.float32)
-
-    #=== Non-distributed Training ===#
-    if run_options.use_distributed_training == 0:        
-        #=== Neural Network ===#
-        NN = VAEFwdInv(hyperp, data_dimension, latent_dimension)
-        
-        #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
-        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_forward_problem\
-        = optimize(hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error, prior_cov,\
-                   state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
-                   data_dimension, latent_dimension, num_batches_train)
-    
-    #=== Distributed Training ===#
-    if run_options.use_distributed_training == 1:
-        dist_strategy = tf.distribute.MirroredStrategy()
-        with dist_strategy.scope():
-            #=== Neural Network ===#
-            NN = VAEFwdInv(hyperp, data_dimension, latent_dimension)
-            
-        #=== Training ===#
-        storage_array_loss_train, storage_array_loss_train_autoencoder, storage_array_loss_train_inverse_problem,\
-        storage_array_loss_val, storage_array_loss_val_autoencoder, storage_array_loss_val_inverse_problem,\
-        storage_array_loss_test, storage_array_loss_test_autoencoder, storage_array_loss_test_inverse_problem,\
-        storage_array_relative_error_state_autoencoder, storage_array_relative_error_parameter_inverse_problem, storage_array_relative_error_state_forward_problem\
-        = optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                               hyperp, run_options, file_paths, NN, loss_autoencoder, KLD_loss, relative_error, prior_cov,\
-                               state_obs_and_parameter_train, state_obs_and_parameter_val, state_obs_and_parameter_test,\
-                               data_dimension, latent_dimension, num_batches_train)
-
-    #=== Saving Metrics ===#
-    metrics_dict = {}
-    metrics_dict['loss_train'] = storage_array_loss_train
-    metrics_dict['loss_train_autoencoder'] = storage_array_loss_train_autoencoder
-    metrics_dict['loss_train_forward_problem'] = storage_array_loss_train_inverse_problem
-    metrics_dict['loss_val'] = storage_array_loss_val
-    metrics_dict['loss_val_autoencoder'] = storage_array_loss_val_autoencoder
-    metrics_dict['loss_val_forward_problem'] = storage_array_loss_val_inverse_problem
-    metrics_dict['relative_error_state_autoencoder'] = storage_array_relative_error_state_autoencoder
-    metrics_dict['relative_error_parameter_inverse_problem'] = storage_array_relative_error_parameter_inverse_problem
-    metrics_dict['relative_error_state_forward_problem'] = storage_array_relative_error_state_forward_problem
-    df_metrics = pd.DataFrame(metrics_dict)
-    df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
-
-###############################################################################
 #                                    Driver                                   #
-###############################################################################     
-if __name__ == "__main__":     
+###############################################################################
+if __name__ == "__main__":
 
-    #=== Hyperparameters and Run Options ===#    
+    #=== Hyperparameters and Run Options ===#
     hyperp = Hyperparameters()
     run_options = RunOptions()
-    
+
     if len(sys.argv) > 1:
         hyperp.data_type         = str(sys.argv[1])
         hyperp.num_hidden_layers = int(sys.argv[2])
@@ -270,8 +97,11 @@ if __name__ == "__main__":
         hyperp.num_epochs        = int(sys.argv[7])
         run_options.which_gpu    = str(sys.argv[8])
 
-    #=== File Names ===#
-    file_paths = FilePaths(hyperp, run_options)
+    #=== File Paths ===#
+    autoencoder_loss = 'maware_'
+    dataset_directory = '../../../../Datasets/Thermal_Fin/'
+    file_paths = FilePathsTraining(hyperp, run_options,
+            autoencoder_loss, dataset_directory)
 
     #=== Initiate Training ===#
-    trainer(hyperp, run_options, file_paths) 
+    trainer(hyperp, run_options, file_paths)
