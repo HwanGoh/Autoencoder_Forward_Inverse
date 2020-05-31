@@ -40,6 +40,10 @@ class RunOptions:
         #=== Which Single GPU to Use ===#
         self.which_gpu = '1'
 
+        #=== Autoencoder Type ===#
+        self.use_standard_autoencoder = 0
+        self.use_reverse_autoencoder = 1
+
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
         self.data_thermal_fin_vary = 1
@@ -98,11 +102,10 @@ if __name__ == "__main__":
         run_options.which_gpu    = str(sys.argv[11])
 
     #=== File Names ===#
-    autoencoder_type = ''
     autoencoder_loss = 'maware_'
     dataset_directory = '../../../../Datasets/Thermal_Fin/'
     file_paths = FilePathsTraining(hyperp, run_options,
-            autoencoder_type, autoencoder_loss, dataset_directory)
+            autoencoder_loss, dataset_directory)
 
     #=== Initiate Training ===#
     trainer(hyperp, run_options, file_paths)

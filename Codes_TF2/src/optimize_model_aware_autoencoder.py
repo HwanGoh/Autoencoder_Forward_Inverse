@@ -97,13 +97,13 @@ def optimize(hyperp, run_options, file_paths, NN,
                     batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
             batch_loss_train_decoder = loss_encoder_or_decoder(
                     batch_data_pred_train, batch_data_train, hyperp.penalty_decoder)
-            if file_paths.autoencoder_type == 'rev_':
+            if run_options.use_standard_autoencoder == 1:
+                batch_reg_train_prior = reg_prior(batch_data_pred_train_AE,
+                        run_options.prior_mean, L_pr, hyperp.penalty_prior)
+            if run_options.use_reverse_autoencoder == 1:
                 batch_reg_train_prior = reg_prior(
                         batch_latent_pred_train, run_options.prior_mean,
                         L_pr, hyperp.penalty_prior)
-            else:
-                batch_reg_train_prior = reg_prior(batch_data_pred_train_AE,
-                        run_options.prior_mean, L_pr, hyperp.penalty_prior)
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
                     batch_loss_train_decoder + batch_reg_train_prior
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)

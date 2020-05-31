@@ -39,18 +39,36 @@ def trainer(hyperp, run_options, file_paths):
             run_options.parameter_dimensions)
 
     #=== Construct Validation Set and Batches ===#
-    parameter_and_state_obs_train, parameter_and_state_obs_val, parameter_and_state_obs_test,\
-    run_options.num_data_train, num_data_val, run_options.num_data_test,\
-    num_batches_train, num_batches_val, num_batches_test\
-    = form_train_val_test_batches(parameter_train, state_obs_train, parameter_test,
-            state_obs_test, GLOBAL_BATCH_SIZE, run_options.random_seed)
+    if run_options.use_standard_autoencoder == 1:
+        data_and_latent_train, data_and_latent_val, data_and_latent_test,\
+        run_options.num_data_train, num_data_val, run_options.num_data_test,\
+        num_batches_train, num_batches_val, num_batches_test\
+        = form_train_val_test_batches(parameter_train, state_obs_train,
+                parameter_test, state_obs_test,
+                GLOBAL_BATCH_SIZE, run_options.random_seed)
+
+    if run_options.use_reverse_autoencoder == 1:
+        data_and_latent_train, data_and_latent_val, data_and_latent_test,\
+        run_options.num_data_train, num_data_val, run_options.num_data_test,\
+        num_batches_train, num_batches_val, num_batches_test\
+        = form_train_val_test_batches(state_obs_train, parameter_train,
+                state_obs_test, parameter_test,
+                GLOBAL_BATCH_SIZE, run_options.random_seed)
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    data_dimension = parameter_dimension
-    if hyperp.data_type == 'full':
-        latent_dimension = run_options.full_domain_dimensions
-    if hyperp.data_type == 'bnd':
-        latent_dimension = len(obs_indices)
+    if run_options.use_standard_autoencoder == 1:
+        data_dimension = parameter_dimension
+        if hyperp.data_type == 'full':
+            latent_dimension = run_options.full_domain_dimensions
+        if hyperp.data_type == 'bnd':
+            latent_dimension = len(obs_indices)
+
+    if run_options.use_reverse_autoencoder == 1:
+        if hyperp.data_type == 'full':
+            data_dimension = run_options.full_domain_dimensions
+        if hyperp.data_type == 'bnd':
+            data_dimension = len(obs_indices)
+        latent_dimension = parameter_dimension
 
     #=== Prior Regularization ===#
     if hyperp.penalty_prior != 0:
@@ -71,8 +89,7 @@ def trainer(hyperp, run_options, file_paths):
         optimize(hyperp, run_options, file_paths, NN,
                 loss_autoencoder, loss_encoder_or_decoder,
                 relative_error, reg_prior, L_pr,
-                parameter_and_state_obs_train, parameter_and_state_obs_val,
-                parameter_and_state_obs_test,
+                data_and_latent_train, data_and_latent_val, data_and_latent_test,
                 parameter_dimension, num_batches_train)
 
     #=== Distributed Training ===#
@@ -87,6 +104,5 @@ def trainer(hyperp, run_options, file_paths):
                 hyperp, run_options, file_paths, NN,
                 loss_autoencoder, loss_encoder_or_decoder,
                 relative_error,
-                parameter_and_state_obs_train, parameter_and_state_obs_val,
-                parameter_and_state_obs_test,
+                data_and_latent_train, data_and_latent_val, data_and_latent_test,
                 parameter_dimension, num_batches_train)

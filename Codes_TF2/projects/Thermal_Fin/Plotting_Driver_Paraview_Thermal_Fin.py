@@ -98,17 +98,13 @@ if __name__ == "__main__":
         hyperp.num_epochs        = int(sys.argv[11])
 
     #=== File Paths ===#
-    if run_options.use_standard_autoencoder == 1:
-        autoencoder_type = ''
-    if run_options.use_reverse_autoencoder == 1:
-        autoencoder_type = 'rev_'
     if run_options.use_model_aware == 1:
         autoencoder_loss = 'maware_'
     if run_options.use_model_induced == 1:
         autoencoder_loss = 'mind_'
     dataset_directory = '../../../../Datasets/Thermal_Fin/'
     file_paths = FilePathsPlottingParaview(hyperp, run_options,
-            autoencoder_type, autoencoder_loss, dataset_directory)
+            autoencoder_loss, dataset_directory)
 
     #=== Plot and Save Paraview ===#
     if run_options.data_thermal_fin_nine == 1:

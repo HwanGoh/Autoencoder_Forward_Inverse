@@ -33,8 +33,8 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self):
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.use_standard_autoencoder = 0
+        self.use_reverse_autoencoder = 1
 
         #=== Autoencoder Loss ===#
         self.use_model_aware = 1
@@ -98,17 +98,13 @@ if __name__ == "__main__":
         hyperp.num_epochs        = int(sys.argv[11])
 
     #=== File Names ===#
-    if run_options.use_standard_autoencoder == 1:
-        autoencoder_type = ''
-    if run_options.use_reverse_autoencoder == 1:
-        autoencoder_type = 'rev_'
     if run_options.use_model_aware == 1:
         autoencoder_loss = 'maware_'
     if run_options.use_model_induced == 1:
         autoencoder_loss = 'mind_'
     dataset_directory = '../../../../Datasets/Thermal_Fin/'
     file_paths = FilePathsPrediction(hyperp, run_options,
-            autoencoder_type, autoencoder_loss, dataset_directory)
+            autoencoder_loss, dataset_directory)
 
     #=== Predict and Save ===#
     predict_and_save(hyperp, run_options, file_paths)

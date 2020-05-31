@@ -13,7 +13,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                 File Name                                   #
 ###############################################################################
-def filename(hyperp, run_options, autoencoder_type, autoencoder_loss):
+def filename(hyperp, run_options, autoencoder_loss):
     #=== Data Type ===#
     if run_options.data_thermal_fin_nine == 1:
         dataset = 'thermalfin9'
@@ -33,7 +33,11 @@ def filename(hyperp, run_options, autoencoder_type, autoencoder_loss):
 
     data_string = dataset + N_Nodes + '_' + hyperp.data_type + fin_dimension
 
-    #=== Neural Network Regularization ===#
+    #=== Neural Network Architecture and Regularization ===#
+    if run_options.use_standard_autoencoder == 1:
+        autoencoder_type = 'std_'
+    if run_options.use_reverse_autoencoder == 1:
+        autoencoder_type = 'rev_'
     if hyperp.penalty_encoder >= 1:
         hyperp.penalty_encoder = int(hyperp.penalty_encoder)
         penalty_encoder_string = str(hyperp.penalty_encoder)
@@ -117,14 +121,11 @@ def train_and_test_datasets(hyperp, run_options, dataset_directory,
 #                                 Training                                    #
 ###############################################################################
 class FilePathsTraining():
-    def __init__(self, hyperp, run_options, autoencoder_type, autoencoder_loss, dataset_directory):
-
-        #=== Standard or Reverse Autoencoder ===#
-        self.autoencoder_type = autoencoder_type
+    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
 
         #=== File name ===#
         N_Nodes, parameter_type, fin_dimension,\
-                self.filename = filename(hyperp, run_options, autoencoder_type, autoencoder_loss)
+                self.filename = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath,_,_,_,_=\
@@ -160,14 +161,11 @@ class FilePathsTraining():
 #                         Hyperparemeter Optimization                         #
 ###############################################################################
 class FilePathsHyperparameterOptimization():
-    def __init__(self, hyperp, run_options, autoencoder_type, autoencoder_loss, dataset_directory):
-
-        #=== Standard or Reverse Autoencoder ===#
-        self.autoencoder_type = autoencoder_type
+    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
 
         #=== File name ===#
         N_Nodes, parameter_type, fin_dimension,\
-                self.filename = filename(hyperp, run_options, autoencoder_type, autoencoder_loss)
+                self.filename = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath,_,_,_,_=\
@@ -210,11 +208,11 @@ class FilePathsHyperparameterOptimization():
 #                                 Prediction                                  #
 ###############################################################################
 class FilePathsPrediction():
-    def __init__(self, hyperp, run_options, autoencoder_type, autoencoder_loss, dataset_directory):
+    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
 
         #=== File name ===#
         N_Nodes, parameter_type, fin_dimension,\
-                self.filename = filename(hyperp, run_options, autoencoder_type, autoencoder_loss)
+                self.filename = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath,_,_,_,_=\
@@ -249,11 +247,11 @@ class FilePathsPrediction():
 #                                 Plotting                                    #
 ###############################################################################
 class FilePathsPlotting():
-    def __init__(self, hyperp, run_options, autoencoder_type, autoencoder_loss, dataset_directory):
+    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
 
         #=== File name ===#
         N_Nodes, parameter_type, fin_dimension,\
-                self.filename = filename(hyperp, run_options, autoencoder_type, autoencoder_loss)
+                self.filename = filename(hyperp, run_options, autoencoder_loss)
 
         #=== File Path for Loading Trained Neural Network ===#
         self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
@@ -290,11 +288,11 @@ class FilePathsPlotting():
 #                               Plotting Paraview                             #
 ###############################################################################
 class FilePathsPlottingParaview():
-    def __init__(self, hyperp, run_options, autoencoder_type, autoencoder_loss, dataset_directory):
+    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
 
         #=== File name ===#
         N_Nodes, parameter_type, fin_dimension,\
-                self.filename = filename(hyperp, run_options, autoencoder_type, autoencoder_loss)
+                self.filename = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Savefile Path for Figures ===#
         self.figures_savefile_directory = '../../../Figures/' + self.filename
