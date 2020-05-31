@@ -112,5 +112,3 @@ def predict_and_save(hyperp, run_options, file_paths):
     df_state_pred.to_csv(file_paths.savefile_name_state_pred + '.csv', index=False)
 
     print('\nPredictions Saved to ' + file_paths.NN_savefile_directory)
-
-
