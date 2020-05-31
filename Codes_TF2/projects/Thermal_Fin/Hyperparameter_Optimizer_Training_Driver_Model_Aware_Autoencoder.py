@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 # Import FilePaths class and training routine
 from Utilities.file_paths import FilePathsHyperparameterOptimization
-from Utilities.hyperparameter_optimization_training_routine import trainer
+from Utilities.hyperparameter_optimization_training_routine_model_aware_autoencoder import trainer
 
 # Import skopt code
 from skopt.space import Real, Integer, Categorical

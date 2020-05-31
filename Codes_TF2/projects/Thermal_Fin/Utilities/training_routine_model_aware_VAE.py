@@ -11,8 +11,6 @@ from Utilities.get_thermal_fin_data import load_thermal_fin_data
 # Import src code
 from form_train_val_test_batches import form_train_val_test_batches
 from NN_VAE_Fwd_Inv import VAEFwdInv
-from loss_and_relative_errors import loss_autoencoder,\
-loss_encoder_or_decoder, relative_error, reg_prior
 from loss_and_relative_errors import loss_autoencoder, KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
 from optimize_model_aware_VAE import optimize
 from optimize_distributed_model_aware_VAE import optimize_distributed
