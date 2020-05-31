@@ -46,7 +46,6 @@ def trainer(hyperp, run_options, file_paths):
         = form_train_val_test_batches(parameter_train, state_obs_train,
                 parameter_test, state_obs_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
-
     if run_options.use_reverse_autoencoder == 1:
         data_and_latent_train, data_and_latent_val, data_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
@@ -62,7 +61,6 @@ def trainer(hyperp, run_options, file_paths):
             latent_dimension = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
             latent_dimension = len(obs_indices)
-
     if run_options.use_reverse_autoencoder == 1:
         if hyperp.data_type == 'full':
             data_dimension = run_options.full_domain_dimensions

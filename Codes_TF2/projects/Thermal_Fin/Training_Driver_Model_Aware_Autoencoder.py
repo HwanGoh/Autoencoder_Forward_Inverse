@@ -101,7 +101,7 @@ if __name__ == "__main__":
         hyperp.num_epochs        = int(sys.argv[10])
         run_options.which_gpu    = str(sys.argv[11])
 
-    #=== File Names ===#
+    #=== File Paths ===#
     autoencoder_loss = 'maware_'
     dataset_directory = '../../../../Datasets/Thermal_Fin/'
     file_paths = FilePathsTraining(hyperp, run_options,
