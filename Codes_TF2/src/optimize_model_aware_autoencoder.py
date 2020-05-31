@@ -181,7 +181,7 @@ def optimize(hyperp, run_options, file_paths, NN,
         start_time_epoch = time.time()
 
         #=== Resetting Metrics ===#
-        metrics.update_storage_arrays(relative_gradient_norm)
+        metrics.reset_metrics()
 
         #=== Save Current Model ===#
         if epoch % 100 == 0:

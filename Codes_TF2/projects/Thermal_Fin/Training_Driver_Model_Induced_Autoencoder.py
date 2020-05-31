@@ -29,7 +29,7 @@ class Hyperparameters:
     penalty_aug       = 50
     penalty_prior     = 0
     batch_size        = 1000
-    num_epochs        = 10
+    num_epochs        = 3
 
 class RunOptions:
     def __init__(self):
@@ -112,9 +112,3 @@ if __name__ == "__main__":
 
     #=== Initiate Training ===#
     trainer(hyperp, run_options, file_paths)
-
-
-
-
-
-
