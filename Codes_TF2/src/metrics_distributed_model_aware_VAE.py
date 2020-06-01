@@ -8,25 +8,24 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                    Initialize Metrics and Storage Arrays                    #
 ###############################################################################
 class Metrics:
-    def __init__(self):
+    def __init__(self, dist_strategy):
         #=== Metrics ===#
-        self.mean_loss_train = tf.keras.metrics.Mean()
-        self.mean_loss_train_autoencoder = tf.keras.metrics.Mean()
-        self.mean_loss_train_encoder = tf.keras.metrics.Mean()
+        self.mean_loss_train = 0
+        with dist_strategy.scope():
+            self.mean_loss_train_autoencoder = tf.keras.metrics.Mean()
+            self.mean_loss_train_encoder = tf.keras.metrics.Mean()
 
-        self.mean_loss_val = tf.keras.metrics.Mean()
-        self.mean_loss_val_autoencoder = tf.keras.metrics.Mean()
-        self.mean_loss_val_encoder = tf.keras.metrics.Mean()
+            self.mean_loss_val = tf.keras.metrics.Mean()
+            self.mean_loss_val_autoencoder = tf.keras.metrics.Mean()
+            self.mean_loss_val_encoder = tf.keras.metrics.Mean()
 
-        self.mean_loss_test = tf.keras.metrics.Mean()
-        self.mean_loss_test_autoencoder = tf.keras.metrics.Mean()
-        self.mean_loss_test_encoder = tf.keras.metrics.Mean()
+            self.mean_loss_test = tf.keras.metrics.Mean()
+            self.mean_loss_test_autoencoder = tf.keras.metrics.Mean()
+            self.mean_loss_test_encoder = tf.keras.metrics.Mean()
 
-        self.mean_relative_error_data_autoencoder = tf.keras.metrics.Mean()
-        self.mean_relative_error_latent_encoder = tf.keras.metrics.Mean()
-        self.mean_relative_error_data_decoder = tf.keras.metrics.Mean()
-
-        self.relative_gradient_norm = 0
+            self.mean_relative_error_data_autoencoder = tf.keras.metrics.Mean()
+            self.mean_relative_error_latent_encoder = tf.keras.metrics.Mean()
+            self.mean_relative_error_data_decoder = tf.keras.metrics.Mean()
 
         #=== Initialize Metric Storage Arrays ===#
         self.storage_array_loss_train = np.array([])
@@ -45,8 +44,6 @@ class Metrics:
         self.storage_array_relative_error_latent_encoder = np.array([])
         self.storage_array_relative_error_data_decoder = np.array([])
 
-        self.storage_array_relative_gradient_norm = np.array([])
-
 ###############################################################################
 #                             Update Tensorboard                              #
 ###############################################################################
@@ -54,7 +51,7 @@ class Metrics:
 
         with summary_writer.as_default():
             tf.summary.scalar('loss_training',
-                    self.mean_loss_train.result(), step=epoch)
+                    self.mean_loss_train, step=epoch)
             tf.summary.scalar('loss_training_autoencoder',
                     self.mean_loss_train_autoencoder.result(), step=epoch)
             tf.summary.scalar('loss_training_encoder',
@@ -77,8 +74,6 @@ class Metrics:
                     self.mean_relative_error_latent_encoder.result(), step=epoch)
             tf.summary.scalar('relative_error_data_decoder',
                     self.mean_relative_error_data_decoder.result(), step=epoch)
-            tf.summary.scalar('relative_gradient_norm',
-                    self.relative_gradient_norm, step=epoch)
 
 ###############################################################################
 #                            Update Storage Arrays                            #
@@ -86,7 +81,7 @@ class Metrics:
     def update_storage_arrays(self):
         self.storage_array_loss_train =\
                 np.append(self.storage_array_loss_train,
-                        self.mean_loss_train.result())
+                        self.mean_loss_train)
         self.storage_array_loss_train_autoencoder =\
                 np.append(self.storage_array_loss_train_autoencoder,
                         self.mean_loss_train_autoencoder.result())
@@ -120,15 +115,11 @@ class Metrics:
         self.storage_array_relative_error_data_decoder =\
                 np.append(self.storage_array_relative_error_data_decoder,
                         self.mean_relative_error_data_decoder.result())
-        self.storage_array_relative_gradient_norm =\
-                np.append(self.storage_array_relative_gradient_norm,
-                        self.relative_gradient_norm)
 
 ###############################################################################
 #                                 Reset Metrics                               #
 ###############################################################################
     def reset_metrics(self):
-        self.mean_loss_train.reset_states()
         self.mean_loss_train_autoencoder.reset_states()
         self.mean_loss_train_encoder.reset_states()
         self.mean_loss_val.reset_states()
@@ -157,6 +148,5 @@ class Metrics:
         metrics_dict['relative_error_latent_encoder'] =\
                 self.storage_array_relative_error_latent_encoder
         metrics_dict['relative_error_data_decoder'] = self.storage_array_relative_error_data_decoder
-        metrics_dict['relative_gradient_norm'] = self.storage_array_relative_gradient_norm
         df_metrics = pd.DataFrame(metrics_dict)
         df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
