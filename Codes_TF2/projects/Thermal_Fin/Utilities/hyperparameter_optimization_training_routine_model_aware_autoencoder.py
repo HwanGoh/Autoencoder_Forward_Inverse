@@ -13,8 +13,8 @@ from Utilities.get_thermal_fin_data import load_thermal_fin_data
 # Import src code
 from form_train_val_test_batches import form_train_val_test_batches
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
-from loss_and_relative_errors import loss_autoencoder,\
-loss_encoder_or_decoder, relative_error, reg_prior
+from loss_and_relative_errors import loss_penalized_difference,\
+relative_error, reg_prior
 from optimize_model_aware_autoencoder import optimize
 from optimize_distributed_model_aware_autoencoder import optimize_distributed
 
@@ -109,8 +109,8 @@ def trainer(hyperp, run_options, file_paths, n_calls, space,
 
             #=== Training ===#
             optimize(hyperp, run_options, file_paths, NN,
-                    loss_autoencoder, loss_encoder_or_decoder,
-                    relative_error, reg_prior, L_pr,
+                    loss_penalized_difference, relative_error,
+                    reg_prior, L_pr,
                     data_and_latent_train, data_and_latent_val, data_and_latent_test,
                     parameter_dimension, num_batches_train)
 
@@ -124,8 +124,7 @@ def trainer(hyperp, run_options, file_paths, n_calls, space,
             #=== Training ===#
             optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                             hyperp, run_options, file_paths, NN,
-                            loss_autoencoder, loss_encoder_or_decoder,
-                            relative_error,
+                            loss_penalized_difference, relative_error,
                             data_and_latent_train, data_and_latent_val, data_and_latent_test,
                             parameter_dimension, num_batches_train)
 
