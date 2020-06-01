@@ -215,15 +215,24 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
         for batch_data_test, batch_latent_test in data_and_latent_test:
             test_step(batch_data_test, batch_latent_test)
 
+        #=== Update Current Relative Gradient Norm ===#
+        for w in NN.weights:
+            tf.summary.histogram(w.name, w, step=epoch)
+        l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
+        sum_gradient_norms = 0.0
+        for gradient, variable in zip(gradients, NN.trainable_variables):
+            tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient),
+                    step = epoch)
+            sum_gradient_norms += l2_norm(gradient)
+            if epoch == 0:
+                initial_sum_gradient_norms = sum_gradient_norms
+        metrics.relative_gradient_norm = sum_gradient_norms/initial_sum_gradient_norms
+
         #=== Track Training Metrics, Weights and Gradients ===#
-        if epoch == 0:
-            initial_sum_gradient_norms = 0
-        initial_sum_gradient_norms, relative_gradient_norm =\
-                metrics.update_tensorboard(summary_writer, epoch, NN,
-                        gradients, initial_sum_gradient_norms)
+        metrics.update_tensorboard(summary_writer, epoch)
 
         #=== Update Storage Arrays ===#
-        metrics.update_storage_arrays(relative_gradient_norm)
+        metrics.update_storage_arrays()
 
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
@@ -245,7 +254,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
                 %(metrics.mean_relative_error_data_autoencoder.result(),
                     metrics.mean_relative_error_latent_encoder.result(),
                     metrics.mean_relative_error_data_decoder.result()))
-        print('Relative Gradient Norm: %.4f\n' %(relative_gradient_norm))
+        print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()
 
         #=== Resetting Metrics ===#
@@ -258,7 +267,7 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
             print('Current Model and Metrics Saved')
 
         #=== Gradient Norm Termination Condition ===#
-        if relative_gradient_norm < 1e-6:
+        if metrics.relative_gradient_norm < 1e-6:
             print('Gradient norm tolerance reached, breaking training loop')
             break
 

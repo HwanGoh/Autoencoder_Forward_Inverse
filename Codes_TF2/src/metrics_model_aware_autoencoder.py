@@ -28,6 +28,7 @@ class Metrics:
         self.mean_relative_error_data_autoencoder = tf.keras.metrics.Mean()
         self.mean_relative_error_latent_encoder = tf.keras.metrics.Mean()
         self.mean_relative_error_data_decoder = tf.keras.metrics.Mean()
+        self.relative_gradient_norm = 0;
 
         #=== Initialize Metric Storage Arrays ===#
         self.storage_array_loss_train = np.array([])
@@ -54,8 +55,7 @@ class Metrics:
 ###############################################################################
 #                             Update Tensorboard                              #
 ###############################################################################
-    def update_tensorboard(self, summary_writer, epoch, NN,
-            gradients, initial_sum_gradient_norms):
+    def update_tensorboard(self, summary_writer, epoch):
 
         with summary_writer.as_default():
             tf.summary.scalar('loss_training',
@@ -88,27 +88,12 @@ class Metrics:
                     self.mean_relative_error_latent_encoder.result(), step=epoch)
             tf.summary.scalar('relative_error_data_decoder',
                     self.mean_relative_error_data_decoder.result(), step=epoch)
-
-            #=== Tracking Gradients ===#
-            for w in NN.weights:
-                tf.summary.histogram(w.name, w, step=epoch)
-            l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
-            sum_gradient_norms = 0.0
-            for gradient, variable in zip(gradients, NN.trainable_variables):
-                tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient),
-                        step = epoch)
-                sum_gradient_norms += l2_norm(gradient)
-                if epoch == 0:
-                    initial_sum_gradient_norms = sum_gradient_norms
-            relative_gradient_norms = sum_gradient_norms/initial_sum_gradient_norms
-            tf.summary.scalar('relative_gradient_norm', relative_gradient_norms, step=epoch)
-
-        return initial_sum_gradient_norms, relative_gradient_norms
+            tf.summary.scalar('relative_gradient_norm', self.relative_gradient_norm, step=epoch)
 
 ###############################################################################
 #                            Update Storage Arrays                            #
 ###############################################################################
-    def update_storage_arrays(self, relative_gradient_norms):
+    def update_storage_arrays(self):
         self.storage_array_loss_train =\
                 np.append(self.storage_array_loss_train,
                         self.mean_loss_train.result())
@@ -156,7 +141,7 @@ class Metrics:
                         self.mean_relative_error_data_decoder.result())
         self.storage_array_relative_gradient_norm =\
                 np.append(self.storage_array_relative_gradient_norm,
-                        relative_gradient_norms)
+                        self.relative_gradient_norm)
 
 ###############################################################################
 #                                 Reset Metrics                               #
