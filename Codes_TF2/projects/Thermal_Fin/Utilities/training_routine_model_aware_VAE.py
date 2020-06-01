@@ -11,7 +11,8 @@ from Utilities.get_thermal_fin_data import load_thermal_fin_data
 # Import src code
 from form_train_val_test_batches import form_train_val_test_batches
 from NN_VAE_Fwd_Inv import VAEFwdInv
-from loss_and_relative_errors import loss_autoencoder, KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
+from loss_and_relative_errors import loss_penalized_difference,\
+KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
 from optimize_model_aware_VAE import optimize
 from optimize_distributed_model_aware_VAE import optimize_distributed
 
@@ -75,7 +76,7 @@ def trainer(hyperp, run_options, file_paths):
 
         #=== Training ===#
         optimize(hyperp, run_options, file_paths, NN,
-                 loss_autoencoder, KLD_loss, relative_error, prior_cov,
+                 loss_penalized_difference, KLD_loss, relative_error, prior_cov,
                  data_and_latent_train, data_and_latent_val, data_and_latent_test,
                  data_dimension, latent_dimension, num_batches_train)
 
@@ -89,6 +90,6 @@ def trainer(hyperp, run_options, file_paths):
         #=== Training ===#
         optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                 hyperp, run_options, file_paths, NN,
-                loss_autoencoder, KLD_loss, relative_error, prior_cov,
+                loss_penalized_difference, KLD_loss, relative_error, prior_cov,
                 data_and_latent_train, data_and_latent_val, data_and_latent_test,
                 data_dimension, latent_dimension, num_batches_train)

@@ -12,10 +12,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                   Loss                                      #
 ###############################################################################
-def loss_autoencoder(data_pred, data_true):
-    return tf.norm(tf.subtract(data_true, data_pred), 2, axis = 1)
-
-def loss_encoder_or_decoder(pred, true, penalty):
+def loss_penalized_difference(pred, true, penalty):
     return penalty*tf.norm(tf.subtract(pred, true), 2, axis = 1)
 
 def reg_prior(parameter, prior_mean, L_pr, penalty):

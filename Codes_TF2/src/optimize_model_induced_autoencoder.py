@@ -29,7 +29,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize(hyperp, run_options, file_paths, NN, obs_indices,
-        loss_autoencoder, loss_encoder_or_decoder, loss_forward_model,
+        loss_penalized_difference, loss_forward_model,
         relative_error, reg_prior, L_pr,
         data_and_latent_train, data_and_latent_val, data_and_latent_test,
         data_dimension, num_batches_train):
@@ -97,11 +97,11 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
                 batch_data_pred_train_AE = NN(tf.math.log(batch_data_train))
                 batch_latent_pred_train = NN.encoder(batch_data_train)
                 batch_data_pred_train = NN.decoder(batch_latent_train)
-                batch_loss_train_autoencoder = loss_autoencoder(
-                        batch_data_pred_train_AE, tf.math.log(batch_data_train))
-                batch_loss_train_encoder = loss_encoder_or_decoder(
+                batch_loss_train_autoencoder = loss_penalized_difference(
+                        batch_data_pred_train_AE, tf.math.log(batch_data_train), 1)
+                batch_loss_train_encoder = loss_penalized_difference(
                         batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
-                batch_loss_train_decoder = loss_encoder_or_decoder(
+                batch_loss_train_decoder = loss_penalized_difference(
                         batch_data_pred_train, batch_data_train, hyperp.penalty_decoder)
                 batch_loss_train_forward_model = loss_forward_model(
                         hyperp, run_options, V, solver, obs_indices, fenics_forward,
@@ -128,11 +128,11 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
             batch_data_pred_val_AE = NN(tf.math.log(batch_data_val))
             batch_latent_pred_val = NN.encoder(batch_data_val)
             batch_data_pred_val = NN.decoder(batch_latent_val)
-            batch_loss_val_autoencoder = loss_autoencoder(
-                    batch_data_pred_val_AE, tf.math.log(batch_data_val))
-            batch_loss_val_encoder = loss_encoder_or_decoder(
+            batch_loss_val_autoencoder = loss_penalized_difference(
+                    batch_data_pred_val_AE, tf.math.log(batch_data_val), 1)
+            batch_loss_val_encoder = loss_penalized_difference(
                     batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
-            batch_loss_val_decoder = loss_encoder_or_decoder(
+            batch_loss_val_decoder = loss_penalized_difference(
                     batch_data_pred_val, batch_data_val, hyperp.penalty_decoder)
             batch_loss_val_forward_model = loss_forward_model(
                     hyperp, run_options, V, solver, obs_indices,
@@ -157,11 +157,11 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
             batch_latent_pred_test = NN.encoder(tf.math.log(batch_data_test))
             batch_data_pred_test_decoder = NN.decoder(batch_latent_test)
 
-            batch_loss_test_autoencoder = loss_autoencoder(
-                    batch_data_pred_test_AE, tf.math.log(batch_data_test))
-            batch_loss_test_encoder = loss_encoder_or_decoder(
+            batch_loss_test_autoencoder = loss_penalized_difference(
+                    batch_data_pred_test_AE, tf.math.log(batch_data_test), 1)
+            batch_loss_test_encoder = loss_penalized_difference(
                     batch_latent_pred_test, batch_latent_test, hyperp.penalty_encoder)
-            batch_loss_test_decoder = loss_encoder_or_decoder(
+            batch_loss_test_decoder = loss_penalized_difference(
                     batch_data_pred_test_decoder, batch_data_test, hyperp.penalty_decoder)
             batch_loss_test_forward_model = loss_forward_model(
                     hyperp, run_options, V, solver, obs_indices,
