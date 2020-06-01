@@ -68,7 +68,8 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                 batch_likelihood_train = NN(batch_data_train)
                 batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_data_train)
                 unscaled_replica_batch_loss_train_VAE =\
-                        loss_penalized_difference(batch_likelihood_train, batch_data_train)
+                        loss_penalized_difference(
+                                batch_likelihood_train, batch_data_train, 1)
                 unscaled_replica_batch_loss_loss_train_KLD = KLD_loss(
                         batch_post_mean_train, batch_log_post_var_train,
                         tf.zeros(latent_dimension), prior_cov_inv,
@@ -95,7 +96,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
             batch_likelihood_val = NN(batch_data_val)
             batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_data_val)
             unscaled_replica_batch_loss_val_VAE = loss_penalized_difference(
-                    batch_likelihood_val, batch_data_val)
+                    batch_likelihood_val, batch_data_val, 1)
             unscaled_replica_batch_loss_val_KLD = KLD_loss(
                     batch_post_mean_val, batch_log_post_var_val,
                     tf.zeros(latent_dimension), prior_cov_inv,
@@ -116,7 +117,8 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
             batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_data_test)
             batch_data_pred_test = NN.decoder(batch_latent_test)
             unscaled_replica_batch_loss_test_VAE =\
-                    loss_penalized_difference(batch_data_likelihood_test, batch_data_test)
+                    loss_penalized_difference(
+                            batch_data_likelihood_test, batch_data_test, 1)
             unscaled_replica_batch_loss_test_KLD = KLD_loss(
                     batch_post_mean_test, batch_log_post_var_test,
                     tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
