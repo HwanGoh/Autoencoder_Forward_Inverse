@@ -15,6 +15,8 @@ import time
 import tensorflow as tf
 import numpy as np
 
+from metrics_distributed_model_aware_autoencoder import Metrics
+
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
