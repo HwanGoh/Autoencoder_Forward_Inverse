@@ -152,16 +152,17 @@ def optimize(hyperp, run_options, file_paths, NN,
             test_step(batch_data_test, batch_latent_test)
 
         #=== Update Current Relative Gradient Norm ===#
-        for w in NN.weights:
-            tf.summary.histogram(w.name, w, step=epoch)
-        l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
-        sum_gradient_norms = 0.0
-        for gradient, variable in zip(gradients, NN.trainable_variables):
-            tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient),
-                    step = epoch)
-            sum_gradient_norms += l2_norm(gradient)
-            if epoch == 0:
-                initial_sum_gradient_norms = sum_gradient_norms
+        with summary_writer.as_default():
+            for w in NN.weights:
+                tf.summary.histogram(w.name, w, step=epoch)
+            l2_norm = lambda t: tf.sqrt(tf.reduce_sum(tf.pow(t, 2)))
+            sum_gradient_norms = 0.0
+            for gradient, variable in zip(gradients, NN.trainable_variables):
+                tf.summary.histogram("gradients_norm/" + variable.name, l2_norm(gradient),
+                        step = epoch)
+                sum_gradient_norms += l2_norm(gradient)
+                if epoch == 0:
+                    initial_sum_gradient_norms = sum_gradient_norms
         metrics.relative_gradient_norm = sum_gradient_norms/initial_sum_gradient_norms
 
         #=== Tensorboard Tracking Training Metrics, Weights and Gradients ===#
