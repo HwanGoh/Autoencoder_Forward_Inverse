@@ -13,12 +13,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                   Loss                                      #
 ###############################################################################
 def loss_penalized_difference(pred, true, penalty):
-    return penalty*tf.norm(tf.subtract(pred, true), 2, axis = 1)
+    return penalty*tf.square(tf.norm(tf.subtract(pred, true), 2, axis = 1))
 
 def reg_prior(parameter, prior_mean, L_pr, penalty):
     if penalty != 0:
-        return penalty*tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean), L_pr), 2,
-                axis = 1)
+        return penalty*tf.square(tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean), L_pr), 2,
+                axis = 1))
     else:
         return 0
 
@@ -26,7 +26,8 @@ def loss_forward_model(hyperp, run_options, V, solver, obs_indices, forward_mode
         state_obs_true, parameter_pred, penalty_aug):
     forward_model_state_pred = forward_model(parameter_pred)
     forward_model_state_pred = tf.cast(forward_model_state_pred, dtype=tf.float32)
-    return penalty_aug*tf.norm(tf.subtract(state_obs_true, forward_model_state_pred, 2), axis = 1)
+    return penalty_aug*tf.square(tf.norm(tf.subtract(state_obs_true,
+        forward_model_state_pred, 2), axis = 1))
 
 def KLD_diagonal_post_cov(post_mean, log_post_var, prior_mean, prior_cov_inv,
         log_det_prior_cov, latent_dimension):
