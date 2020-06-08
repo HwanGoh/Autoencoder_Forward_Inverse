@@ -13,11 +13,11 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                   Loss                                      #
 ###############################################################################
 def loss_penalized_difference(pred, true, penalty):
-    return penalty*tf.square(tf.norm(tf.subtract(pred, true), 2, axis = 1))
+    return penalty*tf.math.square(tf.norm(tf.subtract(pred, true), 2, axis = 1))
 
 def reg_prior(parameter, prior_mean, L_pr, penalty):
     if penalty != 0:
-        return penalty*tf.square(tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean), L_pr), 2,
+        return penalty*tf.math.square(tf.norm(tf.linalg.matmul(tf.subtract(parameter, prior_mean), L_pr), 2,
                 axis = 1))
     else:
         return 0
