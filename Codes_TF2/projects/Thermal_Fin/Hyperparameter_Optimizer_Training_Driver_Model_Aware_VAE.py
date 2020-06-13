@@ -16,7 +16,9 @@ import matplotlib.pyplot as plt
 
 # Import FilePaths class and training routine
 from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
-from Utilities.hyperparameter_optimization_training_routine_model_aware_VAE import trainer
+from\
+Utilities.hyperparameter_optimization_training_routine_custom_model_aware_VAE\
+        import trainer_custom
 
 # Import skopt code
 from skopt.space import Real, Integer, Categorical
@@ -127,7 +129,7 @@ if __name__ == "__main__":
     ################
     #   Training   #
     ################
-    hyperp_opt_result = trainer(hyperp, run_options, file_paths, n_calls, space,
+    hyperp_opt_result = trainer_custom(hyperp, run_options, file_paths, n_calls, space,
             autoencoder_loss, dataset_directory)
 
     ##################################
