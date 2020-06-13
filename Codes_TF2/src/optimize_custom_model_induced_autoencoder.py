@@ -28,11 +28,14 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN, obs_indices,
+def optimize(hyperp, run_options, file_paths,
+        NN, optimizer,
+        obs_indices,
         loss_penalized_difference, loss_forward_model,
         relative_error, reg_prior, L_pr,
         data_and_latent_train, data_and_latent_val, data_and_latent_test,
-        data_dimension, num_batches_train):
+        data_input_shape,
+        num_batches_train):
 
     #=== Generate Dolfin Function Space and Mesh ===# These are in the scope and used below in the
                                                     # Fenics forward function and gradient
@@ -49,9 +52,6 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
         B_obs = np.zeros((len(obs_indices), V.dim()), dtype=np.float32)
         B_obs[np.arange(len(obs_indices)), obs_indices.flatten()] = 1
 
-    #=== Optimizer ===#
-    optimizer = tf.keras.optimizers.Adam()
-
     #=== Define Metrics ===#
     metrics = Metrics()
 
@@ -63,6 +63,10 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
     if os.path.exists(file_paths.tensorboard_directory):
         shutil.rmtree(file_paths.tensorboard_directory)
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+
+    #=== Display Neural Network Architecture ===#
+    NN.build((hyperp.batch_size, data_input_shape))
+    NN.summary()
 
 ###############################################################################
 #                     Fenics Forward Functions and Gradient                   #
@@ -199,11 +203,9 @@ def optimize(hyperp, run_options, file_paths, NN, obs_indices,
         start_time_epoch = time.time()
         for batch_num, (batch_data_train, batch_latent_train) in data_and_latent_train.enumerate():
             start_time_batch = time.time()
+            #=== Computing Train Step ===#
             gradients = train_step(batch_data_train, batch_latent_train)
             elapsed_time_batch = time.time() - start_time_batch
-            #=== Display Model Summary ===#
-            if batch_num == 0 and epoch == 0:
-                NN.summary()
             if batch_num  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
 

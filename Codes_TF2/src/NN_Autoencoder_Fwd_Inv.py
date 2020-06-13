@@ -8,11 +8,12 @@ Created on Sun Nov  3 10:37:27 2019
 
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Conv2D, Flatten
-from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class AutoencoderFwdInv(tf.keras.Model):
-    def __init__(self, hyperp, data_dimension, latent_dimension):
+    def __init__(self, hyperp,
+            data_dimension, latent_dimension,
+            kernel_initializer, bias_initializer):
         super(AutoencoderFwdInv, self).__init__()
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -29,11 +30,10 @@ class AutoencoderFwdInv(tf.keras.Model):
         activation = hyperp.activation
         self.activations = ['not required'] + [activation]*hyperp.num_hidden_layers + ['linear']
         self.activations[hyperp.truncation_layer] = 'linear'
+        self.kernel_initializer = kernel_initializer
+        self.bias_initializer = bias_initializer
 
-        #=== Weights and Biases Initializer ===#
-        self.kernel_initializer = RandomNormal(mean=0.0, stddev=0.05)
-        self.bias_initializer = 'zeros'
-
+        #=== Encoder and Decoder ===#
         self.encoder = Encoder(hyperp.truncation_layer,
                                self.architecture, self.activations,
                                self.kernel_initializer, self.bias_initializer)

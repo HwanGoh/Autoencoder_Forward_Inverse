@@ -24,17 +24,16 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize(hyperp, run_options, file_paths,
-        NN, loss_penalized_difference, KLD_loss, relative_error, prior_cov,
+        NN, optimizer,
+        loss_penalized_difference, KLD_loss, relative_error, prior_cov,
         data_and_latent_train, data_and_latent_val, data_and_latent_test,
-        data_dimension, latent_dimension, num_batches_train):
+        data_input_shape, latent_dimension,
+        num_batches_train):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     prior_cov_inv = np.linalg.inv(prior_cov)
     (sign, logdet) = np.linalg.slogdet(prior_cov)
     log_det_prior_cov = sign*logdet
-
-    #=== Optimizer ===#
-    optimizer = tf.keras.optimizers.Adam()
 
     #=== Define Metrics ===#
     metrics = Metrics()
@@ -47,6 +46,10 @@ def optimize(hyperp, run_options, file_paths,
     if os.path.exists(file_paths.tensorboard_directory):
         shutil.rmtree(file_paths.tensorboard_directory)
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+
+    #=== Display Neural Network Architecture ===#
+    NN.build((hyperp.batch_size, data_input_shape))
+    NN.summary()
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -98,10 +101,12 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_test_encoder(batch_loss_test_KLD)
         metrics.mean_loss_test(batch_loss_test)
 
-        metrics.mean_relative_error_data_autoencoder(relative_error(batch_likelihood_test, batch_data_test))
+        metrics.mean_relative_error_data_autoencoder(relative_error(batch_likelihood_test,
+            batch_data_test))
         metrics.mean_relative_error_latent_encoder(relative_error(tf.math.exp(batch_post_mean_test),
             batch_latent_test))
-        metrics.mean_relative_error_data_decoder(relative_error(batch_data_pred_test, batch_data_test))
+        metrics.mean_relative_error_data_decoder(relative_error(batch_data_pred_test,
+            batch_data_test))
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -117,11 +122,9 @@ def optimize(hyperp, run_options, file_paths,
         start_time_epoch = time.time()
         for batch_num, (batch_data_train, batch_latent_train) in data_and_latent_train.enumerate():
             start_time_batch = time.time()
+            #=== Computing Train Step ===#
             gradients = train_step(batch_data_train, batch_latent_train)
             elapsed_time_batch = time.time() - start_time_batch
-            #=== Display Model Summary ===#
-            if batch_num == 0 and epoch == 0:
-                NN.summary()
             if batch_num  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
 

@@ -12,8 +12,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                   Loss                                      #
 ###############################################################################
-def loss_penalized_difference(pred, true, penalty):
-    return penalty*tf.math.square(tf.norm(tf.subtract(pred, true), 2, axis = 1))
+def loss_penalized_difference(true, pred, penalty):
+    return penalty*tf.keras.losses.mean_squared_error(true, pred)
 
 def reg_prior(parameter, prior_mean, L_pr, penalty):
     if penalty != 0:
@@ -50,5 +50,5 @@ def KLD_full_post_cov(post_mean, post_var, prior_mean,
 ###############################################################################
 #                               Relative Error                                #
 ###############################################################################
-def relative_error(prediction, true):
-    return tf.norm(true - prediction, 2, axis = 1)/tf.norm(true, 2, axis = 1)
+def relative_error(true, pred):
+    return tf.keras.losses.mean_absolute_percentage_error(true, pred)

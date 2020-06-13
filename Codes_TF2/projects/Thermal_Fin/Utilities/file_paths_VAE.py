@@ -80,32 +80,32 @@ def filename(hyperp, run_options, autoencoder_loss):
 #                          Train and Test Datasets                            #
 ###############################################################################
 def train_and_test_datasets(hyperp, run_options, dataset_directory,
-        N_Nodes, parameter_type, fin_dimension):
+        parameter_type, fin_dimension):
 
     #=== Loading and saving data ===#
     observation_indices_savefilepath =\
             dataset_directory +\
-            'obs_indices_' + hyperp.data_type + N_Nodes + fin_dimension
-    parameter_train_savefilepath =\
+            'obs_indices_' + hyperp.data_type + fin_dimension
+    data_train_savefilepath =\
             dataset_directory +\
             'parameter_train_%d'%(run_options.num_data_train) +\
-            N_Nodes + fin_dimension + parameter_type
-    state_obs_train_savefilepath =\
+            fin_dimension + parameter_type
+    labels_train_savefilepath =\
             dataset_directory +\
             'state_train_%d'%(run_options.num_data_train) +\
-            N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type
-    parameter_test_savefilepath =\
+            fin_dimension + '_' + hyperp.data_type + parameter_type
+    data_test_savefilepath =\
             dataset_directory +\
             'parameter_test_%d'%(run_options.num_data_test) +\
-            N_Nodes + fin_dimension +  parameter_type
-    state_obs_test_savefilepath =\
+            fin_dimension +  parameter_type
+    labels_test_savefilepath =\
             dataset_directory +\
             'state_test_%d'%(run_options.num_data_test) +\
-            N_Nodes + fin_dimension + '_' + hyperp.data_type + parameter_type
+            fin_dimension + '_' + hyperp.data_type + parameter_type
 
     return observation_indices_savefilepath,\
-            parameter_train_savefilepath, state_obs_train_savefilepath,\
-            parameter_test_savefilepath, state_obs_test_savefilepath
+            data_train_savefilepath, labels_train_savefilepath,\
+            data_test_savefilepath, labels_test_savefilepath
 
 ###############################################################################
 #                                 Training                                    #
@@ -121,19 +121,19 @@ class FilePathsTraining():
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath,_,_,_,_=\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,self.parameter_train_savefilepath,_,_,_ =\
+                        parameter_type, fin_dimension)
+        _,self.data_train_savefilepath,_,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,self.state_obs_train_savefilepath,_,_ =\
+                        parameter_type, fin_dimension)
+        _,_,self.labels_train_savefilepath,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,_,self.parameter_test_savefilepath,_ =\
+                        parameter_type, fin_dimension)
+        _,_,_,self.data_test_savefilepath,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,_,_,self.state_obs_test_savefilepath =\
+                        parameter_type, fin_dimension)
+        _,_,_,_,self.labels_test_savefilepath =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
+                        parameter_type, fin_dimension)
 
         #=== Prior Covariance File Name ===#
         if run_options.prior_type_elliptic == 1:
@@ -165,19 +165,19 @@ class FilePathsHyperparameterOptimization():
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath,_,_,_,_=\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,self.parameter_train_savefilepath,_,_,_ =\
+                        parameter_type, fin_dimension)
+        _,self.data_train_savefilepath,_,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,self.state_obs_train_savefilepath,_,_ =\
+                        parameter_type, fin_dimension)
+        _,_,self.labels_train_savefilepath,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,_,self.parameter_test_savefilepath,_ =\
+                        parameter_type, fin_dimension)
+        _,_,_,self.data_test_savefilepath,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,_,_,self.state_obs_test_savefilepath =\
+                        parameter_type, fin_dimension)
+        _,_,_,_,self.labels_test_savefilepath =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
+                        parameter_type, fin_dimension)
 
         #=== Prior Covariance File Name ===#
         if run_options.prior_type_elliptic == 1:
@@ -225,10 +225,10 @@ class FilePathsPrediction():
         self.observation_indices_savefilepath,_,_,_,_=\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         N_Nodes, parameter_type, fin_dimension)
-        _,_,_,self.parameter_test_savefilepath,_ =\
+        _,_,_,self.data_test_savefilepath,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         N_Nodes, parameter_type, fin_dimension)
-        _,_,_,_,self.state_obs_test_savefilepath =\
+        _,_,_,_,self.labels_test_savefilepath =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         N_Nodes, parameter_type, fin_dimension)
 
@@ -265,14 +265,16 @@ class FilePathsPlotting():
         self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
 
-        #=== File Path for Loading Displayable Test Data ===#
-        self.observation_indices_savefilepath =\
-                dataset_directory +\
-                'obs_indices_' + hyperp.data_type + fin_dimension
-        self.savefile_name_parameter_test = self.NN_savefile_directory +\
-                '/parameter_test' + fin_dimension + parameter_type
-        self.savefile_name_state_test = self.NN_savefile_directory +\
-                '/state_test' + fin_dimension + parameter_type
+        #=== Loading and saving data ===#
+        self.observation_indices_savefilepath,_,_,_,_=\
+                train_and_test_datasets(hyperp, run_options, dataset_directory,
+                        parameter_type, fin_dimension)
+        _,_,_,self.data_test_savefilepath,_ =\
+                train_and_test_datasets(hyperp, run_options, dataset_directory,
+                        parameter_type, fin_dimension)
+        _,_,_,_,self.labels_test_savefilepath =\
+                train_and_test_datasets(hyperp, run_options, dataset_directory,
+                        parameter_type, fin_dimension)
 
         #=== File Path for Loading Displayable Predictions ===#
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'

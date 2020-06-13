@@ -5,21 +5,19 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
-# Load data retrieval function
-from Utilities.get_thermal_fin_data import load_thermal_fin_data
-
 # Import src code
-from form_train_val_test_batches import form_train_val_test_batches
+from get_train_and_test_data import load_train_and_test_data
+from form_train_val_test import form_train_val_test_tf_batches
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference,\
-loss_forward_model, relative_error, reg_prior
-from optimize_model_induced_autoencoder import optimize
-from optimize_distributed_model_aware_autoencoder import optimize_distributed
+        loss_forward_model, relative_error, reg_prior
+from optimize_custom_model_induced_autoencoder import optimize
+from optimize_distributed_custom_model_aware_autoencoder import optimize_distributed
 
 ###############################################################################
 #                                  Training                                   #
 ###############################################################################
-def trainer(hyperp, run_options, file_paths):
+def trainer_custom(hyperp, run_options, file_paths):
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if run_options.use_distributed_training == 0:
@@ -30,33 +28,42 @@ def trainer(hyperp, run_options, file_paths):
         gpus = tf.config.experimental.list_physical_devices('GPU')
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
 
+    #=== Load observation indices ===#
+    print('Loading Boundary Indices')
+    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')
+    obs_indices = df_obs_indices.to_numpy()
+    run_options.state_dimensions = len(obs_indices)
+
     #=== Load Data ===#
-    obs_indices, parameter_train, state_obs_train,\
+    parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
-    data_input_shape, parameter_dimension\
-    = load_thermal_fin_data(file_paths, run_options.num_data_train,
-            run_options.num_data_test,
-            run_options.parameter_dimensions)
+    = load_train_and_test_data(file_paths,
+            run_options.num_data_train, run_options.num_data_test,
+            run_options.parameter_dimensions, run_options.state_dimensions,
+            load_data_train_flag = 1)
+    output_dimensions = run_options.state_dimensions
 
     #=== Construct Validation Set and Batches ===#
     if run_options.use_standard_autoencoder == 1:
         data_and_latent_train, data_and_latent_val, data_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
-        num_batches_train, num_batches_val, num_batches_test\
-        = form_train_val_test_batches(parameter_train, state_obs_train,
+        num_batches_train, num_batches_val, num_batches_test,\
+        data_input_shape\
+        = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                 parameter_test, state_obs_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
     if run_options.use_reverse_autoencoder == 1:
         data_and_latent_train, data_and_latent_val, data_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
-        num_batches_train, num_batches_val, num_batches_test\
-        = form_train_val_test_batches(state_obs_train, parameter_train,
+        num_batches_train, num_batches_val, num_batches_test,\
+        data_input_shape\
+        = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                 state_obs_test, parameter_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
-        data_dimension = parameter_dimension
+        data_dimension = run_options.parameter_dimensions
         if hyperp.data_type == 'full':
             latent_dimension = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
@@ -66,7 +73,7 @@ def trainer(hyperp, run_options, file_paths):
             data_dimension = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
             data_dimension = len(obs_indices)
-        latent_dimension = parameter_dimension
+        latent_dimension = run_options.parameter_dimensions
 
     #=== Prior Regularization ===#
     if hyperp.penalty_prior != 0:
@@ -78,29 +85,47 @@ def trainer(hyperp, run_options, file_paths):
     else:
         L_pr = 0.0
 
+    #=== Neural Network Regularizers ===#
+    kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
+    bias_initializer = 'zeros'
+
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
+        NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+                               kernel_initializer, bias_initializer)
+
+        #=== Optimizer ===#
+        optimizer = tf.keras.optimizers.Adam()
 
         #=== Training ===#
-        optimize(hyperp, run_options, file_paths, NN, obs_indices,
+        optimize(hyperp, run_options, file_paths,
+                NN, optimizer,
+                obs_indices,
                 loss_penalized_difference, loss_forward_model,
                 relative_error, reg_prior, L_pr,
                 data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                parameter_dimension, num_batches_train)
+                data_input_shape,
+                num_batches_train)
 
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
+            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+                                   kernel_initializer, bias_initializer)
+
+            #=== Optimizer ===#
+            optimizer = tf.keras.optimizers.Adam()
 
         #=== Training ===#
         optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
-                hyperp, run_options, file_paths, NN, obs_indices,
+                hyperp, run_options, file_paths,
+                NN, optimizer,
+                obs_indices,
                 loss_penalized_difference, loss_forward_model,
                 relative_error, reg_prior, L_pr,
                 data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                parameter_dimension, num_batches_train)
+                data_input_shape,
+                num_batches_train)

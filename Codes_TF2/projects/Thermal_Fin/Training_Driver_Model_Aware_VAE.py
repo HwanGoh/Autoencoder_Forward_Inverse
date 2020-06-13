@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and training routine
 from Utilities.file_paths_VAE import FilePathsTraining
-from Utilities.training_routine_model_aware_VAE import trainer
+from Utilities.training_routine_custom_model_aware_VAE import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -104,4 +104,4 @@ if __name__ == "__main__":
             autoencoder_loss, dataset_directory)
 
     #=== Initiate Training ===#
-    trainer(hyperp, run_options, file_paths)
+    trainer_custom(hyperp, run_options, file_paths)

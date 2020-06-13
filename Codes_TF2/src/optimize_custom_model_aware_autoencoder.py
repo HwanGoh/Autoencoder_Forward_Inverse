@@ -23,14 +23,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths, NN,
+def optimize(hyperp, run_options, file_paths,
+        NN, optimizer,
         loss_penalized_difference, relative_error,
         reg_prior, L_pr,
         data_and_latent_train, data_and_latent_val, data_and_latent_test,
-        data_dimension, num_batches_train):
-
-    #=== Optimizer ===#
-    optimizer = tf.keras.optimizers.Adam()
+        data_input_shape, num_batches_train):
 
     #=== Define Metrics ===#
     metrics = Metrics()
@@ -43,6 +41,10 @@ def optimize(hyperp, run_options, file_paths, NN,
     if os.path.exists(file_paths.tensorboard_directory):
         shutil.rmtree(file_paths.tensorboard_directory)
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+
+    #=== Display Neural Network Architecture ===#
+    NN.build((hyperp.batch_size, data_input_shape))
+    NN.summary()
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -135,11 +137,9 @@ def optimize(hyperp, run_options, file_paths, NN,
         start_time_epoch = time.time()
         for batch_num, (batch_data_train, batch_latent_train) in data_and_latent_train.enumerate():
             start_time_batch = time.time()
+            #=== Compute Train Step ===#
             gradients = train_step(batch_data_train, batch_latent_train)
             elapsed_time_batch = time.time() - start_time_batch
-            #=== Display Model Summary ===#
-            if batch_num == 0 and epoch == 0:
-                NN.summary()
             if batch_num  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
 
