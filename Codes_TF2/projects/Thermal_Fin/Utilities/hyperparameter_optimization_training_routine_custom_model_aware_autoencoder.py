@@ -142,6 +142,9 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
                 NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
                                        kernel_initializer, bias_initializer)
 
+                #=== Optimizer ===#
+                optimizer = tf.keras.optimizers.Adam()
+
             #=== Training ===#
             optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                             hyperp, run_options, file_paths,
