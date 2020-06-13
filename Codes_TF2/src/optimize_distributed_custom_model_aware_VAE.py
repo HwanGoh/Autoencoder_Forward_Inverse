@@ -24,10 +24,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         hyperp, run_options, file_paths,
-        NN, loss_penalized_difference, KLD_loss, relative_error,
+        NN, optimizer,
+        loss_penalized_difference, KLD_loss, relative_error,
         prior_cov,
         data_and_latent_train, data_and_latent_val, data_and_latent_test,
-        data_dimension, latent_dimension, num_batches_train):
+        data_input_shape, latent_dimension,
+        num_batches_train):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     prior_cov_inv = np.linalg.inv(prior_cov)
@@ -42,10 +44,6 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
     dist_data_and_latent_val = dist_strategy.experimental_distribute_dataset(data_and_latent_val)
     dist_data_and_latent_test = dist_strategy.experimental_distribute_dataset(data_and_latent_test)
 
-    with dist_strategy.scope():
-        #=== Optimizer ===#
-        optimizer = tf.keras.optimizers.Adam()
-
     #=== Metrics ===#
     metrics = Metrics(dist_strategy)
 
@@ -57,6 +55,11 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
     if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
         shutil.rmtree(file_paths.tensorboard_directory)
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+
+    #=== Display Neural Network Architecture ===#
+    with dist_strategy.scope():
+        NN.build((hyperp.batch_size, data_input_shape))
+        NN.summary()
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -155,12 +158,10 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         total_loss_train = 0
         for batch_data_train, batch_latent_train in dist_data_and_latent_train:
             start_time_batch = time.time()
+            #=== Compute Train Step ===#
             batch_loss_train = dist_train_step(batch_data_train, batch_latent_train)
             total_loss_train += batch_loss_train
             elapsed_time_batch = time.time() - start_time_batch
-            #=== Display Model Summary ===#
-            if batch_counter == 0 and epoch == 0:
-                NN.summary()
             if batch_counter  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
             batch_counter += 1
