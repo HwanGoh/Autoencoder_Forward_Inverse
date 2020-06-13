@@ -26,8 +26,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def optimize(hyperp, run_options, file_paths,
         NN, optimizer,
         loss_penalized_difference, KLD_loss, relative_error, prior_cov,
-        data_and_latent_train, data_and_latent_val, data_and_latent_test,
-        data_input_shape, latent_dimension,
+        input_and_latent_train, input_and_latent_val, input_and_latent_test,
+        input_dimensions, latent_dimension,
         num_batches_train):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
@@ -48,7 +48,7 @@ def optimize(hyperp, run_options, file_paths,
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
 
     #=== Display Neural Network Architecture ===#
-    NN.build((hyperp.batch_size, data_input_shape))
+    NN.build((hyperp.batch_size, input_dimensions))
     NN.summary()
 
 ###############################################################################
@@ -56,12 +56,12 @@ def optimize(hyperp, run_options, file_paths,
 ###############################################################################
     #=== Train Step ===#
     @tf.function
-    def train_step(batch_data_train, batch_latent_train):
+    def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
-            batch_likelihood_train = NN(batch_data_train)
-            batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_data_train)
+            batch_likelihood_train = NN(batch_input_train)
+            batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
             batch_loss_train_VAE = loss_penalized_difference(
-                    batch_likelihood_train, batch_data_train, 1)
+                    batch_likelihood_train, batch_input_train, 1)
             batch_loss_train_KLD = KLD_loss(batch_post_mean_train, batch_log_post_var_train,
                     tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
             batch_loss_train = -(batch_loss_train_VAE - batch_loss_train_KLD)
@@ -74,11 +74,11 @@ def optimize(hyperp, run_options, file_paths,
 
     #=== Validation Step ===#
     @tf.function
-    def val_step(batch_data_val, batch_latent_val):
-        batch_likelihood_val = NN(batch_data_val)
-        batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_data_val)
+    def val_step(batch_input_val, batch_latent_val):
+        batch_likelihood_val = NN(batch_input_val)
+        batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
         batch_loss_val_VAE = loss_penalized_difference(
-                batch_likelihood_val, batch_data_val, 1)
+                batch_likelihood_val, batch_input_val, 1)
         batch_loss_val_KLD = KLD_loss(batch_post_mean_val, batch_log_post_var_val,
                 tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_val = -(batch_loss_val_VAE - batch_loss_val_KLD)
@@ -88,12 +88,12 @@ def optimize(hyperp, run_options, file_paths,
 
     #=== Test Step ===#
     @tf.function
-    def test_step(batch_data_test, batch_latent_test):
-        batch_likelihood_test = NN(batch_data_test)
-        batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_data_test)
-        batch_data_pred_test = NN.decoder(batch_latent_test)
+    def test_step(batch_input_test, batch_latent_test):
+        batch_likelihood_test = NN(batch_input_test)
+        batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
+        batch_input_pred_test = NN.decoder(batch_latent_test)
         batch_loss_test_VAE = loss_penalized_difference(
-                batch_likelihood_test, batch_data_test, 1)
+                batch_likelihood_test, batch_input_test, 1)
         batch_loss_test_KLD = KLD_loss(batch_post_mean_test, batch_log_post_var_test,
                 tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_test = -(batch_loss_test_VAE - batch_loss_test_KLD)
@@ -101,12 +101,12 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_test_encoder(batch_loss_test_KLD)
         metrics.mean_loss_test(batch_loss_test)
 
-        metrics.mean_relative_error_data_autoencoder(relative_error(batch_likelihood_test,
-            batch_data_test))
+        metrics.mean_relative_error_input_autoencoder(relative_error(batch_likelihood_test,
+            batch_input_test))
         metrics.mean_relative_error_latent_encoder(relative_error(tf.math.exp(batch_post_mean_test),
             batch_latent_test))
-        metrics.mean_relative_error_data_decoder(relative_error(batch_data_pred_test,
-            batch_data_test))
+        metrics.mean_relative_error_input_decoder(relative_error(batch_input_pred_test,
+            batch_input_test))
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -120,21 +120,21 @@ def optimize(hyperp, run_options, file_paths,
         print('GPU: ' + run_options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
-        for batch_num, (batch_data_train, batch_latent_train) in data_and_latent_train.enumerate():
+        for batch_num, (batch_input_train, batch_latent_train) in input_and_latent_train.enumerate():
             start_time_batch = time.time()
             #=== Computing Train Step ===#
-            gradients = train_step(batch_data_train, batch_latent_train)
+            gradients = train_step(batch_input_train, batch_latent_train)
             elapsed_time_batch = time.time() - start_time_batch
             if batch_num  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
 
         #=== Computing Relative Errors Validation ===#
-        for batch_data_val, batch_latent_val in data_and_latent_val:
-            val_step(batch_data_val, batch_latent_val)
+        for batch_input_val, batch_latent_val in input_and_latent_val:
+            val_step(batch_input_val, batch_latent_val)
 
         #=== Computing Relative Errors Test ===#
-        for batch_data_test, batch_latent_test in data_and_latent_test:
-            test_step(batch_data_test, batch_latent_test)
+        for batch_input_test, batch_latent_test in input_and_latent_test:
+            test_step(batch_input_test, batch_latent_test)
 
         #=== Update Current Relative Gradient Norm ===#
         with summary_writer.as_default():
@@ -172,9 +172,9 @@ def optimize(hyperp, run_options, file_paths,
                     metrics.mean_loss_test_autoencoder.result(),
                     metrics.mean_loss_test_encoder.result()))
         print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e\n'\
-                %(metrics.mean_relative_error_data_autoencoder.result(),
+                %(metrics.mean_relative_error_input_autoencoder.result(),
                     metrics.mean_relative_error_latent_encoder.result(),
-                    metrics.mean_relative_error_data_decoder.result()))
+                    metrics.mean_relative_error_input_decoder.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()
 

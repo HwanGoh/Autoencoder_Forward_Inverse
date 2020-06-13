@@ -45,35 +45,35 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Construct Validation Set and Batches ===#
     if run_options.use_standard_autoencoder == 1:
-        data_and_latent_train, data_and_latent_val, data_and_latent_test,\
+        input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
-        data_input_shape\
+        input_dimensions\
         = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                 parameter_test, state_obs_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
     if run_options.use_reverse_autoencoder == 1:
-        data_and_latent_train, data_and_latent_val, data_and_latent_test,\
+        input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
-        data_input_shape\
+        input_dimensions\
         = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                 state_obs_test, parameter_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
-        data_dimension = run_options.parameter_dimensions
+        input_dimensions = run_options.parameter_dimensions
         if hyperp.data_type == 'full':
-            latent_dimension = run_options.full_domain_dimensions
+            latent_dimensions = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
-            latent_dimension = len(obs_indices)
+            latent_dimensions = len(obs_indices)
     if run_options.use_reverse_autoencoder == 1:
         if hyperp.data_type == 'full':
-            data_dimension = run_options.full_domain_dimensions
+            input_dimensions = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
-            data_dimension = len(obs_indices)
-        latent_dimension = run_options.parameter_dimensions
+            input_dimensions = len(obs_indices)
+        latent_dimensions = run_options.parameter_dimensions
 
     #=== Prior Regularization ===#
     if hyperp.penalty_prior != 0:
@@ -92,7 +92,7 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+        NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
                                kernel_initializer, bias_initializer)
 
         #=== Optimizer ===#
@@ -103,15 +103,15 @@ def trainer_custom(hyperp, run_options, file_paths):
                 NN, optimizer,
                 loss_penalized_difference, relative_error,
                 reg_prior, L_pr,
-                data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                data_input_shape, num_batches_train)
+                input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                input_dimensions, num_batches_train)
 
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+            NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
                                    kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#
@@ -122,5 +122,5 @@ def trainer_custom(hyperp, run_options, file_paths):
                 hyperp, run_options, file_paths,
                 NN, optimizer,
                 loss_penalized_difference, relative_error,
-                data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                data_input_shape, num_batches_train)
+                input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                input_dimensions, num_batches_train)

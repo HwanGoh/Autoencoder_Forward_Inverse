@@ -28,9 +28,9 @@ class Metrics:
         self.mean_loss_test_decoder = tf.keras.metrics.Mean()
         self.mean_loss_test_forward_model = tf.keras.metrics.Mean()
 
-        self.mean_relative_error_data_autoencoder = tf.keras.metrics.Mean()
+        self.mean_relative_error_input_autoencoder = tf.keras.metrics.Mean()
         self.mean_relative_error_latent_encoder = tf.keras.metrics.Mean()
-        self.mean_relative_error_data_decoder = tf.keras.metrics.Mean()
+        self.mean_relative_error_input_decoder = tf.keras.metrics.Mean()
 
         self.relative_gradient_norm = 0
 
@@ -53,9 +53,9 @@ class Metrics:
         self.storage_array_loss_test_decoder = np.array([])
         self.storage_array_loss_test_forward_model = np.array([])
 
-        self.storage_array_relative_error_data_autoencoder = np.array([])
+        self.storage_array_relative_error_input_autoencoder = np.array([])
         self.storage_array_relative_error_latent_encoder = np.array([])
-        self.storage_array_relative_error_data_decoder = np.array([])
+        self.storage_array_relative_error_input_decoder = np.array([])
 
         self.storage_array_relative_gradient_norm = np.array([])
 
@@ -94,12 +94,12 @@ class Metrics:
                     self.mean_loss_test_decoder.result(), step=epoch)
             tf.summary.scalar('loss_test_forward_model',
                     self.mean_loss_train_forward_model.result(), step=epoch)
-            tf.summary.scalar('relative_error_data_autoencoder',
-                    self.mean_relative_error_data_autoencoder.result(), step=epoch)
+            tf.summary.scalar('relative_error_input_autoencoder',
+                    self.mean_relative_error_input_autoencoder.result(), step=epoch)
             tf.summary.scalar('relative_error_latent_encoder',
                     self.mean_relative_error_latent_encoder.result(), step=epoch)
-            tf.summary.scalar('relative_error_data_decoder',
-                    self.mean_relative_error_data_decoder.result(), step=epoch)
+            tf.summary.scalar('relative_error_input_decoder',
+                    self.mean_relative_error_input_decoder.result(), step=epoch)
             tf.summary.scalar('relative_gradient_norm',
                     self.relative_gradient_norm, step=epoch)
 
@@ -152,15 +152,15 @@ class Metrics:
         self.storage_array_loss_test_forward_model =\
                 np.append(self.storage_array_loss_test_forward_model,
                         self.mean_loss_test_forward_model.result())
-        self.storage_array_relative_error_data_autoencoder =\
-                np.append(self.storage_array_relative_error_data_autoencoder,
-                        self.mean_relative_error_data_autoencoder.result())
+        self.storage_array_relative_error_input_autoencoder =\
+                np.append(self.storage_array_relative_error_input_autoencoder,
+                        self.mean_relative_error_input_autoencoder.result())
         self.storage_array_relative_error_latent_encoder =\
                 np.append(self.storage_array_relative_error_latent_encoder,
                         self.mean_relative_error_latent_encoder.result())
-        self.storage_array_relative_error_data_decoder =\
-                np.append(self.storage_array_relative_error_data_decoder,
-                        self.mean_relative_error_data_decoder.result())
+        self.storage_array_relative_error_input_decoder =\
+                np.append(self.storage_array_relative_error_input_decoder,
+                        self.mean_relative_error_input_decoder.result())
         self.storage_array_relative_gradient_norm =\
                 np.append(self.storage_array_relative_gradient_norm,
                         self.relative_gradient_norm)
@@ -184,9 +184,9 @@ class Metrics:
         self.mean_loss_test_encoder.reset_states()
         self.mean_loss_test_decoder.reset_states()
         self.mean_loss_test_forward_model.reset_states()
-        self.mean_relative_error_data_autoencoder.reset_states()
+        self.mean_relative_error_input_autoencoder.reset_states()
         self.mean_relative_error_latent_encoder.reset_states()
-        self.mean_relative_error_data_decoder.reset_states()
+        self.mean_relative_error_input_decoder.reset_states()
 
 ###############################################################################
 #                                 Save Metrics                                #
@@ -203,11 +203,12 @@ class Metrics:
         metrics_dict['loss_val_encoder'] = self.storage_array_loss_val_encoder
         metrics_dict['loss_val_decoder'] = self.storage_array_loss_val_decoder
         metrics_dict['loss_val_forward_model'] = self.storage_array_loss_val_forward_model
-        metrics_dict['relative_error_data_autoencoder'] =\
-                self.storage_array_relative_error_data_autoencoder
+        metrics_dict['relative_error_input_autoencoder'] =\
+                self.storage_array_relative_error_input_autoencoder
         metrics_dict['relative_error_latent_encoder'] =\
                 self.storage_array_relative_error_latent_encoder
-        metrics_dict['relative_error_data_decoder'] = self.storage_array_relative_error_data_decoder
+        metrics_dict['relative_error_input_decoder'] =\
+                self.storage_array_relative_error_input_decoder
         metrics_dict['relative_gradient_norm'] = self.storage_array_relative_gradient_norm
         df_metrics = pd.DataFrame(metrics_dict)
         df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)

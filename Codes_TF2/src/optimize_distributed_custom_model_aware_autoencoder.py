@@ -26,15 +26,18 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         hyperp, run_options, file_paths,
         NN, optimizer,
         loss_penalized_difference, relative_error,
-        data_and_latent_train, data_and_latent_val, data_and_latent_test,
-        data_input_shape, num_batches_train):
+        input_and_latent_train, input_and_latent_val, input_and_latent_test,
+        input_dimensions, num_batches_train):
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
     print('Number of Replicas in Sync: %d' %(dist_strategy.num_replicas_in_sync))
 
     #=== Distribute Data ===#
-    dist_data_and_latent_train = dist_strategy.experimental_distribute_dataset(data_and_latent_train)
-    dist_data_and_latent_val = dist_strategy.experimental_distribute_dataset(data_and_latent_val)
-    dist_data_and_latent_test = dist_strategy.experimental_distribute_dataset(data_and_latent_test)
+    dist_input_and_latent_train =\
+            dist_strategy.experimental_distribute_dataset(input_and_latent_train)
+    dist_input_and_latent_val =\
+            dist_strategy.experimental_distribute_dataset(input_and_latent_val)
+    dist_input_and_latent_test =\
+            dist_strategy.experimental_distribute_dataset(input_and_latent_test)
 
     #=== Metrics ===#
     metrics = Metrics(dist_strategy)
@@ -50,7 +53,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
 
     #=== Display Neural Network Architecture ===#
     with dist_strategy.scope():
-        NN.build((hyperp.batch_size, data_input_shape))
+        NN.build((hyperp.batch_size, input_dimensions))
         NN.summary()
 
 ###############################################################################
@@ -148,7 +151,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         start_time_epoch = time.time()
         batch_counter = 0
         total_loss_train = 0
-        for batch_data_train, batch_latent_train in dist_data_and_latent_train:
+        for batch_data_train, batch_latent_train in dist_input_and_latent_train:
             start_time_batch = time.time()
             #=== Computing Training Step ===#
             batch_loss_train = dist_train_step(batch_data_train, batch_latent_train)
@@ -160,11 +163,11 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         mean_loss_train = total_loss_train/batch_counter
 
         #=== Computing Validation Metrics ===#
-        for batch_data_val, batch_latent_val in dist_data_and_latent_val:
+        for batch_data_val, batch_latent_val in dist_input_and_latent_val:
             dist_val_step(batch_data_val, batch_latent_val)
 
         #=== Computing Test Metrics ===#
-        for batch_data_test, batch_latent_test in dist_data_and_latent_test:
+        for batch_data_test, batch_latent_test in dist_input_and_latent_test:
             dist_test_step(batch_data_test, batch_latent_test)
 
         #=== Tensorboard Tracking Training Metrics, Weights and Gradients ===#

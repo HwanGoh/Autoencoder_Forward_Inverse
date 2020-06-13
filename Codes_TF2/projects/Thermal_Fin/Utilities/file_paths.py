@@ -96,26 +96,26 @@ def train_and_test_datasets(hyperp, run_options, dataset_directory,
     observation_indices_savefilepath =\
             dataset_directory +\
             'obs_indices_' + hyperp.data_type + fin_dimension
-    data_train_savefilepath =\
+    input_train_savefilepath =\
             dataset_directory +\
             'parameter_train_%d'%(run_options.num_data_train) +\
             fin_dimension + parameter_type
-    labels_train_savefilepath =\
+    output_train_savefilepath =\
             dataset_directory +\
             'state_train_%d'%(run_options.num_data_train) +\
             fin_dimension + '_' + hyperp.data_type + parameter_type
-    data_test_savefilepath =\
+    input_test_savefilepath =\
             dataset_directory +\
             'parameter_test_%d'%(run_options.num_data_test) +\
             fin_dimension +  parameter_type
-    labels_test_savefilepath =\
+    output_test_savefilepath =\
             dataset_directory +\
             'state_test_%d'%(run_options.num_data_test) +\
             fin_dimension + '_' + hyperp.data_type + parameter_type
 
     return observation_indices_savefilepath,\
-            data_train_savefilepath, labels_train_savefilepath,\
-            data_test_savefilepath, labels_test_savefilepath
+            input_train_savefilepath, output_train_savefilepath,\
+            input_test_savefilepath, output_test_savefilepath
 
 ###############################################################################
 #                                 Training                                    #
@@ -131,16 +131,16 @@ class FilePathsTraining():
         self.observation_indices_savefilepath,_,_,_,_=\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,self.data_train_savefilepath,_,_,_ =\
+        _,self.input_train_savefilepath,_,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,self.labels_train_savefilepath,_,_ =\
+        _,_,self.output_train_savefilepath,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,self.data_test_savefilepath,_ =\
+        _,_,_,self.input_test_savefilepath,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,_,self.labels_test_savefilepath =\
+        _,_,_,_,self.output_test_savefilepath =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
 
@@ -163,16 +163,16 @@ class FilePathsHyperparameterOptimization():
         self.observation_indices_savefilepath,_,_,_,_=\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,self.data_train_savefilepath,_,_,_ =\
+        _,self.input_train_savefilepath,_,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,self.labels_train_savefilepath,_,_ =\
+        _,_,self.output_train_savefilepath,_,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,self.data_test_savefilepath,_ =\
+        _,_,_,self.input_test_savefilepath,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,_,self.labels_test_savefilepath =\
+        _,_,_,_,self.output_test_savefilepath =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
 
@@ -210,10 +210,10 @@ class FilePathsPrediction():
         self.observation_indices_savefilepath,_,_,_,_=\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,self.data_test_savefilepath,_ =\
+        _,_,_,self.input_test_savefilepath,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,_,self.labels_test_savefilepath =\
+        _,_,_,_,self.output_test_savefilepath =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
 
@@ -253,10 +253,10 @@ class FilePathsPlotting():
         self.observation_indices_savefilepath,_,_,_,_=\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,self.data_test_savefilepath,_ =\
+        _,_,_,self.input_test_savefilepath,_ =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
-        _,_,_,_,self.labels_test_savefilepath =\
+        _,_,_,_,self.output_test_savefilepath =\
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
 

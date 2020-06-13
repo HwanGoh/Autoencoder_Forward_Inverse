@@ -45,18 +45,18 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Construct Validation Set and Batches ===#
     if run_options.use_standard_autoencoder == 1:
-        data_and_latent_train, data_and_latent_val, data_and_latent_test,\
+        input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
-        data_input_shape\
+        input_dimensions\
         = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                 parameter_test, state_obs_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
     if run_options.use_reverse_autoencoder == 1:
-        data_and_latent_train, data_and_latent_val, data_and_latent_test,\
+        input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
-        data_input_shape\
+        input_dimensions\
         = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                 state_obs_test, parameter_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
@@ -104,8 +104,8 @@ def trainer_custom(hyperp, run_options, file_paths):
                 obs_indices,
                 loss_penalized_difference, loss_forward_model,
                 relative_error, reg_prior, L_pr,
-                data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                data_input_shape,
+                input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                input_dimensions,
                 num_batches_train)
 
     #=== Distributed Training ===#
@@ -126,6 +126,6 @@ def trainer_custom(hyperp, run_options, file_paths):
                 obs_indices,
                 loss_penalized_difference, loss_forward_model,
                 relative_error, reg_prior, L_pr,
-                data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                data_input_shape,
+                input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                input_dimensions,
                 num_batches_train)

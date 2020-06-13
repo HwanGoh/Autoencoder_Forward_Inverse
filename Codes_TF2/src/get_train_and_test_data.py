@@ -14,31 +14,31 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                 All Data                                    #
 ###############################################################################
 def load_train_and_test_data(file_paths, num_training_data, num_testing_data,
-        data_dimensions, label_dimensions, load_data_train_flag = 1):
+        input_dimensions, label_dimensions, load_data_train_flag = 1):
 
     start_time_load_data = time.time()
 
     #=== Load Train and Test Data ===#
     if load_data_train_flag == 1:
         print('Loading Training Data')
-        df_data_train = pd.read_csv(file_paths.data_train_savefilepath + '.csv')
-        df_labels_train = pd.read_csv(file_paths.labels_train_savefilepath + '.csv')
-        data_train = df_data_train.to_numpy()
-        labels_train = df_labels_train.to_numpy()
-        data_train = data_train.reshape((num_training_data,data_dimensions))
-        labels_train = labels_train.reshape((num_training_data,label_dimensions))
+        df_input_train = pd.read_csv(file_paths.input_train_savefilepath + '.csv')
+        df_output_train = pd.read_csv(file_paths.output_train_savefilepath + '.csv')
+        input_train = df_input_train.to_numpy()
+        output_train = df_output_train.to_numpy()
+        input_train = input_train.reshape((num_training_data,input_dimensions))
+        output_train = output_train.reshape((num_training_data,label_dimensions))
     else:
-        data_train = []
-        labels_train = []
+        input_train = []
+        output_train = []
     print('Loading Testing Data')
-    df_data_test = pd.read_csv(file_paths.data_test_savefilepath + '.csv')
-    df_labels_test = pd.read_csv(file_paths.labels_test_savefilepath + '.csv')
-    data_test = df_data_test.to_numpy()
-    labels_test = df_labels_test.to_numpy()
-    data_test = data_test.reshape((num_testing_data, data_dimensions))
-    labels_test = labels_test.reshape((num_testing_data, label_dimensions))
+    df_input_test = pd.read_csv(file_paths.input_test_savefilepath + '.csv')
+    df_output_test = pd.read_csv(file_paths.output_test_savefilepath + '.csv')
+    input_test = df_input_test.to_numpy()
+    output_test = df_output_test.to_numpy()
+    input_test = input_test.reshape((num_testing_data, input_dimensions))
+    output_test = output_test.reshape((num_testing_data, label_dimensions))
 
     elapsed_time_load_data = time.time() - start_time_load_data
     print('Time taken to load data: %.4f' %(elapsed_time_load_data))
 
-    return data_train, labels_train, data_test, labels_test
+    return input_train, output_train, input_test, output_test

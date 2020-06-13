@@ -71,10 +71,10 @@ def trainer_custom(hyperp, run_options, file_paths,
             GLOBAL_BATCH_SIZE = hyperp.batch_size
         if run_options.use_distributed_training == 1:
             GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
-        data_and_latent_train, data_and_latent_val, data_and_latent_test,\
+        input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
-        data_input_shape\
+        input_dimensions\
         = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                 state_obs_test, parameter_test,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
@@ -84,7 +84,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             data_dimension = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
             data_dimension = len(obs_indices)
-        latent_dimension = parameter_dimension
+        latent_dimensions = run_options.parameter_dimensions
 
         #=== Posterior Covariance Loss Functional ===#
         if run_options.diagonal_posterior_covariance == 1:
@@ -107,7 +107,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         #=== Non-distributed Training ===#
         if run_options.use_distributed_training == 0:
             #=== Neural Network ===#
-            NN = VAEFwdInv(hyperp, data_dimension, latent_dimension,
+            NN = VAEFwdInv(hyperp, data_dimension, latent_dimensions,
                            kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#
@@ -117,8 +117,8 @@ def trainer_custom(hyperp, run_options, file_paths,
             optimize(hyperp, run_options, file_paths,
                     NN, optimizer,
                     loss_penalized_difference, KLD_loss, relative_error, prior_cov,
-                    data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                    data_input_shape, latent_dimension,
+                    input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                    input_dimensions, latent_dimensions,
                     num_batches_train)
 
         #=== Distributed Training ===#
@@ -126,7 +126,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             dist_strategy = tf.distribute.MirroredStrategy()
             with dist_strategy.scope():
                 #=== Neural Network ===#
-                NN = VAEFwdInv(hyperp, data_dimension, latent_dimension,
+                NN = VAEFwdInv(hyperp, data_dimension, latent_dimensions,
                                kernel_initializer, bias_initializer )
 
                 #=== Optimizer ===#
@@ -137,8 +137,8 @@ def trainer_custom(hyperp, run_options, file_paths,
                     hyperp, run_options, file_paths,
                     NN, optimizer,
                     loss_penalized_difference, KLD_loss, relative_error, prior_cov,
-                    data_and_latent_train, data_and_latent_val, data_and_latent_test,
-                    data_input_dimension, latent_dimension,
+                    input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                    input_dimensions, latent_dimensions,
                     num_batches_train)
 
         #=== Loading Metrics For Output ===#
