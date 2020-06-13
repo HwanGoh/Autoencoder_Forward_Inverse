@@ -1,8 +1,10 @@
 # Code Structure:
 
 ## src:
-* `form_train_val_test_batches.py`:     Form training, validation and test batches
-                                        loaded data
+* `get_train_and_test_data.py`:         Loads .csv data as numpy array
+* `form_train_val_test_tf_batches.py`:  Form training, validation and test batches
+                                        loaded data using Tensorflow's Dataset
+                                        API
 * `NN_.py`:                             The neural network
 * `loss_and_relative_errors.py`:        Functionals that form the overall loss
                                         functional
@@ -29,7 +31,6 @@
 * Utilities:
 	* `file_paths_.py`:        Specifies the file paths for the data, trained
                                neural network, predictions and plots
-	* `get_data_.py`:          Load data for this project
 	* `training_routine_.py`:  Loads the data, constructs the neural
                                network and runs the optimization routine
 	* `hyperparameter_optimization_training_routine_*.py`: Optimization
