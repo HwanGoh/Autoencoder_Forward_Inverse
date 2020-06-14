@@ -30,21 +30,24 @@ def predict_and_save(hyperp, run_options, file_paths):
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
-        data_dimension = parameter_dimension
+        input_dimensions = parameter_dimension
         if hyperp.data_type == 'full':
-            latent_dimension = run_options.full_domain_dimensions
+            latent_dimensions = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
-            latent_dimension = len(obs_indices)
+            latent_dimensions = len(obs_indices)
 
     if run_options.use_reverse_autoencoder == 1:
         if hyperp.data_type == 'full':
-            data_dimension = run_options.full_domain_dimensions
+            input_dimensions = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
-            data_dimension = len(obs_indices)
-        latent_dimension = parameter_dimension
+            input_dimensions = len(obs_indices)
+        latent_dimensions = parameter_dimension
 
     #=== Load Trained Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension)
+    NN = AutoencoderFwdInv(hyperp,
+            input_dimensions, latent_dimensions,
+            None, None,
+            None, None)
     NN.load_weights(file_paths.NN_savefile_name)
 
     #######################

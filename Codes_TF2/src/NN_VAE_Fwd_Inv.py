@@ -12,16 +12,16 @@ from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class VAEFwdInv(tf.keras.Model):
-    def __init__(self, hyperp, data_dimension, latent_dimension,
+    def __init__(self, hyperp, input_dimensions, latent_dimensions,
             kernel_initializer, bias_initializer):
         super(VAEFwdInv, self).__init__()
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
 ###############################################################################
         #=== Define Architecture and Create Layer Storage ===#
-        self.architecture = [data_dimension] +\
-                [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [data_dimension]
-        self.architecture[hyperp.truncation_layer] = latent_dimension + latent_dimension
+        self.architecture = [input_dimensions] +\
+                [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [input_dimensions]
+        self.architecture[hyperp.truncation_layer] = latent_dimensions + latent_dimensions
         print(self.architecture)
         self.num_layers = len(self.architecture)
 
