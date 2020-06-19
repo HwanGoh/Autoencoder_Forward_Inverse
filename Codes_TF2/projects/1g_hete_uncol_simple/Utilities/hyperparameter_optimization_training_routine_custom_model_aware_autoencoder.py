@@ -26,8 +26,7 @@ from skopt import gp_minimize
 #                                 Training                                    #
 ###############################################################################
 def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
-        autoencoder_loss, dataset_directory):
-
+        NN_type, project_name, data_options, dataset_directory):
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if run_options.use_distributed_training == 0:
@@ -35,12 +34,6 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
     if run_options.use_distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
-
-    #=== Load observation indices ===#
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')
-    obs_indices = df_obs_indices.to_numpy()
-    run_options.state_dimensions = len(obs_indices)
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\
@@ -50,6 +43,7 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
             run_options.parameter_dimensions, run_options.state_dimensions,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
+    output_dimensions = run_options.state_dimensions
 
     ############################
     #   Objective Functional   #
@@ -62,14 +56,16 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
         #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-                autoencoder_loss, dataset_directory)
+        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options, NN_type, project_name,
+                            data_options, dataset_directory)
 
         #=== Construct Validation Set and Batches ===#
         if run_options.use_distributed_training == 0:
             GLOBAL_BATCH_SIZE = hyperp.batch_size
         if run_options.use_distributed_training == 1:
             GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
+
+        #=== Construct Validation Set and Batches ===#
         if run_options.use_standard_autoencoder == 1:
             input_and_latent_train, input_and_latent_val, input_and_latent_test,\
             run_options.num_data_train, num_data_val, run_options.num_data_test,\
@@ -87,18 +83,10 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
                     state_obs_test, parameter_test,
                     GLOBAL_BATCH_SIZE, run_options.random_seed)
 
-        #=== Input and Latent Dimensions of Autoencoder ===#
+        #=== Data and Latent Dimensions of Autoencoder ===#
         if run_options.use_standard_autoencoder == 1:
-            input_dimensions = run_options.parameter_dimensions
-            if hyperp.data_type == 'full':
-                latent_dimensions = run_options.full_domain_dimensions
-            if hyperp.data_type == 'bnd':
-                latent_dimensions = len(obs_indices)
+            latent_dimensions = run_options.state_dimensions
         if run_options.use_reverse_autoencoder == 1:
-            if hyperp.data_type == 'full':
-                input_dimensions = run_options.full_domain_dimensions
-            if hyperp.data_type == 'bnd':
-                input_dimensions = len(obs_indices)
             latent_dimensions = run_options.parameter_dimensions
 
         #=== Prior Regularization ===#

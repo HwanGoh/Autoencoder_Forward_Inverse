@@ -15,7 +15,7 @@ from optimize_custom_model_aware_autoencoder import optimize
 from optimize_distributed_custom_model_aware_autoencoder import optimize_distributed
 
 ###############################################################################
-#                                  Training                                   #
+#                                 Training                                    #
 ###############################################################################
 def trainer_custom(hyperp, run_options, file_paths):
     #=== GPU Settings ===#
@@ -27,12 +27,6 @@ def trainer_custom(hyperp, run_options, file_paths):
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
-
-    #=== Load observation indices ===#
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')
-    obs_indices = df_obs_indices.to_numpy()
-    run_options.state_dimensions = len(obs_indices)
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\
@@ -63,16 +57,8 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
-        input_dimensions = run_options.parameter_dimensions
-        if hyperp.data_type == 'full':
-            latent_dimensions = run_options.full_domain_dimensions
-        if hyperp.data_type == 'bnd':
-            latent_dimensions = len(obs_indices)
+        latent_dimensions = run_options.state_dimensions
     if run_options.use_reverse_autoencoder == 1:
-        if hyperp.data_type == 'full':
-            input_dimensions = run_options.full_domain_dimensions
-        if hyperp.data_type == 'bnd':
-            input_dimensions = len(obs_indices)
         latent_dimensions = run_options.parameter_dimensions
 
     #=== Prior Regularization ===#
@@ -124,3 +110,4 @@ def trainer_custom(hyperp, run_options, file_paths):
                 loss_penalized_difference, relative_error,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, num_batches_train)
+

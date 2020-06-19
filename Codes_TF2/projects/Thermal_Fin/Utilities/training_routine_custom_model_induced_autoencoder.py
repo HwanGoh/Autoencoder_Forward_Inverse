@@ -40,8 +40,8 @@ def trainer_custom(hyperp, run_options, file_paths):
     = load_train_and_test_data(file_paths,
             run_options.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, run_options.state_dimensions,
-            load_data_train_flag = 1)
-    output_dimensions = run_options.state_dimensions
+            load_data_train_flag = 1,
+            normalize_input_flag = 0, normalize_output_flag = 0)
 
     #=== Construct Validation Set and Batches ===#
     if run_options.use_standard_autoencoder == 1:
