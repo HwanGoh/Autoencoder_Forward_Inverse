@@ -60,7 +60,7 @@ def filename(hyperp, run_options, autoencoder_loss, project_name, data_options):
         filename = project_name +\
             data_type + data_options + '_' +\
             autoencoder_type + autoencoder_loss +\
-            '_hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
+            'hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
                     hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
                     hyperp.activation, penalty_encoder_string, penalty_decoder_string,
                     penalty_prior_string,
@@ -70,7 +70,7 @@ def filename(hyperp, run_options, autoencoder_loss, project_name, data_options):
         filename = project_name +\
             data_type + data_options + '_' +\
             autoencoder_type + autoencoder_loss +\
-            '_hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
+            'hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
                     hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
                     hyperp.activation, penalty_encoder_string, penalty_decoder_string,
                     penalty_aug_string,
