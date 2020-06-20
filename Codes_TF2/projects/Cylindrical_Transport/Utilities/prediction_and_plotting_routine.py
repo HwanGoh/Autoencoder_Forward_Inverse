@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from get_train_and_test_data import load_train_and_test_data
-from NN_FC_custom import FC
+from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
@@ -21,10 +21,17 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def predict_and_plot(hyperp, run_options, file_paths,
                      project_name, data_options, dataset_directory):
 
+    #=== Data and Latent Dimensions of Autoencoder ===#
+    if run_options.use_standard_autoencoder == 1:
+        input_dimensions = run_options.parameter_dimensions
+        latent_dimensions = run_options.state_dimensions
+    if run_options.use_reverse_autoencoder == 1:
+        input_dimensions = run_options.state_dimensions
+        latent_dimensions = run_options.parameter_dimensions
+
     #=== Load Trained Neural Network ===#
-    NN = FC(hyperp, run_options,
-            run_options.parameter_dimensions, run_options.state_dimensions,
-            None, None,
+    NN = AutoencoderFwdInv(hyperp,
+            input_dimensions, latent_dimensions,
             None, None)
     NN.load_weights(file_paths.NN_savefile_name)
 
@@ -56,9 +63,24 @@ def predict_and_plot(hyperp, run_options, file_paths,
     state_diffusion_test = state_diffusion_test.reshape(
             (run_options.num_data_test, run_options.state_dimensions))
 
-    #=== Forming Prediction ===#
-    state_obs_true = state_obs_test
-    state_obs_pred = NN(parameter_test)
+    #=== Selecting Samples ===#
+    sample_number = 120
+    state_obs_true_sample = state_obs_test[sample_number,:]
+    state_transport_sample = state_transport_test[sample_number,:]
+    state_diffusion_sample = state_diffusion_test[sample_number,:]
+
+    #=== Predictions for Standard Autoencoder ===#
+    if run_options.use_standard_autoencoder == 1:
+        state_obs_pred_sample = NN.encoder(np.expand_dims(parameter_test[sample_number,:], 0))
+        parameter_pred_sample = NN.decoder(np.expand_dims(state_obs_true_sample, 0))
+
+    #=== Predictions for Reversed Autoencoder ===#
+    if run_options.use_reverse_autoencoder == 1:
+        state_obs_pred_sample = NN.decoder(np.expand_dims(parameter_test[sample_number,:], 0))
+        parameter_pred_sample = NN.encoder(np.expand_dims(state_obs_true_sample, 0))
+
+    parameter_pred_sample = parameter_pred_sample.numpy().flatten()
+    state_obs_pred_sample = state_obs_pred_sample.numpy().flatten()
 
     #=== Plotting Prediction ===#
     print('================================')
@@ -68,13 +90,13 @@ def predict_and_plot(hyperp, run_options, file_paths,
     figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
             'prediction' + '_' + file_paths.filename + '.png'
     plt.figure(dpi=120)
-    plt.plot(x_axis, state_diffusion_test*state_obs_pred,'x',label='corrected diffusion')
-    plt.plot(x_axis, state_transport_test,label='transport')
-    plt.plot(x_axis, state_diffusion_test,label='diffusion')
+    plt.plot(state_diffusion_sample*state_obs_pred_sample,'x',label='corrected diffusion')
+    plt.plot(state_transport_sample,label='transport')
+    plt.plot(state_diffusion_sample,label='diffusion')
     plt.legend()
-    plt.xlabel('Sample Number')
+    plt.xlabel('Degree of Freedom Index')
     plt.ylabel('Quantity of Interest')
-    plt.title('Transport, Diffusion and Corrected Diffusion')
+    plt.title('Transport, Diffusion and Corrected Diffusion at One Test Sample')
     plt.savefig(figures_savefile_name)
 
     #=== Relative Errors ===#
@@ -83,10 +105,28 @@ def predict_and_plot(hyperp, run_options, file_paths,
             np.linalg.norm(state_transport_test, ord=2)
     relative_error_corrected_diffusion =\
             np.linalg.norm(state_transport_test -
-                    state_diffusion_test*state_obs_pred, ord=2)/\
+                    state_diffusion_test*state_obs_pred_sample, ord=2)/\
             np.linalg.norm(state_transport_test, ord=2)
+    relative_error_discrepancy = 100. *\
+            np.mean(np.abs((state_obs_true_sample - state_obs_pred_sample) /\
+            state_obs_pred_sample), axis=-1)
+    # relative_error_discrepancy =\
+    #         np.linalg.norm(state_obs_true_sample -
+    #                 state_obs_pred_sample, ord=2)/\
+    #         np.linalg.norm(state_obs_true_sample, ord=2)
     print('Relative Error Diffusion: %4f' %(relative_error_diffusion))
     print('Relative Error Corrected Diffusion: %4f' %(relative_error_corrected_diffusion))
+    print('Relative Error Discrepancy: %4f' %(relative_error_discrepancy))
+
+    #=== Plotting Prediction of Discrepancy ===#
+    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+            'prediction_discrepancy' + '_' + file_paths.filename + '.png'
+    plt.figure(dpi=120)
+    plt.semilogy(state_obs_pred_sample,'o',label='prediction')
+    plt.semilogy(state_obs_true_sample,'x',label='true')
+    plt.legend()
+    plt.title('Test Point and Prediction: ' + str(sample_number))
+    plt.savefig(figures_savefile_name)
 
 ###############################################################################
 #                                Plot Metrics                                 #

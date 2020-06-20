@@ -44,10 +44,6 @@ class RunOptions:
         self.use_standard_autoencoder = 1
         self.use_reverse_autoencoder = 0
 
-        #=== Use Regularization ===#
-        self.use_L1 = 0
-        self.use_L2 = 1
-
         #=== Data Set Size ===#
         self.num_data_train = 2959
         self.num_data_test = 200
