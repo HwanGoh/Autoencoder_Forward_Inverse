@@ -19,9 +19,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class Hyperparameters:
     data_type         = 'full'
-    num_hidden_layers = 6
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 230
+    num_hidden_layers = 7
+    truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 933
     activation        = 'relu'
     penalty_encoder   = 50
     penalty_decoder   = 1
