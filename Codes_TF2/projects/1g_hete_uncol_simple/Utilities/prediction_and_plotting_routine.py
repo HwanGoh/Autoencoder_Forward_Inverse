@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from get_train_and_test_data import load_train_and_test_data
-from NN_FC_custom import FC
+from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
@@ -21,10 +21,17 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def predict_and_plot(hyperp, run_options, file_paths,
                      project_name, data_options, dataset_directory):
 
+    #=== Data and Latent Dimensions of Autoencoder ===#
+    if run_options.use_standard_autoencoder == 1:
+        input_dimensions = run_options.parameter_dimensions
+        latent_dimensions = run_options.state_dimensions
+    if run_options.use_reverse_autoencoder == 1:
+        input_dimensions = run_options.state_dimensions
+        latent_dimensions = run_options.parameter_dimensions
+
     #=== Load Trained Neural Network ===#
-    NN = FC(hyperp, run_options,
-            run_options.parameter_dimensions, run_options.state_dimensions,
-            None, None,
+    NN = AutoencoderFwdInv(hyperp,
+            input_dimensions, latent_dimensions,
             None, None)
     NN.load_weights(file_paths.NN_savefile_name)
 
@@ -35,7 +42,7 @@ def predict_and_plot(hyperp, run_options, file_paths,
             run_options.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, run_options.state_dimensions,
             load_data_train_flag = 0,
-            normalize_input_flag = 0, normalize_output_flag = 0)
+            normalize_input_flag = 1, normalize_output_flag = 0)
 
     state_transport_test_savefilepath =\
         dataset_directory + project_name +\
@@ -55,10 +62,17 @@ def predict_and_plot(hyperp, run_options, file_paths,
             (run_options.num_data_test, run_options.state_dimensions))
     state_diffusion_test = state_diffusion_test.reshape(
             (run_options.num_data_test, run_options.state_dimensions))
-
-    #=== Forming Prediction ===#
     state_obs_true = state_obs_test
-    state_obs_pred = NN(parameter_test)
+
+    #=== Predictions for Standard Autoencoder ===#
+    if run_options.use_standard_autoencoder == 1:
+        state_obs_pred = NN.encoder(parameter_test)
+        parameter_pred = NN.decoder(state_obs_true)
+
+    #=== Predictions for Reversed Autoencoder ===#
+    if run_options.use_reverse_autoencoder == 1:
+        state_obs_pred = NN.decoder(parameter_test)
+        parameter_pred = NN.encoder(state_obs_true)
 
     #=== Plotting Prediction ===#
     print('================================')
@@ -69,8 +83,8 @@ def predict_and_plot(hyperp, run_options, file_paths,
             'prediction' + '_' + file_paths.filename + '.png'
     plt.figure(dpi=120)
     plt.plot(x_axis, state_diffusion_test*state_obs_pred,'x',label='corrected diffusion')
-    plt.plot(x_axis, state_transport_test,label='transport')
     plt.plot(x_axis, state_diffusion_test,label='diffusion')
+    plt.plot(x_axis, state_transport_test,label='transport')
     plt.legend()
     plt.xlabel('Sample Number')
     plt.ylabel('Quantity of Interest')
@@ -82,8 +96,7 @@ def predict_and_plot(hyperp, run_options, file_paths,
             np.linalg.norm(state_transport_test - state_diffusion_test, ord=2)/\
             np.linalg.norm(state_transport_test, ord=2)
     relative_error_corrected_diffusion =\
-            np.linalg.norm(state_transport_test -
-                    state_diffusion_test*state_obs_pred, ord=2)/\
+            np.linalg.norm(state_transport_test - state_diffusion_test*state_obs_pred, ord=2)/\
             np.linalg.norm(state_transport_test, ord=2)
     print('Relative Error Diffusion: %4f' %(relative_error_diffusion))
     print('Relative Error Corrected Diffusion: %4f' %(relative_error_corrected_diffusion))

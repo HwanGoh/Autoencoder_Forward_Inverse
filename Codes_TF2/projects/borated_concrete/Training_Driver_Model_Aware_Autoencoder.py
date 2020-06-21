@@ -44,10 +44,6 @@ class RunOptions:
         self.use_standard_autoencoder = 1
         self.use_reverse_autoencoder = 0
 
-        #=== Use Regularization ===#
-        self.use_L1 = 0
-        self.use_L2 = 1
-
         #=== Data Set Size ===#
         self.num_data_train = 2
         self.num_data_test = 2
@@ -61,8 +57,8 @@ class RunOptions:
         #=== Data Type ===#
         self.data_type_transport = 0
         self.data_type_diffusion = 0
-        self.data_type_discrepancy_additive = 1
-        self.data_type_discrepancy_multiplicative = 0
+        self.data_type_discrepancy_additive = 0
+        self.data_type_discrepancy_multiplicative = 1
 
         #=== Shield Locations ===#
         self.locs_left_boundary = 0.5
