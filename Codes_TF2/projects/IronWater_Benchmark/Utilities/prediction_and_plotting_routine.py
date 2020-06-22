@@ -85,8 +85,8 @@ def predict_and_plot(hyperp, run_options, file_paths,
         plt.figure(dpi=120)
         plt.plot(x_axis, state_diffusion_test[:,n]*state_obs_pred[:,n],'x',
                 label='corrected diffusion')
-        plt.plot(x_axis, state_diffusion_test[:,n],label='diffusion')
         plt.plot(x_axis, state_transport_test[:,n],label='transport')
+        plt.plot(x_axis, state_diffusion_test[:,n],label='diffusion')
         plt.legend()
         plt.xlabel('Sample Number')
         plt.ylabel('Quantity of Interest')

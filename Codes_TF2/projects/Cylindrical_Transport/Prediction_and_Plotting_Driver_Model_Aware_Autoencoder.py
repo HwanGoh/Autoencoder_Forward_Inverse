@@ -21,19 +21,19 @@ class Hyperparameters:
     data_type         = 'full'
     num_hidden_layers = 7
     truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 933
+    num_hidden_nodes  = 565
     activation        = 'relu'
-    penalty_encoder   = 50
-    penalty_decoder   = 1
+    penalty_encoder   = 37
+    penalty_decoder   = 0.01
     penalty_prior     = 0.0
-    batch_size        = 1000
+    batch_size        = 100
     num_epochs        = 1000
 
 class RunOptions:
     def __init__(self):
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 0
-        self.use_reverse_autoencoder = 1
+        self.use_standard_autoencoder = 1
+        self.use_reverse_autoencoder = 0
 
         #=== Data Set Size ===#
         self.num_data_train = 2367
