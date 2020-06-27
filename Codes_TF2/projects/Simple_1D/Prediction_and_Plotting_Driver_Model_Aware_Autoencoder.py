@@ -19,11 +19,11 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class Hyperparameters:
     data_type         = 'full'
-    num_hidden_layers = 10
-    truncation_layer  = 5 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 1000
+    num_hidden_layers = 7
+    truncation_layer  = 4 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_nodes  = 565
     activation        = 'relu'
-    penalty_encoder   = 0.01
+    penalty_encoder   = 37
     penalty_decoder   = 0.01
     penalty_prior     = 0.0
     batch_size        = 100
@@ -31,13 +31,12 @@ class Hyperparameters:
 
 class RunOptions:
     def __init__(self):
-
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 0
-        self.use_reverse_autoencoder = 1
+        self.use_standard_autoencoder = 1
+        self.use_reverse_autoencoder = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 36000
+        self.num_data_train = 2367
         self.num_data_test = 200
 
         #=== Random Seed ===#
@@ -49,14 +48,9 @@ class RunOptions:
         self.data_type_discrepancy_additive = 0
         self.data_type_discrepancy_multiplicative = 1
 
-        #=== Shield Locations ===#
-        self.locs_left_boundary = 0.5
-        self.locs_right_boundary = 2.5
-        self.locs_step = 0.5
-
         #=== Parameter and Observation Dimensions === #
-        self.parameter_dimensions = 4
-        self.state_dimensions = 1
+        self.parameter_dimensions = 3
+        self.state_dimensions = 1440
 
 ###############################################################################
 #                                 Driver                                      #
@@ -81,10 +75,10 @@ if __name__ == "__main__":
 
     #=== File Names ===#
     autoencoder_loss = 'maware_'
-    project_name = 'borated_concrete_'
-    data_options = 'shl%d_shr%d_shs%d'%(run_options.locs_left_boundary,
-            run_options.locs_right_boundary, run_options.locs_step)
-    dataset_directory = '../../../../Datasets/Neutron_Transport/borated_concrete/'
+    project_name = 'cylindrical_'
+    data_options =\
+            'n%d' %(run_options.state_dimensions)
+    dataset_directory = '../../../../Datasets/Neutron_Transport/cylindrical/'
     file_paths = FilePathsPredictionAndPlotting(hyperp, run_options, autoencoder_loss, project_name,
             data_options, dataset_directory)
 

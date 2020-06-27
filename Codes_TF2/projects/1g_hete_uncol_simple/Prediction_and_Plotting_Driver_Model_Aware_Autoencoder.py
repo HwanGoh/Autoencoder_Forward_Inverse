@@ -21,12 +21,12 @@ class Hyperparameters:
     data_type         = 'full'
     num_hidden_layers = 10
     truncation_layer  = 5 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 613
+    num_hidden_nodes  = 1000
     activation        = 'relu'
-    penalty_encoder   = 50
-    penalty_decoder   = 1
+    penalty_encoder   = 0.01
+    penalty_decoder   = 0.01
     penalty_prior     = 0.0
-    batch_size        = 1000
+    batch_size        = 100
     num_epochs        = 1000
 
 class RunOptions:
