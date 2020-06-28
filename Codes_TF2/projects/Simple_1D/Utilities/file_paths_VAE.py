@@ -15,23 +15,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def filename(hyperp, run_options, autoencoder_loss):
     #=== Data Type ===#
-    if run_options.data_thermal_fin_nine == 1:
-        dataset = 'thermalfin9'
-        parameter_type = '_nine'
-    if run_options.data_thermal_fin_vary == 1:
-        dataset = 'thermalfinvary'
-        parameter_type = '_vary'
-    if run_options.fin_dimensions_2D == 1:
-        fin_dimension = ''
-    if run_options.fin_dimensions_3D == 1:
-        fin_dimension = '_3D'
-    N_Nodes = '_' + str(run_options.full_domain_dimensions) # Must begin with an underscore!
-    if run_options.fin_dimensions_2D == 1 and run_options.full_domain_dimensions == 1446:
-        N_Nodes = ''
-    if run_options.fin_dimensions_3D == 1 and run_options.full_domain_dimensions == 4090:
-        N_Nodes = ''
-
-    data_string = dataset + N_Nodes + '_' + hyperp.data_type + fin_dimension
+    if run_options.data_type_exponential == 1:
+        data_type = 'exponential_'
 
     #=== Neural Network Architecture and Regularization ===#
     autoencoder_type = 'VAE_'
@@ -39,32 +24,12 @@ def filename(hyperp, run_options, autoencoder_loss):
         posterior_covariance_shape = 'diagpost_'
     if run_options.full_posterior_covariance == 1:
         posterior_covariance_shape = 'fullpost_'
-    if run_options.prior_cov_length >= 1:
-        run_options.prior_cov_length = int(run_options.prior_cov_length)
-        prior_cov_length_string = str(run_options.prior_cov_length)
-    else:
-        prior_cov_length_string = str(run_options.prior_cov_length)
-        prior_cov_length_string = 'pt' + prior_cov_length_string[2:]
-    if run_options.prior_elliptic_d_p >= 1:
-        run_options.prior_elliptic_d_p = int(run_options.prior_elliptic_d_p)
-        prior_elliptic_d_p_string = str(run_options.prior_elliptic_d_p)
-    else:
-        prior_elliptic_d_p_string = str(run_options.prior_elliptic_d_p)
-        prior_elliptic_d_p_string = 'pt' + prior_elliptic_d_p_string[2:]
-    if run_options.prior_elliptic_g_p >= 1:
-        run_options.prior_elliptic_g_p = int(run_options.prior_elliptic_g_p)
-        prior_elliptic_g_p_string = str(run_options.prior_elliptic_g_p)
-    else:
-        prior_elliptic_g_p_string = str(run_options.prior_elliptic_g_p)
-        prior_elliptic_g_p_string = 'pt' + prior_elliptic_g_p_string[2:]
+    if run_options.diag_prior_covariance == 1:
+        prior_string = '_prdiag'
+    if run_options.full_prior_covariance == 1:
+        prior_string = '_prfull'
 
     #=== File Name ===#
-    if run_options.prior_type_elliptic == 1:
-        prior_string = '_' + run_options.prior_type +\
-                '_dp%s_gp%s' %(prior_elliptic_d_p_string, prior_elliptic_g_p_string)
-    if run_options.prior_type_nonelliptic == 1:
-        prior_string = '_' + run_options.kern_type +\
-                '_cl%s' %(prior_cov_length_string)
     filename = autoencoder_type + posterior_covariance_shape + autoencoder_loss +\
             data_string +\
             prior_string +\
@@ -72,9 +37,7 @@ def filename(hyperp, run_options, autoencoder_loss):
                     hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation,
                     run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-    return N_Nodes, parameter_type, fin_dimension,\
-            prior_elliptic_d_p_string, prior_elliptic_g_p_string, prior_cov_length_string,\
-            filename
+    return data_type, prior_string, filename
 
 ###############################################################################
 #                          Train and Test Datasets                            #
@@ -111,12 +74,13 @@ def train_and_test_datasets(hyperp, run_options, dataset_directory,
 #                                 Training                                    #
 ###############################################################################
 class FilePathsTraining():
-    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
+    def __init__(self, hyperp, run_options,
+            autoencoder_loss, project_name,
+            data_options, dataset_directory):
 
         #=== File name ===#
-        N_Nodes, parameter_type, fin_dimension,\
-                prior_elliptic_d_p_string, prior_elliptic_g_p_string, prior_cov_length_string,\
-                self.filename = filename(hyperp, run_options, autoencoder_loss)
+        data_type, prior_string,
+        self.filename = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Loading and saving data ===#
         self.observation_indices_savefilepath,_,_,_,_=\
@@ -135,16 +99,14 @@ class FilePathsTraining():
                 train_and_test_datasets(hyperp, run_options, dataset_directory,
                         parameter_type, fin_dimension)
 
-        #=== Prior Covariance File Name ===#
-        if run_options.prior_type_elliptic == 1:
-            self.prior_covariance_file_name = 'prior_cov_elliptic' +\
-                    '_%d_%s_%s' %(run_options.full_domain_dimensions,
-                            prior_elliptic_d_p_string, prior_elliptic_g_p_string)
-        if run_options.prior_type_nonelliptic == 1:
-            self.prior_covariance_file_name = 'prior' + '_' + run_options.kern_type +\
-                    fin_dimension +\
-                    '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
-        self.prior_covariance_savefilepath = dataset_directory + self.prior_covariance_file_name
+        #=== Prior File Name ===#
+        if run_options.diag_prior_covariance == 1:
+            prior_string = 'diag_'
+        if run_options.diag_prior_full == 1:
+            prior_string = 'full_'
+        self.prior_cov_file_name = project_name + 'prior_covariance_' +\
+                prior_string + data_type + data_options
+        self.prior_savefilepath = dataset_directory + self.prior_cov_file_name
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
@@ -188,7 +150,7 @@ class FilePathsHyperparameterOptimization():
             self.prior_covariance_file_name = 'prior' + '_' + run_options.kern_type +\
                     fin_dimension +\
                     '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
-        self.prior_covariance_savefilepath = dataset_directory + self.prior_covariance_file_name
+        self.prior_covariance_savefilepath = dataset_directory + self.prior_cov_file_name
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.hyperp_opt_Trained_NNs_directory = '../../../Hyperparameter_Optimization/Trained_NNs'

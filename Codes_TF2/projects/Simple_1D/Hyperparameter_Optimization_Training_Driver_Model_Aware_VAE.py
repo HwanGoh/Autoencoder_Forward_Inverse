@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 """
 Created on Tue Feb 25 13:51:00 2020
-
 @author: hwan
 """
 import os
 import sys
-sys.path.insert(0, os.path.realpath('../../src'))
+sys.path.insert(0, os.path.realpath('../src'))
 import shutil
 
 import numpy as np
@@ -16,9 +15,9 @@ import matplotlib; matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 # Import FilePaths class and training routine
-from Utilities.file_paths import FilePathsHyperparameterOptimization
+from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
 from\
-Utilities.hyperparameter_optimization_training_routine_custom_model_aware_autoencoder\
+Utilities.hyperparameter_optimization_training_routine_custom_model_aware_VAE\
         import trainer_custom
 
 # Import skopt code
@@ -29,18 +28,15 @@ from skopt import dump, load
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                       HyperParameters and RunOptions                        #
+#                      Hyperparameters and Run_Options                        #
 ###############################################################################
 class Hyperparameters:
     data_type         = 'full'
     num_hidden_layers = 5
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    activation        = 'relu'
-    penalty_encoder   = 50
-    penalty_decoder   = 1
-    penalty_prior     = 0.0
-    batch_size        = 1000
+    activation        = 'tanh'
+    batch_size        = 100
     num_epochs        = 2
 
 class RunOptions:
@@ -49,21 +45,18 @@ class RunOptions:
         self.use_distributed_training = 0
 
         #=== Which GPUs to Use for Distributed Strategy ===#
-        self.dist_which_gpus = '0,1,2,3'
+        self.dist_which_gpus = '0,1,2'
 
         #=== Which Single GPU to Use ===#
-        self.which_gpu = '2'
-
-        #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.which_gpu = '3'
 
         #=== Data Set Size ===#
-        self.num_data_train = 2959
+        self.num_data_train = 1000
         self.num_data_test = 200
 
-        #=== Prior Properties ===#
-        self.prior_mean = 0.0
+        #=== Posterior Covariance Shape ===#
+        self.diagonal_posterior_covariance = 1
+        self.full_posterior_covariance = 0
 
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -89,9 +82,7 @@ if __name__ == "__main__":
     hyperp_of_interest_dict = {}
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
-    hyperp_of_interest_dict['penalty_encoder'] = Real(0.01, 50, name='penalty_encoder')
-    hyperp_of_interest_dict['penalty_decoder'] = Real(0.01, 50, name='penalty_decoder')
-    #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
+    hyperp_of_interest_dict['activation'] = Categorical(['sigmoid', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 
     #####################
@@ -109,21 +100,15 @@ if __name__ == "__main__":
     hyperp = Hyperparameters()
     run_options = RunOptions()
     autoencoder_loss = 'maware_'
-    project_name = 'simple_1D_'
-    data_options =\
-            'm%d' %(run_options.state_dimensions)
-    dataset_directory = '../../../../Datasets/Simple_1D/'
+    dataset_directory = '../../../../Datasets/Thermal_Fin/'
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-            autoencoder_loss, project_name,
-            data_options, dataset_directory)
+            autoencoder_loss, dataset_directory)
 
     ################
     #   Training   #
     ################
-    hyperp_opt_result = trainer_custom(hyperp, run_options, file_paths,
-                                       n_calls, space,
-                                       autoencoder_loss,
-                                       project_name, data_options, dataset_directory)
+    hyperp_opt_result = trainer_custom(hyperp, run_options, file_paths, n_calls, space,
+            autoencoder_loss, dataset_directory)
 
     ##################################
     #   Display Optimal Parameters   #
@@ -177,7 +162,7 @@ if __name__ == "__main__":
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-            autoencoder_loss, project_name, data_options, dataset_directory)
+            autoencoder_loss, dataset_directory)
 
     #=== Deleting Suboptimal Neural Networks ===#
     directories_list_Trained_NNs = os.listdir(path=file_paths.hyperp_opt_Trained_NNs_directory)

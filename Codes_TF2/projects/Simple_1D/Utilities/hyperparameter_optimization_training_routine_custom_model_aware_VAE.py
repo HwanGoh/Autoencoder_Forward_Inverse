@@ -37,12 +37,6 @@ def trainer_custom(hyperp, run_options, file_paths,
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
 
-    #=== Load observation indices ===#
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')
-    obs_indices = df_obs_indices.to_numpy()
-    run_options.state_dimensions = len(obs_indices)
-
     #=== Load Data ===#
     parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
@@ -94,12 +88,11 @@ def trainer_custom(hyperp, run_options, file_paths,
 
         #=== Prior Regularization ===#
         print('Loading Prior Matrix')
-        prior_mean = tf.zeros(latent_dimensions)
-        df_covariance = pd.read_csv(file_paths.prior_covariance_savefilepath + '.csv')
-        prior_covariance = df_covariance.to_numpy()
-        prior_covariance = prior_covariance.reshape((run_options.full_domain_dimensions,
+        df_cov = pd.read_csv(file_paths.prior_savefilepath + '.csv')
+        prior_cov = df_cov.to_numpy()
+        prior_cov = prior_cov.reshape((run_options.full_domain_dimensions,
             run_options.full_domain_dimensions))
-        prior_covariance = prior_covariance.astype(np.float32)
+        prior_cov = prior_cov.astype(np.float32)
 
         #=== Neural Network Regularizers ===#
         kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
@@ -117,8 +110,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             #=== Training ===#
             optimize(hyperp, run_options, file_paths,
                     NN, optimizer,
-                    loss_penalized_difference, KLD_loss, relative_error,
-                    prior_mean, prior_covariance,
+                    loss_penalized_difference, KLD_loss, relative_error, prior_cov,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions, latent_dimensions,
                     num_batches_train)
@@ -138,8 +130,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                     hyperp, run_options, file_paths,
                     NN, optimizer,
-                    loss_penalized_difference, KLD_loss, relative_error,
-                    prior_mean, prior_covariance,
+                    loss_penalized_difference, KLD_loss, relative_error, prior_cov,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions, latent_dimensions,
                     num_batches_train)

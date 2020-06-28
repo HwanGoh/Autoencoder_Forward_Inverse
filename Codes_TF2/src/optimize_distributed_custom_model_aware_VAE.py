@@ -26,14 +26,14 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         hyperp, run_options, file_paths,
         NN, optimizer,
         loss_penalized_difference, KLD_loss, relative_error,
-        prior_cov,
+        prior_mean, prior_covariance,
         data_and_latent_train, data_and_latent_val, data_and_latent_test,
         data_input_shape, latent_dimension,
         num_batches_train):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
-    prior_cov_inv = np.linalg.inv(prior_cov)
-    (sign, logdet) = np.linalg.slogdet(prior_cov)
+    prior_cov_inv = np.linalg.inv(prior_covariance)
+    (sign, logdet) = np.linalg.slogdet(prior_covariance)
     log_det_prior_cov = sign*logdet
 
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
@@ -51,8 +51,8 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
     if not os.path.exists(file_paths.NN_savefile_directory):
         os.makedirs(file_paths.NN_savefile_directory)
 
-    #=== Tensorboard ===# Tensorboard: type "tensorboard --logdir=Tensorboard" into terminal and click the link
-    if os.path.exists(file_paths.tensorboard_directory): # Remove existing directory because Tensorboard graphs mess up of you write over it
+    #=== Tensorboard ===# "tensorboard --logdir=Tensorboard"
+    if os.path.exists(file_paths.tensorboard_directory):
         shutil.rmtree(file_paths.tensorboard_directory)
     summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
 
@@ -75,7 +75,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                 batch_likelihood_train, batch_data_train, 1)
                 unscaled_replica_batch_loss_loss_train_KLD = KLD_loss(
                         batch_post_mean_train, batch_log_post_var_train,
-                        tf.zeros(latent_dimension), prior_cov_inv,
+                        prior_mean, prior_cov_inv,
                         log_det_prior_cov, latent_dimension)
                 unscaled_replica_batch_loss_train =\
                         -(unscaled_replica_batch_loss_train_VAE
@@ -84,7 +84,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                         unscaled_replica_batch_loss_train * (1./GLOBAL_BATCH_SIZE))
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-            metrics.mean_loss_train_autoencoder(unscaled_replica_batch_loss_train_VAE)
+            metrics.mean_loss_train_autoencoder(-unscaled_replica_batch_loss_train_VAE)
             metrics.mean_loss_train_encoder(unscaled_replica_batch_loss_loss_train_KLD)
             return scaled_replica_batch_loss_train
 
@@ -102,11 +102,11 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                     batch_likelihood_val, batch_data_val, 1)
             unscaled_replica_batch_loss_val_KLD = KLD_loss(
                     batch_post_mean_val, batch_log_post_var_val,
-                    tf.zeros(latent_dimension), prior_cov_inv,
+                    prior_mean, prior_cov_inv,
                     log_det_prior_cov, latent_dimension)
             unscaled_replica_batch_loss_val =\
                     -(unscaled_replica_batch_loss_val_VAE - unscaled_replica_batch_loss_val_KLD)
-            metrics.mean_loss_val_autoencoder(unscaled_replica_batch_loss_val_VAE)
+            metrics.mean_loss_val_autoencoder(-unscaled_replica_batch_loss_val_VAE)
             metrics.mean_loss_val_encoder(unscaled_replica_batch_loss_val_KLD)
             metrics.mean_loss_val(unscaled_replica_batch_loss_val)
 
@@ -124,10 +124,10 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                             batch_data_likelihood_test, batch_data_test, 1)
             unscaled_replica_batch_loss_test_KLD = KLD_loss(
                     batch_post_mean_test, batch_log_post_var_test,
-                    tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
+                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
             unscaled_replica_batch_loss_test =\
                     -(unscaled_replica_batch_loss_test_VAE - unscaled_replica_batch_loss_test_KLD)
-            metrics.mean_loss_test_autoencoder(unscaled_replica_batch_loss_test_VAE)
+            metrics.mean_loss_test_autoencoder(-unscaled_replica_batch_loss_test_VAE)
             metrics.mean_loss_test_encoder(unscaled_replica_batch_loss_test_KLD)
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
 

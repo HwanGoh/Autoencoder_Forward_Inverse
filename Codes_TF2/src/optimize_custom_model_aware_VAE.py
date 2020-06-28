@@ -25,14 +25,15 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize(hyperp, run_options, file_paths,
         NN, optimizer,
-        loss_penalized_difference, KLD_loss, relative_error, prior_cov,
+        loss_penalized_difference, KLD_loss, relative_error,
+        prior_mean, prior_covariance,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, latent_dimension,
         num_batches_train):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
-    prior_cov_inv = np.linalg.inv(prior_cov)
-    (sign, logdet) = np.linalg.slogdet(prior_cov)
+    prior_cov_inv = np.linalg.inv(prior_covariance)
+    (sign, logdet) = np.linalg.slogdet(prior_covariance)
     log_det_prior_cov = sign*logdet
 
     #=== Define Metrics ===#
@@ -55,7 +56,7 @@ def optimize(hyperp, run_options, file_paths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    @tf.function
+    # @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             batch_likelihood_train = NN(batch_input_train)
@@ -63,31 +64,31 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_train_VAE = loss_penalized_difference(
                     batch_likelihood_train, batch_input_train, 1)
             batch_loss_train_KLD = KLD_loss(batch_post_mean_train, batch_log_post_var_train,
-                    tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
+                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
             batch_loss_train = -(batch_loss_train_VAE - batch_loss_train_KLD)
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)
-        metrics.mean_loss_train_autoencoder(batch_loss_train_VAE)
+        metrics.mean_loss_train_autoencoder(-batch_loss_train_VAE)
         metrics.mean_loss_train_encoder(batch_loss_train_KLD)
         return gradients
 
     #=== Validation Step ===#
-    @tf.function
+    # @tf.function
     def val_step(batch_input_val, batch_latent_val):
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
         batch_loss_val_VAE = loss_penalized_difference(
                 batch_likelihood_val, batch_input_val, 1)
         batch_loss_val_KLD = KLD_loss(batch_post_mean_val, batch_log_post_var_val,
-                tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
+                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_val = -(batch_loss_val_VAE - batch_loss_val_KLD)
-        metrics.mean_loss_val_autoencoder(batch_loss_val_VAE)
+        metrics.mean_loss_val_autoencoder(-batch_loss_val_VAE)
         metrics.mean_loss_val_encoder(batch_loss_val_KLD)
         metrics.mean_loss_val(batch_loss_val)
 
     #=== Test Step ===#
-    @tf.function
+    # @tf.function
     def test_step(batch_input_test, batch_latent_test):
         batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
@@ -95,9 +96,9 @@ def optimize(hyperp, run_options, file_paths,
         batch_loss_test_VAE = loss_penalized_difference(
                 batch_likelihood_test, batch_input_test, 1)
         batch_loss_test_KLD = KLD_loss(batch_post_mean_test, batch_log_post_var_test,
-                tf.zeros(latent_dimension), prior_cov_inv, log_det_prior_cov, latent_dimension)
+                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_test = -(batch_loss_test_VAE - batch_loss_test_KLD)
-        metrics.mean_loss_test_autoencoder(batch_loss_test_VAE)
+        metrics.mean_loss_test_autoencoder(-batch_loss_test_VAE)
         metrics.mean_loss_test_encoder(batch_loss_test_KLD)
         metrics.mean_loss_test(batch_loss_test)
 
