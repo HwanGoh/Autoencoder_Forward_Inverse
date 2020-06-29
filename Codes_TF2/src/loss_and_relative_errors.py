@@ -22,8 +22,10 @@ def reg_prior(parameter, prior_mean, L_pr, penalty):
     else:
         return 0
 
-def loss_forward_model(hyperp, run_options, forward_model,
-        state_obs_true, parameter_pred, penalty_aug):
+def loss_forward_model(hyperp, run_options,
+        forward_model,
+        state_obs_true, parameter_pred,
+        penalty_aug):
     forward_model_state_pred = forward_model(parameter_pred)
     forward_model_state_pred = tf.cast(forward_model_state_pred, dtype=tf.float32)
     return penalty_aug*tf.math.square(tf.norm(tf.subtract(state_obs_true,

@@ -91,7 +91,7 @@ def optimize(hyperp, run_options, file_paths,
                         batch_input_pred_train, batch_input_train, hyperp.penalty_decoder)
                 batch_loss_train_forward_model = loss_forward_model(
                         hyperp, run_options,
-                        forward,
+                        forward, #NOTE: requires tf.math.exp() for pred train AE?
                         batch_latent_train, batch_input_pred_train_AE,
                         hyperp.penalty_aug)
             if run_options.use_reverse_autoencoder == 1:

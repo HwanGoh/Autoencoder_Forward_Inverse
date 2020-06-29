@@ -28,7 +28,7 @@ class Hyperparameters:
     penalty_decoder   = 0
     penalty_aug       = 50
     penalty_prior     = 0
-    batch_size        = 100
+    batch_size        = 10
     num_epochs        = 3
 
 class RunOptions:
