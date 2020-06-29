@@ -11,8 +11,7 @@ from form_train_val_test import form_train_val_test_tf_batches
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference,\
         loss_forward_model, relative_error, reg_prior
-from optimize_custom_model_induced_autoencoder import optimize
-from optimize_distributed_custom_model_aware_autoencoder import optimize_distributed
+from optimize_custom_model_induced_autoencoder_1D import optimize
 
 ###############################################################################
 #                                  Training                                   #
@@ -29,10 +28,9 @@ def trainer_custom(hyperp, run_options, file_paths):
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
 
     #=== Load observation indices ===#
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')
-    obs_indices = df_obs_indices.to_numpy()
-    run_options.state_dimensions = len(obs_indices)
+    print('Loading Measurement Points')
+    df_measurement_points = pd.read_csv(file_paths.measurement_savefilepath + '.csv')
+    measurement_points = df_measurement_points.to_numpy()
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\
@@ -63,17 +61,11 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
-        data_dimension = run_options.parameter_dimensions
-        if hyperp.data_type == 'full':
-            latent_dimension = run_options.full_domain_dimensions
-        if hyperp.data_type == 'bnd':
-            latent_dimension = len(obs_indices)
+        input_dimensions = run_options.parameter_dimensions
+        latent_dimensions = run_options.state_dimensions
     if run_options.use_reverse_autoencoder == 1:
-        if hyperp.data_type == 'full':
-            data_dimension = run_options.full_domain_dimensions
-        if hyperp.data_type == 'bnd':
-            data_dimension = len(obs_indices)
-        latent_dimension = run_options.parameter_dimensions
+        input_dimensions = run_options.state_dimensions
+        latent_dimensions = run_options.parameter_dimensions
 
     #=== Prior Regularization ===#
     if hyperp.penalty_prior != 0:
@@ -92,7 +84,7 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+        NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
                                kernel_initializer, bias_initializer)
 
         #=== Optimizer ===#
@@ -101,7 +93,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         #=== Training ===#
         optimize(hyperp, run_options, file_paths,
                 NN, optimizer,
-                obs_indices,
+                measurement_points,
                 loss_penalized_difference, loss_forward_model,
                 relative_error, reg_prior, L_pr,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
@@ -113,7 +105,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+            NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
                                    kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#
@@ -123,7 +115,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                 hyperp, run_options, file_paths,
                 NN, optimizer,
-                obs_indices,
+                measurement_points,
                 loss_penalized_difference, loss_forward_model,
                 relative_error, reg_prior, L_pr,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,

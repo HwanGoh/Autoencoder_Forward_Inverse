@@ -63,17 +63,17 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
-        data_dimension = run_options.parameter_dimensions
+        input_dimensions = run_options.parameter_dimensions
         if hyperp.data_type == 'full':
-            latent_dimension = run_options.full_domain_dimensions
+            latent_dimensions = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
-            latent_dimension = len(obs_indices)
+            latent_dimensions = len(obs_indices)
     if run_options.use_reverse_autoencoder == 1:
         if hyperp.data_type == 'full':
-            data_dimension = run_options.full_domain_dimensions
+            input_dimensions = run_options.full_domain_dimensions
         if hyperp.data_type == 'bnd':
-            data_dimension = len(obs_indices)
-        latent_dimension = run_options.parameter_dimensions
+            input_dimensions = len(obs_indices)
+        latent_dimensions = run_options.parameter_dimensions
 
     #=== Prior Regularization ===#
     if hyperp.penalty_prior != 0:
@@ -92,7 +92,7 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+        NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
                                kernel_initializer, bias_initializer)
 
         #=== Optimizer ===#
@@ -113,7 +113,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, data_dimension, latent_dimension,
+            NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
                                    kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#

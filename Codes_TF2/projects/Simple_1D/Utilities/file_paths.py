@@ -80,6 +80,10 @@ def filename(hyperp, run_options, autoencoder_loss, project_name, data_options):
 def train_and_test_datasets(run_options, project_name,
         data_options, dataset_directory, directory_name, data_type):
 
+    measurement_savefilepath =\
+        dataset_directory + directory_name + project_name +\
+        'measurement_' + data_type +\
+        data_options
     input_train_savefilepath =\
         dataset_directory + directory_name + project_name +\
         'parameter_' + data_type + 'train_d%d_'%(run_options.num_data_train) +\
@@ -97,7 +101,8 @@ def train_and_test_datasets(run_options, project_name,
         'state_' + data_type + 'test_d%d_'%(run_options.num_data_test) +\
         data_options
 
-    return input_train_savefilepath, output_train_savefilepath,\
+    return measurement_savefilepath,\
+            input_train_savefilepath, output_train_savefilepath,\
             input_test_savefilepath, output_test_savefilepath
 
 ###############################################################################
@@ -115,6 +120,7 @@ class FilePathsTraining():
                 project_name, data_options)
 
         #=== Loading and saving data ===#
+        self.measurement_savefilepath,\
         self.input_train_savefilepath, self.output_train_savefilepath,\
         self.input_test_savefilepath, self.output_test_savefilepath\
                 = train_and_test_datasets(run_options, project_name,
@@ -140,6 +146,7 @@ class FilePathsHyperparameterOptimization():
                 project_name, data_options)
 
         #=== Loading and saving data ===#
+        self.measurement_savefilepath,\
         self.input_train_savefilepath, self.output_train_savefilepath,\
         self.input_test_savefilepath, self.output_test_savefilepath\
                 = train_and_test_datasets(run_options, project_name,
@@ -179,7 +186,7 @@ class FilePathsPredictionAndPlotting():
                 data_options)
 
         #=== Loading and saving data ===#
-        _, _,\
+        _, _, _,\
         self.input_test_savefilepath, self.output_test_savefilepath\
                 = train_and_test_datasets(run_options, project_name,
                         data_options, dataset_directory, directory_name, data_type)

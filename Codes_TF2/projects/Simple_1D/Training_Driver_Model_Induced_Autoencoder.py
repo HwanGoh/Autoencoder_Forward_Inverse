@@ -38,49 +38,31 @@ class RunOptions:
         self.use_distributed_training = 0
 
         #=== Which GPUs to Use for Distributed Strategy ===#
-        self.dist_which_gpus = '0,1,2'
+        self.dist_which_gpus = '0,1,2,3'
 
         #=== Which Single GPU to Use ===#
-        self.which_gpu = '3'
+        self.which_gpu = '2'
 
         #=== Autoencoder Type ===#
         self.use_standard_autoencoder = 1
         self.use_reverse_autoencoder = 0
 
-        #=== Data Set ===#
-        self.data_thermal_fin_nine = 0
-        self.data_thermal_fin_vary = 1
-
         #=== Data Set Size ===#
-        self.num_data_train = 200
+        self.num_data_train = 1000
         self.num_data_test = 200
 
-        #=== Data Dimensions ===#
-        self.fin_dimensions_2D = 1
-        self.fin_dimensions_3D = 0
-
         #=== Prior Properties ===#
-        if self.fin_dimensions_2D == 1:
-            self.kern_type = 'm32'
-            self.prior_cov_length = 0.8
-            self.prior_mean = 0.0
-        if self.fin_dimensions_3D == 1:
-            self.kern_type = 'm52'
-            self.prior_cov_length = 0.8
-            self.prior_mean = 0.0
+        self.prior_mean = 0.0
 
         #=== Random Seed ===#
         self.random_seed = 1234
 
+        #=== Data Type ===#
+        self.data_type_exponential = 1
+
         #=== Parameter and Observation Dimensions === #
-        if self.fin_dimensions_2D == 1:
-            self.full_domain_dimensions = 1446
-        if self.fin_dimensions_3D == 1:
-            self.full_domain_dimensions = 4090
-        if self.data_thermal_fin_nine == 1:
-            self.parameter_dimensions = 9
-        if self.data_thermal_fin_vary == 1:
-            self.parameter_dimensions = self.full_domain_dimensions
+        self.parameter_dimensions = 2
+        self.state_dimensions = 50
 
 ###############################################################################
 #                                    Driver                                   #
@@ -106,10 +88,13 @@ if __name__ == "__main__":
         run_options.which_gpu    = str(sys.argv[12])
 
     #=== File Paths ===#
-    autoencoder_loss = 'mind_'
-    dataset_directory = '../../../../Datasets/Thermal_Fin/'
-    file_paths = FilePathsTraining(hyperp, run_options,
-            autoencoder_loss, dataset_directory)
+    autoencoder_loss = 'maware_'
+    project_name = 'simple_1D_'
+    data_options =\
+            'm%d' %(run_options.state_dimensions)
+    dataset_directory = '../../../../Datasets/Simple_1D/'
+    file_paths = FilePathsTraining(hyperp, run_options, autoencoder_loss, project_name,
+            data_options, dataset_directory)
 
     #=== Initiate Training ===#
     trainer_custom(hyperp, run_options, file_paths)

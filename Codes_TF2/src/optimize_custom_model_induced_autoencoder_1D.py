@@ -13,15 +13,10 @@ import os
 import time
 
 import tensorflow as tf
-import dolfin as dl
-dl.set_log_level(30)
 import numpy as np
 import pandas as pd
 
 from metrics_model_induced_autoencoder import Metrics
-
-from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
-from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -30,27 +25,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize(hyperp, run_options, file_paths,
         NN, optimizer,
-        obs_indices,
+        measurement_points,
         loss_penalized_difference, loss_forward_model,
         relative_error, reg_prior, L_pr,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions,
         num_batches_train):
-
-    #=== Generate Dolfin Function Space and Mesh ===# These are in the scope and used below in the
-                                                    # Fenics forward function and gradient
-    if run_options.fin_dimensions_2D == 1:
-        V, mesh = get_space_2D(40)
-    if run_options.fin_dimensions_3D == 1:
-        V, mesh = get_space_3D(40)
-    solver = Fin(V)
-    parameter_pred_dl = dl.Function(V)
-    print(V.dim())
-    if run_options.data_thermal_fin_nine == 1:
-        B_obs = solver.observation_operator()
-    else:
-        B_obs = np.zeros((len(obs_indices), V.dim()), dtype=np.float32)
-        B_obs[np.arange(len(obs_indices)), obs_indices.flatten()] = 1
 
     #=== Define Metrics ===#
     metrics = Metrics()
@@ -72,29 +52,32 @@ def optimize(hyperp, run_options, file_paths,
 #                     Fenics Forward Functions and Gradient                   #
 ###############################################################################
     @tf.custom_gradient
-    def fenics_forward(parameter_pred):
-        fenics_state_pred = np.zeros((parameter_pred.shape[0], len(obs_indices)))
-        for m in range(parameter_pred.shape[0]):
-            parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy())
-            state_dl, _ = solver.forward(parameter_pred_dl)
-            state_data_values = state_dl.vector().get_local()
-            if hyperp.data_type == 'full':
-                fenics_state_pred[m,:] = state_data_values
-            if hyperp.data_type == 'bnd':
-                fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()
-        def fenics_forward_grad(dy):
-            fenics_forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
-            for m in range(parameter_pred.shape[0]):
-                Jac_forward = solver.sensitivity(parameter_pred_dl, B_obs)
-                fenics_forward_grad[m,:] = tf.linalg.matmul(tf.expand_dims(dy[m,:],0), Jac_forward)
-            return fenics_forward_grad
-        return fenics_state_pred, fenics_forward_grad
+    def forward(parameter_pred):
+        state_pred = np.zeros((parameter_pred.shape[0], run_options.state_dimensions))
+        for n in range(0, parameter_pred.shape[0]):
+            for m in range(0, run_options.state_dimensions):
+                state_pred[n, m] = parameter_pred[n,0]*\
+                        np.exp(parameter_pred[n,1]*measurement_points[m])
+
+        def forward_grad(dy):
+            Jac_forward = np.zeros(
+                    (run_options.state_dimensions, run_options.parameter_dimensions))
+            forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
+            for n in range(parameter_pred.shape[0]):
+                Jac_forward[:,0] = np.ones(run_options.state_dimensions)
+                for m in range(0, run_options.state_dimensions):
+                    Jac_forward[m,1] = np.exp(-parameter_pred[n,1]*measurement_points[m])
+                    Jac_forward[m,2] = -parameter_pred[n,0]*measurement_points[m]*\
+                            np.exp(-parameter_pred[n,1]*measurement_points[m])
+                forward_grad[n,:] = tf.linalg.matmul(tf.expand_dims(dy[n,:],0), Jac_forward.T)
+            return forward_grad
+        return state_pred, forward_grad
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===# NOTE: NOT YET CODED FOR REVERSE AUTOENCODER. Becareful of the logs and exp
-    #@tf.function
+    @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             if run_options.use_standard_autoencoder == 1:
@@ -108,8 +91,8 @@ def optimize(hyperp, run_options, file_paths,
                 batch_loss_train_decoder = loss_penalized_difference(
                         batch_input_pred_train, batch_input_train, hyperp.penalty_decoder)
                 batch_loss_train_forward_model = loss_forward_model(
-                        hyperp, run_options, obs_indices, fenics_forward,
-                        batch_latent_train, tf.math.exp(batch_input_pred_train_AE),
+                        hyperp, run_options, measurement_points, forward,
+                        batch_latent_train, batch_input_pred_train_AE,
                         hyperp.penalty_aug)
             if run_options.use_reverse_autoencoder == 1:
                 batch_state_obs_train = batch_input_train
@@ -126,7 +109,7 @@ def optimize(hyperp, run_options, file_paths,
         return gradients
 
     #=== Validation Step ===#
-    #@tf.function
+    @tf.function
     def val_step(batch_input_val, batch_latent_val):
         if run_options.use_standard_autoencoder == 1:
             batch_input_pred_val_AE = NN(tf.math.log(batch_input_val))
@@ -139,8 +122,8 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_val_decoder = loss_penalized_difference(
                     batch_input_pred_val, batch_input_val, hyperp.penalty_decoder)
             batch_loss_val_forward_model = loss_forward_model(
-                    hyperp, run_options, obs_indices,
-                    fenics_forward, batch_latent_val, tf.math.exp(batch_input_pred_val_AE),
+                    hyperp, run_options, measurement_points,
+                    forward, batch_latent_val, batch_input_pred_val_AE,
                     hyperp.penalty_aug)
         if run_options.use_reverse_autoencoder == 1:
             batch_state_obs_val = batch_input_val
@@ -154,7 +137,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_val(batch_loss_val)
 
     #=== Test Step ===#
-    #@tf.function
+    @tf.function
     def test_step(batch_input_test, batch_latent_test):
         if run_options.use_standard_autoencoder == 1:
             batch_input_pred_test_AE = NN(tf.math.log(batch_input_test))
@@ -168,8 +151,8 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_test_decoder = loss_penalized_difference(
                     batch_input_pred_test_decoder, batch_input_test, hyperp.penalty_decoder)
             batch_loss_test_forward_model = loss_forward_model(
-                    hyperp, run_options, obs_indices,
-                    fenics_forward, batch_latent_test, tf.math.exp(batch_input_pred_test_AE),
+                    hyperp, run_options, measurement_points,
+                    forward, batch_latent_test, batch_input_pred_test_AE,
                     hyperp.penalty_aug)
 
             metrics.mean_relative_error_input_autoencoder(
