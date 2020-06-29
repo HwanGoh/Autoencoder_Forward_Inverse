@@ -18,6 +18,8 @@ import pandas as pd
 
 from metrics_model_induced_autoencoder import Metrics
 
+from Dataset_Management.Data_Generator_1D.forward_functions import exponential
+
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
@@ -55,21 +57,18 @@ def optimize(hyperp, run_options, file_paths,
     def forward(parameter_pred):
         state_pred = np.zeros((parameter_pred.shape[0], run_options.state_dimensions))
         for n in range(0, parameter_pred.shape[0]):
-            for m in range(0, run_options.state_dimensions):
-                state_pred[n, m] = parameter_pred[n,0]*\
-                        np.exp(parameter_pred[n,1]*measurement_points[m])
-
+            if run_options.data_type_exponential:
+                state_pred[n,:], _ = exponential(parameter_pred[n,:], measurement_points,
+                                    run_options.parameter_dimensions, run_options.state_dimensions)
         def forward_grad(dy):
             Jac_forward = np.zeros(
                     (run_options.state_dimensions, run_options.parameter_dimensions))
             forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
             for n in range(parameter_pred.shape[0]):
-                Jac_forward[:,0] = np.ones(run_options.state_dimensions)
-                for m in range(0, run_options.state_dimensions):
-                    Jac_forward[m,1] = np.exp(-parameter_pred[n,1]*measurement_points[m])
-                    Jac_forward[m,2] = -parameter_pred[n,0]*measurement_points[m]*\
-                            np.exp(-parameter_pred[n,1]*measurement_points[m])
-                forward_grad[n,:] = tf.linalg.matmul(tf.expand_dims(dy[n,:],0), Jac_forward.T)
+                if run_options.data_type_exponential:
+                    _, Jac_forward = exponential(parameter_pred[n,:], measurement_points,
+                                    run_options.parameter_dimensions, run_options.state_dimensions)
+                forward_grad[n,:] = tf.linalg.matmul(tf.expand_dims(dy[n,:],0), Jac_forward)
             return forward_grad
         return state_pred, forward_grad
 
@@ -77,21 +76,22 @@ def optimize(hyperp, run_options, file_paths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===# NOTE: NOT YET CODED FOR REVERSE AUTOENCODER. Becareful of the logs and exp
-    @tf.function
+    # @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             if run_options.use_standard_autoencoder == 1:
-                batch_input_pred_train_AE = NN(tf.math.log(batch_input_train))
+                batch_input_pred_train_AE = NN(batch_input_train)
                 batch_latent_pred_train = NN.encoder(batch_input_train)
                 batch_input_pred_train = NN.decoder(batch_latent_train)
                 batch_loss_train_autoencoder = loss_penalized_difference(
-                        batch_input_pred_train_AE, tf.math.log(batch_input_train), 1)
+                        batch_input_pred_train_AE, batch_input_train, 1)
                 batch_loss_train_encoder = loss_penalized_difference(
                         batch_latent_pred_train, batch_latent_train, hyperp.penalty_encoder)
                 batch_loss_train_decoder = loss_penalized_difference(
                         batch_input_pred_train, batch_input_train, hyperp.penalty_decoder)
                 batch_loss_train_forward_model = loss_forward_model(
-                        hyperp, run_options, measurement_points, forward,
+                        hyperp, run_options,
+                        forward,
                         batch_latent_train, batch_input_pred_train_AE,
                         hyperp.penalty_aug)
             if run_options.use_reverse_autoencoder == 1:
@@ -109,21 +109,22 @@ def optimize(hyperp, run_options, file_paths,
         return gradients
 
     #=== Validation Step ===#
-    @tf.function
+    # @tf.function
     def val_step(batch_input_val, batch_latent_val):
         if run_options.use_standard_autoencoder == 1:
-            batch_input_pred_val_AE = NN(tf.math.log(batch_input_val))
+            batch_input_pred_val_AE = NN(batch_input_val)
             batch_latent_pred_val = NN.encoder(batch_input_val)
             batch_input_pred_val = NN.decoder(batch_latent_val)
             batch_loss_val_autoencoder = loss_penalized_difference(
-                    batch_input_pred_val_AE, tf.math.log(batch_input_val), 1)
+                    batch_input_pred_val_AE, batch_input_val, 1)
             batch_loss_val_encoder = loss_penalized_difference(
                     batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
             batch_loss_val_decoder = loss_penalized_difference(
                     batch_input_pred_val, batch_input_val, hyperp.penalty_decoder)
             batch_loss_val_forward_model = loss_forward_model(
-                    hyperp, run_options, measurement_points,
-                    forward, batch_latent_val, batch_input_pred_val_AE,
+                    hyperp, run_options,
+                    forward,
+                    batch_latent_val, batch_input_pred_val_AE,
                     hyperp.penalty_aug)
         if run_options.use_reverse_autoencoder == 1:
             batch_state_obs_val = batch_input_val
@@ -137,22 +138,23 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_val(batch_loss_val)
 
     #=== Test Step ===#
-    @tf.function
+    # @tf.function
     def test_step(batch_input_test, batch_latent_test):
         if run_options.use_standard_autoencoder == 1:
-            batch_input_pred_test_AE = NN(tf.math.log(batch_input_test))
-            batch_latent_pred_test = NN.encoder(tf.math.log(batch_input_test))
+            batch_input_pred_test_AE = NN(batch_input_test)
+            batch_latent_pred_test = NN.encoder(batch_input_test)
             batch_input_pred_test_decoder = NN.decoder(batch_latent_test)
 
             batch_loss_test_autoencoder = loss_penalized_difference(
-                    batch_input_pred_test_AE, tf.math.log(batch_input_test), 1)
+                    batch_input_pred_test_AE, batch_input_test, 1)
             batch_loss_test_encoder = loss_penalized_difference(
                     batch_latent_pred_test, batch_latent_test, hyperp.penalty_encoder)
             batch_loss_test_decoder = loss_penalized_difference(
                     batch_input_pred_test_decoder, batch_input_test, hyperp.penalty_decoder)
             batch_loss_test_forward_model = loss_forward_model(
-                    hyperp, run_options, measurement_points,
-                    forward, batch_latent_test, batch_input_pred_test_AE,
+                    hyperp, run_options,
+                    forward,
+                    batch_latent_test, batch_input_pred_test_AE,
                     hyperp.penalty_aug)
 
             metrics.mean_relative_error_input_autoencoder(

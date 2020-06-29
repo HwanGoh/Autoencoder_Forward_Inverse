@@ -99,7 +99,7 @@ def optimize(hyperp, run_options, file_paths,
         with tf.GradientTape() as tape:
             if run_options.use_standard_autoencoder == 1:
                 batch_input_pred_train_AE = NN(tf.math.log(batch_input_train))
-                batch_latent_pred_train = NN.encoder(batch_input_train)
+                batch_latent_pred_train = NN.encoder(tf.math.log(batch_input_train))
                 batch_input_pred_train = NN.decoder(batch_latent_train)
                 batch_loss_train_autoencoder = loss_penalized_difference(
                         batch_input_pred_train_AE, tf.math.log(batch_input_train), 1)
@@ -108,7 +108,8 @@ def optimize(hyperp, run_options, file_paths,
                 batch_loss_train_decoder = loss_penalized_difference(
                         batch_input_pred_train, batch_input_train, hyperp.penalty_decoder)
                 batch_loss_train_forward_model = loss_forward_model(
-                        hyperp, run_options, obs_indices, fenics_forward,
+                        hyperp, run_options,
+                        fenics_forward,
                         batch_latent_train, tf.math.exp(batch_input_pred_train_AE),
                         hyperp.penalty_aug)
             if run_options.use_reverse_autoencoder == 1:
@@ -130,7 +131,7 @@ def optimize(hyperp, run_options, file_paths,
     def val_step(batch_input_val, batch_latent_val):
         if run_options.use_standard_autoencoder == 1:
             batch_input_pred_val_AE = NN(tf.math.log(batch_input_val))
-            batch_latent_pred_val = NN.encoder(batch_input_val)
+            batch_latent_pred_val = NN.encoder(tf.math.log(batch_input_val))
             batch_input_pred_val = NN.decoder(batch_latent_val)
             batch_loss_val_autoencoder = loss_penalized_difference(
                     batch_input_pred_val_AE, tf.math.log(batch_input_val), 1)
@@ -139,7 +140,7 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_val_decoder = loss_penalized_difference(
                     batch_input_pred_val, batch_input_val, hyperp.penalty_decoder)
             batch_loss_val_forward_model = loss_forward_model(
-                    hyperp, run_options, obs_indices,
+                    hyperp, run_options,
                     fenics_forward, batch_latent_val, tf.math.exp(batch_input_pred_val_AE),
                     hyperp.penalty_aug)
         if run_options.use_reverse_autoencoder == 1:
@@ -168,7 +169,7 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_test_decoder = loss_penalized_difference(
                     batch_input_pred_test_decoder, batch_input_test, hyperp.penalty_decoder)
             batch_loss_test_forward_model = loss_forward_model(
-                    hyperp, run_options, obs_indices,
+                    hyperp, run_options,
                     fenics_forward, batch_latent_test, tf.math.exp(batch_input_pred_test_AE),
                     hyperp.penalty_aug)
 
