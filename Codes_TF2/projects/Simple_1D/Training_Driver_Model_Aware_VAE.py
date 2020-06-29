@@ -48,7 +48,7 @@ class RunOptions:
 
         #=== Prior Properties ===#
         self.diagonal_prior_covariance = 1
-        self.full_prior_covariance = 1
+        self.full_prior_covariance = 0
 
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -56,7 +56,7 @@ class RunOptions:
         #=== Data Type ===#
         self.data_type_exponential = 1
 
-        #=== Parameter and Observation Dimensions === #
+        #=== Parameter and Observation Dimensions ===#
         self.parameter_dimensions = 2
         self.state_dimensions = 50
 

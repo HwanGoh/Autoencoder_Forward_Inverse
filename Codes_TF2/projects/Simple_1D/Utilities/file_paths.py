@@ -17,6 +17,7 @@ def filename(hyperp, run_options, autoencoder_loss, project_name, data_options):
     #=== Data Type ===#
     if run_options.data_type_exponential == 1:
         data_type = 'exponential_'
+        directory_name = 'Exponential/'
 
     #=== Neural Network Architecture ===#
     if run_options.use_standard_autoencoder == 1:
@@ -71,28 +72,28 @@ def filename(hyperp, run_options, autoencoder_loss, project_name, data_options):
                     penalty_prior_string,
                     run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-    return data_type, filename
+    return data_type, directory_name, filename
 
 ###############################################################################
 #                          Train and Test Datasets                            #
 ###############################################################################
 def train_and_test_datasets(run_options, project_name,
-        data_options, dataset_directory, data_type):
+        data_options, dataset_directory, directory_name, data_type):
 
     input_train_savefilepath =\
-        dataset_directory + project_name +\
+        dataset_directory + directory_name + project_name +\
         'parameter_' + data_type + 'train_d%d_'%(run_options.num_data_train) +\
         data_options
     output_train_savefilepath =\
-        dataset_directory + project_name +\
+        dataset_directory + directory_name + project_name +\
         'state_' + data_type + 'train_d%d_'%(run_options.num_data_train) +\
         data_options
     input_test_savefilepath =\
-        dataset_directory + project_name +\
+        dataset_directory + directory_name + project_name +\
         'parameter_' + data_type + 'test_d%d_'%(run_options.num_data_test) +\
         data_options
     output_test_savefilepath =\
-        dataset_directory + project_name +\
+        dataset_directory + directory_name + project_name +\
         'state_' + data_type + 'test_d%d_'%(run_options.num_data_test) +\
         data_options
 
@@ -103,25 +104,21 @@ def train_and_test_datasets(run_options, project_name,
 #                                 Training                                    #
 ###############################################################################
 class FilePathsTraining():
-    def __init__(self, hyperp, run_options, NN_type, project_name, data_options, dataset_directory):
+    def __init__(self, hyperp, run_options,
+            autoencoder_loss,
+            project_name, data_options,
+            dataset_directory):
 
         #=== File name ===#
-        data_type, self.filename = filename(hyperp, run_options, NN_type, project_name,
-                data_options)
+        data_type, directory_name, self.filename = filename(hyperp, run_options,
+                autoencoder_loss,
+                project_name, data_options)
 
         #=== Loading and saving data ===#
-        self.input_train_savefilepath,_,_,_ =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
-        _,self.output_train_savefilepath,_,_ =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
-        _,_,self.input_test_savefilepath,_ =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
-        _,_,_,self.output_test_savefilepath =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
+        self.input_train_savefilepath, self.output_train_savefilepath,\
+        self.input_test_savefilepath, self.output_test_savefilepath\
+                = train_and_test_datasets(run_options, project_name,
+                        data_options, dataset_directory, directory_name, data_type)
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
@@ -129,28 +126,24 @@ class FilePathsTraining():
         self.tensorboard_directory = '../../../Tensorboard/' + self.filename
 
 ###############################################################################
-#                         Hyperparemeter Optimization                         #
+#                         Hyperparameter Optimization                         #
 ###############################################################################
 class FilePathsHyperparameterOptimization():
-    def __init__(self, hyperp, run_options, NN_type, project_name, data_options,
+    def __init__(self, hyperp, run_options,
+            autoencoder_loss,
+            project_name, data_options,
             dataset_directory):
+
         #=== File name ===#
-        data_type, self.filename = filename(hyperp, run_options, NN_type, project_name,
-                data_options)
+        data_type, directory_name, self.filename = filename(hyperp, run_options,
+                autoencoder_loss,
+                project_name, data_options)
 
         #=== Loading and saving data ===#
-        self.input_train_savefilepath,_,_,_ =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
-        _,self.output_train_savefilepath,_,_ =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
-        _,_,self.input_test_savefilepath,_ =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
-        _,_,_,self.output_test_savefilepath =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
+        self.input_train_savefilepath, self.output_train_savefilepath,\
+        self.input_test_savefilepath, self.output_test_savefilepath\
+                = train_and_test_datasets(run_options, project_name,
+                        data_options, dataset_directory, directory_name, data_type)
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.hyperp_opt_Trained_NNs_directory = 'Hyperparameter_Optimization/Trained_NNs'
@@ -176,19 +169,20 @@ class FilePathsHyperparameterOptimization():
 #                                 Plotting                                    #
 ###############################################################################
 class FilePathsPredictionAndPlotting():
-    def __init__(self, hyperp, run_options, NN_type, project_name, data_options,
+    def __init__(self, hyperp, run_options,
+            autoencoder_loss,
+            project_name, data_options,
             dataset_directory):
+
         #=== File name ===#
-        data_type, self.filename = filename(hyperp, run_options, NN_type, project_name,
+        data_type, self.filename = filename(hyperp, run_options, autoencoder_loss, project_name,
                 data_options)
 
-        #=== Loading and Data ===#
-        _,_,self.input_test_savefilepath,_ =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
-        _,_,_,self.output_test_savefilepath =\
-                train_and_test_datasets(run_options, project_name,
-                        data_options, dataset_directory, data_type)
+        #=== Loading and saving data ===#
+        _, _,\
+        self.input_test_savefilepath, self.output_test_savefilepath\
+                = train_and_test_datasets(run_options, project_name,
+                        data_options, dataset_directory, directory_name, data_type)
 
         #=== File Path for Loading Trained Neural Network ===#
         self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename

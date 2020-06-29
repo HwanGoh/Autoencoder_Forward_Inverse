@@ -17,6 +17,9 @@ def filename(hyperp, run_options, autoencoder_loss):
     #=== Data Type ===#
     if run_options.data_type_exponential == 1:
         data_type = 'exponential_'
+        directory_name = 'Exponential/'
+
+    data_string = data_type
 
     #=== Neural Network Architecture and Regularization ===#
     autoencoder_type = 'VAE_'
@@ -24,7 +27,7 @@ def filename(hyperp, run_options, autoencoder_loss):
         posterior_covariance_shape = 'diagpost_'
     if run_options.full_posterior_covariance == 1:
         posterior_covariance_shape = 'fullpost_'
-    if run_options.diag_prior_covariance == 1:
+    if run_options.diagonal_prior_covariance == 1:
         prior_string = '_prdiag'
     if run_options.full_prior_covariance == 1:
         prior_string = '_prfull'
@@ -37,37 +40,32 @@ def filename(hyperp, run_options, autoencoder_loss):
                     hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation,
                     run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-    return data_type, prior_string, filename
+    return data_type, directory_name, prior_string, filename
 
 ###############################################################################
 #                          Train and Test Datasets                            #
 ###############################################################################
-def train_and_test_datasets(hyperp, run_options, dataset_directory,
-        parameter_type, fin_dimension):
+def train_and_test_datasets(run_options, project_name,
+        data_options, dataset_directory, directory_name, data_type):
 
-    #=== Loading and saving data ===#
-    observation_indices_savefilepath =\
-            dataset_directory +\
-            'obs_indices_' + hyperp.data_type + fin_dimension
     input_train_savefilepath =\
-            dataset_directory +\
-            'parameter_train_%d'%(run_options.num_data_train) +\
-            fin_dimension + parameter_type
+        dataset_directory + directory_name + project_name +\
+        'parameter_' + data_type + 'train_d%d_'%(run_options.num_data_train) +\
+        data_options
     output_train_savefilepath =\
-            dataset_directory +\
-            'state_train_%d'%(run_options.num_data_train) +\
-            fin_dimension + '_' + hyperp.data_type + parameter_type
+        dataset_directory + directory_name + project_name +\
+        'state_' + data_type + 'train_d%d_'%(run_options.num_data_train) +\
+        data_options
     input_test_savefilepath =\
-            dataset_directory +\
-            'parameter_test_%d'%(run_options.num_data_test) +\
-            fin_dimension +  parameter_type
+        dataset_directory + directory_name + project_name +\
+        'parameter_' + data_type + 'test_d%d_'%(run_options.num_data_test) +\
+        data_options
     output_test_savefilepath =\
-            dataset_directory +\
-            'state_test_%d'%(run_options.num_data_test) +\
-            fin_dimension + '_' + hyperp.data_type + parameter_type
+        dataset_directory + directory_name + project_name +\
+        'state_' + data_type + 'test_d%d_'%(run_options.num_data_test) +\
+        data_options
 
-    return observation_indices_savefilepath,\
-            input_train_savefilepath, output_train_savefilepath,\
+    return input_train_savefilepath, output_train_savefilepath,\
             input_test_savefilepath, output_test_savefilepath
 
 ###############################################################################
@@ -79,34 +77,28 @@ class FilePathsTraining():
             data_options, dataset_directory):
 
         #=== File name ===#
-        data_type, prior_string,
-        self.filename = filename(hyperp, run_options, autoencoder_loss)
+        data_type, directory_name, prior_string, self.filename\
+                = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Loading and saving data ===#
-        self.observation_indices_savefilepath,_,_,_,_=\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,self.input_train_savefilepath,_,_,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,self.output_train_savefilepath,_,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,_,self.input_test_savefilepath,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,_,_,self.output_test_savefilepath =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
+        self.input_train_savefilepath, self.output_train_savefilepath,\
+        self.input_test_savefilepath, self.output_test_savefilepath\
+                = train_and_test_datasets(run_options, project_name,
+                        data_options, dataset_directory, directory_name, data_type)
 
         #=== Prior File Name ===#
-        if run_options.diag_prior_covariance == 1:
+        if run_options.diagonal_prior_covariance == 1:
             prior_string = 'diag_'
-        if run_options.diag_prior_full == 1:
+        if run_options.full_prior_covariance == 1:
             prior_string = 'full_'
-        self.prior_cov_file_name = project_name + 'prior_covariance_' +\
-                prior_string + data_type + data_options
-        self.prior_savefilepath = dataset_directory + self.prior_cov_file_name
+        self.prior_mean_file_name = project_name + 'prior_mean_' +\
+                data_type + 'n%d'%(run_options.parameter_dimensions)
+        self.prior_mean_savefilepath = dataset_directory + directory_name +\
+                self.prior_mean_file_name
+        self.prior_covariance_file_name = project_name + 'prior_covariance_' +\
+                prior_string + data_type + 'n%d'%(run_options.parameter_dimensions)
+        self.prior_covariance_savefilepath = dataset_directory + directory_name +\
+                self.prior_covariance_file_name
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
@@ -120,37 +112,23 @@ class FilePathsHyperparameterOptimization():
     def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
 
         #=== File name ===#
-        N_Nodes, parameter_type, fin_dimension,\
-                prior_elliptic_d_p_string, prior_elliptic_g_p_string, prior_cov_length_string,\
-                self.filename = filename(hyperp, run_options, autoencoder_loss)
+        data_type, directory_name, prior_string, self.filename\
+                = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Loading and saving data ===#
-        self.observation_indices_savefilepath,_,_,_,_=\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,self.input_train_savefilepath,_,_,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,self.output_train_savefilepath,_,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,_,self.input_test_savefilepath,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,_,_,self.output_test_savefilepath =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
+        self.input_train_savefilepath, self.output_train_savefilepath,\
+        self.input_test_savefilepath, self.output_test_savefilepath\
+                = train_and_test_datasets(run_options, project_name,
+                        data_options, dataset_directory, directory_name, data_type)
 
-        #=== Prior Covariance File Name ===#
-        if run_options.prior_type_elliptic == 1:
-            self.prior_covariance_file_name = 'prior_cov_elliptic' +\
-                    '_%d_%s_%s' %(run_options.full_domain_dimensions,
-                            prior_elliptic_d_p_string, prior_elliptic_g_p_string)
-        if run_options.prior_type_nonelliptic == 1:
-            self.prior_covariance_file_name = 'prior' + '_' + run_options.kern_type +\
-                    fin_dimension +\
-                    '_%d_%s' %(run_options.full_domain_dimensions, prior_cov_length_string)
-        self.prior_covariance_savefilepath = dataset_directory + self.prior_cov_file_name
+        #=== Prior File Name ===#
+        if run_options.diagonal_prior_covariance == 1:
+            prior_string = 'diag_'
+        if run_options.full_prior_covariance == 1:
+            prior_string = 'full_'
+        self.prior_cov_file_name = project_name + 'prior_covariance_' +\
+                prior_string + data_type + 'n%d'%(run_options.parameter_dimensions)
+        self.prior_savefilepath = dataset_directory + directory_name + self.prior_cov_file_name
 
         #=== Saving Trained Neural Network and Tensorboard ===#
         self.hyperp_opt_Trained_NNs_directory = '../../../Hyperparameter_Optimization/Trained_NNs'
@@ -173,70 +151,33 @@ class FilePathsHyperparameterOptimization():
                 '/convergence.png'
 
 ###############################################################################
-#                                 Prediction                                  #
+#                                 Plotting                                    #
 ###############################################################################
-class FilePathsPrediction():
-    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
+class FilePathsPredictionAndPlotting():
+    def __init__(self, hyperp, run_options,
+            autoencoder_loss,
+            project_name, data_options,
+            dataset_directory):
 
         #=== File name ===#
-        N_Nodes, parameter_type, fin_dimension,\
-                prior_elliptic_d_p_string, prior_elliptic_g_p_string, prior_cov_length_string,\
-                self.filename = filename(hyperp, run_options, autoencoder_loss)
+        data_type, directory_name, prior_string, self.filename\
+                = filename(hyperp, run_options, autoencoder_loss)
 
         #=== Loading and saving data ===#
-        self.observation_indices_savefilepath,_,_,_,_=\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,_,self.input_test_savefilepath,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
-        _,_,_,_,self.output_test_savefilepath =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        N_Nodes, parameter_type, fin_dimension)
+        _, _,\
+        self.input_test_savefilepath, self.output_test_savefilepath\
+                = train_and_test_datasets(run_options, project_name,
+                        data_options, dataset_directory, directory_name, data_type)
 
         #=== File Path for Loading Trained Neural Network ===#
         self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
 
         #=== File Path for Loading Displayable Test Data ===#
-        self.loadfile_name_parameter_test = dataset_directory +\
-                '/parameter_test' + fin_dimension + parameter_type
-        self.loadfile_name_state_test = dataset_directory +\
-                '/state_test' + fin_dimension + parameter_type
-
-        #=== File Path for Saving Displayable Predictions ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory + '/' +\
-                'parameter_test' + fin_dimension + parameter_type
-        self.savefile_name_state_test = self.NN_savefile_directory + '/' +\
-                'state_test' + fin_dimension + parameter_type
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'
-
-###############################################################################
-#                                 Plotting                                    #
-###############################################################################
-class FilePathsPlotting():
-    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
-
-        #=== File name ===#
-        N_Nodes, parameter_type, fin_dimension,\
-                prior_elliptic_d_p_string, prior_elliptic_g_p_string, prior_cov_length_string,\
-                self.filename = filename(hyperp, run_options, autoencoder_loss)
-
-        #=== File Path for Loading Trained Neural Network ===#
-        self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
-        self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
-
-        #=== Loading and saving data ===#
-        self.observation_indices_savefilepath,_,_,_,_=\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,_,self.input_test_savefilepath,_ =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
-        _,_,_,_,self.output_test_savefilepath =\
-                train_and_test_datasets(hyperp, run_options, dataset_directory,
-                        parameter_type, fin_dimension)
+        self.savefile_name_parameter_test = self.NN_savefile_directory +\
+                '/parameter_test'
+        self.savefile_name_state_test = self.NN_savefile_directory +\
+                '/state_test'
 
         #=== File Path for Loading Displayable Predictions ===#
         self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
@@ -246,34 +187,9 @@ class FilePathsPlotting():
         self.figures_savefile_directory = '../../../Figures/' + self.filename
         self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
         self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' +\
-                'parameter_test' + fin_dimension + parameter_type
+                'parameter_test'
         self.figures_savefile_name_state_test = self.figures_savefile_directory+ '/' +\
-                'state_test' + fin_dimension + parameter_type
-        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
-        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
-
-        #=== Creating Directories ===#
-        if not os.path.exists(self.figures_savefile_directory):
-            os.makedirs(self.figures_savefile_directory)
-
-###############################################################################
-#                               Plotting Paraview                             #
-###############################################################################
-class FilePathsPlottingParaview():
-    def __init__(self, hyperp, run_options, autoencoder_loss, dataset_directory):
-
-        #=== File name ===#
-        N_Nodes, parameter_type, fin_dimension,\
-                prior_elliptic_d_p_string, prior_elliptic_g_p_string, prior_cov_length_string,\
-                self.filename = filename(hyperp, run_options, autoencoder_loss)
-
-        #=== Savefile Path for Figures ===#
-        self.figures_savefile_directory = '../../../Figures/' + self.filename
-        self.figures_savefile_name = self.figures_savefile_directory + '/' + self.filename
-        self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' +\
-                'parameter_test' + fin_dimension + parameter_type
-        self.figures_savefile_name_state_test = self.figures_savefile_directory + '/' +\
-                'state_test' + fin_dimension + parameter_type
+                'state_test'
         self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
         self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
 

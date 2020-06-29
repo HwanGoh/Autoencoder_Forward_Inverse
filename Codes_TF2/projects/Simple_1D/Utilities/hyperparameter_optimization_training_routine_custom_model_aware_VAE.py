@@ -11,6 +11,7 @@ from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
 
 # Import src code
 from get_train_and_test_data import load_train_and_test_data
+from get_prior import load_prior
 from form_train_val_test import form_train_val_test_tf_batches
 from NN_VAE_Fwd_Inv import VAEFwdInv
 from loss_and_relative_errors import loss_penalized_difference,\
@@ -86,13 +87,9 @@ def trainer_custom(hyperp, run_options, file_paths,
         if run_options.full_posterior_covariance == 1:
             KLD_loss = KLD_full_post_cov
 
-        #=== Prior Regularization ===#
-        print('Loading Prior Matrix')
-        df_cov = pd.read_csv(file_paths.prior_savefilepath + '.csv')
-        prior_cov = df_cov.to_numpy()
-        prior_cov = prior_cov.reshape((run_options.full_domain_dimensions,
-            run_options.full_domain_dimensions))
-        prior_cov = prior_cov.astype(np.float32)
+        #=== Prior ===#
+        prior_mean, prior_covariance = load_prior(run_options, file_paths,
+                                                load_mean = 0, load_covariance = 0)
 
         #=== Neural Network Regularizers ===#
         kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)

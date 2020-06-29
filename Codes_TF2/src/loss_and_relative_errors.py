@@ -35,6 +35,7 @@ def KLD_diagonal_post_cov(post_mean, log_post_var,
     trace_prior_cov_inv_times_cov_post = tf.reduce_sum(
             tf.multiply(tf.linalg.diag_part(prior_cov_inv), tf.math.exp(log_post_var)),
             axis=1)
+    pdb.set_trace()
     prior_weighted_prior_mean_minus_post_mean = tf.reduce_sum(
             tf.multiply(tf.transpose(prior_mean - post_mean),
                 tf.linalg.matmul(prior_cov_inv, tf.transpose(prior_mean - post_mean))),
