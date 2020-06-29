@@ -70,7 +70,7 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Prior ===#
     prior_mean, prior_covariance = load_prior(run_options, file_paths,
-                                              load_mean = 0, load_covariance = 0)
+                                              load_mean = 0, load_covariance = 1)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)

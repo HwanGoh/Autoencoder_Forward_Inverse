@@ -22,7 +22,7 @@ def load_prior(run_options, file_paths,
     if load_mean == 1:
         df_mean = pd.read_csv(file_paths.prior_mean_savefilepath + '.csv')
         prior_mean = df_mean.to_numpy()
-        prior_mean = prior_mean.astype(np.float32)
+        prior_mean = prior_mean.astype(np.float32).flatten()
     else:
         prior_mean = np.zeros(run_options.parameter_dimensions)
 
