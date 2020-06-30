@@ -27,8 +27,9 @@ from skopt import gp_minimize
 #                                 Training                                    #
 ###############################################################################
 def trainer_custom(hyperp, run_options, file_paths,
-        n_calls, space,
-        autoencoder_loss, dataset_directory):
+                   n_calls, space,
+                   autoencoder_loss, project_name,
+                   data_options, dataset_directory):
 
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
@@ -59,7 +60,8 @@ def trainer_custom(hyperp, run_options, file_paths,
 
         #=== Update File Paths with New Hyperparameters ===#
         file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-                autoencoder_loss, dataset_directory)
+                autoencoder_loss, project_name,
+                data_options, dataset_directory)
 
         #=== Construct Validation Set and Batches ===#
         if run_options.use_distributed_training == 0:
@@ -75,10 +77,7 @@ def trainer_custom(hyperp, run_options, file_paths,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
 
         #=== Data and Latent Dimensions of Autoencoder ===#
-        if hyperp.data_type == 'full':
-            data_dimension = run_options.full_domain_dimensions
-        if hyperp.data_type == 'bnd':
-            data_dimension = len(obs_indices)
+        input_dimensions = run_options.state_dimensions
         latent_dimensions = run_options.parameter_dimensions
 
         #=== Posterior Covariance Loss Functional ===#
@@ -89,7 +88,7 @@ def trainer_custom(hyperp, run_options, file_paths,
 
         #=== Prior ===#
         prior_mean, prior_covariance = load_prior(run_options, file_paths,
-                                                load_mean = 0, load_covariance = 0)
+                                                load_mean = 1, load_covariance = 1)
 
         #=== Neural Network Regularizers ===#
         kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
@@ -98,7 +97,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         #=== Non-distributed Training ===#
         if run_options.use_distributed_training == 0:
             #=== Neural Network ===#
-            NN = VAEFwdInv(hyperp, data_dimension, latent_dimensions,
+            NN = VAEFwdInv(hyperp, input_dimensions, latent_dimensions,
                            kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#
@@ -107,7 +106,8 @@ def trainer_custom(hyperp, run_options, file_paths,
             #=== Training ===#
             optimize(hyperp, run_options, file_paths,
                     NN, optimizer,
-                    loss_penalized_difference, KLD_loss, relative_error, prior_cov,
+                    loss_penalized_difference, KLD_loss, relative_error,
+                    prior_mean, prior_covariance,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions, latent_dimensions,
                     num_batches_train)
@@ -117,7 +117,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             dist_strategy = tf.distribute.MirroredStrategy()
             with dist_strategy.scope():
                 #=== Neural Network ===#
-                NN = VAEFwdInv(hyperp, data_dimension, latent_dimensions,
+                NN = VAEFwdInv(hyperp, input_dimensions, latent_dimensions,
                                kernel_initializer, bias_initializer )
 
                 #=== Optimizer ===#
@@ -127,7 +127,8 @@ def trainer_custom(hyperp, run_options, file_paths,
             optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                     hyperp, run_options, file_paths,
                     NN, optimizer,
-                    loss_penalized_difference, KLD_loss, relative_error, prior_cov,
+                    loss_penalized_difference, KLD_loss, relative_error,
+                    prior_mean, prior_covariance,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions, latent_dimensions,
                     num_batches_train)

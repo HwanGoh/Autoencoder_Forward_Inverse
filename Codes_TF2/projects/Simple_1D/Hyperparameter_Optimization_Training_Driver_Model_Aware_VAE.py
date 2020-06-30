@@ -57,6 +57,10 @@ class RunOptions:
         self.diagonal_posterior_covariance = 1
         self.full_posterior_covariance = 0
 
+        #=== Prior Properties ===#
+        self.diagonal_prior_covariance = 1
+        self.full_prior_covariance = 0
+
         #=== Random Seed ===#
         self.random_seed = 1234
 
@@ -99,15 +103,21 @@ if __name__ == "__main__":
     hyperp = Hyperparameters()
     run_options = RunOptions()
     autoencoder_loss = 'maware_'
-    dataset_directory = '../../../../Datasets/Thermal_Fin/'
+    project_name = 'simple_1D_'
+    data_options =\
+            'm%d' %(run_options.state_dimensions)
+    dataset_directory = '../../../../Datasets/Simple_1D/'
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-            autoencoder_loss, dataset_directory)
+            autoencoder_loss, project_name,
+            data_options, dataset_directory)
 
     ################
     #   Training   #
     ################
-    hyperp_opt_result = trainer_custom(hyperp, run_options, file_paths, n_calls, space,
-            autoencoder_loss, dataset_directory)
+    hyperp_opt_result = trainer_custom(hyperp, run_options, file_paths,
+                                       n_calls, space,
+                                       autoencoder_loss, project_name,
+                                       data_options, dataset_directory)
 
     ##################################
     #   Display Optimal Parameters   #
@@ -161,7 +171,8 @@ if __name__ == "__main__":
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-            autoencoder_loss, dataset_directory)
+            autoencoder_loss, project_name,
+            data_options, dataset_directory)
 
     #=== Deleting Suboptimal Neural Networks ===#
     directories_list_Trained_NNs = os.listdir(path=file_paths.hyperp_opt_Trained_NNs_directory)
