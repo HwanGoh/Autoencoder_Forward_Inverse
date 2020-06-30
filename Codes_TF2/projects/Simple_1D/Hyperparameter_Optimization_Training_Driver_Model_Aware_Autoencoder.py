@@ -58,11 +58,12 @@ class RunOptions:
         self.use_reverse_autoencoder = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 2959
+        self.num_data_train = 1000
         self.num_data_test = 200
 
         #=== Prior Properties ===#
-        self.prior_mean = 0.0
+        self.diagonal_prior_covariance = 1
+        self.full_prior_covariance = 0
 
         #=== Random Seed ===#
         self.random_seed = 1234

@@ -11,6 +11,7 @@ from Utilities.file_paths import FilePathsHyperparameterOptimization
 
 # Import src code
 from get_train_and_test_data import load_train_and_test_data
+from get_prior import load_prior
 from form_train_val_test import form_train_val_test_tf_batches
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference,\
@@ -89,16 +90,16 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
         if run_options.use_reverse_autoencoder == 1:
             latent_dimensions = run_options.parameter_dimensions
 
-        #=== Prior Regularization ===#
+        #=== Prior ===#
         if hyperp.penalty_prior != 0:
-            print('Loading Prior Matrix')
-            df_L_pr = pd.read_csv(file_paths.prior_chol_savefilepath + '.csv')
-            L_pr = df_L_pr.to_numpy()
-            L_pr = L_pr.reshape((run_options.full_domain_dimensions,
-                run_options.full_domain_dimensions))
-            L_pr = L_pr.astype(np.float32)
+            load_flag = 1
         else:
-            L_pr = 0.0
+            load_flag = 0
+        prior_mean,\
+        prior_covariance, prior_covariance_cholesky\
+        = load_prior(run_options, file_paths,
+                    load_mean = 0,
+                    load_covariance = 0, load_covariance_cholesky = load_flag)
 
         #=== Neural Network Regularizers ===#
         kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
@@ -117,7 +118,7 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
             optimize(hyperp, run_options, file_paths,
                     NN, optimizer,
                     loss_penalized_difference, relative_error,
-                    reg_prior, L_pr,
+                    reg_prior, prior_mean, prior_covariance_cholesky,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions,
                     num_batches_train)

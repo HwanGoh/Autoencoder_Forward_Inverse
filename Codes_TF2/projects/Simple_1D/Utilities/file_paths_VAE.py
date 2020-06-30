@@ -34,17 +34,17 @@ class FilePaths():
         if run_options.full_posterior_covariance == 1:
             posterior_covariance_shape = 'fullpost_'
         if run_options.diagonal_prior_covariance == 1:
-            prior_string = '_prdiag'
+            prior_string = 'prdiag'
         if run_options.full_prior_covariance == 1:
-            prior_string = '_prfull'
+            prior_string = 'prfull'
 
         #=== File Name ===#
-        self.filename = autoencoder_type + posterior_covariance_shape + autoencoder_loss +\
-                data_string +\
-                prior_string +\
-                '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
-                        hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation,
-                        run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        self.filename = project_name +\
+            data_type + data_options + '_' +\
+            prior_string +\
+            '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
+                    hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation,
+                    run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         ################
         #   Datasets   #

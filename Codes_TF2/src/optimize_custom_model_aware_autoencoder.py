@@ -26,7 +26,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def optimize(hyperp, run_options, file_paths,
         NN, optimizer,
         loss_penalized_difference, relative_error,
-        reg_prior, L_pr,
+        reg_prior, prior_mean, prior_covariance_cholesky,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, num_batches_train):
 
@@ -63,12 +63,15 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_train_decoder = loss_penalized_difference(
                     batch_input_pred_train, batch_input_train, hyperp.penalty_decoder)
             if run_options.use_standard_autoencoder == 1:
-                batch_reg_train_prior = reg_prior(batch_input_pred_train_AE,
-                        run_options.prior_mean, L_pr, hyperp.penalty_prior)
+                batch_reg_train_prior = reg_prior(
+                        batch_input_pred_train_AE,
+                        prior_mean, prior_covariance_cholesky,
+                        hyperp.penalty_prior)
             if run_options.use_reverse_autoencoder == 1:
                 batch_reg_train_prior = reg_prior(
-                        batch_latent_pred_train, run_options.prior_mean,
-                        L_pr, hyperp.penalty_prior)
+                        batch_latent_pred_train,
+                        prior_mean, prior_covariance_cholesky,
+                        hyperp.penalty_prior)
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
                     batch_loss_train_decoder + batch_reg_train_prior
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)

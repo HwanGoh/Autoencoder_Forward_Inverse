@@ -14,7 +14,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                 All Data                                    #
 ###############################################################################
 def load_prior(run_options, file_paths,
-        load_mean = 0, load_covariance = 0):
+        load_mean = 0,
+        load_covariance = 0, load_covariance_cholesky = 0):
 
     print('Loading Prior')
 
@@ -36,4 +37,16 @@ def load_prior(run_options, file_paths,
     else:
         prior_covariance = np.identity(run_options.parameter_dimensions)
 
-    return prior_mean, prior_covariance
+    #=== Prior Covariance Cholesky ===#
+    if load_covariance_cholesky == 1:
+        df_covariance_cholesky =\
+                pd.read_csv(file_paths.prior_covariance_cholesky_savefilepath + '.csv')
+        prior_covariance_cholesky = df_covariance_cholesky.to_numpy()
+        prior_covariance_cholesky =\
+                prior_covariance_cholesky.reshape((run_options.parameter_dimensions,
+            run_options.parameter_dimensions))
+        prior_covariance_cholesky = prior_covariance_cholesky.astype(np.float32)
+    else:
+        prior_covariance_cholesky = np.identity(run_options.parameter_dimensions)
+
+    return prior_mean, prior_covariance, prior_covariance_cholesky

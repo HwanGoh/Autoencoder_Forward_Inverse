@@ -102,6 +102,28 @@ class FilePaths():
             'state_' + data_type + 'test_d%d_'%(run_options.num_data_test) +\
             data_options
 
+        #############
+        #   Prior   #
+        #############
+        #=== Prior File Name ===#
+        if run_options.diagonal_prior_covariance == 1:
+            prior_string = 'diag_'
+        if run_options.full_prior_covariance == 1:
+            prior_string = 'full_'
+        self.prior_mean_file_name = project_name + 'prior_mean_' +\
+                data_type + 'n%d'%(run_options.parameter_dimensions)
+        self.prior_mean_savefilepath = dataset_directory + directory_name +\
+                self.prior_mean_file_name
+        self.prior_covariance_file_name = project_name + 'prior_covariance_' +\
+                prior_string + data_type + 'n%d'%(run_options.parameter_dimensions)
+        self.prior_covariance_savefilepath = dataset_directory + directory_name +\
+                self.prior_covariance_file_name
+        self.prior_covariance_cholesky_file_name = project_name +\
+                'prior_covariance_cholesky' +\
+                prior_string + data_type + 'n%d'%(run_options.parameter_dimensions)
+        self.prior_covariance_cholesky_savefilepath = dataset_directory + directory_name +\
+                self.prior_covariance_cholesky_file_name
+
 ###############################################################################
 #                               Derived Classes                               #
 ###############################################################################

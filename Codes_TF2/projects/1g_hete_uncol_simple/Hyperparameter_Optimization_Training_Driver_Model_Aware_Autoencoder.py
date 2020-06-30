@@ -62,10 +62,7 @@ class RunOptions:
         self.num_data_train = 5
         self.num_data_test = 2
 
-        #=== Prior Properties ===#
-        self.prior_mean = 0.0
         #=== Random Seed ===#
-
         self.random_seed = 1234
 
         #=== Data Type ===#
