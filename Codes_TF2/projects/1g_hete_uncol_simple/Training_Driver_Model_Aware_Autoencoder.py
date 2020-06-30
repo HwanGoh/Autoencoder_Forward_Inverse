@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and training routine
 from Utilities.file_paths import FilePathsTraining
-from Utilities.training_routine_custom import trainer_custom
+from Utilities.training_routine_custom_model_aware_autoencoder import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
