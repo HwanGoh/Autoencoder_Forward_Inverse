@@ -102,9 +102,6 @@ if __name__ == "__main__":
     #####################
     #   Initial Setup   #
     #####################
-    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys())
-    hyperp_of_interest_objective_args_tuple = tuple(hyperp_of_interest_list)
-
     #=== Generate skopt 'space' list ===#
     space = []
     for key, val in hyperp_of_interest_dict.items():
@@ -137,6 +134,7 @@ if __name__ == "__main__":
     print('=================================================')
     print('Optimized Validation Loss: {}\n'.format(hyperp_opt_result.fun))
     print('Optimized Parameters:')
+    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys())
     for n, parameter_name in enumerate(hyperp_of_interest_list):
         print(parameter_name + ': {}'.format(hyperp_opt_result.x[n]))
 

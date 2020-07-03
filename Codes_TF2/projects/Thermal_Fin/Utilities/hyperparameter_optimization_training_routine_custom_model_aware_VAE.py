@@ -57,9 +57,9 @@ def trainer_custom(hyperp, run_options, file_paths,
     #   Objective Functional   #
     ############################
     @use_named_args(space)
-    def objective_functional(**hyperp_of_interest_objective_args_tuple):
+    def objective_functional(**hyperp_of_interest_dict):
         #=== Assign Hyperparameters of Interest ===#
-        for key, val in hyperp_of_interest_objective_args_tuple.items():
+        for key, val in hyperp_of_interest_dict.items():
             setattr(hyperp, key, val)
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
