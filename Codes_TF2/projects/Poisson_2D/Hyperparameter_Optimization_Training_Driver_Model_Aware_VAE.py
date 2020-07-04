@@ -57,19 +57,31 @@ class RunOptions:
         self.diagonal_posterior_covariance = 1
         self.full_posterior_covariance = 0
 
+        #=== Mesh Properties ===#
+        self.num_nodes = 25
+        self.obs_type = 'full'
+        self.num_obs_points = 10
+
+        #=== Train or Test Set ===#
+        self.generate_train_data = 1
+        self.generate_test_data = 0
+
         #=== Prior Properties ===#
-        self.diagonal_prior_covariance = 1
-        self.full_prior_covariance = 0
+        self.prior_type_AC = 1
+        self.prior_mean_AC = 2
+        self.prior_variance_AC = 0.96
+        self.prior_corr_AC = 0.002
+
+        #=== PDE Properties ===#
+        self.boundary_matrix_constant = 0.5
+        self.load_vector_constant = -1
+
+        #=== Parameter and Observation Dimensions === #
+        self.parameter_dimensions = 25
+        self.state_dimensions = 25
 
         #=== Random Seed ===#
         self.random_seed = 1234
-
-        #=== Data Type ===#
-        self.data_type_exponential = 1
-
-        #=== Parameter and Observation Dimensions === #
-        self.parameter_dimensions = 2
-        self.state_dimensions = 50
 
 ###############################################################################
 #                                  Driver                                     #
@@ -100,13 +112,13 @@ if __name__ == "__main__":
     hyperp = Hyperparameters()
     run_options = RunOptions()
     autoencoder_loss = 'maware_'
-    project_name = 'simple_1D_'
-    data_options =\
-            'm%d' %(run_options.state_dimensions)
-    dataset_directory = '../../../../Datasets/Simple_1D/'
+    project_name = 'poisson_2D_'
+    data_options = 'n%d_' %(run_options.num_nodes)
+    dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
+            'n%d/'%(run_options.num_nodes)
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-            autoencoder_loss, project_name,
-            data_options, dataset_directory)
+                                   autoencoder_loss, project_name,
+                                   data_options, dataset_directory)
 
     ################
     #   Training   #

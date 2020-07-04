@@ -31,18 +31,21 @@ def trainer_custom(hyperp, run_options, file_paths):
         gpus = tf.config.experimental.list_physical_devices('GPU')
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
 
-    #=== Load observation indices ===#
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')
-    obs_indices = df_obs_indices.to_numpy()
-    run_options.state_dimensions = len(obs_indices)
+    #=== Load Observation Indices ===#
+    if run_options.obs_type == 'full':
+        obs_dimensions = run_options.state_dimensions
+    if run_options.obs_type == 'obs':
+        print('Loading Boundary Indices')
+        df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
+        obs_indices = df_obs_indices.to_numpy()
+        obs_dimensions = len(obs_indices)
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
     = load_train_and_test_data(file_paths,
             run_options.num_data_train, run_options.num_data_test,
-            run_options.parameter_dimensions, run_options.state_dimensions,
+            run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
 
@@ -56,10 +59,7 @@ def trainer_custom(hyperp, run_options, file_paths):
             GLOBAL_BATCH_SIZE, run_options.random_seed)
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if hyperp.data_type == 'full':
-        input_dimensions = run_options.full_domain_dimensions
-    if hyperp.data_type == 'bnd':
-        input_dimensions = len(obs_indices)
+    input_dimensions = obs_dimensions
     latent_dimensions = run_options.parameter_dimensions
 
     #=== Posterior Covariance Loss Functional ===#

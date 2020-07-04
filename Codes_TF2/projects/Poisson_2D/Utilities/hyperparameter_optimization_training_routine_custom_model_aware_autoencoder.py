@@ -26,8 +26,11 @@ from skopt import gp_minimize
 ###############################################################################
 #                                 Training                                    #
 ###############################################################################
-def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
-        NN_type, project_name, data_options, dataset_directory):
+def trainer_custom(hyperp, run_options, file_paths,
+        n_calls, space,
+        autoencoder_loss, project_name,
+        data_options, dataset_directory):
+
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if run_options.use_distributed_training == 0:
@@ -36,12 +39,21 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
 
+    #=== Load Observation Indices ===#
+    if run_options.obs_type == 'full':
+        obs_dimensions = run_options.state_dimensions
+    if run_options.obs_type == 'obs':
+        print('Loading Boundary Indices')
+        df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
+        obs_indices = df_obs_indices.to_numpy()
+        obs_dimensions = len(obs_indices)
+
     #=== Load Data ===#
     parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
     = load_train_and_test_data(file_paths,
             run_options.num_data_train, run_options.num_data_test,
-            run_options.parameter_dimensions, run_options.state_dimensions,
+            run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
     output_dimensions = run_options.state_dimensions
@@ -57,8 +69,9 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
         #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options, NN_type, project_name,
-                            data_options, dataset_directory)
+        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
+                                                     autoencoder_loss, project_name,
+                                                     data_options, dataset_directory)
 
         #=== Construct Validation Set and Batches ===#
         if run_options.use_distributed_training == 0:
@@ -86,7 +99,7 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
 
         #=== Data and Latent Dimensions of Autoencoder ===#
         if run_options.use_standard_autoencoder == 1:
-            latent_dimensions = run_options.state_dimensions
+            latent_dimensions = obs_dimensions
         if run_options.use_reverse_autoencoder == 1:
             latent_dimensions = run_options.parameter_dimensions
 

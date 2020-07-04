@@ -40,8 +40,8 @@ class FilePaths():
 
         #=== File Name ===#
         self.filename = project_name +\
-            data_type + data_options + '_' +\
-            prior_string +\
+            data_string + prior_string + '_' +\
+            autoencoder_type + autoencoder_loss +\
             '_hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
                     hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation,
                     run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)

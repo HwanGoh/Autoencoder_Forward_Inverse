@@ -97,11 +97,12 @@ if __name__ == "__main__":
     #=== File Names ===#
     autoencoder_loss = 'maware_'
     project_name = 'poisson_2D_'
+    data_options = 'n%d_' %(run_options.num_nodes)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
             'n%d/'%(run_options.num_nodes)
     file_paths = FilePathsTraining(hyperp, run_options,
-                                   autoencoder_loss,
-                                   project_name, dataset_directory)
+                                   autoencoder_loss, project_name,
+                                   data_options, dataset_directory)
 
     #=== Initiate training ===#
     trainer_custom(hyperp, run_options, file_paths)

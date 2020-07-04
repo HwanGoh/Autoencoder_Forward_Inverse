@@ -15,14 +15,13 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class FilePaths():
     def __init__(self, hyperp, run_options,
-            autoencoder_loss,
-            project_name, dataset_directory):
+            autoencoder_loss, project_name,
+            data_options, dataset_directory):
         #################
         #   File Name   #
         #################
         #=== Data Type ===#
-        data_string = 'n%d_'%(run_options.num_nodes) +\
-                run_options.obs_type + '_'
+        data_string = data_options + run_options.obs_type + '_'
 
         #=== Prior Properties ===#
         if run_options.prior_type_AC == 1:
@@ -104,7 +103,6 @@ class FilePaths():
                         penalty_aug_string,
                         penalty_prior_string,
                         run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
-
 
         ################
         #   Datasets   #

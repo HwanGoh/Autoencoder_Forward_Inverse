@@ -29,7 +29,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         gpus = tf.config.experimental.list_physical_devices('GPU')
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
 
-    #=== Load observation indices ===#
+    #=== Load Observation Indices ===#
     if run_options.obs_type == 'full':
         obs_dimensions = run_options.state_dimensions
     if run_options.obs_type == 'obs':
