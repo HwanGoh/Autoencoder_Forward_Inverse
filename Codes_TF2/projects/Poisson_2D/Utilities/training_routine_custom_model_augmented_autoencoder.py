@@ -8,11 +8,14 @@ import pandas as pd
 # Import src code
 from get_train_and_test_data import load_train_and_test_data
 from form_train_val_test import form_train_val_test_tf_batches
+from get_prior import load_prior
+from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference,\
-        loss_forward_model, relative_error, reg_prior
-from optimize_custom_model_induced_autoencoder_FEM import optimize
+        relative_error, reg_prior
+from optimize_custom_model_augmented_autoencoder_FEM import optimize
 from optimize_distributed_custom_model_aware_autoencoder import optimize_distributed
+from Utilities.solve_poisson_2D import solve_PDE
 
 ###############################################################################
 #                                  Training                                   #
@@ -83,6 +86,10 @@ def trainer_custom(hyperp, run_options, file_paths):
                  load_mean = 1,
                  load_covariance = 0, load_covariance_cholesky = load_flag)
 
+    #=== Load FEM Matrices ===#
+    premass, prestiffness, boundary_matrix, load_vector =\
+            load_FEM_matrices_tf(run_options, file_paths)
+
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
@@ -100,8 +107,9 @@ def trainer_custom(hyperp, run_options, file_paths):
         optimize(hyperp, run_options, file_paths,
                 NN, optimizer,
                 obs_indices,
-                loss_penalized_difference, loss_forward_model,
-                relative_error, reg_prior, L_pr,
+                loss_penalized_difference,
+                relative_error, reg_prior, prior_covariance_cholesky,
+                solve_PDE, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,
                 num_batches_train)
@@ -123,7 +131,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 NN, optimizer,
                 obs_indices,
                 loss_penalized_difference, loss_forward_model,
-                relative_error, reg_prior, L_pr,
+                relative_error, reg_prior, prior_covariance_cholesky,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,
                 num_batches_train)

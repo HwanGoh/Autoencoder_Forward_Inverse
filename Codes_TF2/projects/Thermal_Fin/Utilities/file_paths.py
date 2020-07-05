@@ -54,7 +54,7 @@ class FilePaths():
         else:
             penalty_decoder_string = str(hyperp.penalty_decoder)
             penalty_decoder_string = 'pt' + penalty_decoder_string[2:]
-        if autoencoder_loss == 'mind_':
+        if autoencoder_loss == 'maug_':
             if hyperp.penalty_aug >= 1:
                 hyperp.penalty_aug = int(hyperp.penalty_aug)
                 penalty_aug_string = str(hyperp.penalty_aug)

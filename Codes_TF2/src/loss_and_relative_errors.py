@@ -28,8 +28,8 @@ def loss_forward_model(hyperp, run_options,
         penalty_aug):
     forward_model_state_pred = forward_model(parameter_pred)
     forward_model_state_pred = tf.cast(forward_model_state_pred, dtype=tf.float32)
-    return penalty_aug*tf.math.square(tf.norm(tf.subtract(state_obs_true,
-        forward_model_state_pred, 2), axis = 1))
+    return penalty*tf.keras.losses.mean_squared_error(state_obs_true,
+            forward_model_state_pred)
 
 def KLD_diagonal_post_cov(post_mean, log_post_var,
         prior_mean, prior_cov_inv,

@@ -61,6 +61,10 @@ class RunOptions:
         self.prior_variance_AC = 0.96
         self.prior_corr_AC = 0.002
 
+        #=== PDE Properties ===#
+        self.boundary_matrix_constant = 0.5
+        self.load_vector_constant = -1
+
         #=== Random Seed ===#
         self.random_seed = 1234
 
