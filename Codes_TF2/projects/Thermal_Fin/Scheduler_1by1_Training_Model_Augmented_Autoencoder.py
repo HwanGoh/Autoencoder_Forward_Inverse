@@ -47,7 +47,7 @@ if __name__ == '__main__':
 
     for num, scenario in enumerate(scenarios_class_instances):
         scenario.which_gpu = '3'
-        proc = subprocess.Popen(['./Training_Driver_Model_Induced_Autoencoder.py',
+        proc = subprocess.Popen(['./Training_Driver_Model_Augmented_Autoencoder.py',
             f'{scenario.data_type}', f'{scenario.num_hidden_layers}',
             f'{scenario.truncation_layer}', f'{scenario.num_hidden_nodes}',
             f'{scenario.activation}',

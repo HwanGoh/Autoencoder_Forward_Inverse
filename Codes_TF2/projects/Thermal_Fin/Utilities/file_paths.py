@@ -79,7 +79,7 @@ class FilePaths():
                             penalty_prior_string,
                             run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-        if autoencoder_loss == 'mind_':
+        if autoencoder_loss == 'maug_':
             self.filename = autoencoder_type + autoencoder_loss +\
                     data_string +\
                     '_hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(

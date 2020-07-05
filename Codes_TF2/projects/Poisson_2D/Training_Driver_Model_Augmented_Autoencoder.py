@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and training routine
 from Utilities.file_paths import FilePathsTraining
-from Utilities.training_routine_custom_model_induced_autoencoder import\
+from Utilities.training_routine_custom_model_augmented_autoencoder import\
         trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -50,18 +50,19 @@ class RunOptions:
         self.num_data_train = 1000
         self.num_data_test = 200
 
+        #=== Data Properties ===#
+        self.parameter_dimensions = 25
+        self.obs_type = 'obs'
+        self.num_obs_points = 10
+
         #=== Prior Properties ===#
-        self.prior_mean = 0.0
+        self.prior_type_AC = 1
+        self.prior_mean_AC = 2
+        self.prior_variance_AC = 0.96
+        self.prior_corr_AC = 0.002
 
         #=== Random Seed ===#
         self.random_seed = 1234
-
-        #=== Data Type ===#
-        self.data_type_exponential = 1
-
-        #=== Parameter and Observation Dimensions === #
-        self.parameter_dimensions = 2
-        self.state_dimensions = 50
 
 ###############################################################################
 #                                    Driver                                   #
@@ -86,13 +87,14 @@ if __name__ == "__main__":
         run_options.which_gpu    = str(sys.argv[11])
 
     #=== File Paths ===#
-    autoencoder_loss = 'maware_'
-    project_name = 'simple_1D_'
-    data_options =\
-            'm%d' %(run_options.state_dimensions)
-    dataset_directory = '../../../../Datasets/Simple_1D/'
-    file_paths = FilePathsTraining(hyperp, run_options, autoencoder_loss, project_name,
-            data_options, dataset_directory)
+    autoencoder_loss = 'maug_'
+    project_name = 'poisson_2D_'
+    data_options = 'n%d' %(run_options.parameter_dimensions)
+    dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
+            'n%d/'%(run_options.parameter_dimensions)
+    file_paths = FilePathsTraining(hyperp, run_options,
+                                   autoencoder_loss, project_name,
+                                   data_options, dataset_directory)
 
     #=== Initiate Training ===#
     trainer_custom(hyperp, run_options, file_paths)

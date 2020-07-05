@@ -74,7 +74,7 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
 
-            proc = subprocess.Popen(['./Training_Driver_Model_Induced_Autoencoder.py',
+            proc = subprocess.Popen(['./Training_Driver_Model_Augmented_Autoencoder.py',
                 f'{data.data_type}', f'{data.num_hidden_layers}', f'{data.truncation_layer}',
                 f'{data.num_hidden_nodes}', f'{data.activation}',
                 f'{data.penalty:.4f}', f'{data.penalty_aug:.4f}',

@@ -38,7 +38,7 @@ class RunOptions:
 
         #=== Autoencoder Loss ===#
         self.use_model_aware = 1
-        self.use_model_induced = 0
+        self.use_model_augmented = 0
 
         #=== Data Set ===#
         self.data_thermal_fin_nine = 0
@@ -100,8 +100,8 @@ if __name__ == "__main__":
     #=== File Paths ===#
     if run_options.use_model_aware == 1:
         autoencoder_loss = 'maware_'
-    if run_options.use_model_induced == 1:
-        autoencoder_loss = 'mind_'
+    if run_options.use_model_augmented == 1:
+        autoencoder_loss = 'maug_'
     dataset_directory = '../../../../Datasets/Thermal_Fin/'
     file_paths = FilePathsPlottingParaview(hyperp, run_options,
             autoencoder_loss, dataset_directory)

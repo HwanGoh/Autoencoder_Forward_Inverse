@@ -11,7 +11,7 @@ from form_train_val_test import form_train_val_test_tf_batches
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference,\
         loss_forward_model, relative_error, reg_prior
-from optimize_custom_model_induced_autoencoder_fenics import optimize
+from optimize_custom_model_induced_autoencoder_FEM import optimize
 from optimize_distributed_custom_model_aware_autoencoder import optimize_distributed
 
 ###############################################################################
@@ -28,18 +28,21 @@ def trainer_custom(hyperp, run_options, file_paths):
         gpus = tf.config.experimental.list_physical_devices('GPU')
         GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
 
-    #=== Load observation indices ===#
-    print('Loading Boundary Indices')
-    df_obs_indices = pd.read_csv(file_paths.observation_indices_savefilepath + '.csv')
-    obs_indices = df_obs_indices.to_numpy()
-    run_options.state_dimensions = len(obs_indices)
+    #=== Load Observation Indices ===#
+    if run_options.obs_type == 'full':
+        obs_dimensions = run_options.parameter_dimensions
+    if run_options.obs_type == 'obs':
+        print('Loading Boundary Indices')
+        df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
+        obs_indices = df_obs_indices.to_numpy()
+        obs_dimensions = len(obs_indices)
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
     = load_train_and_test_data(file_paths,
             run_options.num_data_train, run_options.num_data_test,
-            run_options.parameter_dimensions, run_options.state_dimensions,
+            run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
 
@@ -64,26 +67,21 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
         input_dimensions = run_options.parameter_dimensions
-        if hyperp.data_type == 'full':
-            latent_dimensions = run_options.full_domain_dimensions
-        if hyperp.data_type == 'bnd':
-            latent_dimensions = len(obs_indices)
+        latent_dimensions = obs_dimensions
     if run_options.use_reverse_autoencoder == 1:
-        if hyperp.data_type == 'full':
-            input_dimensions = run_options.full_domain_dimensions
-        if hyperp.data_type == 'bnd':
-            input_dimensions = len(obs_indices)
+        input_dimensions = obs_dimensions
         latent_dimensions = run_options.parameter_dimensions
 
-    #=== Prior Regularization ===#
+    #=== Prior ===#
     if hyperp.penalty_prior != 0:
-        print('Loading Prior Matrix')
-        df_L_pr = pd.read_csv(file_paths.prior_chol_savefilepath + '.csv')
-        L_pr = df_L_pr.to_numpy()
-        L_pr = L_pr.reshape((run_options.full_domain_dimensions, run_options.full_domain_dimensions))
-        L_pr = L_pr.astype(np.float32)
+        load_flag = 1
     else:
-        L_pr = 0.0
+        load_flag = 0
+    prior_mean,\
+    prior_covariance, prior_covariance_cholesky\
+    = load_prior(run_options, file_paths,
+                 load_mean = 1,
+                 load_covariance = 0, load_covariance_cholesky = load_flag)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)

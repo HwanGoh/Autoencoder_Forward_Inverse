@@ -47,24 +47,16 @@ class RunOptions:
         self.num_data_train = 1000
         self.num_data_test = 200
 
-        #=== Mesh Properties ===#
+        #=== Data Properties ===#
         self.parameter_dimensions = 25
         self.obs_type = 'obs'
         self.num_obs_points = 10
-
-        #=== Train or Test Set ===#
-        self.generate_train_data = 1
-        self.generate_test_data = 0
 
         #=== Prior Properties ===#
         self.prior_type_AC = 1
         self.prior_mean_AC = 2
         self.prior_variance_AC = 0.96
         self.prior_corr_AC = 0.002
-
-        #=== PDE Properties ===#
-        self.boundary_matrix_constant = 0.5
-        self.load_vector_constant = -1
 
         #=== Random Seed ===#
         self.random_seed = 1234
