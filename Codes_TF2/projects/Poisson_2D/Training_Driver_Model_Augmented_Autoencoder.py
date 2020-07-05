@@ -52,7 +52,7 @@ class RunOptions:
 
         #=== Data Properties ===#
         self.parameter_dimensions = 25
-        self.obs_type = 'obs'
+        self.obs_type = 'full'
         self.num_obs_points = 10
 
         #=== Prior Properties ===#

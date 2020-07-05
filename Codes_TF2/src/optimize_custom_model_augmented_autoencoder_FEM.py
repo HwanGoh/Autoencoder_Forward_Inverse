@@ -27,7 +27,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize(hyperp, run_options, file_paths,
         NN, optimizer,
-        measurement_points,
+        obs_indices,
         loss_penalized_difference,
         relative_error, reg_prior, L_pr,
         solve_PDE, prestiffness, boundary_matrix, load_vector,
@@ -55,7 +55,7 @@ def optimize(hyperp, run_options, file_paths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===# NOTE: NOT YET CODED FOR REVERSE AUTOENCODER. Becareful of the logs and exp
-    @tf.function
+    # @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             if run_options.use_standard_autoencoder == 1:
@@ -70,7 +70,8 @@ def optimize(hyperp, run_options, file_paths,
                 batch_loss_train_decoder = loss_penalized_difference(
                         batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
                 batch_latent_pred_forward_model_train = solve_PDE(
-                        run_options, batch_input_pred_train_AE,
+                        run_options, obs_indices,
+                        batch_input_pred_train_AE,
                         prestiffness, boundary_matrix, load_vector)
                 batch_loss_train_forward_model = loss_penalized_difference(
                         batch_latent_train, batch_latent_pred_forward_model_train,
@@ -92,7 +93,7 @@ def optimize(hyperp, run_options, file_paths,
         return gradients
 
     #=== Validation Step ===#
-    @tf.function
+    # @tf.function
     def val_step(batch_input_val, batch_latent_val):
         if run_options.use_standard_autoencoder == 1:
             batch_input_pred_val_AE = NN(batch_input_val)
@@ -110,14 +111,12 @@ def optimize(hyperp, run_options, file_paths,
             batch_state_obs_val = batch_input_val
             batch_parameter_pred = NN.encoder(batch_input_val)
 
-        batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_encoder +\
-                batch_loss_val_decoder + batch_loss_val_forward_model
         metrics.mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         metrics.mean_loss_val_encoder(batch_loss_val_encoder)
         metrics.mean_loss_val_decoder(batch_loss_val_decoder)
 
     #=== Test Step ===#
-    @tf.function
+    # @tf.function
     def test_step(batch_input_test, batch_latent_test):
         if run_options.use_standard_autoencoder == 1:
             batch_input_pred_test_AE = NN(batch_input_test)
@@ -142,8 +141,6 @@ def optimize(hyperp, run_options, file_paths,
             batch_state_obs_test = batch_input_test
             batch_parameter_pred = NN.encoder(batch_input_test)
 
-        batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder +\
-                batch_loss_test_decoder + batch_loss_test_forward_model
         metrics.mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         metrics.mean_loss_test_encoder(batch_loss_test_encoder)
         metrics.mean_loss_test_decoder(batch_loss_test_decoder)
