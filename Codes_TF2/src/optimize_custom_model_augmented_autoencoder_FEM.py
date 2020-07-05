@@ -81,6 +81,7 @@ def optimize(hyperp, run_options, file_paths,
 
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
                     batch_loss_train_decoder + batch_loss_train_forward_model
+
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)

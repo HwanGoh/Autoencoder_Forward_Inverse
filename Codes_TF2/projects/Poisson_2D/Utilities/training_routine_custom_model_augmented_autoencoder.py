@@ -14,7 +14,7 @@ from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference,\
         relative_error, reg_prior
 from optimize_custom_model_augmented_autoencoder_FEM import optimize
-from optimize_distributed_custom_model_aware_augmented_FEM import optimize_distributed
+from optimize_distributed_custom_model_augmented_autoencoder_FEM import optimize_distributed
 from Utilities.solve_poisson_2D import solve_PDE
 
 ###############################################################################
