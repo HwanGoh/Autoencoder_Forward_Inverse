@@ -25,6 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         hyperp, run_options, file_paths,
         NN, optimizer,
+        obs_indices,
         loss_penalized_difference, relative_error,
         reg_prior, prior_mean, prior_covariance_cholesky,
         solve_PDE, prestiffness, boundary_matrix, load_vector,
