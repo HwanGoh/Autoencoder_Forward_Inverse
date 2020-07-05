@@ -110,6 +110,6 @@ def trainer_custom(hyperp, run_options, file_paths):
                 hyperp, run_options, file_paths,
                 NN, optimizer,
                 loss_penalized_difference, relative_error,
+                reg_prior, prior_mean, prior_covariance_cholesky,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, num_batches_train)
-
