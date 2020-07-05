@@ -18,8 +18,6 @@ import pandas as pd
 
 from metrics_model_augmented_autoencoder import Metrics
 
-from Dataset_Management.Data_Generator_1D.forward_functions import exponential
-
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################

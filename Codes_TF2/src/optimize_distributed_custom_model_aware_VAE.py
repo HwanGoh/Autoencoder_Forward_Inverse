@@ -70,6 +70,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
             with tf.GradientTape() as tape:
                 batch_likelihood_train = NN(batch_data_train)
                 batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_data_train)
+
                 unscaled_replica_batch_loss_train_VAE =\
                         loss_penalized_difference(
                                 batch_likelihood_train, batch_data_train, 1)
@@ -77,11 +78,13 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                         batch_post_mean_train, batch_log_post_var_train,
                         prior_mean, prior_cov_inv,
                         log_det_prior_cov, latent_dimension)
+
                 unscaled_replica_batch_loss_train =\
                         -(unscaled_replica_batch_loss_train_VAE
                                 -unscaled_replica_batch_loss_loss_train_KLD)
                 scaled_replica_batch_loss_train = tf.reduce_sum(
                         unscaled_replica_batch_loss_train * (1./GLOBAL_BATCH_SIZE))
+
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
             metrics.mean_loss_train_autoencoder(-unscaled_replica_batch_loss_train_VAE)
@@ -98,6 +101,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         def val_step(batch_data_val, batch_latent_val):
             batch_likelihood_val = NN(batch_data_val)
             batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_data_val)
+
             unscaled_replica_batch_loss_val_VAE = loss_penalized_difference(
                     batch_likelihood_val, batch_data_val, 1)
             unscaled_replica_batch_loss_val_KLD = KLD_loss(
@@ -106,6 +110,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                     log_det_prior_cov, latent_dimension)
             unscaled_replica_batch_loss_val =\
                     -(unscaled_replica_batch_loss_val_VAE - unscaled_replica_batch_loss_val_KLD)
+
             metrics.mean_loss_val_autoencoder(-unscaled_replica_batch_loss_val_VAE)
             metrics.mean_loss_val_encoder(unscaled_replica_batch_loss_val_KLD)
             metrics.mean_loss_val(unscaled_replica_batch_loss_val)
@@ -119,6 +124,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
             batch_data_likelihood_test = NN(batch_data_test)
             batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_data_test)
             batch_data_pred_test = NN.decoder(batch_latent_test)
+
             unscaled_replica_batch_loss_test_VAE =\
                     loss_penalized_difference(
                             batch_data_likelihood_test, batch_data_test, 1)
@@ -127,16 +133,17 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
             unscaled_replica_batch_loss_test =\
                     -(unscaled_replica_batch_loss_test_VAE - unscaled_replica_batch_loss_test_KLD)
+
             metrics.mean_loss_test_autoencoder(-unscaled_replica_batch_loss_test_VAE)
             metrics.mean_loss_test_encoder(unscaled_replica_batch_loss_test_KLD)
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
 
-            metrics.mean_relative_error_data_autoencoder(
-                    relative_error(batch_data_likelihood_test, batch_data_test))
-            metrics.mean_relative_error_latent_encoder(
-                    relative_error(batch_post_mean_test, batch_latent_test))
-            metrics.mean_relative_error_data_decoder(
-                    relative_error(batch_data_pred_test, batch_data_test))
+            metrics.mean_relative_error_data_autoencoder(relative_error(
+                batch_data_test, batch_data_likelihood_test))
+            metrics.mean_relative_error_latent_encoder(relative_error(
+                batch_latent_test, batch_post_mean_test))
+            metrics.mean_relative_error_data_decoder(relative_error(
+                batch_data_test, batch_data_pred_test))
 
         @tf.function
         def dist_test_step(batch_data_test, batch_latent_test):

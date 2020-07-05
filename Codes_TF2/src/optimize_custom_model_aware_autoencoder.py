@@ -56,6 +56,7 @@ def optimize(hyperp, run_options, file_paths,
             batch_input_pred_train_AE = NN(batch_input_train)
             batch_latent_pred_train = NN.encoder(batch_input_train)
             batch_input_pred_train = NN.decoder(batch_latent_train)
+
             batch_loss_train_autoencoder = loss_penalized_difference(
                     batch_input_pred_train_AE, batch_input_train, 1)
             batch_loss_train_encoder = loss_penalized_difference(
@@ -72,8 +73,10 @@ def optimize(hyperp, run_options, file_paths,
                         batch_latent_pred_train,
                         prior_mean, prior_covariance_cholesky,
                         hyperp.penalty_prior)
+
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
                     batch_loss_train_decoder + batch_reg_train_prior
+
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)
@@ -88,13 +91,16 @@ def optimize(hyperp, run_options, file_paths,
         batch_input_pred_val_AE = NN(batch_input_val)
         batch_latent_pred_val = NN.encoder(batch_input_val)
         batch_input_pred_val = NN.decoder(batch_latent_val)
+
         batch_loss_val_autoencoder = loss_penalized_difference(
                 batch_input_pred_val_AE, batch_input_val, 1)
         batch_loss_val_encoder = loss_penalized_difference(
                 batch_latent_pred_val, batch_latent_val, hyperp.penalty_encoder)
         batch_loss_val_decoder = loss_penalized_difference(
                 batch_input_pred_val, batch_input_val, hyperp.penalty_decoder)
+
         batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_encoder + batch_loss_val_decoder
+
         metrics.mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         metrics.mean_loss_val_encoder(batch_loss_val_encoder)
         metrics.mean_loss_val_decoder(batch_loss_val_decoder)
@@ -106,14 +112,17 @@ def optimize(hyperp, run_options, file_paths,
         batch_input_pred_test_AE = NN(batch_input_test)
         batch_latent_pred_test = NN.encoder(batch_input_test)
         batch_input_pred_test = NN.decoder(batch_latent_test)
+
         batch_loss_test_autoencoder = loss_penalized_difference(
                 batch_input_pred_test_AE, batch_input_test, 1)
         batch_loss_test_encoder = loss_penalized_difference(
                 batch_latent_pred_test, batch_latent_test, hyperp.penalty_encoder)
         batch_loss_test_decoder = loss_penalized_difference(
                 batch_input_pred_test, batch_input_test, hyperp.penalty_decoder)
+
         batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder +\
                 batch_loss_test_decoder
+
         metrics.mean_loss_test_autoencoder(batch_loss_test_autoencoder)
         metrics.mean_loss_test_encoder(batch_loss_test_encoder)
         metrics.mean_loss_test_decoder(batch_loss_test_decoder)

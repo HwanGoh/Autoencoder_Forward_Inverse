@@ -61,11 +61,14 @@ def optimize(hyperp, run_options, file_paths,
         with tf.GradientTape() as tape:
             batch_likelihood_train = NN(batch_input_train)
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
+
             batch_loss_train_VAE = loss_penalized_difference(
                     batch_likelihood_train, batch_input_train, 1)
             batch_loss_train_KLD = KLD_loss(batch_post_mean_train, batch_log_post_var_train,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
+
             batch_loss_train = -(batch_loss_train_VAE - batch_loss_train_KLD)
+
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)
@@ -78,11 +81,14 @@ def optimize(hyperp, run_options, file_paths,
     def val_step(batch_input_val, batch_latent_val):
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
+
         batch_loss_val_VAE = loss_penalized_difference(
                 batch_likelihood_val, batch_input_val, 1)
         batch_loss_val_KLD = KLD_loss(batch_post_mean_val, batch_log_post_var_val,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
+
         batch_loss_val = -(batch_loss_val_VAE - batch_loss_val_KLD)
+
         metrics.mean_loss_val_autoencoder(-batch_loss_val_VAE)
         metrics.mean_loss_val_encoder(batch_loss_val_KLD)
         metrics.mean_loss_val(batch_loss_val)
@@ -93,21 +99,24 @@ def optimize(hyperp, run_options, file_paths,
         batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
         batch_input_pred_test = NN.decoder(batch_latent_test)
+
         batch_loss_test_VAE = loss_penalized_difference(
                 batch_likelihood_test, batch_input_test, 1)
         batch_loss_test_KLD = KLD_loss(batch_post_mean_test, batch_log_post_var_test,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
+
         batch_loss_test = -(batch_loss_test_VAE - batch_loss_test_KLD)
+
         metrics.mean_loss_test_autoencoder(-batch_loss_test_VAE)
         metrics.mean_loss_test_encoder(batch_loss_test_KLD)
         metrics.mean_loss_test(batch_loss_test)
 
-        metrics.mean_relative_error_input_autoencoder(relative_error(batch_likelihood_test,
-            batch_input_test))
-        metrics.mean_relative_error_latent_encoder(relative_error(tf.math.exp(batch_post_mean_test),
-            batch_latent_test))
-        metrics.mean_relative_error_input_decoder(relative_error(batch_input_pred_test,
-            batch_input_test))
+        metrics.mean_relative_error_input_autoencoder(relative_error(
+            batch_input_test, batch_likelihood_test))
+        metrics.mean_relative_error_latent_encoder(relative_error(
+            batch_latent_test, batch_post_mean_test))
+        metrics.mean_relative_error_input_decoder(relative_error(
+            batch_input_test, batch_input_pred_test))
 
 ###############################################################################
 #                             Train Neural Network                            #
