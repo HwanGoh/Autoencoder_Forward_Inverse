@@ -41,7 +41,7 @@ def trainer_custom(hyperp, run_options, file_paths,
 
     #=== Load Observation Indices ===#
     if run_options.obs_type == 'full':
-        obs_dimensions = run_options.state_dimensions
+        obs_dimensions = run_options.parameter_dimensions
     if run_options.obs_type == 'obs':
         print('Loading Boundary Indices')
         df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
@@ -56,7 +56,6 @@ def trainer_custom(hyperp, run_options, file_paths,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
-    output_dimensions = run_options.state_dimensions
 
     ############################
     #   Objective Functional   #

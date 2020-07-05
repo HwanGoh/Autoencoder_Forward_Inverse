@@ -41,7 +41,7 @@ def trainer_custom(hyperp, run_options, file_paths,
 
     #=== Load Observation Indices ===#
     if run_options.obs_type == 'full':
-        obs_dimensions = run_options.state_dimensions
+        obs_dimensions = run_options.parameter_dimensions
     if run_options.obs_type == 'obs':
         print('Loading Boundary Indices')
         df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
@@ -86,7 +86,7 @@ def trainer_custom(hyperp, run_options, file_paths,
                 GLOBAL_BATCH_SIZE, run_options.random_seed)
 
         #=== Data and Latent Dimensions of Autoencoder ===#
-        input_dimensions = run_options.state_dimensions
+        input_dimensions = obs_dimensions
         latent_dimensions = run_options.parameter_dimensions
 
         #=== Posterior Covariance Loss Functional ===#

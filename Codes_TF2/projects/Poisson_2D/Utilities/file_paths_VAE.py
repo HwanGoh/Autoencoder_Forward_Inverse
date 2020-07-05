@@ -17,12 +17,11 @@ class FilePaths():
     def __init__(self, hyperp, run_options,
             autoencoder_loss, project_name,
             data_options, dataset_directory):
-
         #################
         #   File Name   #
         #################
         #=== Data Type ===#
-        data_string = data_options + run_options.obs_type + '_'
+        data_string = data_options + '_' + run_options.obs_type + '_'
 
         #=== Prior Properties ===#
         if run_options.prior_type_AC == 1:
@@ -73,57 +72,61 @@ class FilePaths():
         #=== Parameters ===#
         self.obs_indices_savefilepath = dataset_directory +\
                 project_name + 'obs_indices_' +\
-                'n%d_o%d_' %(run_options.num_nodes, run_options.num_obs_points)
+                'o%d_'%(run_options.num_obs_points) + data_options + '_' + prior_string
         self.input_train_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_train_' +\
-                'd%d_n%d_' %(run_options.num_data_train, run_options.num_nodes) +\
-                prior_string
-        self.output_train_savefilepath = dataset_directory +\
-                project_name +\
-                'state_' + run_options.obs_type + '_train_' +\
-                'd%d_n%d_' %(run_options.num_data_train, run_options.num_nodes) +\
-                prior_string
+                'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string
         self.input_test_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_test_' +\
-                'd%d_n%d_' %(run_options.num_data_test, run_options.num_nodes) +\
-                prior_string
-        self.output_test_savefilepath = dataset_directory +\
-                project_name +\
-                'state_' + run_options.obs_type + '_test_' +\
-                'd%d_n%d_' %(run_options.num_data_test, run_options.num_nodes) +\
-                prior_string
+                'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string
+        if run_options.obs_type == 'full':
+            self.output_train_savefilepath = dataset_directory +\
+                    project_name +\
+                    'state_' + run_options.obs_type + '_train_' +\
+                    'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string
+            self.output_test_savefilepath = dataset_directory +\
+                    project_name +\
+                    'state_' + run_options.obs_type + '_test_' +\
+                    'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string
+        if run_options.obs_type == 'obs':
+            self.output_train_savefilepath = dataset_directory +\
+                    project_name +\
+                    'state_' + run_options.obs_type + '_train_' +\
+                    'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_train) +\
+                    data_options + '_' + prior_string
+            self.output_test_savefilepath = dataset_directory +\
+                    project_name +\
+                    'state_' + run_options.obs_type + '_test_' +\
+                    'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_test) +\
+                    data_options + '_' + prior_string
 
         #############
         #   Prior   #
         #############
         #=== Prior ===#
         self.prior_mean_savefilepath = dataset_directory +\
-                'prior_mean_' + 'n%d_' %(run_options.num_nodes) +\
-                prior_string
+                'prior_mean_' + data_options + '_' + prior_string
         self.prior_covariance_savefilepath = dataset_directory +\
-                'prior_covariance_' + 'n%d_' %(run_options.num_nodes) +\
-                prior_string
+                'prior_covariance_' + data_options + '_' + prior_string
         self.prior_covariance_cholesky_savefilepath = dataset_directory +\
-                'prior_covariance_cholesky_' + 'n%d_' %(run_options.num_nodes) +\
-                prior_string
+                'prior_covariance_cholesky_' + data_options + '_' + prior_string
         self.prior_covariance_inverse_savefilepath = dataset_directory +\
-                'prior_covariance_inverse_' + 'n%d_' %(run_options.num_nodes) +\
-                prior_string
+                'prior_covariance_inverse_' + data_options + '_' + prior_string
 
         ###################
         #   FEM Objects   #
         ###################
         #=== Pre-Matrices ===#
         self.premass_savefilepath = dataset_directory +\
-                'premass_' + 'n%d' %(run_options.num_nodes)
+                'premass_' + data_options
         self.prestiffness_savefilepath = dataset_directory +\
-                'prestiffness_' + 'n%d' %(run_options.num_nodes)
+                'prestiffness_' + data_options
         self.boundary_matrix_savefilepath = dataset_directory +\
-                'boundary_matrix_' + 'n%d' %(run_options.num_nodes)
+                'boundary_matrix_' + data_options
         self.load_vector_savefilepath = dataset_directory +\
-                'load_vector_' + 'n%d' %(run_options.num_nodes)
+                'load_vector_' + data_options
 
 ###############################################################################
 #                               Derived Classes                               #

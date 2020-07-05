@@ -48,8 +48,8 @@ class RunOptions:
         self.num_data_test = 200
 
         #=== Mesh Properties ===#
-        self.num_nodes = 25
-        self.obs_type = 'full'
+        self.parameter_dimensions = 25
+        self.obs_type = 'obs'
         self.num_obs_points = 10
 
         #=== Train or Test Set ===#
@@ -65,10 +65,6 @@ class RunOptions:
         #=== PDE Properties ===#
         self.boundary_matrix_constant = 0.5
         self.load_vector_constant = -1
-
-        #=== Parameter and Observation Dimensions === #
-        self.parameter_dimensions = 25
-        self.state_dimensions = 25
 
         #=== Random Seed ===#
         self.random_seed = 1234
@@ -97,9 +93,9 @@ if __name__ == "__main__":
     #=== File Names ===#
     autoencoder_loss = 'maware_'
     project_name = 'poisson_2D_'
-    data_options = 'n%d_' %(run_options.num_nodes)
+    data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
-            'n%d/'%(run_options.num_nodes)
+            'n%d/'%(run_options.parameter_dimensions)
     file_paths = FilePathsTraining(hyperp, run_options,
                                    autoencoder_loss, project_name,
                                    data_options, dataset_directory)
