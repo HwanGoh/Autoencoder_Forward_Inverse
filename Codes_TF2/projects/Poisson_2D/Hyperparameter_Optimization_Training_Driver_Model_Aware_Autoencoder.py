@@ -66,10 +66,6 @@ class RunOptions:
         self.obs_type = 'full'
         self.num_obs_points = 10
 
-        #=== Train or Test Set ===#
-        self.generate_train_data = 1
-        self.generate_test_data = 0
-
         #=== Prior Properties ===#
         self.prior_type_AC = 1
         self.prior_mean_AC = 2
