@@ -12,7 +12,8 @@ from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class VAEFwdInv(tf.keras.Model):
-    def __init__(self, hyperp, input_dimensions, latent_dimensions,
+    def __init__(self, hyperp,
+            input_dimensions, latent_dimensions,
             kernel_initializer, bias_initializer):
         super(VAEFwdInv, self).__init__()
 ###############################################################################
@@ -52,7 +53,7 @@ class VAEFwdInv(tf.keras.Model):
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
         z = self.reparameterize(post_mean, log_post_var)
-        likelihood_mean = self.decoder(tf.math.exp(z))
+        likelihood_mean = self.decoder(z)
         return likelihood_mean
 
 ###############################################################################
