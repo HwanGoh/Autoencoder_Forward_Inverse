@@ -16,6 +16,7 @@ from loss_and_relative_errors import loss_penalized_difference,\
 from optimize_custom_model_augmented_autoencoder_FEM import optimize
 from optimize_distributed_custom_model_augmented_autoencoder_FEM import optimize_distributed
 from Utilities.solve_poisson_2D import solve_PDE
+from positivity_constraints import positivity_constraint_log_exp
 
 ###############################################################################
 #                                  Training                                   #
@@ -109,6 +110,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 NN, optimizer,
                 obs_indices,
                 loss_penalized_difference, relative_error,
+                positivity_constraint_log_exp,
                 reg_prior, prior_mean, prior_covariance_cholesky,
                 solve_PDE, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
@@ -132,6 +134,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 NN, optimizer,
                 obs_indices,
                 loss_penalized_difference, relative_error,
+                positivity_constraint_log_exp,
                 reg_prior, prior_mean, prior_covariance_cholesky,
                 solve_PDE, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,

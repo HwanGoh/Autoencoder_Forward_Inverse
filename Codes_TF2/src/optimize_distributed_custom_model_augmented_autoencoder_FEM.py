@@ -27,6 +27,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         NN, optimizer,
         obs_indices,
         loss_penalized_difference, relative_error,
+        positivity_constraint,
         reg_prior, prior_mean, prior_covariance_cholesky,
         solve_PDE, prestiffness, boundary_matrix, load_vector,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
@@ -81,11 +82,12 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                                 batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
                 unscaled_replica_batch_latent_pred_forward_model_train = solve_PDE(
                         run_options, obs_indices,
-                        batch_input_pred_train_AE,
+                        positivity_constraint(batch_input_pred_train_AE),
                         prestiffness, boundary_matrix, load_vector)
                 unscaled_replica_batch_loss_train_forward_model =\
                         loss_penalized_difference(
-                                batch_latent_train, unscaled_replica_batch_latent_pred_forward_model_train,
+                                batch_latent_train,
+                                unscaled_replica_batch_latent_pred_forward_model_train,
                                 hyperp.penalty_aug)
 
                 unscaled_replica_batch_loss_train =\

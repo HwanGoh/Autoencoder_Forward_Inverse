@@ -27,6 +27,7 @@ def optimize(hyperp, run_options, file_paths,
         NN, optimizer,
         obs_indices,
         loss_penalized_difference, relative_error,
+        positivity_constraint,
         reg_prior, prior_mean, L_pr,
         solve_PDE, prestiffness, boundary_matrix, load_vector,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
@@ -69,7 +70,7 @@ def optimize(hyperp, run_options, file_paths,
                         batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
                 batch_latent_pred_forward_model_train = solve_PDE(
                         run_options, obs_indices,
-                        batch_input_pred_train_AE,
+                        positivity_constraint(batch_input_pred_train_AE),
                         prestiffness, boundary_matrix, load_vector)
                 batch_loss_train_forward_model = loss_penalized_difference(
                         batch_latent_train, batch_latent_pred_forward_model_train,
