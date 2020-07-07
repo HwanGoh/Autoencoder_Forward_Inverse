@@ -112,10 +112,32 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     print('Loading Metrics')
     df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
     array_metrics = df_metrics.to_numpy()
-    storage_array_loss_train = array_metrics[:,0]
-    storage_array_accuracy_test = array_metrics[:,5]
 
-    #=== Plot and Save Losses===#
+    ####################
+    #   Load Metrics   #
+    ####################
+    storage_array_loss_train = array_metrics[:,0]
+    storage_array_loss_train_autoencoder = array_metrics[:,1]
+    storage_array_loss_train_encoder = array_metrics[:,2]
+    storage_array_loss_train_decoder = array_metrics[:,3]
+    if run_options.use_model_aware == 1:
+        #=== Metrics ===#
+        storage_array_relative_error_input_autoencoder = array_metrics[:,8]
+        storage_array_relative_error_input_encoder = array_metrics[:,9]
+        storage_array_relative_error_input_decoder = array_metrics[:,10]
+        storage_array_relative_gradient_norm = array_metrics[:,11]
+    if run_options.use_model_augmented == 1:
+        #=== Metrics ===#
+        storage_array_loss_train_forward_model = array_metrics[:,4]
+        storage_array_relative_error_input_autoencoder = array_metrics[:,10]
+        storage_array_relative_error_input_encoder = array_metrics[:,11]
+        storage_array_relative_error_input_decoder = array_metrics[:,12]
+        storage_array_relative_gradient_norm = array_metrics[:,13]
+
+    ################
+    #   Plotting   #
+    ################
+    #=== Loss Train ===#
     fig_loss = plt.figure()
     x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train))
@@ -127,16 +149,101 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
 
-    #=== Plot and Save Accuracies===#
+    #=== Loss Autoencoder ===#
+    fig_loss = plt.figure()
+    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    plt.plot(x_axis, np.log(storage_array_loss_train_autoencoder))
+    plt.title('Log-Loss for Autoencoder')
+    plt.xlabel('Epochs')
+    plt.ylabel('Log-Loss')
+    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+            'loss_autoencoder' + '_' + file_paths.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+
+    #=== Loss Encoder ===#
+    fig_loss = plt.figure()
+    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    plt.plot(x_axis, np.log(storage_array_loss_train_encoder))
+    plt.title('Log-Loss for Encoder')
+    plt.xlabel('Epochs')
+    plt.ylabel('Log-Loss')
+    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+            'loss_encoder' + '_' + file_paths.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+
+    #=== Loss Decoder ===#
+    fig_loss = plt.figure()
+    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    plt.plot(x_axis, np.log(storage_array_loss_train_decoder))
+    plt.title('Log-Loss for Decoder')
+    plt.xlabel('Epochs')
+    plt.ylabel('Log-Loss')
+    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+            'loss_decoder' + '_' + file_paths.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_loss)
+
+    #=== Relative Error Autoencoder ===#
     fig_accuracy = plt.figure()
     x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
-    plt.plot(x_axis, storage_array_accuracy_test)
-    plt.title('Relative Error for Modelling Discrepancy')
+    plt.plot(x_axis, storage_array_relative_error_input_autoencoder)
+    plt.title('Relative Error for Autoencoder')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
     figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
-            'accuracy' + '_' + file_paths.filename + '.png'
+            'relative_error_autoencoder' + '_' + file_paths.filename + '.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_accuracy)
+
+    #=== Relative Error Encoder ===#
+    fig_accuracy = plt.figure()
+    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    plt.plot(x_axis, storage_array_relative_error_input_encoder)
+    plt.title('Relative Error for Encoder')
+    plt.xlabel('Epochs')
+    plt.ylabel('Relative Error')
+    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+            'relative_error_encoder' + '_' + file_paths.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_accuracy)
+
+    #=== Relative Error Decoder ===#
+    fig_accuracy = plt.figure()
+    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    plt.plot(x_axis, storage_array_relative_error_input_decoder)
+    plt.title('Relative Error for Decoder')
+    plt.xlabel('Epochs')
+    plt.ylabel('Relative Error')
+    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+            'relative_error_decoder' + '_' + file_paths.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_accuracy)
+
+    #=== Relative Gradient Norm ===#
+    fig_gradient_norm = plt.figure()
+    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    plt.plot(x_axis, storage_array_relative_gradient_norm)
+    plt.title('Relative Gradient Norm')
+    plt.xlabel('Epochs')
+    plt.ylabel('Relative Error')
+    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+            'relative_error_gradient_norm' + '_' + file_paths.filename + '.png'
+    plt.savefig(figures_savefile_name)
+    plt.close(fig_gradient_norm)
+
+    if run_options.use_model_augmented == 1:
+        #=== Relative Error Decoder ===#
+        fig_loss = plt.figure()
+        x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+        plt.plot(x_axis, storage_array_loss_train_forward_model)
+        plt.title('Log-loss Forward Model')
+        plt.xlabel('Epochs')
+        plt.ylabel('Relative Error')
+        figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+                'loss_forward_model' + '_' + file_paths.filename + '.png'
+        plt.savefig(figures_savefile_name)
+        plt.close(fig_loss)
 
     print('Plotting complete')
