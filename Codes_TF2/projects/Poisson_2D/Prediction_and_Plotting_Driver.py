@@ -95,4 +95,4 @@ if __name__ == "__main__":
                      project_name, data_options, dataset_directory)
 
     #=== Plot and Save ===#
-    # plot_and_save_metrics(hyperp, run_options, file_paths)
+    plot_and_save_metrics(hyperp, run_options, file_paths)

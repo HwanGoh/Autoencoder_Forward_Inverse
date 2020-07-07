@@ -81,23 +81,25 @@ def predict_and_plot(hyperp, run_options, file_paths,
     nodes, elements, _, _, _, _, _, _ = load_mesh(file_paths)
 
     #=== Plot FEM Functions ===#
-    plot_FEM_function(file_paths.savefile_name_parameter_test,
-                     'True Parameter',
+    plot_FEM_function(file_paths.figures_savefile_name_parameter_test,
+                     'True Parameter', 5.0,
                       nodes, elements,
                       parameter_test_sample)
-    plot_FEM_function(file_paths.savefile_name_parameter_pred,
-                      'Parameter Prediction',
+    plot_FEM_function(file_paths.figures_savefile_name_parameter_pred,
+                      'Parameter Prediction', 5.0,
                       nodes, elements,
                       parameter_pred_sample)
     if run_options.obs_type == 'full':
-        plot_FEM_function(file_paths.savefile_name_state_test,
-                          'True State',
+        plot_FEM_function(file_paths.figures_savefile_name_state_test,
+                          'True State', 2.6,
                           nodes, elements,
                           state_obs_test_sample)
-        plot_FEM_function(file_paths.savefile_name_state_pred,
-                          'State Prediction',
+        plot_FEM_function(file_paths.figures_savefile_name_state_pred,
+                          'State Prediction', 2.6,
                           nodes, elements,
                           state_obs_pred_sample)
+
+    print('Predictions plotted')
 
 ###############################################################################
 #                                Plot Metrics                                 #
