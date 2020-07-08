@@ -140,7 +140,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         print('Loading Metrics')
         df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
         array_metrics = df_metrics.to_numpy()
-        storage_array_loss_val = array_metrics[:,4]
+        storage_array_loss_val = array_metrics[:,3]
 
         return storage_array_loss_val[-1]
 
