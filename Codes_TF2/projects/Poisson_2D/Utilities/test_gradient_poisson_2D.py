@@ -11,7 +11,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def test_gradient(hyperp, run_options, file_paths):
 ###############################################################################
-#                         Construct Tensorflow Gradient                       #
+#                        Construct Directional Derivative                     #
 ###############################################################################
     ##################
     #   Load Prior   #
@@ -53,13 +53,6 @@ def test_gradient(hyperp, run_options, file_paths):
     ########################
     #   Compute Gradient   #
     ########################
-    #=== Draw Input Parameter ===#
-    normal_draw = np.random.normal(0, 1, run_options.parameter_dimensions)
-    parameter_input = np.matmul(prior_covariance_cholesky, normal_draw) + prior_mean.T
-    parameter_input = (1/k)*np.log(np.exp(k*parameter_input)+1);
-    parameter_input = tf.cast(parameter_input, tf.float32)
-    parameter_input = tf.expand_dims(parameter_input, axis = 0)
-
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
         input_dimensions = run_options.parameter_dimensions
@@ -75,17 +68,66 @@ def test_gradient(hyperp, run_options, file_paths):
                            input_dimensions, latent_dimensions,
                            kernel_initializer, bias_initializer)
 
+    #=== Display Neural Network Architecture ===#
+    NN.build((hyperp.batch_size, input_dimensions))
+    NN.summary()
+
+    #=== Draw and Set Weights ===#
+    weights_list = []
+    for n in range(0, len(NN.weights)):
+        weights_list.append(tf.random.normal(NN.weights[n].shape, 0, 1, tf.float32))
+    NN.set_weights(weights_list)
+
     #=== Compute Gradient ===#
     with tf.GradientTape() as tape:
-        NN_output = NN(parameter_input)
-        loss = loss_penalized_difference(state_obs_true, NN_output, 1)
+        NN_output = NN(parameter_true)
+        loss_0 = loss_penalized_difference(state_obs_true, NN_output, 1)
     gradients = tape.gradient(loss, NN.trainable_variables)
 
     ############################
     #   Direction Derivative   #
     ############################
     #=== Draw Direction ===#
-    normal_draw = np.random.normal(0, 1, run_options.parameter_dimensions)
-    direction_vector = np.matmul(prior_covariance_cholesky, normal_draw) + prior_mean.T
-    direction_vector = direction_vector/np.linalg.norm(direction_vector, 2)
-    direction_vector = tf.cast(direction_vector, tf.float32)
+    directions_list = []
+    for n in range(0, len(gradients)):
+        directions_list.append(tf.random.normal(gradients[n].shape, 0, 1, tf.float32))
+        directions_list[n] = directions_list[n]/tf.linalg.norm(directions_list[n],2)
+
+    #=== Directional Derivative ===#
+    directional_derivative = 0.0
+    for n in range(0, len(gradients)):
+        directional_derivative += tf.reduce_sum(tf.multiply(gradients[n], directions_list[n]))
+
+###############################################################################
+#                     Construct Finite Difference Derivative                  #
+###############################################################################
+    errors_list = []
+    gradients_fd_list = []
+    h_collection = np.power(2., -np.arange(32))
+
+    for h in h_collection:
+        #=== Perturbed Loss ===#
+        weights_perturbed_list = []
+        for n in range(0, len(NN.weights)):
+            weights_perturbed_list[n] = weights_list[n] + h*directions_list[n]
+        NN.set_weights(weights_perturbed_list)
+        NN_perturbed_output = NN(parameter_true)
+        loss_h = loss_penalized_difference(state_obs_true, NN_perturbed_output, 1)
+        gradient_fd = (loss_h - loss_0)/h
+        gradients_fd_list.append(gradient_fd)
+        errors_list = abs(gradient_fd - directional_derivative)/abs(directional_derivative)
+
+###############################################################################
+#                                   Plotting                                  #
+###############################################################################
+    plt.loglog(h_collection, errors_list, "-ob", label="Error Grad")
+    plt.loglog(h_collection,
+            (.5*errors_list[0]/h_collection[0])*h_collection, "-.k", label="First Order")
+    plt.savefig('grad_test.png', dpi=200)
+    plt.cla()
+    plt.clf()
+
+    print(f"FD gradients: {gradients_fd_list}")
+    print(f"Errors: {errors_list}")
+    plt.plot(h_collection, gradients_fd_list, "-ob")
+    plt.savefig('gradients.png')
