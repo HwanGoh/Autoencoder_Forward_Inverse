@@ -1,7 +1,9 @@
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from get_prior import load_prior
+from positivity_constraints import positivity_constraint_log_exp
 from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
 from Utilities.solve_poisson_2D import solve_PDE
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
@@ -28,7 +30,7 @@ def test_gradient(hyperp, run_options, file_paths):
     #=== Draw True Parameter ===#
     normal_draw = np.random.normal(0, 1, run_options.parameter_dimensions)
     parameter_true = np.matmul(prior_covariance_cholesky, normal_draw) + prior_mean.T
-    parameter_true = (1/k)*np.log(np.exp(k*parameter_true)+1);
+    parameter_true = positivity_constraint_log_exp(parameter_true)
     parameter_true = tf.cast(parameter_true, tf.float32)
     parameter_true = tf.expand_dims(parameter_true, axis = 0)
 
@@ -75,14 +77,19 @@ def test_gradient(hyperp, run_options, file_paths):
     #=== Draw and Set Weights ===#
     weights_list = []
     for n in range(0, len(NN.weights)):
-        weights_list.append(tf.random.normal(NN.weights[n].shape, 0, 1, tf.float32))
+        weights_list.append(tf.random.normal(NN.weights[n].shape, 0, 0.05, tf.float32))
     NN.set_weights(weights_list)
 
     #=== Compute Gradient ===#
     with tf.GradientTape() as tape:
         NN_output = NN(parameter_true)
-        loss_0 = loss_penalized_difference(state_obs_true, NN_output, 1)
-    gradients = tape.gradient(loss, NN.trainable_variables)
+        test = positivity_constraint_log_exp(NN_output)
+        forward_model_pred = solve_PDE(
+                run_options, obs_indices,
+                positivity_constraint_log_exp(NN_output),
+                prestiffness, boundary_matrix, load_vector)
+        loss_0 = loss_penalized_difference(state_obs_true, forward_model_pred, 1)
+    gradients = tape.gradient(loss_0, NN.trainable_variables)
 
     ############################
     #   Direction Derivative   #
@@ -90,37 +97,57 @@ def test_gradient(hyperp, run_options, file_paths):
     #=== Draw Direction ===#
     directions_list = []
     for n in range(0, len(gradients)):
-        directions_list.append(tf.random.normal(gradients[n].shape, 0, 1, tf.float32))
+        directions_list.append(tf.random.normal(gradients[n].shape, 0, 0.05, tf.float32))
         directions_list[n] = directions_list[n]/tf.linalg.norm(directions_list[n],2)
 
     #=== Directional Derivative ===#
     directional_derivative = 0.0
     for n in range(0, len(gradients)):
         directional_derivative += tf.reduce_sum(tf.multiply(gradients[n], directions_list[n]))
+    directional_derivative = directional_derivative.numpy()
 
 ###############################################################################
 #                     Construct Finite Difference Derivative                  #
 ###############################################################################
-    errors_list = []
+    loss_h_list = []
     gradients_fd_list = []
+    errors_list = []
     h_collection = np.power(2., -np.arange(32))
 
     for h in h_collection:
         #=== Perturbed Loss ===#
         weights_perturbed_list = []
         for n in range(0, len(NN.weights)):
-            weights_perturbed_list[n] = weights_list[n] + h*directions_list[n]
+            weights_perturbed_list.append(weights_list[n] + h*directions_list[n])
         NN.set_weights(weights_perturbed_list)
         NN_perturbed_output = NN(parameter_true)
-        loss_h = loss_penalized_difference(state_obs_true, NN_perturbed_output, 1)
+        forward_model_perturbed_pred = solve_PDE(
+                run_options, obs_indices,
+                positivity_constraint_log_exp(NN_perturbed_output),
+                prestiffness, boundary_matrix, load_vector)
+
+        loss_h = loss_penalized_difference(state_obs_true, forward_model_perturbed_pred, 1)
         gradient_fd = (loss_h - loss_0)/h
+        error = abs(gradient_fd - directional_derivative)/abs(directional_derivative)
+
+        loss_h = loss_h.numpy()
+        gradient_fd = gradient_fd.numpy()
+        error = error.numpy()
+
+        loss_h_list.append(loss_h)
         gradients_fd_list.append(gradient_fd)
-        errors_list = abs(gradient_fd - directional_derivative)/abs(directional_derivative)
+        errors_list.append(error)
 
 ###############################################################################
 #                                   Plotting                                  #
 ###############################################################################
-    plt.loglog(h_collection, errors_list, "-ob", label="Error Grad")
+    #=== Plot Functional ===#
+    plt.loglog(h_collection, loss_h_list, "-ob", label="Functional")
+    plt.savefig('functional.png', dpi=200)
+    plt.close()
+
+    #=== Plot Error ===#
+    plt.loglog(h_collection, errors_list, "-ob", label="Error")
     plt.loglog(h_collection,
             (.5*errors_list[0]/h_collection[0])*h_collection, "-.k", label="First Order")
     plt.savefig('grad_test.png', dpi=200)
@@ -129,5 +156,3 @@ def test_gradient(hyperp, run_options, file_paths):
 
     print(f"FD gradients: {gradients_fd_list}")
     print(f"Errors: {errors_list}")
-    plt.plot(h_collection, gradients_fd_list, "-ob")
-    plt.savefig('gradients.png')

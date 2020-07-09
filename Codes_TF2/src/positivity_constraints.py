@@ -11,4 +11,4 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def positivity_constraint_log_exp(x):
     k = 0.5
-    return (1/k)*np.log(np.exp(k*x)+1);
+    return (1/k)*tf.math.log(tf.math.exp(k*x)+1);
