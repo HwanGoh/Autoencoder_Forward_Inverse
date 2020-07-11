@@ -21,7 +21,11 @@ class FilePaths():
         #   File Name   #
         #################
         #=== Data Type ===#
-        data_string = data_options + '_' + run_options.obs_type + '_'
+        if run_options.obs_type == 'full':
+            obs_string = 'full'
+        if run_options.obs_type == 'obs':
+            obs_string = 'obs_o%d'%(run_options.num_obs_points)
+        data_string = data_options + '_' + obs_string + '_'
 
         #=== Prior Properties ===#
         if run_options.prior_type_AC == 1:
