@@ -24,7 +24,7 @@ class Hyperparameters:
     activation        = 'relu'
     penalty_encoder   = 50
     penalty_decoder   = 0
-    penalty_aug       = 50
+    penalty_aug       = 1
     penalty_prior     = 0
     batch_size        = 100
     num_epochs        = 1000
