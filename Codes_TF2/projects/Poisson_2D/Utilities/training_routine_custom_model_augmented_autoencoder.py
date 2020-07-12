@@ -82,11 +82,13 @@ def trainer_custom(hyperp, run_options, file_paths):
         load_flag = 1
     else:
         load_flag = 0
-    prior_mean,\
-    prior_covariance, prior_covariance_cholesky\
+    prior_mean, _, _,\
+    prior_covariance_cholesky_inverse\
     = load_prior(run_options, file_paths,
                  load_mean = 1,
-                 load_covariance = 0, load_covariance_cholesky = load_flag)
+                 load_covariance = 0,
+                 load_covariance_cholesky = 0,
+                 load_covariance_cholesky_inverse = load_flag)
 
     #=== Load FEM Matrices ===#
     premass, prestiffness, boundary_matrix, load_vector =\
@@ -111,7 +113,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 obs_indices,
                 loss_penalized_difference, relative_error,
                 positivity_constraint_log_exp,
-                reg_prior, prior_mean, prior_covariance_cholesky,
+                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
                 solve_PDE, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,
@@ -135,7 +137,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 obs_indices,
                 loss_penalized_difference, relative_error,
                 positivity_constraint_log_exp,
-                reg_prior, prior_mean, prior_covariance_cholesky,
+                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
                 solve_PDE, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,

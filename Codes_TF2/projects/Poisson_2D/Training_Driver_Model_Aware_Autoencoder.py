@@ -24,8 +24,8 @@ class Hyperparameters:
     activation        = 'relu'
     penalty_encoder   = 50
     penalty_decoder   = 1
-    penalty_prior     = 0.0
-    batch_size        = 1000
+    penalty_prior     = 0.5
+    batch_size        = 100
     num_epochs        = 10
 
 class RunOptions:
@@ -49,7 +49,7 @@ class RunOptions:
 
         #=== Data Properties ===#
         self.parameter_dimensions = 25
-        self.obs_type = 'obs'
+        self.obs_type = 'full'
         self.num_obs_points = 10
 
         #=== Prior Properties ===#

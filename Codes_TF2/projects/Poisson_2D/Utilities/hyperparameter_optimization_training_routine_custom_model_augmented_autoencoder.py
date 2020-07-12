@@ -20,6 +20,7 @@ from loss_and_relative_errors import loss_penalized_difference,\
 from optimize_custom_model_augmented_autoencoder_FEM import optimize
 from optimize_distributed_custom_model_aware_autoencoder import optimize_distributed
 from Utilities.solve_poisson_2D import solve_PDE
+from positivity_constraints import positivity_constraint_log_exp
 
 # Import skopt code
 from skopt.utils import use_named_args
@@ -59,6 +60,19 @@ def trainer_custom(hyperp, run_options, file_paths,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
+
+    #=== Prior ===#
+    if hyperp.penalty_prior != 0:
+        load_flag = 1
+    else:
+        load_flag = 0
+    prior_mean, _, _,\
+    prior_covariance_cholesky_inverse\
+    = load_prior(run_options, file_paths,
+                 load_mean = 1,
+                 load_covariance = 0,
+                 load_covariance_cholesky = 0,
+                 load_covariance_cholesky_inverse = load_flag)
 
     ############################
     #   Objective Functional   #
@@ -107,17 +121,6 @@ def trainer_custom(hyperp, run_options, file_paths,
             input_dimensions = obs_dimensions
             latent_dimensions = run_options.parameter_dimensions
 
-        #=== Prior ===#
-        if hyperp.penalty_prior != 0:
-            load_flag = 1
-        else:
-            load_flag = 0
-        prior_mean,\
-        prior_covariance, prior_covariance_cholesky\
-        = load_prior(run_options, file_paths,
-                    load_mean = 1,
-                    load_covariance = 0, load_covariance_cholesky = load_flag)
-
         #=== Load FEM Matrices ===#
         premass, prestiffness, boundary_matrix, load_vector =\
                 load_FEM_matrices_tf(run_options, file_paths)
@@ -139,8 +142,9 @@ def trainer_custom(hyperp, run_options, file_paths,
             optimize(hyperp, run_options, file_paths,
                     NN, optimizer,
                     obs_indices,
-                    loss_penalized_difference,
-                    relative_error, reg_prior, prior_covariance_cholesky,
+                    loss_penalized_difference, relative_error,
+                    positivity_constraint_log_exp,
+                    reg_prior, prior_mean, prior_covariance_cholesky_inverse,
                     solve_PDE, prestiffness, boundary_matrix, load_vector,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions,

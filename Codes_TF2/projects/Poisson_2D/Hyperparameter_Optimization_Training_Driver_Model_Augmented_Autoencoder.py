@@ -39,7 +39,7 @@ class Hyperparameters:
     penalty_encoder   = 50
     penalty_decoder   = 0
     penalty_aug       = 50
-    penalty_prior     = 0.0
+    penalty_prior     = 0.3
     batch_size        = 1000
     num_epochs        = 2
 

@@ -28,7 +28,7 @@ class Hyperparameters:
     penalty_encoder   = 1
     penalty_decoder   = 0
     penalty_aug       = 50
-    penalty_prior     = 0
+    penalty_prior     = 0.5
     batch_size        = 10
     num_epochs        = 3
 
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                                    data_options, dataset_directory)
 
     #=== Test Gradient ===#
-    test_gradient(hyperp, run_options, file_paths)
+    # test_gradient(hyperp, run_options, file_paths)
 
     #=== Initiate Training ===#
-    # trainer_custom(hyperp, run_options, file_paths)
+    trainer_custom(hyperp, run_options, file_paths)

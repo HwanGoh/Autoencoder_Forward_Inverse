@@ -154,8 +154,8 @@ class FilePaths():
                 'prior_covariance_' + data_options + '_' + prior_string
         self.prior_covariance_cholesky_savefilepath = dataset_directory +\
                 'prior_covariance_cholesky_' + data_options + '_' + prior_string
-        self.prior_covariance_inverse_savefilepath = dataset_directory +\
-                'prior_covariance_inverse_' + data_options + '_' + prior_string
+        self.prior_covariance_cholesky_inverse_savefilepath = dataset_directory +\
+                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string
 
         ###################
         #   FEM Objects   #

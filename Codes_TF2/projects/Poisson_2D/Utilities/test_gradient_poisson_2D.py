@@ -18,10 +18,11 @@ def test_gradient(hyperp, run_options, file_paths):
     ##################
     #   Load Prior   #
     ##################
-    prior_mean, _, prior_covariance_cholesky\
+    prior_mean, _, prior_covariance_cholesky, _\
     = load_prior(run_options, file_paths,
                  load_mean = 1,
-                 load_covariance = 0, load_covariance_cholesky = 1)
+                 load_covariance = 0,
+                 load_covariance_cholesky = 1, load_covariance_cholesky_inverse = 0)
     k = 0.5
 
     #####################

@@ -28,7 +28,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         obs_indices,
         loss_penalized_difference, relative_error,
         positivity_constraint,
-        reg_prior, prior_mean, prior_covariance_cholesky,
+        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
         solve_PDE, prestiffness, boundary_matrix, load_vector,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, num_batches_train):

@@ -28,7 +28,7 @@ def optimize(hyperp, run_options, file_paths,
         obs_indices,
         loss_penalized_difference, relative_error,
         positivity_constraint,
-        reg_prior, prior_mean, L_pr,
+        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
         solve_PDE, prestiffness, boundary_matrix, load_vector,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions,
@@ -75,13 +75,22 @@ def optimize(hyperp, run_options, file_paths,
                 batch_loss_train_forward_model = loss_penalized_difference(
                         batch_latent_train, batch_latent_pred_forward_model_train,
                         hyperp.penalty_aug)
+                batch_reg_train_prior = reg_prior(
+                        batch_input_pred_train_AE,
+                        prior_mean, prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
             if run_options.use_reverse_autoencoder == 1:
                 batch_state_obs_train = batch_input_train
                 batch_parameter_pred = NN.encoder(batch_input_train)
+                batch_reg_train_prior = reg_prior(
+                        batch_latent_pred_train,
+                        prior_mean, prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
-                    batch_loss_train_decoder + batch_loss_train_forward_model
+                    batch_loss_train_decoder + batch_loss_train_forward_model +\
+                    batch_reg_train_prior
 
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -106,10 +115,18 @@ def optimize(hyperp, run_options, file_paths,
                     batch_latent_val, batch_latent_pred_val, hyperp.penalty_encoder)
             batch_loss_val_decoder = loss_penalized_difference(
                     batch_input_val, batch_input_pred_val, hyperp.penalty_decoder)
+            batch_reg_val_prior = reg_prior(
+                    batch_input_pred_val_AE,
+                    prior_mean, prior_covariance_cholesky_inverse,
+                    hyperp.penalty_prior)
 
         if run_options.use_reverse_autoencoder == 1:
             batch_state_obs_val = batch_input_val
             batch_parameter_pred = NN.encoder(batch_input_val)
+            batch_reg_val_prior = reg_prior(
+                    batch_latent_pred_val,
+                    prior_mean, prior_covariance_cholesky_inverse,
+                    hyperp.penalty_prior)
 
         metrics.mean_loss_val_autoencoder(batch_loss_val_autoencoder)
         metrics.mean_loss_val_encoder(batch_loss_val_encoder)

@@ -57,6 +57,20 @@ def trainer_custom(hyperp, run_options, file_paths,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
 
+    #=== Prior ===#
+    if hyperp.penalty_prior != 0:
+        load_flag = 1
+    else:
+        load_flag = 0
+    prior_mean, _, _,\
+    prior_covariance_cholesky_inverse\
+    = load_prior(run_options, file_paths,
+                load_mean = 1,
+                load_covariance = 0,
+                load_covariance_cholesky = 0,
+                load_covariance_cholesky_inverse = load_flag)
+
+
     ############################
     #   Objective Functional   #
     ############################
@@ -102,17 +116,6 @@ def trainer_custom(hyperp, run_options, file_paths,
         if run_options.use_reverse_autoencoder == 1:
             latent_dimensions = run_options.parameter_dimensions
 
-        #=== Prior ===#
-        if hyperp.penalty_prior != 0:
-            load_flag = 1
-        else:
-            load_flag = 0
-        prior_mean,\
-        prior_covariance, prior_covariance_cholesky\
-        = load_prior(run_options, file_paths,
-                    load_mean = 1,
-                    load_covariance = 0, load_covariance_cholesky = load_flag)
-
         #=== Neural Network Regularizers ===#
         kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
         bias_initializer = 'zeros'
@@ -130,7 +133,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             optimize(hyperp, run_options, file_paths,
                     NN, optimizer,
                     loss_penalized_difference, relative_error,
-                    reg_prior, prior_mean, prior_covariance_cholesky,
+                    reg_prior, prior_mean, prior_covariance_cholesky_inverse,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions,
                     num_batches_train)
