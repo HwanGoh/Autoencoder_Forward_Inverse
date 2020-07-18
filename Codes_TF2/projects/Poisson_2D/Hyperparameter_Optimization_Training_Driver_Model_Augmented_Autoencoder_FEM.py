@@ -64,7 +64,7 @@ class RunOptions:
 
         #=== Mesh Properties ===#
         self.parameter_dimensions = 25
-        self.obs_type = 'full'
+        self.obs_type = 'obs'
         self.num_obs_points = 10
 
         #=== Prior Properties ===#
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(10, 1000, name='num_hidden_nodes')
     hyperp_of_interest_dict['penalty_encoder'] = Real(0.01, 50, name='penalty_encoder')
     hyperp_of_interest_dict['penalty_decoder'] = Real(0.01, 50, name='penalty_decoder')
-    hyperp_of_interest_dict['penalty_aug'] = Real(0.001, 50, name='penalty_augmented')
+    hyperp_of_interest_dict['penalty_aug'] = Real(0.001, 50, name='penalty_aug')
     hyperp_of_interest_dict['penalty_prior'] = Real(0.001, 0.01, name='penalty_prior')
     #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')

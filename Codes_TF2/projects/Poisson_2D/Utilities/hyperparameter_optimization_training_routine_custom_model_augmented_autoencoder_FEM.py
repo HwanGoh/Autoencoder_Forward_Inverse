@@ -47,7 +47,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         obs_dimensions = run_options.parameter_dimensions
         obs_indices = []
     if run_options.obs_type == 'obs':
-        obs_dimensions = run_options.num_obs_indices
+        obs_dimensions = run_options.num_obs_points
         print('Loading Boundary Indices')
         df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
         obs_indices = df_obs_indices.to_numpy()
@@ -176,7 +176,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         print('Loading Metrics')
         df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
         array_metrics = df_metrics.to_numpy()
-        storage_array_loss_val = array_metrics[:,4]
+        storage_array_loss_val = array_metrics[:,5]
 
         return storage_array_loss_val[-1]
 
