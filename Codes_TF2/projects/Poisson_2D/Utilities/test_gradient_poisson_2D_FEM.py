@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from get_prior import load_prior
 from positivity_constraints import positivity_constraint_log_exp
 from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
-from Utilities.solve_poisson_2D import solve_PDE
+from Utilities.solve_poisson_2D import solve_PDE_prematrices_sparse
 from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference
 
@@ -48,7 +48,7 @@ def test_gradient(hyperp, run_options, file_paths):
     #=== Generate Observation Data ===#
     premass, prestiffness, boundary_matrix, load_vector =\
             load_FEM_matrices_tf(run_options, file_paths)
-    state_obs_true = solve_PDE(
+    state_obs_true = solve_PDE_prematrices_sparse(
             run_options, obs_indices,
             parameter_true,
             prestiffness, boundary_matrix, load_vector)
@@ -85,7 +85,7 @@ def test_gradient(hyperp, run_options, file_paths):
     with tf.GradientTape() as tape:
         NN_output = NN(parameter_true)
         test = positivity_constraint_log_exp(NN_output)
-        forward_model_pred = solve_PDE(
+        forward_model_pred = solve_PDE_prematrices_sparse(
                 run_options, obs_indices,
                 positivity_constraint_log_exp(NN_output),
                 prestiffness, boundary_matrix, load_vector)
@@ -122,7 +122,7 @@ def test_gradient(hyperp, run_options, file_paths):
             weights_perturbed_list.append(weights_list[n] + h*directions_list[n])
         NN.set_weights(weights_perturbed_list)
         NN_perturbed_output = NN(parameter_true)
-        forward_model_perturbed_pred = solve_PDE(
+        forward_model_perturbed_pred = solve_PDE_prematrices_sparse(
                 run_options, obs_indices,
                 positivity_constraint_log_exp(NN_perturbed_output),
                 prestiffness, boundary_matrix, load_vector)

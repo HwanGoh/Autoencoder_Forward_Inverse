@@ -76,7 +76,7 @@ class FilePaths():
         #=== Parameters ===#
         self.obs_indices_savefilepath = dataset_directory +\
                 project_name + 'obs_indices_' +\
-                'o%d_'%(run_options.num_obs_points) + data_options + '_' + prior_string
+                'o%d_'%(run_options.num_obs_points) + data_options
         self.input_train_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_train_' +\

@@ -74,19 +74,19 @@ def optimize(hyperp, run_options, file_paths,
     @tf.custom_gradient
     def fenics_forward(parameter_pred):
         fenics_state_pred = np.zeros((parameter_pred.shape[0], len(obs_indices)))
-        # for m in range(parameter_pred.shape[0]):
-        #     parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy())
-        #     state_dl, _ = solver.forward(parameter_pred_dl)
-        #     state_data_values = state_dl.vector().get_local()
-        #     if hyperp.data_type == 'full':
-        #         fenics_state_pred[m,:] = state_data_values
-        #     if hyperp.data_type == 'bnd':
-        #         fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()
+        for m in range(parameter_pred.shape[0]):
+            parameter_pred_dl.vector().set_local(parameter_pred[m,:].numpy())
+            state_dl, _ = solver.forward(parameter_pred_dl)
+            state_data_values = state_dl.vector().get_local()
+            if hyperp.data_type == 'full':
+                fenics_state_pred[m,:] = state_data_values
+            if hyperp.data_type == 'bnd':
+                fenics_state_pred[m,:] = state_data_values[obs_indices].flatten()
         def fenics_forward_grad(dy):
             fenics_forward_grad = np.zeros((parameter_pred.shape[0], parameter_pred.shape[1]))
-            # for m in range(parameter_pred.shape[0]):
-            #     Jac_forward = solver.sensitivity(parameter_pred_dl, B_obs)
-            #     fenics_forward_grad[m,:] = tf.linalg.matmul(tf.expand_dims(dy[m,:],0), Jac_forward)
+            for m in range(parameter_pred.shape[0]):
+                Jac_forward = solver.sensitivity(parameter_pred_dl, B_obs)
+                fenics_forward_grad[m,:] = tf.linalg.matmul(tf.expand_dims(dy[m,:],0), Jac_forward)
             return fenics_forward_grad
         return fenics_state_pred, fenics_forward_grad
 

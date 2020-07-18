@@ -15,7 +15,7 @@ from loss_and_relative_errors import loss_penalized_difference,\
         relative_error, reg_prior
 from optimize_custom_model_augmented_autoencoder_FEM import optimize
 from optimize_distributed_custom_model_augmented_autoencoder_FEM import optimize_distributed
-from Utilities.solve_poisson_2D import solve_PDE
+from Utilities.solve_poisson_2D import solve_PDE_prematrices_sparse
 from positivity_constraints import positivity_constraint_log_exp
 
 ###############################################################################
@@ -91,8 +91,10 @@ def trainer_custom(hyperp, run_options, file_paths):
                  load_covariance_cholesky_inverse = load_flag)
 
     #=== Load FEM Matrices ===#
-    premass, prestiffness, boundary_matrix, load_vector =\
-            load_FEM_matrices_tf(run_options, file_paths)
+    _, prestiffness, boundary_matrix, load_vector =\
+            load_FEM_matrices_tf(run_options, file_paths,
+                                 load_premass = 0,
+                                 load_prestiffness = 1)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
@@ -114,7 +116,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 loss_penalized_difference, relative_error,
                 positivity_constraint_log_exp,
                 reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-                solve_PDE, prestiffness, boundary_matrix, load_vector,
+                solve_PDE_prematrices_sparse, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,
                 num_batches_train)
@@ -138,7 +140,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 loss_penalized_difference, relative_error,
                 positivity_constraint_log_exp,
                 reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-                solve_PDE, prestiffness, boundary_matrix, load_vector,
+                solve_PDE_prematrices_sparse, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,
                 num_batches_train)

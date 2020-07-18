@@ -11,10 +11,9 @@ sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and training routine
 from Utilities.file_paths import FilePathsTraining
-from Utilities.training_routine_custom_model_augmented_autoencoder import\
+from Utilities.training_routine_custom_model_augmented_autoencoder_FEM import\
         trainer_custom
-from Utilities.test_gradient_poisson_2D import test_gradient
-
+from Utilities.test_gradient_poisson_2D_FEM import test_gradient
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
