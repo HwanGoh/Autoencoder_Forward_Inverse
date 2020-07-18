@@ -39,7 +39,7 @@ class Hyperparameters:
     penalty_encoder   = 50
     penalty_decoder   = 0
     penalty_aug       = 50
-    penalty_prior     = 0.3
+    penalty_prior     = 0.007
     batch_size        = 1000
     num_epochs        = 2
 
@@ -92,11 +92,12 @@ if __name__ == "__main__":
 
     #=== Select Hyperparameters of Interest ===#
     hyperp_of_interest_dict = {}
-    hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
-    hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
+    hyperp_of_interest_dict['num_hidden_layers'] = Integer(2, 10, name='num_hidden_layers')
+    hyperp_of_interest_dict['num_hidden_nodes'] = Integer(10, 1000, name='num_hidden_nodes')
     hyperp_of_interest_dict['penalty_encoder'] = Real(0.01, 50, name='penalty_encoder')
-    # hyperp_of_interest_dict['penalty_decoder'] = Real(0.01, 50, name='penalty_decoder')
-    hyperp_of_interest_dict['penalty_augmented'] = Real(0.01, 50, name='penalty_augmented')
+    hyperp_of_interest_dict['penalty_decoder'] = Real(0.01, 50, name='penalty_decoder')
+    hyperp_of_interest_dict['penalty_aug'] = Real(0.001, 50, name='penalty_augmented')
+    hyperp_of_interest_dict['penalty_prior'] = Real(0.001, 0.01, name='penalty_prior')
     #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 
