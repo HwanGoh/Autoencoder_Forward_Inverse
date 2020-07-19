@@ -24,9 +24,9 @@ def load_prior(run_options, file_paths,
     if load_mean == 1:
         df_mean = pd.read_csv(file_paths.prior_mean_savefilepath + '.csv')
         prior_mean = df_mean.to_numpy()
-        prior_mean = prior_mean.astype(np.float32).flatten()
     else:
         prior_mean = np.zeros(run_options.parameter_dimensions)
+    prior_mean = prior_mean.astype(np.float32).flatten()
 
     #=== Prior Covariance ===#
     if load_covariance == 1:
@@ -34,9 +34,9 @@ def load_prior(run_options, file_paths,
         prior_covariance = df_covariance.to_numpy()
         prior_covariance = prior_covariance.reshape((run_options.parameter_dimensions,
             run_options.parameter_dimensions))
-        prior_covariance = prior_covariance.astype(np.float32)
     else:
         prior_covariance = np.identity(run_options.parameter_dimensions)
+    prior_covariance = prior_covariance.astype(np.float32)
 
     #=== Prior Covariance Cholesky ===#
     if load_covariance_cholesky == 1:
@@ -46,9 +46,9 @@ def load_prior(run_options, file_paths,
         prior_covariance_cholesky =\
                 prior_covariance_cholesky.reshape((run_options.parameter_dimensions,
             run_options.parameter_dimensions))
-        prior_covariance_cholesky = prior_covariance_cholesky.astype(np.float32)
     else:
         prior_covariance_cholesky = np.identity(run_options.parameter_dimensions)
+    prior_covariance_cholesky = prior_covariance_cholesky.astype(np.float32)
 
     #=== Prior Covariance Cholesky Inverse ===#
     if load_covariance_cholesky_inverse == 1:
@@ -58,9 +58,9 @@ def load_prior(run_options, file_paths,
         prior_covariance_cholesky_inverse =\
                 prior_covariance_cholesky_inverse.reshape((run_options.parameter_dimensions,
             run_options.parameter_dimensions))
-        prior_covariance_cholesky_inverse = prior_covariance_cholesky_inverse.astype(np.float32)
     else:
         prior_covariance_cholesky_inverse = np.identity(run_options.parameter_dimensions)
+    prior_covariance_cholesky_inverse = prior_covariance_cholesky_inverse.astype(np.float32)
 
     return prior_mean, prior_covariance,\
             prior_covariance_cholesky, prior_covariance_cholesky_inverse

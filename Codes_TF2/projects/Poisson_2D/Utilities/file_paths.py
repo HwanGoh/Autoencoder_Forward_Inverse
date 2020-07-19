@@ -28,32 +28,47 @@ class FilePaths():
         data_string = data_options + '_' + obs_string + '_'
 
         #=== Prior Properties ===#
-        if run_options.prior_type_AC == 1:
+        if run_options.prior_type_train_AC == 1 or run_options.prior_type_test_AC == 1:
             prior_type = 'AC'
             prior_mean = run_options.prior_mean_AC
             prior_variance = run_options.prior_variance_AC
             prior_corr = run_options.prior_corr_AC
+            if prior_mean >= 1:
+                prior_mean = int(prior_mean)
+                prior_mean_string = str(prior_mean)
+            else:
+                prior_mean_string = str(prior_mean)
+                prior_mean_string = 'pt' + prior_mean_string[2:]
+            if prior_variance >= 1:
+                prior_variance = int(prior_variance)
+                prior_variance_string = str(prior_variance)
+            else:
+                prior_variance_string = str(prior_variance)
+                prior_variance_string = 'pt' + prior_variance_string[2:]
+            if prior_corr >= 1:
+                prior_corr = int(prior_corr)
+                prior_corr_string = str(prior_corr)
+            else:
+                prior_corr_string = str(prior_corr)
+                prior_corr_string = 'pt' + prior_corr_string[2:]
+            if run_options.prior_type_train_AC == 1:
+                prior_string_train = '%s_%s_%s_%s'%(prior_type, prior_mean_string,
+                        prior_variance_string, prior_corr_string)
+            if run_options.prior_type_test_AC == 1:
+                prior_string_test = '%s_%s_%s_%s'%(prior_type, prior_mean_string,
+                        prior_variance_string, prior_corr_string)
 
-        if prior_mean >= 1:
-            prior_mean = int(prior_mean)
-            prior_mean_string = str(prior_mean)
-        else:
-            prior_mean_string = str(prior_mean)
-            prior_mean_string = 'pt' + prior_mean_string[2:]
-        if prior_variance >= 1:
-            prior_variance = int(prior_variance)
-            prior_variance_string = str(prior_variance)
-        else:
-            prior_variance_string = str(prior_variance)
-            prior_variance_string = 'pt' + prior_variance_string[2:]
-        if prior_corr >= 1:
-            prior_corr = int(prior_corr)
-            prior_corr_string = str(prior_corr)
-        else:
-            prior_corr_string = str(prior_corr)
-            prior_corr_string = 'pt' + prior_corr_string[2:]
-        prior_string = '%s_%s_%s_%s'%(prior_type, prior_mean_string,
-                prior_variance_string, prior_corr_string)
+        if run_options.prior_type_train_matern == 1 or run_options.prior_type_test_matern == 1:
+            if run_options.cov_length >= 1:
+                cov_length = int(run_options.cov_length)
+                cov_length_string = str(run_options.cov_length)
+            else:
+                cov_length_string = str(run_options.cov_length)
+                cov_length_string = 'pt' + cov_length_string[2:]
+            if run_options.prior_type_train_matern == 1:
+                prior_string_train = 'matern_' + run_options.kern_type + '_' + cov_length_string
+            if run_options.prior_type_test_matern == 1:
+                prior_string_test = 'matern_' + run_options.kern_type + '_' + cov_length_string
 
         #=== Neural Network Architecture ===#
         if run_options.use_standard_autoencoder == 1:
@@ -89,7 +104,7 @@ class FilePaths():
         #=== File Name ===#
         if autoencoder_loss == 'maware_':
             self.filename = project_name +\
-                data_string + prior_string + '_' +\
+                data_string + prior_string_train + '_' +\
                 autoencoder_type + autoencoder_loss +\
                 'hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
                         hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
@@ -99,7 +114,7 @@ class FilePaths():
 
         if autoencoder_loss == 'maug_':
             self.filename = project_name +\
-                data_string + prior_string + '_' +\
+                data_string + prior_string_train + '_' +\
                 autoencoder_type + autoencoder_loss +\
                 'hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
                         hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
@@ -118,44 +133,44 @@ class FilePaths():
         self.input_train_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_train_' +\
-                'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string
+                'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string_train
         self.input_test_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_test_' +\
-                'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string
+                'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string_test
         if run_options.obs_type == 'full':
             self.output_train_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_train_' +\
-                    'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string
+                    'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string_train
             self.output_test_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_test_' +\
-                    'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string
+                    'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string_test
         if run_options.obs_type == 'obs':
             self.output_train_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_train_' +\
                     'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_train) +\
-                    data_options + '_' + prior_string
+                    data_options + '_' + prior_string_train
             self.output_test_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_test_' +\
                     'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_test) +\
-                    data_options + '_' + prior_string
+                    data_options + '_' + prior_string_test
 
         #############
         #   Prior   #
         #############
         #=== Prior ===#
         self.prior_mean_savefilepath = dataset_directory +\
-                'prior_mean_' + data_options + '_' + prior_string
+                'prior_mean_' + data_options + '_' + prior_string_train
         self.prior_covariance_savefilepath = dataset_directory +\
-                'prior_covariance_' + data_options + '_' + prior_string
+                'prior_covariance_' + data_options + '_' + prior_string_train
         self.prior_covariance_cholesky_savefilepath = dataset_directory +\
-                'prior_covariance_cholesky_' + data_options + '_' + prior_string
+                'prior_covariance_cholesky_' + data_options + '_' + prior_string_train
         self.prior_covariance_cholesky_inverse_savefilepath = dataset_directory +\
-                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string
+                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string_train
 
         ###################
         #   FEM Objects   #

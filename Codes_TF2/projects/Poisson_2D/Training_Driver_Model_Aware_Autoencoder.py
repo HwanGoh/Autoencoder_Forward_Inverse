@@ -52,11 +52,18 @@ class RunOptions:
         self.obs_type = 'full'
         self.num_obs_points = 10
 
-        #=== Prior Properties ===#
-        self.prior_type_AC = 1
+        #=== Autocorrelation Prior Properties ===#
+        self.prior_type_train_AC = 1
+        self.prior_type_test_AC = 0
         self.prior_mean_AC = 2
         self.prior_variance_AC = 0.96
         self.prior_corr_AC = 0.002
+
+        #=== Matern Prior Properties ===#
+        self.prior_type_train_matern = 0
+        self.prior_type_test_matern = 1
+        self.kern_type = 'm32'
+        self.cov_length = 0.5
 
         #=== Random Seed ===#
         self.random_seed = 1234
