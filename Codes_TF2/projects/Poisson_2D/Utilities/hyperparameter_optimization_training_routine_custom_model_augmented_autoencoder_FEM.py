@@ -26,6 +26,8 @@ from positivity_constraints import positivity_constraint_log_exp
 from skopt.utils import use_named_args
 from skopt import gp_minimize
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 ###############################################################################
 #                                 Training                                    #
 ###############################################################################
@@ -84,11 +86,6 @@ def trainer_custom(hyperp, run_options, file_paths,
             setattr(hyperp, key, val)
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
-        #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-                                                     autoencoder_loss, project_name,
-                                                     data_options, dataset_directory)
-
         #=== Construct Validation Set and Batches ===#
         if run_options.use_distributed_training == 0:
             GLOBAL_BATCH_SIZE = hyperp.batch_size
@@ -112,6 +109,11 @@ def trainer_custom(hyperp, run_options, file_paths,
             = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                     state_obs_test, parameter_test,
                     GLOBAL_BATCH_SIZE, run_options.random_seed)
+
+        #=== Update File Paths with New Hyperparameters ===#
+        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
+                                                     autoencoder_loss, project_name,
+                                                     data_options, dataset_directory)
 
         #=== Data and Latent Dimensions of Autoencoder ===#
         if run_options.use_standard_autoencoder == 1:

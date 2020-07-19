@@ -62,10 +62,6 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
             setattr(hyperp, key, val)
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
-        #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-                autoencoder_loss, dataset_directory)
-
         #=== Construct Validation Set and Batches ===#
         if run_options.use_distributed_training == 0:
             GLOBAL_BATCH_SIZE = hyperp.batch_size
@@ -87,6 +83,10 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
             = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                     state_obs_test, parameter_test,
                     GLOBAL_BATCH_SIZE, run_options.random_seed)
+
+        #=== Update File Paths with New Hyperparameters ===#
+        file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
+                autoencoder_loss, dataset_directory)
 
         #=== Input and Latent Dimensions of Autoencoder ===#
         if run_options.use_standard_autoencoder == 1:
