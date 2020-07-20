@@ -6,7 +6,7 @@ from get_prior import load_prior
 from positivity_constraints import positivity_constraint_log_exp
 from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
 from Utilities.solve_poisson_2D import solve_PDE_prematrices_sparse
-from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from NN_AE_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"

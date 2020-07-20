@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from get_train_and_test_data import load_train_and_test_data
-from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from NN_AE import AutoencoderFwdInv
 from Finite_Element_Method.src.load_mesh import load_mesh
 from Utilities.plot_FEM_function import plot_FEM_function
 import matplotlib.pyplot as plt

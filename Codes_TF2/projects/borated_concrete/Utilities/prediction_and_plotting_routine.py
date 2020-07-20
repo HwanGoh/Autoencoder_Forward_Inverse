@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from get_train_and_test_data import load_train_and_test_data
-from NN_Autoencoder_Fwd_Inv import AutoencoderFwdInv
+from NN_AE_Fwd_Inv import AutoencoderFwdInv
 
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
