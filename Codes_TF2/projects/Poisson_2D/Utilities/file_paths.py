@@ -11,6 +11,34 @@ from decimal import Decimal # for filenames
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
+#                               Value to String                               #
+###############################################################################
+def value_to_string(value):
+    if value >= 1:
+        value = int(value)
+        string = str(value)
+    else:
+        string = str(value)
+        string = 'pt' + string[2:]
+
+    return string
+
+###############################################################################
+#                               Prior Strings                                 #
+###############################################################################
+def prior_string_AC(prior_type, mean, variance, corr):
+    mean_string = value_to_string(mean)
+    variance_string = value_to_string(variance)
+    corr_string = value_to_string(corr)
+
+    return '%s_%s_%s_%s'%(prior_type, mean_string, variance_string, corr_string)
+
+def prior_string_matern(prior_type, kern_type, cov_length):
+    cov_length_string = value_to_string(cov_length)
+
+    return '%s_%s_%s'%(prior_type, kern_type, cov_length)
+
+###############################################################################
 #                                 FilePaths                                   #
 ###############################################################################
 class FilePaths():
@@ -25,81 +53,44 @@ class FilePaths():
             obs_string = 'full'
         if run_options.obs_type == 'obs':
             obs_string = 'obs_o%d'%(run_options.num_obs_points)
-        data_string = data_options + '_' + obs_string + '_'
+        if run_options.add_noise == 1:
+            noise_level_string = value_to_string(run_options.noise_level)
+            noise_string = 'ns%s'%(noise_level_string)
+        else:
+            noise_string = 'ns0'
+        data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
-        if run_options.prior_type_train_AC == 1 or run_options.prior_type_test_AC == 1:
-            prior_type = 'AC'
-            prior_mean = run_options.prior_mean_AC
-            prior_variance = run_options.prior_variance_AC
-            prior_corr = run_options.prior_corr_AC
-            if prior_mean >= 1:
-                prior_mean = int(prior_mean)
-                prior_mean_string = str(prior_mean)
-            else:
-                prior_mean_string = str(prior_mean)
-                prior_mean_string = 'pt' + prior_mean_string[2:]
-            if prior_variance >= 1:
-                prior_variance = int(prior_variance)
-                prior_variance_string = str(prior_variance)
-            else:
-                prior_variance_string = str(prior_variance)
-                prior_variance_string = 'pt' + prior_variance_string[2:]
-            if prior_corr >= 1:
-                prior_corr = int(prior_corr)
-                prior_corr_string = str(prior_corr)
-            else:
-                prior_corr_string = str(prior_corr)
-                prior_corr_string = 'pt' + prior_corr_string[2:]
-            if run_options.prior_type_train_AC == 1:
-                prior_string_train = '%s_%s_%s_%s'%(prior_type, prior_mean_string,
-                        prior_variance_string, prior_corr_string)
-            if run_options.prior_type_test_AC == 1:
-                prior_string_test = '%s_%s_%s_%s'%(prior_type, prior_mean_string,
-                        prior_variance_string, prior_corr_string)
+        if run_options.prior_type_AC_train == 1:
+            prior_string_train = prior_string_AC('AC',
+                    run_options.prior_mean_AC_train,
+                    run_options.prior_variance_AC_train,
+                    run_options.prior_corr_AC_train)
+        if run_options.prior_type_AC_test == 1:
+            prior_string_test = prior_string_AC('AC',
+                    run_options.prior_mean_AC_test,
+                    run_options.prior_variance_AC_test,
+                    run_options.prior_corr_AC_test)
 
-        if run_options.prior_type_train_matern == 1 or run_options.prior_type_test_matern == 1:
-            if run_options.cov_length >= 1:
-                cov_length = int(run_options.cov_length)
-                cov_length_string = str(run_options.cov_length)
-            else:
-                cov_length_string = str(run_options.cov_length)
-                cov_length_string = 'pt' + cov_length_string[2:]
-            if run_options.prior_type_train_matern == 1:
-                prior_string_train = 'matern_' + run_options.kern_type + '_' + cov_length_string
-            if run_options.prior_type_test_matern == 1:
-                prior_string_test = 'matern_' + run_options.kern_type + '_' + cov_length_string
+        if run_options.prior_type_matern_train == 1:
+            prior_string_train = prior_string_matern('matern',
+                    run_options.prior_kern_type_train,
+                    run_options.prior_cov_length_train)
+        if run_options.prior_type_matern_test == 1:
+            prior_string_test = prior_string_matern('matern',
+                    run_options.prior_kern_type_test,
+                    run_options.prior_cov_length_test)
 
         #=== Neural Network Architecture ===#
         if run_options.use_standard_autoencoder == 1:
-            autoencoder_type = 'std_'
+            autoencoder_type = 'AE_std_'
         if run_options.use_reverse_autoencoder == 1:
-            autoencoder_type = 'rev_'
-        if hyperp.penalty_encoder >= 1:
-            hyperp.penalty_encoder = int(hyperp.penalty_encoder)
-            penalty_encoder_string = str(hyperp.penalty_encoder)
-        else:
-            penalty_encoder_string = str(hyperp.penalty_encoder)
-            penalty_encoder_string = 'pt' + penalty_encoder_string[2:]
-        if hyperp.penalty_decoder >= 1:
-            hyperp.penalty_decoder = int(hyperp.penalty_decoder)
-            penalty_decoder_string = str(hyperp.penalty_decoder)
-        else:
-            penalty_decoder_string = str(hyperp.penalty_decoder)
-            penalty_decoder_string = 'pt' + penalty_decoder_string[2:]
+            autoencoder_type = 'AE_rev_'
+        penalty_encoder_string = value_to_string(hyperp.penalty_encoder)
+        penalty_decoder_string = value_to_string(hyperp.penalty_decoder)
         if autoencoder_loss == 'maug_':
-            if hyperp.penalty_aug >= 1:
-                hyperp.penalty_aug = int(hyperp.penalty_aug)
-                penalty_aug_string = str(hyperp.penalty_aug)
-            else:
-                penalty_aug_string = str(hyperp.penalty_aug)
-                penalty_aug_string = 'pt' + penalty_aug_string[2:]
-        if hyperp.penalty_prior >= 1:
-            hyperp.penalty_prior = int(hyperp.penalty_prior)
-            penalty_prior_string = str(hyperp.penalty_prior)
-        else:
-            penalty_prior_string = str(hyperp.penalty_prior)
-            penalty_prior_string = 'pt' + penalty_prior_string[2:]
+            penalty_aug_string = value_to_string(hyperp.penalty_aug)
+        penalty_prior_string = value_to_string(hyperp.penalty_prior)
 
         #=== File Name ===#
         if autoencoder_loss == 'maware_':

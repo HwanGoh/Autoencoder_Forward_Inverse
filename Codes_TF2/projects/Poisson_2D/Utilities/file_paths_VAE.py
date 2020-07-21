@@ -11,6 +11,34 @@ from decimal import Decimal # for filenames
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
+#                               Value to String                               #
+###############################################################################
+def value_to_string(value):
+    if value >= 1:
+        value = int(value)
+        string = str(value)
+    else:
+        string = str(value)
+        string = 'pt' + string[2:]
+
+    return string
+
+###############################################################################
+#                               Prior Strings                                 #
+###############################################################################
+def prior_string_AC(prior_type, mean, variance, corr):
+    mean_string = value_to_string(mean)
+    variance_string = value_to_string(variance)
+    corr_string = value_to_string(corr)
+
+    return '%s_%s_%s_%s'%(prior_type, mean_string, variance_string, corr_string)
+
+def prior_string_matern(prior_type, kern_type, cov_length):
+    cov_length_string = value_to_string(cov_length)
+
+    return '%s_%s_%s'%(prior_type, kern_type, cov_length)
+
+###############################################################################
 #                                 FilePaths                                   #
 ###############################################################################
 class FilePaths():
@@ -25,35 +53,33 @@ class FilePaths():
             obs_string = 'full'
         if run_options.obs_type == 'obs':
             obs_string = 'obs_o%d'%(run_options.num_obs_points)
-        data_string = data_options + '_' + obs_string + '_'
+        if run_options.add_noise == 1:
+            noise_level_string = value_to_string(run_options.noise_level)
+            noise_string = 'ns%s'%(noise_level_string)
+        else:
+            noise_string = 'ns0'
+        data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
-        if run_options.prior_type_AC == 1:
-            prior_type = 'AC'
-            prior_mean = run_options.prior_mean_AC
-            prior_variance = run_options.prior_variance_AC
-            prior_corr = run_options.prior_corr_AC
+        if run_options.prior_type_AC_train == 1:
+            prior_string_train = prior_string_AC('AC',
+                    run_options.prior_mean_AC_train,
+                    run_options.prior_variance_AC_train,
+                    run_options.prior_corr_AC_train)
+        if run_options.prior_type_AC_test == 1:
+            prior_string_test = prior_string_AC('AC',
+                    run_options.prior_mean_AC_test,
+                    run_options.prior_variance_AC_test,
+                    run_options.prior_corr_AC_test)
 
-        if prior_mean >= 1:
-            prior_mean = int(prior_mean)
-            prior_mean_string = str(prior_mean)
-        else:
-            prior_mean_string = str(prior_mean)
-            prior_mean_string = 'pt' + prior_mean_string[2:]
-        if prior_variance >= 1:
-            prior_variance = int(prior_variance)
-            prior_variance_string = str(prior_variance)
-        else:
-            prior_variance_string = str(prior_variance)
-            prior_variance_string = 'pt' + prior_variance_string[2:]
-        if prior_corr >= 1:
-            prior_corr = int(prior_corr)
-            prior_corr_string = str(prior_corr)
-        else:
-            prior_corr_string = str(prior_corr)
-            prior_corr_string = 'pt' + prior_corr_string[2:]
-        prior_string = '%s_%s_%s_%s'%(prior_type, prior_mean_string,
-                prior_variance_string, prior_corr_string)
+        if run_options.prior_type_matern_train == 1:
+            prior_string_train = prior_string_matern('matern',
+                    run_options.prior_kern_type_train,
+                    run_options.prior_cov_length_train)
+        if run_options.prior_type_matern_test == 1:
+            prior_string_test = prior_string_matern('matern',
+                    run_options.prior_kern_type_test,
+                    run_options.prior_cov_length_test)
 
         #=== Neural Network Architecture and Regularization ===#
         autoencoder_type = 'VAE_'
@@ -64,7 +90,7 @@ class FilePaths():
 
         #=== File Name ===#
         self.filename = project_name +\
-            data_string + prior_string + '_' +\
+            data_string + prior_string_train + '_' +\
             autoencoder_type + autoencoder_loss +\
             'hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
                     hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation,
@@ -80,44 +106,44 @@ class FilePaths():
         self.input_train_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_train_' +\
-                'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string
+                'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string_train
         self.input_test_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_test_' +\
-                'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string
+                'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string_test
         if run_options.obs_type == 'full':
             self.output_train_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_train_' +\
-                    'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string
+                    'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string_train
             self.output_test_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_test_' +\
-                    'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string
+                    'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string_test
         if run_options.obs_type == 'obs':
             self.output_train_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_train_' +\
                     'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_train) +\
-                    data_options + '_' + prior_string
+                    data_options + '_' + prior_string_train
             self.output_test_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_test_' +\
                     'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_test) +\
-                    data_options + '_' + prior_string
+                    data_options + '_' + prior_string_test
 
         #############
         #   Prior   #
         #############
         #=== Prior ===#
         self.prior_mean_savefilepath = dataset_directory +\
-                'prior_mean_' + data_options + '_' + prior_string
+                'prior_mean_' + data_options + '_' + prior_string_train
         self.prior_covariance_savefilepath = dataset_directory +\
-                'prior_covariance_' + data_options + '_' + prior_string
+                'prior_covariance_' + data_options + '_' + prior_string_train
         self.prior_covariance_cholesky_savefilepath = dataset_directory +\
-                'prior_covariance_cholesky_' + data_options + '_' + prior_string
+                'prior_covariance_cholesky_' + data_options + '_' + prior_string_train
         self.prior_covariance_inverse_savefilepath = dataset_directory +\
-                'prior_covariance_inverse_' + data_options + '_' + prior_string
+                'prior_covariance_inverse_' + data_options + '_' + prior_string_train
 
         ###################
         #   FEM Objects   #

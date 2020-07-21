@@ -42,11 +42,12 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Load Data ===#
     parameter_train, state_obs_train,\
     parameter_test, state_obs_test,\
-    = load_train_and_test_data(file_paths,
+    = load_train_and_test_data(run_options, file_paths,
             run_options.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
-            normalize_input_flag = 0, normalize_output_flag = 0)
+            normalize_input_flag = 0, normalize_output_flag = 0,
+            add_noise_flag = run_options.add_noise)
 
     #=== Construct Validation Set and Batches ===#
     if run_options.use_standard_autoencoder == 1:

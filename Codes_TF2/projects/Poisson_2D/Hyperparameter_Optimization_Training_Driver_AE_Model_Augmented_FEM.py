@@ -66,26 +66,35 @@ class RunOptions:
         self.parameter_dimensions = 25
         self.obs_type = 'obs'
         self.num_obs_points = 10
+        self.add_noise = 1
+        self.noise_level = 0.01
 
         #=== Autocorrelation Prior Properties ===#
-        self.prior_type_train_AC = 1
-        self.prior_type_test_AC = 0
-        self.prior_mean_AC = 2
-        self.prior_variance_AC = 0.96
-        self.prior_corr_AC = 0.002
+        self.prior_type_AC_train = 1
+        self.prior_mean_AC_train = 2
+        self.prior_variance_AC_train = 2.0
+        self.prior_corr_AC_train = 0.5
+
+        self.prior_type_AC_test = 1
+        self.prior_mean_AC_test = 2
+        self.prior_variance_AC_test = 2.0
+        self.prior_corr_AC_test = 0.1
 
         #=== Matern Prior Properties ===#
-        self.prior_type_train_matern = 0
-        self.prior_type_test_matern = 1
-        self.kern_type = 'm32'
-        self.cov_length = 0.5
+        self.prior_type_matern_train = 0
+        self.prior_kern_type_train = 'm32'
+        self.prior_cov_length_train = 0.5
+
+        self.prior_type_matern_test = 0
+        self.prior_kern_type_test = 'm32'
+        self.prior_cov_length_test = 0.5
 
         #=== PDE Properties ===#
         self.boundary_matrix_constant = 0.5
         self.load_vector_constant = -1
 
         #=== Random Seed ===#
-        self.random_seed = 1234
+        self.random_seed = 4
 
 ###############################################################################
 #                                  Driver                                     #
