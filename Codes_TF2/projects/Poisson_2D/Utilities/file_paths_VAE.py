@@ -18,8 +18,18 @@ def value_to_string(value):
         value = int(value)
         string = str(value)
     else:
-        string = str(value)
-        string = 'pt' + string[2:]
+        value_decimal_form = '%.9f'%(value)
+        string = 'pt'
+        nonzero_value_flag = 0
+        for n in range(2,9):
+            if value_decimal_form[n] == '0':
+                string += '0'
+            else:
+                string += value_decimal_form[n]
+                nonzero_value_flag = 1
+                break
+        if nonzero_value_flag != 1:
+            string = '0'
 
     return string
 
