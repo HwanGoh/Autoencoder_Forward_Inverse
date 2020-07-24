@@ -27,11 +27,9 @@ def trainer_custom(hyperp, run_options, file_paths):
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if run_options.use_distributed_training == 0:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
-        GLOBAL_BATCH_SIZE = hyperp.batch_size
     if run_options.use_distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
-        GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
 
     #=== Load Observation Indices ===#
     if run_options.obs_type == 'full':
@@ -67,7 +65,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         input_dimensions\
         = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                 parameter_test, state_obs_test,
-                GLOBAL_BATCH_SIZE, run_options.random_seed)
+                hyperp.batch_size, run_options.random_seed)
     if run_options.use_reverse_autoencoder == 1:
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
@@ -75,7 +73,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         input_dimensions\
         = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                 state_obs_test, parameter_test,
-                GLOBAL_BATCH_SIZE, run_options.random_seed)
+                hyperp.batch_size, run_options.random_seed)
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if run_options.use_standard_autoencoder == 1:
@@ -142,7 +140,7 @@ def trainer_custom(hyperp, run_options, file_paths):
             optimizer = tf.keras.optimizers.Adam()
 
         #=== Training ===#
-        optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
+        optimize_distributed(dist_strategy,
                 hyperp, run_options, file_paths,
                 NN, optimizer,
                 loss_penalized_difference, relative_error,

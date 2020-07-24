@@ -57,12 +57,6 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
         #=== Construct Validation Set and Batches ===#
-        if run_options.use_distributed_training == 0:
-            GLOBAL_BATCH_SIZE = hyperp.batch_size
-        if run_options.use_distributed_training == 1:
-            GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
-
-        #=== Construct Validation Set and Batches ===#
         if run_options.use_standard_autoencoder == 1:
             input_and_latent_train, input_and_latent_val, input_and_latent_test,\
             run_options.num_data_train, num_data_val, run_options.num_data_test,\
@@ -70,7 +64,7 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
             input_dimensions\
             = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                     parameter_test, state_obs_test,
-                    GLOBAL_BATCH_SIZE, run_options.random_seed)
+                    hyperp.batch_size, run_options.random_seed)
         if run_options.use_reverse_autoencoder == 1:
             input_and_latent_train, input_and_latent_val, input_and_latent_test,\
             run_options.num_data_train, num_data_val, run_options.num_data_test,\
@@ -78,7 +72,7 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
             input_dimensions\
             = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                     state_obs_test, parameter_test,
-                    GLOBAL_BATCH_SIZE, run_options.random_seed)
+                    hyperp.batch_size, run_options.random_seed)
 
         #=== Update File Paths with New Hyperparameters ===#
         file_paths = FilePathsHyperparameterOptimization(hyperp, run_options, NN_type, project_name,
@@ -135,7 +129,7 @@ def trainer_custom(hyperp, run_options, file_paths, n_calls, space,
                 optimizer = tf.keras.optimizers.Adam()
 
             #=== Training ===#
-            optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
+            optimize_distributed(dist_strategy,
                             hyperp, run_options, file_paths,
                             NN, optimizer,
                             loss_penalized_difference, relative_error,

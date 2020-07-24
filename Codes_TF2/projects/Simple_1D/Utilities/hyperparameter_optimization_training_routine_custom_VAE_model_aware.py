@@ -59,17 +59,13 @@ def trainer_custom(hyperp, run_options, file_paths,
         hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
         #=== Construct Validation Set and Batches ===#
-        if run_options.use_distributed_training == 0:
-            GLOBAL_BATCH_SIZE = hyperp.batch_size
-        if run_options.use_distributed_training == 1:
-            GLOBAL_BATCH_SIZE = hyperp.batch_size * len(gpus)
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
         input_dimensions\
         = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                 state_obs_test, parameter_test,
-                GLOBAL_BATCH_SIZE, run_options.random_seed)
+                hyperp.batch_size, run_options.random_seed)
 
         #=== Update File Paths with New Hyperparameters ===#
         file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
@@ -127,7 +123,7 @@ def trainer_custom(hyperp, run_options, file_paths,
                 optimizer = tf.keras.optimizers.Adam()
 
             #=== Training ===#
-            optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
+            optimize_distributed(dist_strategy,
                     hyperp, run_options, file_paths,
                     NN, optimizer,
                     loss_penalized_difference, KLD_loss, relative_error,

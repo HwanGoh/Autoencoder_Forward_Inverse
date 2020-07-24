@@ -22,7 +22,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
+def optimize_distributed(dist_strategy,
         hyperp, run_options, file_paths,
         NN, optimizer,
         loss_penalized_difference, KLD_loss, relative_error,
@@ -84,7 +84,7 @@ def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                         -(unscaled_replica_batch_loss_train_VAE
                                 -unscaled_replica_batch_loss_loss_train_KLD)
                 scaled_replica_batch_loss_train = tf.reduce_sum(
-                        unscaled_replica_batch_loss_train * (1./GLOBAL_BATCH_SIZE))
+                        unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
 
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
