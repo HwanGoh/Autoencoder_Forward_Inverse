@@ -44,15 +44,18 @@ class RunOptions:
         self.use_reverse_autoencoder = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 500
+        self.num_data_train = 5000
         self.num_data_test = 200
 
         #=== Data Properties ===#
-        self.parameter_dimensions = 25
-        self.obs_type = 'full'
+        self.parameter_dimensions = 225
+        self.obs_type = 'obs'
         self.num_obs_points = 10
+
+        #=== Noise Properties ===#
         self.add_noise = 1
         self.noise_level = 0.01
+        self.num_noisy_obs = 3
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -63,7 +66,7 @@ class RunOptions:
         self.prior_type_AC_test = 1
         self.prior_mean_AC_test = 2
         self.prior_variance_AC_test = 2.0
-        self.prior_corr_AC_test = 0.1
+        self.prior_corr_AC_test = 0.5
 
         #=== Matern Prior Properties ===#
         self.prior_type_matern_train = 0

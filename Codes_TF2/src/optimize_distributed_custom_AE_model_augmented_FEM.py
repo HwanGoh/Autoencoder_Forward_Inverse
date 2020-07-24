@@ -25,13 +25,16 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
         hyperp, run_options, file_paths,
         NN, optimizer,
-        obs_indices,
         loss_penalized_difference, relative_error,
-        positivity_constraint,
-        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-        solve_PDE, prestiffness, boundary_matrix, load_vector,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
-        input_dimensions, num_batches_train):
+        input_dimensions,
+        num_batches_train,
+        loss_weighted_penalized_difference, noise_regularization_matrix,
+        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+        positivity_constraint,
+        solve_PDE, obs_indices,
+        prestiffness, boundary_matrix, load_vector):
+
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
     print('Number of Replicas in Sync: %d' %(dist_strategy.num_replicas_in_sync))
 

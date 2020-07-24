@@ -15,6 +15,11 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def loss_penalized_difference(true, pred, penalty):
     return penalty*tf.keras.losses.mean_squared_error(true, pred)
 
+def loss_weighted_penalized_difference(true, pred, weight_matrix, penalty):
+    return penalty*tf.keras.losses.mean_squared_error(
+            tf.linalg.matmul(true, tf.transpose(weight_matrix)),
+            tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
+
 def reg_prior(parameter, prior_mean, prior_covariance_cholesky_inverse, penalty):
     if penalty != 0:
         return penalty*tf.math.square(tf.norm(

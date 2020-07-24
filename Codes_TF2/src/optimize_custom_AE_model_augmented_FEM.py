@@ -25,14 +25,15 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize(hyperp, run_options, file_paths,
         NN, optimizer,
-        obs_indices,
         loss_penalized_difference, relative_error,
-        positivity_constraint,
-        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-        solve_PDE, prestiffness, boundary_matrix, load_vector,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions,
-        num_batches_train):
+        num_batches_train,
+        loss_weighted_penalized_difference, noise_regularization_matrix,
+        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+        positivity_constraint,
+        solve_PDE, obs_indices,
+        prestiffness, boundary_matrix, load_vector):
 
     #=== Define Metrics ===#
     metrics = Metrics()
@@ -54,7 +55,7 @@ def optimize(hyperp, run_options, file_paths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===# NOTE: NOT YET CODED FOR REVERSE AUTOENCODER. Becareful of the logs and exp
-    # @tf.function
+    @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             if run_options.use_standard_autoencoder == 1:
@@ -72,9 +73,9 @@ def optimize(hyperp, run_options, file_paths,
                         run_options, obs_indices,
                         positivity_constraint(batch_input_pred_train_AE),
                         prestiffness, boundary_matrix, load_vector)
-                batch_loss_train_forward_model = loss_penalized_difference(
+                batch_loss_train_forward_model = loss_weighted_penalized_difference(
                         batch_latent_train, batch_latent_pred_forward_model_train,
-                        hyperp.penalty_aug)
+                        noise_regularization_matrix, hyperp.penalty_aug)
                 batch_reg_train_prior = reg_prior(
                         batch_input_pred_train_AE,
                         prior_mean, prior_covariance_cholesky_inverse,
@@ -102,7 +103,7 @@ def optimize(hyperp, run_options, file_paths,
         return gradients
 
     #=== Validation Step ===#
-    # @tf.function
+    @tf.function
     def val_step(batch_input_val, batch_latent_val):
         if run_options.use_standard_autoencoder == 1:
             batch_input_pred_val_AE = NN(batch_input_val)
@@ -133,7 +134,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_val_decoder(batch_loss_val_decoder)
 
     #=== Test Step ===#
-    # @tf.function
+    @tf.function
     def test_step(batch_input_test, batch_latent_test):
         if run_options.use_standard_autoencoder == 1:
             batch_input_pred_test_AE = NN(batch_input_test)

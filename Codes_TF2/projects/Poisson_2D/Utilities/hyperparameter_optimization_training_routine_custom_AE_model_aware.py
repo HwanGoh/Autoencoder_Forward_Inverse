@@ -11,6 +11,7 @@ from Utilities.file_paths import FilePathsHyperparameterOptimization
 
 # Import src code
 from get_train_and_test_data import load_train_and_test_data
+from add_noise import add_noise
 from get_prior import load_prior
 from form_train_val_test import form_train_val_test_tf_batches
 from NN_AE_Fwd_Inv import AutoencoderFwdInv
@@ -50,13 +51,17 @@ def trainer_custom(hyperp, run_options, file_paths,
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\
-    parameter_test, state_obs_test,\
-    = load_train_and_test_data(run_options, file_paths,
+    parameter_test, state_obs_test\
+    = load_train_and_test_data(file_paths,
             run_options.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
-            normalize_input_flag = 0, normalize_output_flag = 0,
-            add_noise_flag = run_options.add_noise)
+            normalize_input_flag = 0, normalize_output_flag = 0)
+
+    #=== Add Noise to Data ===#
+    if run_options.add_noise == 1:
+        state_obs_train, state_obs_test, _\
+        = add_noise(run_options, state_obs_train, state_obs_test, load_data_train_flag = 1)
 
     #=== Prior ===#
     if hyperp.penalty_prior != 0:
@@ -133,10 +138,10 @@ def trainer_custom(hyperp, run_options, file_paths,
             optimize(hyperp, run_options, file_paths,
                     NN, optimizer,
                     loss_penalized_difference, relative_error,
-                    reg_prior, prior_mean, prior_covariance_cholesky_inverse,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions,
-                    num_batches_train)
+                    num_batches_train,
+                    reg_prior, prior_mean, prior_covariance_cholesky_inverse)
 
         #=== Distributed Training ===#
         if run_options.use_distributed_training == 1:

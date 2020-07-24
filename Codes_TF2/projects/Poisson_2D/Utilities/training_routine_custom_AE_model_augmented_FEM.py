@@ -7,11 +7,12 @@ import pandas as pd
 
 # Import src code
 from get_train_and_test_data import load_train_and_test_data
+from add_noise import add_noise
 from form_train_val_test import form_train_val_test_tf_batches
 from get_prior import load_prior
 from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
 from NN_AE_Fwd_Inv import AutoencoderFwdInv
-from loss_and_relative_errors import loss_penalized_difference,\
+from loss_and_relative_errors import loss_penalized_difference, loss_weighted_penalized_difference,\
         relative_error, reg_prior
 from optimize_custom_AE_model_augmented_FEM import optimize
 from optimize_distributed_custom_AE_model_augmented_FEM import optimize_distributed
@@ -44,13 +45,19 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\
-    parameter_test, state_obs_test,\
-    = load_train_and_test_data(run_options, file_paths,
+    parameter_test, state_obs_test\
+    = load_train_and_test_data(file_paths,
             run_options.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
-            normalize_input_flag = 0, normalize_output_flag = 0,
-            add_noise_flag = run_options.add_noise)
+            normalize_input_flag = 0, normalize_output_flag = 0)
+
+    #=== Add Noise to Data ===#
+    if run_options.add_noise == 1:
+        state_obs_train, state_obs_test, noise_regularization_matrix\
+        = add_noise(run_options, state_obs_train, state_obs_test, load_data_train_flag = 1)
+    else:
+        noise_regularization_matrix = tf.eye(obs_dimensions)
 
     #=== Construct Validation Set and Batches ===#
     if run_options.use_standard_autoencoder == 1:
@@ -113,14 +120,15 @@ def trainer_custom(hyperp, run_options, file_paths):
         #=== Training ===#
         optimize(hyperp, run_options, file_paths,
                 NN, optimizer,
-                obs_indices,
                 loss_penalized_difference, relative_error,
-                positivity_constraint_log_exp,
-                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-                solve_PDE_prematrices_sparse, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,
-                num_batches_train)
+                num_batches_train,
+                loss_weighted_penalized_difference, noise_regularization_matrix,
+                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+                positivity_constraint_log_exp,
+                solve_PDE_prematrices_sparse, obs_indices,
+                prestiffness, boundary_matrix, load_vector)
 
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
@@ -137,11 +145,12 @@ def trainer_custom(hyperp, run_options, file_paths):
         optimize_distributed(dist_strategy, GLOBAL_BATCH_SIZE,
                 hyperp, run_options, file_paths,
                 NN, optimizer,
-                obs_indices,
                 loss_penalized_difference, relative_error,
-                positivity_constraint_log_exp,
-                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-                solve_PDE_prematrices_sparse, prestiffness, boundary_matrix, load_vector,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions,
-                num_batches_train)
+                num_batches_train,
+                loss_weighted_penalized_difference, noise_regularization_matrix,
+                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+                positivity_constraint_log_exp,
+                solve_PDE_prematrices_sparse, obs_indices,
+                prestiffness, boundary_matrix, load_vector)
