@@ -59,9 +59,9 @@ def optimize(hyperp, run_options, file_paths,
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             if run_options.use_standard_autoencoder == 1:
-                batch_input_pred_train_AE = NN(batch_input_train)
+                batch_input_pred_train_AE = positivity_constraint(NN(batch_input_train))
                 batch_latent_pred_train = NN.encoder(batch_input_train)
-                batch_input_pred_train = NN.decoder(batch_latent_train)
+                batch_input_pred_train = positivity_constraint(NN.decoder(batch_latent_train))
 
                 batch_loss_train_autoencoder = loss_penalized_difference(
                         batch_input_train, batch_input_pred_train_AE, 1)
@@ -71,7 +71,7 @@ def optimize(hyperp, run_options, file_paths,
                         batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
                 batch_latent_pred_forward_model_train = solve_PDE(
                         run_options, obs_indices,
-                        positivity_constraint(batch_input_pred_train_AE),
+                        batch_input_pred_train_AE,
                         prestiffness, boundary_matrix, load_vector)
                 batch_loss_train_forward_model = loss_weighted_penalized_difference(
                         batch_latent_train, batch_latent_pred_forward_model_train,
@@ -106,9 +106,9 @@ def optimize(hyperp, run_options, file_paths,
     @tf.function
     def val_step(batch_input_val, batch_latent_val):
         if run_options.use_standard_autoencoder == 1:
-            batch_input_pred_val_AE = NN(batch_input_val)
+            batch_input_pred_val_AE = positivity_constraint(NN(batch_input_val))
             batch_latent_pred_val = NN.encoder(batch_input_val)
-            batch_input_pred_val = NN.decoder(batch_latent_val)
+            batch_input_pred_val = positivity_constraint(NN.decoder(batch_latent_val))
 
             batch_loss_val_autoencoder = loss_penalized_difference(
                     batch_input_val, batch_input_pred_val_AE, 1)
@@ -137,9 +137,9 @@ def optimize(hyperp, run_options, file_paths,
     @tf.function
     def test_step(batch_input_test, batch_latent_test):
         if run_options.use_standard_autoencoder == 1:
-            batch_input_pred_test_AE = NN(batch_input_test)
+            batch_input_pred_test_AE = positivity_constraint(NN(batch_input_test))
             batch_latent_pred_test = NN.encoder(batch_input_test)
-            batch_input_pred_test_decoder = NN.decoder(batch_latent_test)
+            batch_input_pred_test_decoder = positivity_constraint(NN.decoder(batch_latent_test))
 
             batch_loss_test_autoencoder = loss_penalized_difference(
                     batch_input_pred_test_AE, batch_input_test, 1)
