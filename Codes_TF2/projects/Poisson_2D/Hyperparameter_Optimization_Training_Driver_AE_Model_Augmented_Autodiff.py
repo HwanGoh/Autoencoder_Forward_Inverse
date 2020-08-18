@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # Import FilePaths class and training routine
 from Utilities.file_paths import FilePathsHyperparameterOptimization
 from\
-Utilities.hyperparameter_optimization_training_routine_custom_AE_model_augmented_FEM\
+Utilities.hyperparameter_optimization_training_routine_custom_AE_model_augmented_autodiff\
         import trainer_custom
 
 # Import skopt code

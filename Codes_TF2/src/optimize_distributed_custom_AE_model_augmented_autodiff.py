@@ -32,8 +32,7 @@ def optimize_distributed(dist_strategy,
         loss_weighted_penalized_difference, noise_regularization_matrix,
         reg_prior, prior_mean, prior_covariance_cholesky_inverse,
         positivity_constraint,
-        solve_PDE, obs_indices,
-        prestiffness, boundary_matrix, load_vector):
+        solve_forward_model):
 
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
     print('Number of Replicas in Sync: %d' %(dist_strategy.num_replicas_in_sync))
@@ -73,6 +72,8 @@ def optimize_distributed(dist_strategy,
                 batch_input_pred_train_AE = positivity_constraint(NN(batch_input_train))
                 batch_latent_pred_train = NN.encoder(batch_input_train)
                 batch_input_pred_train = positivity_constraint(NN.decoder(batch_latent_train))
+                batch_latent_pred_forward_model_train = solve_forward_model(
+                        batch_input_pred_train_AE)
 
                 unscaled_replica_batch_loss_train_autoencoder =\
                         loss_penalized_difference(
@@ -83,15 +84,10 @@ def optimize_distributed(dist_strategy,
                 unscaled_replica_batch_loss_train_decoder =\
                         loss_penalized_difference(
                                 batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
-                unscaled_replica_batch_latent_pred_forward_model_train = solve_PDE(
-                        run_options, obs_indices,
-                        batch_input_pred_train_AE,
-                        prestiffness, boundary_matrix, load_vector)
                 unscaled_replica_batch_loss_train_forward_model =\
-                        loss_penalized_difference(
-                                batch_latent_train,
-                                unscaled_replica_batch_latent_pred_forward_model_train,
-                                hyperp.penalty_aug)
+                        loss_weighted_penalized_difference(
+                                batch_latent_train, batch_latent_pred_forward_model_train,
+                                noise_regularization_matrix, hyperp.penalty_aug)
 
                 unscaled_replica_batch_loss_train =\
                         unscaled_replica_batch_loss_train_autoencoder +\
@@ -106,6 +102,7 @@ def optimize_distributed(dist_strategy,
             metrics.mean_loss_train_autoencoder(unscaled_replica_batch_loss_train_autoencoder)
             metrics.mean_loss_train_encoder(unscaled_replica_batch_loss_train_encoder)
             metrics.mean_loss_train_decoder(unscaled_replica_batch_loss_train_decoder)
+            metrics.mean_loss_train_forward_model(unscaled_replica_batch_loss_train_forward_model)
             return scaled_replica_batch_loss_train
 
         @tf.function

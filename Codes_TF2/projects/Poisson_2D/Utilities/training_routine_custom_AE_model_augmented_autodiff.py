@@ -11,12 +11,12 @@ from add_noise import add_noise
 from form_train_val_test import form_train_val_test_tf_batches
 from get_prior import load_prior
 from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
+from Utilities.FEM_prematrices_poisson_2D import FEMPrematricesPoisson2D
 from NN_AE_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference, loss_weighted_penalized_difference,\
         relative_error, reg_prior
-from optimize_custom_AE_model_augmented_FEM import optimize
-from optimize_distributed_custom_AE_model_augmented_FEM import optimize_distributed
-from Utilities.solve_poisson_2D import solve_PDE_prematrices_sparse
+from optimize_custom_AE_model_augmented_autodiff import optimize
+from optimize_distributed_custom_AE_model_augmented_autodiff import optimize_distributed
 from positivity_constraints import positivity_constraint_log_exp
 
 ###############################################################################
@@ -102,6 +102,12 @@ def trainer_custom(hyperp, run_options, file_paths):
                                  load_premass = 0,
                                  load_prestiffness = 1)
 
+    #=== Construct Forward Model ===#
+    forward_model = FEMPrematricesPoisson2D(run_options, file_paths,
+                                            obs_indices,
+                                            prestiffness,
+                                            boundary_matrix, load_vector)
+
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
@@ -125,8 +131,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 loss_weighted_penalized_difference, noise_regularization_matrix,
                 reg_prior, prior_mean, prior_covariance_cholesky_inverse,
                 positivity_constraint_log_exp,
-                solve_PDE_prematrices_sparse, obs_indices,
-                prestiffness, boundary_matrix, load_vector)
+                forward_model.solve_PDE_prematrices_sparse)
 
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
@@ -150,5 +155,4 @@ def trainer_custom(hyperp, run_options, file_paths):
                 loss_weighted_penalized_difference, noise_regularization_matrix,
                 reg_prior, prior_mean, prior_covariance_cholesky_inverse,
                 positivity_constraint_log_exp,
-                solve_PDE_prematrices_sparse, obs_indices,
-                prestiffness, boundary_matrix, load_vector)
+                forward_model.solve_PDE_prematrices_sparse)

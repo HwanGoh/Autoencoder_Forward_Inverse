@@ -32,8 +32,7 @@ def optimize(hyperp, run_options, file_paths,
         loss_weighted_penalized_difference, noise_regularization_matrix,
         reg_prior, prior_mean, prior_covariance_cholesky_inverse,
         positivity_constraint,
-        solve_PDE, obs_indices,
-        prestiffness, boundary_matrix, load_vector):
+        solve_forward_model):
 
     #=== Define Metrics ===#
     metrics = Metrics()
@@ -69,10 +68,8 @@ def optimize(hyperp, run_options, file_paths,
                         batch_latent_train, batch_latent_pred_train, hyperp.penalty_encoder)
                 batch_loss_train_decoder = loss_penalized_difference(
                         batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
-                batch_latent_pred_forward_model_train = solve_PDE(
-                        run_options, obs_indices,
-                        batch_input_pred_train_AE,
-                        prestiffness, boundary_matrix, load_vector)
+                batch_latent_pred_forward_model_train = solve_forward_model(
+                        batch_input_pred_train_AE)
                 batch_loss_train_forward_model = loss_weighted_penalized_difference(
                         batch_latent_train, batch_latent_pred_forward_model_train,
                         noise_regularization_matrix, hyperp.penalty_aug)
