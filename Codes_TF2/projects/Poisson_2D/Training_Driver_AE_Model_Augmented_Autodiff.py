@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.realpath('../../src'))
 from Utilities.file_paths import FilePathsTraining
 from Utilities.training_routine_custom_AE_model_augmented_autodiff import\
         trainer_custom
-# from Utilities.test_gradient_poisson_2D_FEM import test_gradient
+from Utilities.test_gradient_poisson_2D_FEM import test_gradient
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
@@ -120,7 +120,7 @@ if __name__ == "__main__":
                                    data_options, dataset_directory)
 
     #=== Test Gradient ===#
-    # test_gradient(hyperp, run_options, file_paths)
+    test_gradient(hyperp, run_options, file_paths)
 
     #=== Initiate Training ===#
     trainer_custom(hyperp, run_options, file_paths)

@@ -1,11 +1,12 @@
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from get_prior import load_prior
 from positivity_constraints import positivity_constraint_log_exp
 from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
-from Utilities.solve_poisson_2D import solve_PDE_prematrices_sparse
+from Utilities.FEM_prematrices_poisson_2D import FEMPrematricesPoisson2D
 from NN_AE_Fwd_Inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference
 
@@ -45,13 +46,20 @@ def test_gradient(hyperp, run_options, file_paths):
         df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
         obs_indices = df_obs_indices.to_numpy()
 
+    #=== Load FEM Matrices ===#
+    _, prestiffness, boundary_matrix, load_vector =\
+            load_FEM_matrices_tf(run_options, file_paths,
+                                 load_premass = 0,
+                                 load_prestiffness = 1)
+
+    #=== Construct Forward Model ===#
+    forward_model = FEMPrematricesPoisson2D(run_options, file_paths,
+                                            obs_indices,
+                                            prestiffness,
+                                            boundary_matrix, load_vector)
+
     #=== Generate Observation Data ===#
-    premass, prestiffness, boundary_matrix, load_vector =\
-            load_FEM_matrices_tf(run_options, file_paths)
-    state_obs_true = solve_PDE_prematrices_sparse(
-            run_options, obs_indices,
-            parameter_true,
-            prestiffness, boundary_matrix, load_vector)
+    state_obs_true = forward_model.solve_PDE_prematrices_sparse(parameter_true)
 
     ########################
     #   Compute Gradient   #
@@ -85,10 +93,8 @@ def test_gradient(hyperp, run_options, file_paths):
     with tf.GradientTape() as tape:
         NN_output = NN(parameter_true)
         test = positivity_constraint_log_exp(NN_output)
-        forward_model_pred = solve_PDE_prematrices_sparse(
-                run_options, obs_indices,
-                positivity_constraint_log_exp(NN_output),
-                prestiffness, boundary_matrix, load_vector)
+        forward_model_pred = forward_model.solve_PDE_prematrices_sparse(
+                positivity_constraint_log_exp(NN_output))
         loss_0 = loss_penalized_difference(state_obs_true, forward_model_pred, 1)
     gradients = tape.gradient(loss_0, NN.trainable_variables)
 
@@ -122,10 +128,8 @@ def test_gradient(hyperp, run_options, file_paths):
             weights_perturbed_list.append(weights_list[n] + h*directions_list[n])
         NN.set_weights(weights_perturbed_list)
         NN_perturbed_output = NN(parameter_true)
-        forward_model_perturbed_pred = solve_PDE_prematrices_sparse(
-                run_options, obs_indices,
-                positivity_constraint_log_exp(NN_perturbed_output),
-                prestiffness, boundary_matrix, load_vector)
+        forward_model_perturbed_pred = forward_model.solve_PDE_prematrices_sparse(
+                positivity_constraint_log_exp(NN_perturbed_output))
 
         loss_h = loss_penalized_difference(state_obs_true, forward_model_perturbed_pred, 1)
         gradient_fd = (loss_h - loss_0)/h
