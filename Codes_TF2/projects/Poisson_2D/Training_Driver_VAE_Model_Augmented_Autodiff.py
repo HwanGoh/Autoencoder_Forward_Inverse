@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and training routine
 from Utilities.file_paths_VAE import FilePathsTraining
-from Utilities.training_routine_custom_VAE_model_aware import trainer_custom
+from Utilities.training_routine_custom_VAE_model_augmented_autodiff import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -49,12 +49,12 @@ class RunOptions:
         #=== Data Properties ===#
         self.parameter_dimensions = 225
         self.obs_type = 'full'
-        self.num_obs_points = 10
+        self.num_obs_points = 43
 
         #=== Noise Properties ===#
         self.add_noise = 1
-        self.noise_level = 0.01
-        self.num_noisy_obs = 3
+        self.noise_level = 0.05
+        self.num_noisy_obs = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -75,6 +75,10 @@ class RunOptions:
         self.prior_type_matern_test = 0
         self.prior_kern_type_test = 'm32'
         self.prior_cov_length_test = 0.5
+
+        #=== PDE Properties ===#
+        self.boundary_matrix_constant = 0.5
+        self.load_vector_constant = -1
 
         #=== Random Seed ===#
         self.random_seed = 4

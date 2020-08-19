@@ -14,7 +14,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 class VAEFwdInv(tf.keras.Model):
     def __init__(self, hyperp,
             input_dimensions, latent_dimensions,
-            kernel_initializer, bias_initializer):
+            kernel_initializer, bias_initializer,
+            positivity_constraint):
         super(VAEFwdInv, self).__init__()
 ###############################################################################
 #                    Constuct Neural Network Architecture                     #
@@ -33,6 +34,7 @@ class VAEFwdInv(tf.keras.Model):
         self.activations[hyperp.truncation_layer] = 'linear' # This is the identity activation
         self.kernel_initializer = kernel_initializer
         self.bias_initializer = bias_initializer
+        self.positivity_constraint = positivity_constraint
 
         #=== Encoder and Decoder ===#
         self.encoder = Encoder(hyperp.truncation_layer,
@@ -54,6 +56,7 @@ class VAEFwdInv(tf.keras.Model):
         post_mean, log_post_var = self.encoder(X)
         z = self.reparameterize(post_mean, log_post_var)
         likelihood_mean = self.decoder(z)
+        # likelihood_mean = self.decoder(self.positivity_constraint(z))
         return likelihood_mean
 
 ###############################################################################

@@ -12,13 +12,15 @@ from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
 # Import src code
 from get_train_and_test_data import load_train_and_test_data
 from add_noise import add_noise
-from get_prior import load_prior
 from form_train_val_test import form_train_val_test_tf_batches
+from get_prior import load_prior
 from NN_VAE_Fwd_Inv import VAEFwdInv
-from loss_and_relative_errors import loss_penalized_difference,\
+from loss_and_relative_errors import\
+        loss_penalized_difference, loss_weighted_penalized_difference,\
         KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
 from optimize_custom_VAE_model_aware import optimize
 from optimize_distributed_custom_VAE_model_aware import optimize_distributed
+from positivity_constraints import positivity_constraint_log_exp
 
 # Import skopt code
 from skopt.utils import use_named_args
@@ -60,8 +62,10 @@ def trainer_custom(hyperp, run_options, file_paths,
 
     #=== Add Noise to Data ===#
     if run_options.add_noise == 1:
-        state_obs_train, state_obs_test, _\
+        state_obs_train, state_obs_test, noise_regularization_matrix\
         = add_noise(run_options, state_obs_train, state_obs_test, load_data_train_flag = 1)
+    else:
+        noise_regularization_matrix = tf.eye(obs_dimensions)
 
     ############################
     #   Objective Functional   #
@@ -113,28 +117,34 @@ def trainer_custom(hyperp, run_options, file_paths,
         #=== Non-distributed Training ===#
         if run_options.use_distributed_training == 0:
             #=== Neural Network ===#
-            NN = VAEFwdInv(hyperp, input_dimensions, latent_dimensions,
-                           kernel_initializer, bias_initializer)
+            NN = VAEFwdInv(hyperp,
+                           input_dimensions, latent_dimensions,
+                           kernel_initializer, bias_initializer,
+                           positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
 
             #=== Training ===#
             optimize(hyperp, run_options, file_paths,
-                    NN, optimizer,
-                    loss_penalized_difference, KLD_loss, relative_error,
-                    prior_mean, prior_covariance,
-                    input_and_latent_train, input_and_latent_val, input_and_latent_test,
-                    input_dimensions, latent_dimensions,
-                    num_batches_train)
+                     NN, optimizer,
+                     loss_penalized_difference, KLD_loss, relative_error,
+                     prior_mean, prior_covariance,
+                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                     input_dimensions, latent_dimensions,
+                     num_batches_train,
+                     loss_weighted_penalized_difference, noise_regularization_matrix,
+                     positivity_constraint_log_exp)
 
         #=== Distributed Training ===#
         if run_options.use_distributed_training == 1:
             dist_strategy = tf.distribute.MirroredStrategy()
             with dist_strategy.scope():
                 #=== Neural Network ===#
-                NN = VAEFwdInv(hyperp, input_dimensions, latent_dimensions,
-                               kernel_initializer, bias_initializer )
+                NN = VAEFwdInv(hyperp,
+                               input_dimensions, latent_dimensions,
+                               kernel_initializer, bias_initializer,
+                               positivity_constraint_log_exp)
 
                 #=== Optimizer ===#
                 optimizer = tf.keras.optimizers.Adam()
@@ -147,7 +157,9 @@ def trainer_custom(hyperp, run_options, file_paths,
                     prior_mean, prior_covariance,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions, latent_dimensions,
-                    num_batches_train)
+                    num_batches_train,
+                    loss_weighted_penalized_difference, noise_regularization_matrix,
+                    positivity_constraint_log_exp)
 
         #=== Loading Metrics For Output ===#
         print('Loading Metrics')

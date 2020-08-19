@@ -35,7 +35,6 @@ class Hyperparameters:
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'tanh'
-    penalty_post_mean = 1
     batch_size        = 100
     num_epochs        = 2
 
@@ -88,6 +87,10 @@ class RunOptions:
         self.prior_kern_type_test = 'm32'
         self.prior_cov_length_test = 0.5
 
+        #=== PDE Properties ===#
+        self.boundary_matrix_constant = 0.5
+        self.load_vector_constant = -1
+
         #=== Random Seed ===#
         self.random_seed = 1234
 
@@ -105,8 +108,7 @@ if __name__ == "__main__":
     hyperp_of_interest_dict = {}
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
-    hyperp_of_interest_dict['activation'] = Categorical(
-            ['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
+    hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 
     #####################

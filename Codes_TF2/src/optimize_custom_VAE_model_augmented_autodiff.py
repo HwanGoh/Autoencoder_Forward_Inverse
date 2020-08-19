@@ -31,7 +31,8 @@ def optimize(hyperp, run_options, file_paths,
         input_dimensions, latent_dimension,
         num_batches_train,
         loss_weighted_penalized_difference, noise_regularization_matrix,
-        positivity_constraint):
+        positivity_constraint,
+        solve_forward_model):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     prior_cov_inv = np.linalg.inv(prior_covariance)
@@ -58,14 +59,15 @@ def optimize(hyperp, run_options, file_paths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    @tf.function
+    # @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
-            batch_likelihood_train = NN(batch_input_train)
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
+            batch_input_pred_forward_model_train = solve_forward_model(positivity_constraint(
+                        NN.reparameterize(batch_post_mean_train, batch_log_post_var_train)))
 
             batch_loss_train_VAE = loss_weighted_penalized_difference(
-                    batch_input_train, batch_likelihood_train,
+                    batch_input_train, batch_input_pred_forward_model_train,
                     noise_regularization_matrix, 1)
             batch_loss_train_KLD = KLD_loss(batch_post_mean_train, batch_log_post_var_train,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
@@ -88,54 +90,39 @@ def optimize(hyperp, run_options, file_paths,
     #=== Validation Step ===#
     @tf.function
     def val_step(batch_input_val, batch_latent_val):
-        batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
-        batch_loss_val_VAE = loss_penalized_difference(
-                batch_likelihood_val, batch_input_val, 1)
         batch_loss_val_KLD = KLD_loss(batch_post_mean_val, batch_log_post_var_val,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_val_post_mean = loss_penalized_difference(
                 batch_latent_val, batch_post_mean_val,
                 hyperp.penalty_post_mean)
 
-        batch_loss_val = -(batch_loss_val_VAE - batch_loss_val_KLD\
-                - batch_loss_val_post_mean)
+        batch_loss_val = -(-batch_loss_val_KLD - batch_loss_val_post_mean)
 
         metrics.mean_loss_val(batch_loss_val)
-        metrics.mean_loss_val_VAE(-batch_loss_val_VAE)
         metrics.mean_loss_val_KLD(batch_loss_val_KLD)
         metrics.mean_loss_val_post_mean(batch_loss_val_post_mean)
 
     #=== Test Step ===#
     @tf.function
     def test_step(batch_input_test, batch_latent_test):
-        batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
-        batch_input_pred_test = NN.decoder(batch_latent_test)
 
-        batch_loss_test_VAE = loss_penalized_difference(
-                batch_likelihood_test, batch_input_test, 1)
         batch_loss_test_KLD = KLD_loss(batch_post_mean_test, batch_log_post_var_test,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_test_post_mean = loss_penalized_difference(
                 batch_latent_test, batch_post_mean_test,
                 hyperp.penalty_post_mean)
 
-        batch_loss_test = -(batch_loss_test_VAE - batch_loss_test_KLD\
-                - batch_loss_test_post_mean)
+        batch_loss_test = -(- batch_loss_test_KLD - batch_loss_test_post_mean)
 
         metrics.mean_loss_test(batch_loss_test)
-        metrics.mean_loss_test_VAE(-batch_loss_test_VAE)
         metrics.mean_loss_test_KLD(batch_loss_test_KLD)
         metrics.mean_loss_test_post_mean(batch_loss_test_post_mean)
 
-        metrics.mean_relative_error_input_VAE(relative_error(
-            batch_input_test, batch_likelihood_test))
         metrics.mean_relative_error_latent_encoder(relative_error(
             batch_latent_test, batch_post_mean_test))
-        metrics.mean_relative_error_input_decoder(relative_error(
-            batch_input_test, batch_input_pred_test))
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -193,20 +180,16 @@ def optimize(hyperp, run_options, file_paths,
                   metrics.mean_loss_train_VAE.result(),
                   metrics.mean_loss_train_KLD.result(),
                   metrics.mean_loss_train_post_mean.result()))
-        print('Val Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_mean: %.3e'\
+        print('Val Loss: Full: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_val.result(),
-                  metrics.mean_loss_val_VAE.result(),
-                  metrics.mean_loss_val_KLD.result(),
-                  metrics.mean_loss_val_post_mean.result()))
-        print('Test Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_mean: %.3e'\
+                  metrics.mean_loss_val_KLD.result()),
+                  metrics.mean_loss_val_post_mean.result())
+        print('Test Loss: Full: %.3e, KLD: %.3e'\
                 %(metrics.mean_loss_test.result(),
-                  metrics.mean_loss_test_VAE.result(),
-                  metrics.mean_loss_test_KLD.result(),
-                  metrics.mean_loss_test_post_mean.result()))
-        print('Rel Errors: VAE: %.3e, Encoder: %.3e, Decoder: %.3e\n'\
-                %(metrics.mean_relative_error_input_VAE.result(),
-                  metrics.mean_relative_error_latent_encoder.result(),
-                  metrics.mean_relative_error_input_decoder.result()))
+                  metrics.mean_loss_test_KLD.result()),
+                  metrics.mean_loss_test_post_mean.result())
+        print('Rel Errors: Encoder: %.3e\n'\
+                %(metrics.mean_relative_error_latent_encoder.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()
 

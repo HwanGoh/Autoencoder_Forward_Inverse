@@ -9,12 +9,14 @@ import pandas as pd
 from get_train_and_test_data import load_train_and_test_data
 from add_noise import add_noise
 from form_train_val_test import form_train_val_test_tf_batches
+from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
+from Utilities.FEM_prematrices_poisson_2D import FEMPrematricesPoisson2D
 from get_prior import load_prior
 from NN_VAE_Fwd_Inv import VAEFwdInv
 from loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
         KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
-from optimize_custom_VAE_model_aware import optimize
+from optimize_custom_VAE_model_augmented_autodiff import optimize
 from optimize_distributed_custom_VAE_model_aware import optimize_distributed
 from positivity_constraints import positivity_constraint_log_exp
 
@@ -77,6 +79,18 @@ def trainer_custom(hyperp, run_options, file_paths):
     if run_options.full_posterior_covariance == 1:
         KLD_loss = KLD_full_post_cov
 
+    #=== Load FEM Matrices ===#
+    _, prestiffness, boundary_matrix, load_vector =\
+            load_FEM_matrices_tf(run_options, file_paths,
+                                 load_premass = 0,
+                                 load_prestiffness = 1)
+
+    #=== Construct Forward Model ===#
+    forward_model = FEMPrematricesPoisson2D(run_options, file_paths,
+                                            obs_indices,
+                                            prestiffness,
+                                            boundary_matrix, load_vector)
+
     #=== Prior ===#
     prior_mean,\
     prior_covariance, prior_covariance_cholesky, _\
@@ -109,15 +123,18 @@ def trainer_custom(hyperp, run_options, file_paths):
                  input_dimensions, latent_dimensions,
                  num_batches_train,
                  loss_weighted_penalized_difference, noise_regularization_matrix,
-                 positivity_constraint_log_exp)
+                 positivity_constraint_log_exp,
+                 forward_model.solve_PDE_prematrices_sparse)
 
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = VAEFwdInv(hyperp, input_dimensions, latent_dimensions,
-                           kernel_initializer, bias_initializer)
+            NN = VAEFwdInv(hyperp,
+                           input_dimensions, latent_dimensions,
+                           kernel_initializer, bias_initializer,
+                           positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
@@ -130,6 +147,4 @@ def trainer_custom(hyperp, run_options, file_paths):
                 prior_mean, prior_covariance,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, latent_dimensions,
-                num_batches_train,
-                loss_weighted_penalized_difference, noise_regularization_matrix,
-                positivity_constraint_log_exp)
+                num_batches_train)
