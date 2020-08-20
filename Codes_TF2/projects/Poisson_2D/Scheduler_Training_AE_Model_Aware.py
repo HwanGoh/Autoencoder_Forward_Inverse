@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, os.path.realpath('../../src'))
 from get_hyperparameter_permutations import get_hyperparameter_permutations
 from schedule_and_run import schedule_runs
-from Training_Driver_FC_Model_Augmented_FEM import Hyperparameters
+from Training_Driver_AE_Model_Aware import Hyperparameters
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -52,6 +52,7 @@ if __name__ == '__main__':
         hyperp.activation        = ['relu']
         hyperp.penalty_encoder   = [0.0001, 0.001, 0.01, 0.1]
         hyperp.penalty_decoder   = [0.0001, 0.001, 0.01, 0.1]
+        hyperp.penalty_prior     = [0]
         hyperp.batch_size        = [100]
         hyperp.num_epochs        = [1000]
 
@@ -84,6 +85,7 @@ if __name__ == '__main__':
                 f'{data.activation}',
                 f'{data.penalty_encoder:.9f}',
                 f'{data.penalty_decoder:.9f}',
+                f'{data.penalty_prior:.9f}',
                 f'{data.batch_size}',
                 f'{data.num_epochs}',
                 f'{data.gpu}'])
