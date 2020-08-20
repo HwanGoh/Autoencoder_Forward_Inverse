@@ -28,7 +28,11 @@ def optimize_distributed(dist_strategy,
         loss_penalized_difference, relative_error,
         reg_prior, prior_mean, prior_covariance_cholesky,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
-        input_dimensions, num_batches_train):
+        input_dimensions, num_batches_train,
+        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+        loss_weighted_penalized_difference, noise_regularization_matrix,
+        positivity_constraint):
+
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
     print('Number of Replicas in Sync: %d' %(dist_strategy.num_replicas_in_sync))
 
@@ -68,20 +72,49 @@ def optimize_distributed(dist_strategy,
                 batch_latent_pred_train = NN.encoder(batch_input_train)
                 batch_input_pred_train = NN.decoder(batch_latent_train)
 
-                unscaled_replica_batch_loss_train_autoencoder =\
-                        loss_penalized_difference(
-                                batch_input_train, batch_input_pred_train_AE, 1)
-                unscaled_replica_batch_loss_train_encoder =\
-                        loss_penalized_difference(
-                                batch_latent_train, batch_latent_pred_train, hyperp.penalty_encoder)
-                unscaled_replica_batch_loss_train_decoder =\
-                        loss_penalized_difference(
-                                batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
+                if run_options.use_standard_autoencoder == 1:
+                    unscaled_replica_batch_loss_train_autoencoder =\
+                            loss_penalized_difference(
+                                    batch_input_train, batch_input_pred_train_AE, 1)
+                    unscaled_replica_batch_loss_train_encoder =\
+                            loss_weighted_penalized_difference(
+                                    batch_latent_train, batch_latent_pred_train,
+                                    noise_regularization_matrix, hyperp.penalty_encoder)
+                    unscaled_replica_batch_loss_train_decoder =\
+                            loss_penalized_difference(
+                                    batch_input_train, batch_input_pred_train,
+                                    hyperp.penalty_decoder)
+                    unscaled_replica_batch_reg_train_prior = reg_prior(
+                            batch_input_pred_train_AE,
+                            prior_mean, prior_covariance_cholesky_inverse,
+                            hyperp.penalty_prior)
+
+                if run_options.use_reverse_autoencoder == 1:
+                    unscaled_replica_batch_loss_train_autoencoder =\
+                            loss_weighted_penalized_difference(
+                                    batch_input_train,
+                                    batch_input_pred_train_AE,
+                                    noise_regularization_matrix, 1)
+                    unscaled_replica_batch_loss_train_encoder =\
+                            loss_penalized_difference(
+                                    batch_latent_train,
+                                    batch_latent_pred_train,
+                                    hyperp.penalty_encoder)
+                    unscaled_replica_batch_loss_train_decoder =\
+                            loss_weighted_penalized_difference(
+                                    batch_input_train, batch_input_pred_train,
+                                    noise_regularization_matrix,
+                                    hyperp.penalty_decoder)
+                    unscaled_replica_batch_reg_train_prior = reg_prior(
+                            batch_latent_pred_train,
+                            prior_mean, prior_covariance_cholesky_inverse,
+                            hyperp.penalty_prior)
 
                 unscaled_replica_batch_loss_train =\
                         unscaled_replica_batch_loss_train_autoencoder +\
                         unscaled_replica_batch_loss_train_encoder +\
-                        unscaled_replica_batch_loss_train_decoder
+                        unscaled_replica_batch_loss_train_decoder +\
+                        unscaled_replica_reg_train_prior
                 scaled_replica_batch_loss_train = tf.reduce_sum(
                         unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
 
@@ -104,25 +137,56 @@ def optimize_distributed(dist_strategy,
             batch_latent_pred_val = NN.encoder(batch_input_val)
             batch_input_pred_val = NN.decoder(batch_latent_val)
 
-            unscaled_replica_batch_loss_val_autoencoder =\
-                    loss_penalized_difference(
-                            batch_input_val, batch_input_pred_val_AE, 1)
-            unscaled_replica_batch_loss_val_encoder =\
-                    loss_penalized_difference(
-                            batch_latent_val, batch_latent_pred_val, hyperp.penalty_encoder)
-            unscaled_replica_batch_loss_val_decoder =\
-                    loss_penalized_difference(
-                            batch_input_pred_val, batch_input_val, hyperp.penalty_decoder)
+            if run_options.use_standard_autoencoder == 1:
+                unscaled_replica_batch_loss_val_autoencoder =\
+                        loss_penalized_difference(
+                                batch_input_val, batch_input_pred_val_AE, 1)
+                unscaled_replica_batch_loss_val_encoder =\
+                        loss_weighted_penalized_difference(
+                                batch_latent_val, batch_latent_pred_val,
+                                noise_regularization_matrix, hyperp.penalty_encoder)
+                unscaled_replica_batch_loss_val_decoder =\
+                        loss_penalized_difference(
+                                batch_input_val, batch_input_pred_val,
+                                hyperp.penalty_decoder)
+                unscaled_replica_batch_reg_val_prior = reg_prior(
+                        batch_input_pred_val_AE,
+                        prior_mean, prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
-            unscaled_replica_batch_loss_val =\
-                    unscaled_replica_batch_loss_val_autoencoder +\
-                    unscaled_replica_batch_loss_val_encoder+\
-                    unscaled_replica_batch_loss_val_decoder
+            if run_options.use_reverse_autoencoder == 1:
+                unscaled_replica_batch_loss_val_autoencoder =\
+                        loss_weighted_penalized_difference(
+                                batch_input_val,
+                                batch_input_pred_val_AE,
+                                noise_regularization_matrix, 1)
+                unscaled_replica_batch_loss_val_encoder =\
+                        loss_penalized_difference(
+                                batch_latent_val,
+                                batch_latent_pred_val,
+                                hyperp.penalty_encoder)
+                unscaled_replica_batch_loss_val_decoder =\
+                        loss_weighted_penalized_difference(
+                                batch_input_val, batch_input_pred_val,
+                                noise_regularization_matrix,
+                                hyperp.penalty_decoder)
+                unscaled_replica_batch_reg_val_prior = reg_prior(
+                        batch_latent_pred_val,
+                        prior_mean, prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
+                unscaled_replica_batch_loss_val =\
+                        unscaled_replica_batch_loss_val_autoencoder +\
+                        unscaled_replica_batch_loss_val_encoder +\
+                        unscaled_replica_batch_loss_val_decoder +\
+                        unscaled_replica_reg_val_prior
+                scaled_replica_batch_loss_val = tf.reduce_sum(
+                        unscaled_replica_batch_loss_val * (1./hyperp.batch_size))
+
+            metrics.mean_loss_val(unscaled_replica_batch_loss_val)
             metrics.mean_loss_val_autoencoder(unscaled_replica_batch_loss_val_autoencoder)
             metrics.mean_loss_val_encoder(unscaled_replica_batch_loss_val_encoder)
             metrics.mean_loss_val_decoder(unscaled_replica_batch_loss_val_decoder)
-            metrics.mean_loss_val(unscaled_replica_batch_loss_val)
 
         @tf.function
         def dist_val_step(batch_input_val, batch_latent_val):
@@ -132,27 +196,59 @@ def optimize_distributed(dist_strategy,
         def test_step(batch_input_test, batch_latent_test):
             batch_input_pred_test_AE = NN(batch_input_test)
             batch_latent_pred_test = NN.encoder(batch_input_test)
-            batch_input_pred_test_decoder = NN.decoder(batch_latent_test)
+            batch_input_pred_test = NN.decoder(batch_latent_test)
 
-            unscaled_replica_batch_loss_test_autoencoder =\
-                    loss_penalized_difference(
-                            batch_input_test, batch_input_pred_test_AE, 1)
-            unscaled_replica_batch_loss_test_encoder =\
-                    loss_penalized_difference(
-                            batch_latent_test, batch_latent_pred_test, hyperp.penalty_encoder)
-            unscaled_replica_batch_loss_test_decoder =\
-                    loss_penalized_difference(
-                            batch_latent_test, batch_latent_pred_test, hyperp.penalty_decoder)
+            if run_options.use_standard_autoencoder == 1:
+                unscaled_replica_batch_loss_test_autoencoder =\
+                        loss_penalized_difference(
+                                batch_input_test, batch_input_pred_test_AE, 1)
+                unscaled_replica_batch_loss_test_encoder =\
+                        loss_weighted_penalized_difference(
+                                batch_latent_test, batch_latent_pred_test,
+                                noise_regularization_matrix, hyperp.penalty_encoder)
+                unscaled_replica_batch_loss_test_decoder =\
+                        loss_penalized_difference(
+                                batch_input_test, batch_input_pred_test,
+                                hyperp.penalty_decoder)
+                unscaled_replica_batch_reg_test_prior = reg_prior(
+                        batch_input_pred_test_AE,
+                        prior_mean, prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
-            unscaled_replica_batch_loss_test =\
-                    unscaled_replica_batch_loss_test_autoencoder +\
-                    unscaled_replica_batch_loss_test_encoder +\
-                    unscaled_replica_batch_loss_test_decoder
+            if run_options.use_reverse_autoencoder == 1:
+                unscaled_replica_batch_loss_test_autoencoder =\
+                        loss_weighted_penalized_difference(
+                                batch_input_test,
+                                batch_input_pred_test_AE,
+                                noise_regularization_matrix, 1)
+                unscaled_replica_batch_loss_test_encoder =\
+                        loss_penalized_difference(
+                                batch_latent_test,
+                                batch_latent_pred_test,
+                                hyperp.penalty_encoder)
+                unscaled_replica_batch_loss_test_decoder =\
+                        loss_weighted_penalized_difference(
+                                batch_input_test, batch_input_pred_test,
+                                noise_regularization_matrix,
+                                hyperp.penalty_decoder)
+                unscaled_replica_batch_reg_test_prior = reg_prior(
+                        batch_latent_pred_test,
+                        prior_mean, prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
+                unscaled_replica_batch_loss_test =\
+                        unscaled_replica_batch_loss_test_autoencoder +\
+                        unscaled_replica_batch_loss_test_encoder +\
+                        unscaled_replica_batch_loss_test_decoder +\
+                        unscaled_replica_reg_test_prior
+                scaled_replica_batch_loss_test = tf.reduce_sum(
+                        unscaled_replica_batch_loss_test * (1./hyperp.batch_size))
+
+            metrics.mean_loss_test(unscaled_replica_batch_loss_test)
             metrics.mean_loss_test_autoencoder(unscaled_replica_batch_loss_test_autoencoder)
             metrics.mean_loss_test_encoder(unscaled_replica_batch_loss_test_encoder)
             metrics.mean_loss_test_decoder(unscaled_replica_batch_loss_test_decoder)
-            metrics.mean_loss_test(unscaled_replica_batch_loss_test)
+
             metrics.mean_relative_error_data_autoencoder(
                     relative_error(batch_input_test, batch_input_pred_test_AE))
             metrics.mean_relative_error_latent_encoder(
