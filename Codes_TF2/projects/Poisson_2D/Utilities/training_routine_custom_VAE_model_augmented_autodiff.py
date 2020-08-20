@@ -17,7 +17,7 @@ from loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
         KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
 from optimize_custom_VAE_model_augmented_autodiff import optimize
-from optimize_distributed_custom_VAE_model_aware import optimize_distributed
+from optimize_distributed_custom_VAE_model_augmented_autodiff import optimize_distributed
 from positivity_constraints import positivity_constraint_log_exp
 
 import pdb
@@ -147,4 +147,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                 prior_mean, prior_covariance,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, latent_dimensions,
-                num_batches_train)
+                num_batches_train,
+                loss_weighted_penalized_difference, noise_regularization_matrix,
+                positivity_constraint_log_exp,
+                forward_model.solve_PDE_prematrices_sparse)
