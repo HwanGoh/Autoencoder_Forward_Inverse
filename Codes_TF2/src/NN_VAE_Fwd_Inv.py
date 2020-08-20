@@ -101,16 +101,3 @@ class Decoder(tf.keras.layers.Layer):
         for hidden_layer in self.hidden_layers_decoder:
             X = hidden_layer(X)
         return X
-
-
-
-
-
-
-
-
-
-
-
-
-
