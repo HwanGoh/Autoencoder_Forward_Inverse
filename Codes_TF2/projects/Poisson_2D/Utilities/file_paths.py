@@ -250,8 +250,8 @@ class FilePathsPredictionAndPlotting(FilePaths):
         self.savefile_name_state_test = self.NN_savefile_directory + '/state_test'
 
         #=== File Path for Loading Displayable Predictions ===#
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'
+        self.savefile_name_parameter_pred = self.NN_savefile_directory + '_parameter_pred'
+        self.savefile_name_state_pred = self.NN_savefile_directory + '_state_pred'
 
         #=== File Path for Saving Figures ===#
         self.figures_savefile_directory = '../../../Figures/' + self.filename
@@ -260,8 +260,9 @@ class FilePathsPredictionAndPlotting(FilePaths):
                 'parameter_test'
         self.figures_savefile_name_state_test = self.figures_savefile_directory+ '/' +\
                 'state_test'
-        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
-        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
+        self.figures_savefile_name_parameter_pred =\
+                self.figures_savefile_directory + '/parameter_pred'
+        self.figures_savefile_name_state_pred = self.figures_savefile_directory + '/state_pred'
 
         #=== Creating Directories ===#
         if not os.path.exists(self.figures_savefile_directory):

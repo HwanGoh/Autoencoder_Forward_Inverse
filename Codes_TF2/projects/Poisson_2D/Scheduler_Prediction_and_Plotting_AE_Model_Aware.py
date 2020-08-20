@@ -33,6 +33,7 @@ if __name__ == '__main__':
     hyperp.activation        = ['relu']
     hyperp.penalty_encoder   = [0.0001, 0.001, 0.01, 0.1]
     hyperp.penalty_decoder   = [0.0001, 0.001, 0.01, 0.1]
+    hyperp.penalty_prior     = [0]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 
@@ -49,14 +50,15 @@ if __name__ == '__main__':
 
     for scenario in scenarios_class_instances:
         proc = subprocess.Popen(['./Prediction_and_Plotting_Driver.py',
-            f'{data.num_hidden_layers}',
-            f'{data.truncation_layer}',
-            f'{data.num_hidden_nodes}',
-            f'{data.activation}',
-            f'{data.penalty_encoder:.9f}',
-            f'{data.penalty_decoder:.9f}',
-            f'{data.batch_size}',
-            f'{data.num_epochs}',
+            f'{scenario.num_hidden_layers}',
+            f'{scenario.truncation_layer}',
+            f'{scenario.num_hidden_nodes}',
+            f'{scenario.activation}',
+            f'{scenario.penalty_encoder:.9f}',
+            f'{scenario.penalty_decoder:.9f}',
+            f'{scenario.penalty_prior:.9f}',
+            f'{scenario.batch_size}',
+            f'{scenario.num_epochs}'])
         proc.wait()
 
     print('All scenarios computed')

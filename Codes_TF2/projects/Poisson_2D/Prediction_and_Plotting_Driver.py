@@ -22,9 +22,9 @@ class Hyperparameters:
     truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty_encoder   = 50
-    penalty_decoder   = 0
-    penalty_aug       = 1
+    penalty_encoder   = 0.1
+    penalty_decoder   = 0.1
+    penalty_aug       = 0
     penalty_prior     = 0
     batch_size        = 100
     num_epochs        = 1000
@@ -32,30 +32,49 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self):
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.use_standard_autoencoder = 0
+        self.use_reverse_autoencoder = 1
 
         #=== Autoencoder Loss ===#
-        self.use_model_aware = 0
-        self.use_model_augmented = 1
+        self.use_model_aware = 1
+        self.use_model_augmented = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 5000
+        self.num_data_train = 10000
         self.num_data_test = 200
 
         #=== Data Properties ===#
         self.parameter_dimensions = 225
-        self.obs_type = 'full'
-        self.num_obs_points = 10
+        self.obs_type = 'obs'
+        self.num_obs_points = 43
 
-        #=== Prior Properties ===#
-        self.prior_type_AC = 1
-        self.prior_mean_AC = 2
-        self.prior_variance_AC = 0.96
-        self.prior_corr_AC = 0.002
+        #=== Noise Properties ===#
+        self.add_noise = 1
+        self.noise_level = 0.05
+        self.num_noisy_obs = 20
+
+        #=== Autocorrelation Prior Properties ===#
+        self.prior_type_AC_train = 1
+        self.prior_mean_AC_train = 2
+        self.prior_variance_AC_train = 2.0
+        self.prior_corr_AC_train = 0.5
+
+        self.prior_type_AC_test = 1
+        self.prior_mean_AC_test = 2
+        self.prior_variance_AC_test = 2.0
+        self.prior_corr_AC_test = 0.5
+
+        #=== Matern Prior Properties ===#
+        self.prior_type_matern_train = 0
+        self.prior_kern_type_train = 'm32'
+        self.prior_cov_length_train = 0.5
+
+        self.prior_type_matern_test = 0
+        self.prior_kern_type_test = 'm32'
+        self.prior_cov_length_test = 0.5
 
         #=== Random Seed ===#
-        self.random_seed = 1234
+        self.random_seed = 4
 
 ###############################################################################
 #                                 Driver                                      #
