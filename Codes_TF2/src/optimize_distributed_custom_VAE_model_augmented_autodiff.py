@@ -88,9 +88,9 @@ def optimize_distributed(dist_strategy,
                         hyperp.penalty_post_mean)
 
                 unscaled_replica_batch_loss_train =\
-                        -(unscaled_replica_batch_loss_train_VAE
-                         -unscaled_replica_batch_loss_loss_train_KLD
-                         -unscaled_replica_batch_loss_train_post_mean)
+                        -(-unscaled_replica_batch_loss_train_VAE
+                          -unscaled_replica_batch_loss_loss_train_KLD
+                          -unscaled_replica_batch_loss_train_post_mean)
                 scaled_replica_batch_loss_train = tf.reduce_sum(
                         unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
 

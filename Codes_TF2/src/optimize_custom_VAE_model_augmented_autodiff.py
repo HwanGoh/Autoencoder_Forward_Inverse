@@ -59,7 +59,7 @@ def optimize(hyperp, run_options, file_paths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    # @tf.function
+    @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
@@ -75,13 +75,13 @@ def optimize(hyperp, run_options, file_paths,
                     batch_latent_train, batch_post_mean_train,
                     hyperp.penalty_post_mean)
 
-            batch_loss_train = -(batch_loss_train_VAE - batch_loss_train_KLD\
+            batch_loss_train = -(-batch_loss_train_VAE - batch_loss_train_KLD\
                     - batch_loss_train_post_mean)
 
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)
-        metrics.mean_loss_train_VAE(-batch_loss_train_VAE)
+        metrics.mean_loss_train_VAE(batch_loss_train_VAE)
         metrics.mean_loss_train_KLD(batch_loss_train_KLD)
         metrics.mean_loss_train_post_mean(batch_loss_train_post_mean)
 
@@ -115,7 +115,7 @@ def optimize(hyperp, run_options, file_paths,
                 batch_latent_test, batch_post_mean_test,
                 hyperp.penalty_post_mean)
 
-        batch_loss_test = -(- batch_loss_test_KLD - batch_loss_test_post_mean)
+        batch_loss_test = -(-batch_loss_test_KLD - batch_loss_test_post_mean)
 
         metrics.mean_loss_test(batch_loss_test)
         metrics.mean_loss_test_KLD(batch_loss_test_KLD)

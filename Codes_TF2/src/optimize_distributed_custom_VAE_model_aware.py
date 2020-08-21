@@ -87,15 +87,15 @@ def optimize_distributed(dist_strategy,
                         hyperp.penalty_post_mean)
 
                 unscaled_replica_batch_loss_train =\
-                        -(unscaled_replica_batch_loss_train_VAE
-                         -unscaled_replica_batch_loss_loss_train_KLD
-                         -unscaled_replica_batch_loss_train_post_mean)
+                        -(-unscaled_replica_batch_loss_train_VAE
+                          -unscaled_replica_batch_loss_loss_train_KLD
+                          -unscaled_replica_batch_loss_train_post_mean)
                 scaled_replica_batch_loss_train = tf.reduce_sum(
                         unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
 
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
-            metrics.mean_loss_train_VAE(-unscaled_replica_batch_loss_train_VAE)
+            metrics.mean_loss_train_VAE(unscaled_replica_batch_loss_train_VAE)
             metrics.mean_loss_train_KLD(unscaled_replica_batch_loss_loss_train_KLD)
             metrics.mean_loss_train_post_mean(unscaled_replica_batch_loss_train_post_mean)
 
@@ -124,11 +124,11 @@ def optimize_distributed(dist_strategy,
                     hyperp.penalty_post_mean)
 
             unscaled_replica_batch_loss_val =\
-                    -(unscaled_replica_batch_loss_val_VAE - unscaled_replica_batch_loss_val_KLD
-                     -unscaled_replica_batch_loss_val_post_mean)
+                    -(-unscaled_replica_batch_loss_val_VAE - unscaled_replica_batch_loss_val_KLD
+                      -unscaled_replica_batch_loss_val_post_mean)
 
             metrics.mean_loss_val(unscaled_replica_batch_loss_val)
-            metrics.mean_loss_val_VAE(-unscaled_replica_batch_loss_val_VAE)
+            metrics.mean_loss_val_VAE(unscaled_replica_batch_loss_val_VAE)
             metrics.mean_loss_val_KLD(unscaled_replica_batch_loss_val_KLD)
             metrics.mean_loss_val_post_mean(unscaled_replica_batch_loss_val_post_mean)
 
@@ -154,11 +154,11 @@ def optimize_distributed(dist_strategy,
                     hyperp.penalty_post_mean)
 
             unscaled_replica_batch_loss_test =\
-                    -(unscaled_replica_batch_loss_test_VAE - unscaled_replica_batch_loss_test_KLD
-                     -unscaled_replica_batch_loss_val_post_mean)
+                    -(-unscaled_replica_batch_loss_test_VAE - unscaled_replica_batch_loss_test_KLD
+                      -unscaled_replica_batch_loss_val_post_mean)
 
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
-            metrics.mean_loss_test_VAE(-unscaled_replica_batch_loss_test_VAE)
+            metrics.mean_loss_test_VAE(unscaled_replica_batch_loss_test_VAE)
             metrics.mean_loss_test_KLD(unscaled_replica_batch_loss_test_KLD)
             metrics.mean_loss_test_post_mean(unscaled_replica_batch_loss_test_post_mean)
 
