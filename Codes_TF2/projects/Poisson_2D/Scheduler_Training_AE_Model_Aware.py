@@ -50,9 +50,9 @@ if __name__ == '__main__':
         hyperp.truncation_layer   = [3]
         hyperp.num_hidden_nodes  = [500]
         hyperp.activation        = ['relu']
-        hyperp.penalty_encoder   = [0.0001, 0.001, 0.01, 0.1]
-        hyperp.penalty_decoder   = [0.0001, 0.001, 0.01, 0.1]
-        hyperp.penalty_prior     = [0]
+        hyperp.penalty_encoder   = [10, 50, 100, 1000]
+        hyperp.penalty_decoder   = [10]
+        hyperp.penalty_prior     = [0.001, 0.01, 0.1, 1]
         hyperp.batch_size        = [100]
         hyperp.num_epochs        = [1000]
 
