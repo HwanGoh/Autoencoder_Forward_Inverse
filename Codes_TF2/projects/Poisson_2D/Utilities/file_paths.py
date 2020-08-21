@@ -96,6 +96,8 @@ class FilePaths():
             autoencoder_type = 'AE_std_'
         if run_options.use_reverse_autoencoder == 1:
             autoencoder_type = 'AE_rev_'
+
+        #=== Penalty Strings ===#
         penalty_encoder_string = value_to_string(hyperp.penalty_encoder)
         penalty_decoder_string = value_to_string(hyperp.penalty_decoder)
         if autoencoder_loss == 'maug_':

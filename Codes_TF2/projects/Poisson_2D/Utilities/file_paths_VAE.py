@@ -91,6 +91,10 @@ class FilePaths():
                     run_options.prior_kern_type_test,
                     run_options.prior_cov_length_test)
 
+        #=== Penalty Strings ===#
+        penalty_KLD_string = value_to_string(hyperp.penalty_KLD)
+        penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
+
         #=== Neural Network Architecture and Regularization ===#
         autoencoder_type = 'VAE_'
         if run_options.diagonal_posterior_covariance == 1:
@@ -102,8 +106,9 @@ class FilePaths():
         self.filename = project_name +\
             data_string + prior_string_train + '_' +\
             autoencoder_type + autoencoder_loss +\
-            'hl%d_tl%d_hn%d_%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
-                    hyperp.truncation_layer, hyperp.num_hidden_nodes, hyperp.activation,
+            'hl%d_tl%d_hn%d_%s_kl%s_pm%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
+                    hyperp.truncation_layer, hyperp.num_hidden_nodes,
+                    hyperp.activation, penalty_KLD_string, penalty_post_mean_string,
                     run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         ################

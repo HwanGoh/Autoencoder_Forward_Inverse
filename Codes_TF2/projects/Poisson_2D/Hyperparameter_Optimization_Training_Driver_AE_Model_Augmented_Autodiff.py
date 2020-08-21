@@ -32,8 +32,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class Hyperparameters:
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 8
+    truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty_encoder   = 50
@@ -65,12 +65,12 @@ class RunOptions:
         #=== Data Properties ===#
         self.parameter_dimensions = 225
         self.obs_type = 'obs'
-        self.num_obs_points = 10
+        self.num_obs_points = 43
 
         #=== Noise Properties ===#
         self.add_noise = 1
-        self.noise_level = 0.01
-        self.num_noisy_obs = 3
+        self.noise_level = 0.05
+        self.num_noisy_obs = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -113,10 +113,10 @@ if __name__ == "__main__":
     hyperp_of_interest_dict = {}
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(2, 10, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(10, 1000, name='num_hidden_nodes')
-    hyperp_of_interest_dict['penalty_encoder'] = Real(0.01, 50, name='penalty_encoder')
-    hyperp_of_interest_dict['penalty_decoder'] = Real(0.01, 50, name='penalty_decoder')
+    hyperp_of_interest_dict['penalty_encoder'] = Real(10, 1000, name='penalty_encoder')
+    hyperp_of_interest_dict['penalty_decoder'] = Real(10, 1000, name='penalty_decoder')
     hyperp_of_interest_dict['penalty_aug'] = Real(0.001, 50, name='penalty_aug')
-    hyperp_of_interest_dict['penalty_prior'] = Real(0.001, 0.01, name='penalty_prior')
+    hyperp_of_interest_dict['penalty_prior'] = Real(10, 1000, name='penalty_prior')
     #hyperp_of_interest_dict['activation'] = Categorical(['elu', 'relu', 'tanh'], name='activation')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 

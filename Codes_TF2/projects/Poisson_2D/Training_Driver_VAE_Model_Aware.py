@@ -19,10 +19,11 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 8
+    truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    activation        = 'tanh'
+    activation        = 'relu'
+    penalty_KLD       = 10
     penalty_post_mean = 1
     batch_size        = 100
     num_epochs        = 10
@@ -93,10 +94,11 @@ if __name__ == "__main__":
         hyperp.truncation_layer  = int(sys.argv[2])
         hyperp.num_hidden_nodes  = int(sys.argv[3])
         hyperp.activation        = str(sys.argv[4])
-        hyperp.penalty_post_mean = float(sys.argv[5])
-        hyperp.batch_size        = int(sys.argv[6])
-        hyperp.num_epochs        = int(sys.argv[7])
-        run_options.which_gpu    = str(sys.argv[8])
+        hyperp.penalty_KLD       = float(sys.argv[5])
+        hyperp.penalty_post_mean = float(sys.argv[6])
+        hyperp.batch_size        = int(sys.argv[7])
+        hyperp.num_epochs        = int(sys.argv[8])
+        run_options.which_gpu    = str(sys.argv[9])
 
     #=== File Paths ===#
     autoencoder_loss = 'maware_'

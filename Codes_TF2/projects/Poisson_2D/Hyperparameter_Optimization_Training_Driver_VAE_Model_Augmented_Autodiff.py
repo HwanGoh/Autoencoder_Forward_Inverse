@@ -31,10 +31,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                      Hyperparameters and Run_Options                        #
 ###############################################################################
 class Hyperparameters:
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 8
+    truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
-    activation        = 'tanh'
+    activation        = 'relu'
+    penalty_KLD       = 10
+    penalty_post_mean = 1
     batch_size        = 100
     num_epochs        = 2
 
@@ -60,12 +62,12 @@ class RunOptions:
         #=== Data Properties ===#
         self.parameter_dimensions = 225
         self.obs_type = 'obs'
-        self.num_obs_points = 10
+        self.num_obs_points = 43
 
         #=== Noise Properties ===#
         self.add_noise = 1
-        self.noise_level = 0.01
-        self.num_noisy_obs = 3
+        self.noise_level = 0.05
+        self.num_noisy_obs = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -92,7 +94,7 @@ class RunOptions:
         self.load_vector_constant = -1
 
         #=== Random Seed ===#
-        self.random_seed = 1234
+        self.random_seed = 4
 
 ###############################################################################
 #                                  Driver                                     #
@@ -109,6 +111,8 @@ if __name__ == "__main__":
     hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
     hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
     hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
+    hyperp_of_interest_dict['penalty_KLD'] = Real(10, 1000, name='penalty_KLD')
+    hyperp_of_interest_dict['penalty_post_mean'] = Real(10, 1000, name='penalty_post_mean')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 
     #####################
@@ -122,7 +126,7 @@ if __name__ == "__main__":
     #=== Instantiate Hyperparameters and Run Options to Load Data ===#
     hyperp = Hyperparameters()
     run_options = RunOptions()
-    autoencoder_loss = 'maware_'
+    autoencoder_loss = 'maug_'
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\

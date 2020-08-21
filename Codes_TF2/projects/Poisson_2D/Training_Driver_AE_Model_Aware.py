@@ -18,8 +18,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class Hyperparameters:
-    num_hidden_layers = 5
-    truncation_layer  = 3 # Indexing includes input and output layer with input layer indexed by 0
+    num_hidden_layers = 8
+    truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty_encoder   = 50
