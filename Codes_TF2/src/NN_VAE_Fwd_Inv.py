@@ -55,8 +55,7 @@ class VAEFwdInv(tf.keras.Model):
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
         z = self.reparameterize(post_mean, log_post_var)
-        likelihood_mean = self.decoder(z)
-        # likelihood_mean = self.decoder(self.positivity_constraint(z))
+        likelihood_mean = self.decoder(self.positivity_constraint(z))
         return likelihood_mean
 
 ###############################################################################

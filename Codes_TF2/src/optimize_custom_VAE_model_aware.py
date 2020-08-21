@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 
 from metrics_VAE import Metrics
+from check_symmetry_and_positive_definite import check_symmetry_and_positive_definite
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -24,14 +25,14 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize(hyperp, run_options, file_paths,
-        NN, optimizer,
-        loss_penalized_difference, KLD_loss, relative_error,
-        prior_mean, prior_covariance,
-        input_and_latent_train, input_and_latent_val, input_and_latent_test,
-        input_dimensions, latent_dimension,
-        num_batches_train,
-        loss_weighted_penalized_difference, noise_regularization_matrix,
-        positivity_constraint):
+             NN, optimizer,
+             loss_penalized_difference, KLD_loss, relative_error,
+             prior_mean, prior_covariance,
+             input_and_latent_train, input_and_latent_val, input_and_latent_test,
+             input_dimensions, latent_dimension,
+             num_batches_train,
+             loss_weighted_penalized_difference, noise_regularization_matrix,
+             positivity_constraint):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     prior_cov_inv = np.linalg.inv(prior_covariance)
