@@ -40,7 +40,7 @@ class RunOptions:
         self.use_model_augmented = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train = 5000
         self.num_data_test = 200
 
         #=== Data Properties ===#

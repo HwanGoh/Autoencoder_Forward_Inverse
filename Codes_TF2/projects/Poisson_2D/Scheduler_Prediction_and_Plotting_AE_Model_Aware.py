@@ -12,7 +12,7 @@ sys.path.insert(0, os.path.realpath('../../src'))
 import subprocess
 import copy
 from get_hyperparameter_permutations import get_hyperparameter_permutations
-from Prediction_and_Plotting_Driver import Hyperparameters
+from Prediction_and_Plotting_Driver_AE import Hyperparameters
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -33,7 +33,7 @@ if __name__ == '__main__':
     hyperp.activation        = ['relu']
     hyperp.penalty_encoder   = [10, 50, 100, 1000]
     hyperp.penalty_decoder   = [10]
-    hyperp.penalty_prior     = [10, 50, 100, 1000]
+    hyperp.penalty_prior     = [0.001, 0.01, 0.1, 1]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         scenarios_class_instances.append(copy.deepcopy(hyperp_scenario))
 
     for scenario in scenarios_class_instances:
-        proc = subprocess.Popen(['./Prediction_and_Plotting_Driver.py',
+        proc = subprocess.Popen(['./Prediction_and_Plotting_Driver_AE.py',
             f'{scenario.num_hidden_layers}',
             f'{scenario.truncation_layer}',
             f'{scenario.num_hidden_nodes}',

@@ -104,9 +104,9 @@ if __name__ == "__main__":
 
     #=== Select Hyperparameters of Interest ===#
     hyperp_of_interest_dict = {}
-    hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
-    hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
-    hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
+    # hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
+    # hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
+    # hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
     hyperp_of_interest_dict['penalty_KLD'] = Real(10, 1000, name='penalty_KLD')
     hyperp_of_interest_dict['penalty_post_mean'] = Real(10, 1000, name='penalty_post_mean')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     #=== Assigning hyperp with Optimal Hyperparameters ===#
     for num, parameter in enumerate(hyperp_of_interest_list):
         setattr(hyperp, parameter, hyperp_opt_result.x[num])
-    hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
+    # hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,

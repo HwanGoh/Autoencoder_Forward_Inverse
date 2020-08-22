@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 # Import FilePaths class and training routine
 from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
 from\
-Utilities.hyperparameter_optimization_training_routine_custom_VAE_model_aware\
+Utilities.hyperparameter_optimization_training_routine_custom_VAE_model_augmented_autodiff\
         import trainer_custom
 
 # Import skopt code
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     #=== Assigning hyperp with Optimal Hyperparameters ===#
     for num, parameter in enumerate(hyperp_of_interest_list):
         setattr(hyperp, parameter, hyperp_opt_result.x[num])
-    hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
+    # hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,

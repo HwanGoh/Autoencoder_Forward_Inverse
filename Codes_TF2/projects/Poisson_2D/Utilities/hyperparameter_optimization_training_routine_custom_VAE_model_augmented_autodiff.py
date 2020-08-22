@@ -13,6 +13,8 @@ from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
 from get_train_and_test_data import load_train_and_test_data
 from add_noise import add_noise
 from form_train_val_test import form_train_val_test_tf_batches
+from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
+from Utilities.FEM_prematrices_poisson_2D import FEMPrematricesPoisson2D
 from get_prior import load_prior
 from NN_VAE_Fwd_Inv import VAEFwdInv
 from loss_and_relative_errors import\
@@ -75,7 +77,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         #=== Assign Hyperparameters of Interest ===#
         for key, val in hyperp_of_interest_dict.items():
             setattr(hyperp, key, val)
-        hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
+        # hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
         #=== Construct Validation Set and Batches ===#
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
@@ -100,6 +102,18 @@ def trainer_custom(hyperp, run_options, file_paths,
             KLD_loss = KLD_diagonal_post_cov
         if run_options.full_posterior_covariance == 1:
             KLD_loss = KLD_full_post_cov
+
+        #=== Load FEM Matrices ===#
+        _, prestiffness, boundary_matrix, load_vector =\
+                load_FEM_matrices_tf(run_options, file_paths,
+                                    load_premass = 0,
+                                    load_prestiffness = 1)
+
+        #=== Construct Forward Model ===#
+        forward_model = FEMPrematricesPoisson2D(run_options, file_paths,
+                                                obs_indices,
+                                                prestiffness,
+                                                boundary_matrix, load_vector)
 
         #=== Prior ===#
         prior_mean,\
@@ -134,7 +148,8 @@ def trainer_custom(hyperp, run_options, file_paths,
                      input_dimensions, latent_dimensions,
                      num_batches_train,
                      loss_weighted_penalized_difference, noise_regularization_matrix,
-                     positivity_constraint_log_exp)
+                     positivity_constraint_log_exp,
+                     forward_model.solve_PDE_prematrices_sparse)
 
         #=== Distributed Training ===#
         if run_options.use_distributed_training == 1:
@@ -159,7 +174,8 @@ def trainer_custom(hyperp, run_options, file_paths,
                     input_dimensions, latent_dimensions,
                     num_batches_train,
                     loss_weighted_penalized_difference, noise_regularization_matrix,
-                    positivity_constraint_log_exp)
+                    positivity_constraint_log_exp,
+                    forward_model.solve_PDE_prematrices_sparse)
 
         #=== Loading Metrics For Output ===#
         print('Loading Metrics')
