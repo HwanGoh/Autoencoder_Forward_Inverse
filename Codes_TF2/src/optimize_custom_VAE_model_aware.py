@@ -71,7 +71,7 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_train_KLD = KLD_loss(batch_post_mean_train, batch_log_post_var_train,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
             batch_loss_train_post_mean = loss_penalized_difference(
-                    batch_latent_train, batch_post_mean_train,
+                    batch_latent_train, positivity_constraint(batch_post_mean_train),
                     hyperp.penalty_post_mean)
 
             batch_loss_train = -(-batch_loss_train_VAE - batch_loss_train_KLD\
@@ -97,7 +97,7 @@ def optimize(hyperp, run_options, file_paths,
         batch_loss_val_KLD = KLD_loss(batch_post_mean_val, batch_log_post_var_val,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_val_post_mean = loss_penalized_difference(
-                batch_latent_val, batch_post_mean_val,
+                batch_latent_val, positivity_constraint(batch_post_mean_val),
                 hyperp.penalty_post_mean)
 
         batch_loss_val = -(-batch_loss_val_VAE - batch_loss_val_KLD\
@@ -120,7 +120,7 @@ def optimize(hyperp, run_options, file_paths,
         batch_loss_test_KLD = KLD_loss(batch_post_mean_test, batch_log_post_var_test,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
         batch_loss_test_post_mean = loss_penalized_difference(
-                batch_latent_test, batch_post_mean_test,
+                batch_latent_test, positivity_constraint(batch_post_mean_test),
                 hyperp.penalty_post_mean)
 
         batch_loss_test = -(-batch_loss_test_VAE - batch_loss_test_KLD\
@@ -134,7 +134,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_relative_error_input_VAE(relative_error(
             batch_input_test, batch_likelihood_test))
         metrics.mean_relative_error_latent_encoder(relative_error(
-            batch_latent_test, batch_post_mean_test))
+            batch_latent_test, positivity_constraint(batch_post_mean_test)))
         metrics.mean_relative_error_input_decoder(relative_error(
             batch_input_test, batch_input_pred_test))
 
