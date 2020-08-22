@@ -92,7 +92,7 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:
         #=== Neural Network ===#
-        NN = VAEFwdInv(hyperp,
+        NN = VAEFwdInv(hyperp, run_options,
                        input_dimensions, latent_dimensions,
                        kernel_initializer, bias_initializer,
                        positivity_constraint_log_exp)
@@ -116,7 +116,8 @@ def trainer_custom(hyperp, run_options, file_paths):
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = VAEFwdInv(hyperp, input_dimensions, latent_dimensions,
+            NN = VAEFwdInv(hyperp, run_options,
+                           input_dimensions, latent_dimensions,
                            kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#

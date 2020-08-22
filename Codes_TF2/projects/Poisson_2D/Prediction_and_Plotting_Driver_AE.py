@@ -35,7 +35,7 @@ class RunOptions:
         self.use_standard_autoencoder = 0
         self.use_reverse_autoencoder = 1
 
-        #=== Autoencoder Loss ===#
+        #=== Forward Model Type ===#
         self.use_model_aware = 1
         self.use_model_augmented = 0
 
@@ -98,15 +98,15 @@ if __name__ == "__main__":
 
     #=== File Names ===#
     if run_options.use_model_aware == 1:
-        autoencoder_loss = 'maware_'
+        forward_model_type = 'maware_'
     if run_options.use_model_augmented == 1:
-        autoencoder_loss = 'maug_'
+        forward_model_type = 'maug_'
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
             'n%d/'%(run_options.parameter_dimensions)
     file_paths = FilePathsPredictionAndPlotting(hyperp, run_options,
-                                   autoencoder_loss, project_name,
+                                   forward_model_type, project_name,
                                    data_options, dataset_directory)
 
     #=== Predict and Save ===#

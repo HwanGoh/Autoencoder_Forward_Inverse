@@ -11,15 +11,16 @@ from tensorflow.keras.layers import Dense, Conv2D, Flatten
 from tensorflow.keras.initializers import RandomNormal
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
+###############################################################################
+#                           Variational Autoencoder                           #
+###############################################################################
 class VAEFwdInv(tf.keras.Model):
-    def __init__(self, hyperp,
+    def __init__(self, hyperp, run_options,
             input_dimensions, latent_dimensions,
             kernel_initializer, bias_initializer,
             positivity_constraint):
         super(VAEFwdInv, self).__init__()
-###############################################################################
-#                    Constuct Neural Network Architecture                     #
-###############################################################################
+
         #=== Define Architecture and Create Layer Storage ===#
         self.architecture = [input_dimensions] +\
                 [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [input_dimensions]
@@ -28,6 +29,7 @@ class VAEFwdInv(tf.keras.Model):
         self.num_layers = len(self.architecture)
 
         #=== Define Other Attributes ===#
+        self.run_options = run_options
         self.hidden_layers_decoder = [] # This will be a list of layers
         activation = hyperp.activation
         self.activations = ['not required'] + [activation]*hyperp.num_hidden_layers + ['linear']
@@ -40,23 +42,25 @@ class VAEFwdInv(tf.keras.Model):
         self.encoder = Encoder(hyperp.truncation_layer,
                                self.architecture, self.activations,
                                self.kernel_initializer, self.bias_initializer)
-        self.decoder = Decoder(hyperp.truncation_layer,
-                               self.architecture, self.activations,
-                               self.kernel_initializer, self.bias_initializer,
-                               self.num_layers)
+        if self.run_options.use_model_aware == 1:
+            self.decoder = Decoder(hyperp.truncation_layer,
+                                   self.architecture, self.activations,
+                                   self.kernel_initializer, self.bias_initializer,
+                                   self.num_layers)
 
-###############################################################################
-#                    Variational Autoencoder Propagation                      #
-###############################################################################
+    #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
         eps = tf.random.normal(shape=mean.shape)
         return mean + eps*tf.exp(log_var*0.5)
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
-        z = self.reparameterize(post_mean, log_post_var)
-        likelihood_mean = self.decoder(self.positivity_constraint(z))
-        return likelihood_mean
+        if self.run_options.use_model_augmented == 1:
+            return post_mean, log_post_var
+        if self.run_options.use_model_aware == 1:
+            z = self.reparameterize(post_mean, log_post_var)
+            likelihood_mean = self.decoder(self.positivity_constraint(z))
+            return likelihood_mean
 
 ###############################################################################
 #                                  Encoder                                    #

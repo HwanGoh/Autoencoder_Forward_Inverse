@@ -31,7 +31,7 @@ from skopt import gp_minimize
 ###############################################################################
 def trainer_custom(hyperp, run_options, file_paths,
                    n_calls, space,
-                   autoencoder_loss, project_name,
+                   project_name,
                    data_options, dataset_directory):
 
     #=== GPU Settings ===#
@@ -88,7 +88,7 @@ def trainer_custom(hyperp, run_options, file_paths,
 
         #=== Update File Paths with New Hyperparameters ===#
         file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-                autoencoder_loss, project_name,
+                project_name,
                 data_options, dataset_directory)
 
         #=== Data and Latent Dimensions of Autoencoder ===#
@@ -117,7 +117,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         #=== Non-distributed Training ===#
         if run_options.use_distributed_training == 0:
             #=== Neural Network ===#
-            NN = VAEFwdInv(hyperp,
+            NN = VAEFwdInv(hyperp, run_options,
                            input_dimensions, latent_dimensions,
                            kernel_initializer, bias_initializer,
                            positivity_constraint_log_exp)
@@ -141,7 +141,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             dist_strategy = tf.distribute.MirroredStrategy()
             with dist_strategy.scope():
                 #=== Neural Network ===#
-                NN = VAEFwdInv(hyperp,
+                NN = VAEFwdInv(hyperp, run_options,
                                input_dimensions, latent_dimensions,
                                kernel_initializer, bias_initializer,
                                positivity_constraint_log_exp)
@@ -165,7 +165,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         print('Loading Metrics')
         df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
         array_metrics = df_metrics.to_numpy()
-        storage_array_loss_val = array_metrics[:,3]
+        storage_array_loss_val = array_metrics[:,4]
 
         return storage_array_loss_val[-1]
 

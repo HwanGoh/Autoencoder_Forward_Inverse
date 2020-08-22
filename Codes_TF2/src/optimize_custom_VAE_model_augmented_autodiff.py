@@ -182,12 +182,12 @@ def optimize(hyperp, run_options, file_paths,
                   metrics.mean_loss_train_post_mean.result()))
         print('Val Loss: Full: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_val.result(),
-                  metrics.mean_loss_val_KLD.result()),
-                  metrics.mean_loss_val_post_mean.result())
-        print('Test Loss: Full: %.3e, KLD: %.3e'\
+                  metrics.mean_loss_val_KLD.result(),
+                  metrics.mean_loss_val_post_mean.result()))
+        print('Test Loss: Full: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_test.result(),
-                  metrics.mean_loss_test_KLD.result()),
-                  metrics.mean_loss_test_post_mean.result())
+                  metrics.mean_loss_test_KLD.result(),
+                  metrics.mean_loss_test_post_mean.result()))
         print('Rel Errors: Encoder: %.3e\n'\
                 %(metrics.mean_relative_error_latent_encoder.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))

@@ -53,8 +53,8 @@ def prior_string_matern(prior_type, kern_type, cov_length):
 ###############################################################################
 class FilePaths():
     def __init__(self, hyperp, run_options,
-            autoencoder_loss, project_name,
-            data_options, dataset_directory):
+                 project_name,
+                 data_options, dataset_directory):
         #################
         #   File Name   #
         #################
@@ -97,6 +97,10 @@ class FilePaths():
 
         #=== Neural Network Architecture and Regularization ===#
         autoencoder_type = 'VAE_'
+        if run_options.use_model_aware == 1:
+            forward_model_type = 'maware_'
+        if run_options.use_model_augmented == 1:
+            forward_model_type = 'maug_'
         if run_options.diagonal_posterior_covariance == 1:
             posterior_covariance_shape = 'diagpost_'
         if run_options.full_posterior_covariance == 1:
@@ -105,7 +109,7 @@ class FilePaths():
         #=== File Name ===#
         self.filename = project_name +\
             data_string + prior_string_train + '_' +\
-            autoencoder_type + autoencoder_loss +\
+            autoencoder_type + forward_model_type +\
             'hl%d_tl%d_hn%d_%s_kl%s_pm%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
                     hyperp.truncation_layer, hyperp.num_hidden_nodes,
                     hyperp.activation, penalty_KLD_string, penalty_post_mean_string,

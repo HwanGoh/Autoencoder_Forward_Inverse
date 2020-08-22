@@ -101,13 +101,14 @@ if __name__ == "__main__":
         run_options.which_gpu    = str(sys.argv[9])
 
     #=== File Paths ===#
-    autoencoder_loss = 'maware_'
+    run_options.use_model_aware = 1
+    run_options.use_model_augmented = 0
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
             'n%d/'%(run_options.parameter_dimensions)
     file_paths = FilePathsTraining(hyperp, run_options,
-                                   autoencoder_loss, project_name,
+                                   project_name,
                                    data_options, dataset_directory)
 
     #=== Initiate Training ===#
