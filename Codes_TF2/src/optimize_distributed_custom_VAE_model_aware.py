@@ -83,7 +83,7 @@ def optimize_distributed(dist_strategy,
                         prior_mean, prior_cov_inv,
                         log_det_prior_cov, latent_dimension)
                 unscaled_replica_batch_loss_train_post_mean = loss_penalized_difference(
-                        batch_latent_train, batch_post_mean_train,
+                        batch_latent_train, positivity_constraint(batch_post_mean_train),
                         hyperp.penalty_post_mean)
 
                 unscaled_replica_batch_loss_train =\
@@ -120,7 +120,7 @@ def optimize_distributed(dist_strategy,
                     prior_mean, prior_cov_inv,
                     log_det_prior_cov, latent_dimension)
             unscaled_replica_batch_loss_val_post_mean = loss_penalized_difference(
-                    batch_latent_val, batch_post_mean_val,
+                    batch_latent_val, positivity_constraint(batch_post_mean_val),
                     hyperp.penalty_post_mean)
 
             unscaled_replica_batch_loss_val =\
@@ -150,7 +150,7 @@ def optimize_distributed(dist_strategy,
                     batch_post_mean_test, batch_log_post_var_test,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
             unscaled_replica_batch_loss_test_post_mean = loss_penalized_difference(
-                    batch_latent_test, batch_post_mean_test,
+                    batch_latent_test, positivity_constraint(batch_post_mean_test),
                     hyperp.penalty_post_mean)
 
             unscaled_replica_batch_loss_test =\
@@ -165,7 +165,7 @@ def optimize_distributed(dist_strategy,
             metrics.mean_relative_error_input_VAE(relative_error(
                 batch_input_test, batch_input_likelihood_test))
             metrics.mean_relative_error_latent_encoder(relative_error(
-                batch_latent_test, batch_post_mean_test))
+                batch_latent_test, positivity_constraint(batch_post_mean_test)))
             metrics.mean_relative_error_input_decoder(relative_error(
                 batch_input_test, batch_input_pred_test))
 
