@@ -46,8 +46,8 @@ if __name__ == '__main__':
                                    # attribute to GPU
 
         # assign instance attributes for hyperp
-        hyperp.num_hidden_layers = [5]
-        hyperp.truncation_layer   = [3]
+        hyperp.num_hidden_layers = [8]
+        hyperp.truncation_layer   = [6]
         hyperp.num_hidden_nodes  = [500]
         hyperp.activation        = ['relu']
         hyperp.penalty_encoder   = [10, 50, 100, 1000]

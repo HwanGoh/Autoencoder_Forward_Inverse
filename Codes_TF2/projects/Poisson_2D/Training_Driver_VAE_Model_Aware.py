@@ -23,7 +23,8 @@ class Hyperparameters:
     truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty_KLD       = 10
+    penalty_KLD_incr  = 0.001
+    penalty_KLD_rate  = 10
     penalty_post_mean = 1
     batch_size        = 100
     num_epochs        = 10
@@ -53,7 +54,7 @@ class RunOptions:
         self.num_obs_points = 43
 
         #=== Noise Properties ===#
-        self.add_noise = 1
+        self.add_noise = 0
         self.noise_level = 0.05
         self.num_noisy_obs = 20
 
@@ -94,11 +95,12 @@ if __name__ == "__main__":
         hyperp.truncation_layer  = int(sys.argv[2])
         hyperp.num_hidden_nodes  = int(sys.argv[3])
         hyperp.activation        = str(sys.argv[4])
-        hyperp.penalty_KLD       = float(sys.argv[5])
-        hyperp.penalty_post_mean = float(sys.argv[6])
-        hyperp.batch_size        = int(sys.argv[7])
-        hyperp.num_epochs        = int(sys.argv[8])
-        run_options.which_gpu    = str(sys.argv[9])
+        hyperp.penalty_KLD_incr  = float(sys.argv[5])
+        hyperp.penalty_KLD_rate  = int(sys.argv[6])
+        hyperp.penalty_post_mean = float(sys.argv[7])
+        hyperp.batch_size        = int(sys.argv[8])
+        hyperp.num_epochs        = int(sys.argv[9])
+        run_options.which_gpu    = str(sys.argv[10])
 
     #=== File Paths ===#
     run_options.use_model_aware = 1

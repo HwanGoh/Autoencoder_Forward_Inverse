@@ -92,7 +92,7 @@ class FilePaths():
                     run_options.prior_cov_length_test)
 
         #=== Penalty Strings ===#
-        penalty_KLD_string = value_to_string(hyperp.penalty_KLD)
+        penalty_KLD_incr_string = value_to_string(hyperp.penalty_KLD_incr)
         penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
 
         #=== Neural Network Architecture and Regularization ===#
@@ -110,9 +110,11 @@ class FilePaths():
         self.filename = project_name +\
             data_string + prior_string_train + '_' +\
             autoencoder_type + forward_model_type +\
-            'hl%d_tl%d_hn%d_%s_kl%s_pm%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
+            'hl%d_tl%d_hn%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
                     hyperp.truncation_layer, hyperp.num_hidden_nodes,
-                    hyperp.activation, penalty_KLD_string, penalty_post_mean_string,
+                    hyperp.activation,
+                    penalty_KLD_incr_string, hyperp.penalty_KLD_rate,
+                    penalty_post_mean_string,
                     run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         ################

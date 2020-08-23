@@ -47,11 +47,12 @@ def trainer_custom(hyperp, run_options, file_paths,
     #=== Load Observation Indices ===#
     if run_options.obs_type == 'full':
         obs_dimensions = run_options.parameter_dimensions
+        obs_indices = []
     if run_options.obs_type == 'obs':
+        obs_dimensions = run_options.num_obs_points
         print('Loading Boundary Indices')
         df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
         obs_indices = df_obs_indices.to_numpy()
-        obs_dimensions = len(obs_indices)
 
     #=== Load Data ===#
     parameter_train, state_obs_train,\

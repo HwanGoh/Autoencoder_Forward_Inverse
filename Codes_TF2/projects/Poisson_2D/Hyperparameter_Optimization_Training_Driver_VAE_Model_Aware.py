@@ -35,7 +35,8 @@ class Hyperparameters:
     truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty_KLD       = 10
+    penalty_KLD_incr  = 0.001
+    penalty_KLD_rate  = 10
     penalty_post_mean = 1
     batch_size        = 100
     num_epochs        = 2
@@ -61,11 +62,11 @@ class RunOptions:
 
         #=== Data Properties ===#
         self.parameter_dimensions = 225
-        self.obs_type = 'obs'
+        self.obs_type = 'full'
         self.num_obs_points = 43
 
         #=== Noise Properties ===#
-        self.add_noise = 1
+        self.add_noise = 0
         self.noise_level = 0.05
         self.num_noisy_obs = 20
 
@@ -107,7 +108,8 @@ if __name__ == "__main__":
     # hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
     # hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
     # hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
-    hyperp_of_interest_dict['penalty_KLD'] = Real(10, 1000, name='penalty_KLD')
+    hyperp_of_interest_dict['penalty_KLD_incr'] = Real(10, 1000, name='penalty_KLD_incr')
+    hyperp_of_interest_dict['penalty_KLD_rate'] = Integer(10, 100, name='penalty_KLD_rate')
     hyperp_of_interest_dict['penalty_post_mean'] = Real(10, 1000, name='penalty_post_mean')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 

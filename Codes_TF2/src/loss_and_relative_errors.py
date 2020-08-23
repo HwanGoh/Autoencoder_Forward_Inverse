@@ -32,7 +32,7 @@ def reg_prior(parameter, prior_mean, prior_covariance_cholesky_inverse, penalty)
 def loss_forward_model(hyperp, run_options,
         forward_model,
         state_obs_true, parameter_pred,
-        penalty_aug):
+        penalty):
     forward_model_state_pred = forward_model(parameter_pred)
     forward_model_state_pred = tf.cast(forward_model_state_pred, dtype=tf.float32)
     return penalty*tf.keras.losses.mean_squared_error(state_obs_true,
@@ -40,7 +40,8 @@ def loss_forward_model(hyperp, run_options,
 
 def KLD_diagonal_post_cov(post_mean, log_post_var,
         prior_mean, prior_cov_inv,
-        log_det_prior_cov, latent_dimension):
+        log_det_prior_cov, latent_dimension,
+        penalty):
     trace_prior_cov_inv_times_cov_post = tf.reduce_sum(
             tf.multiply(tf.linalg.diag_part(prior_cov_inv), tf.math.exp(log_post_var)),
             axis=1)
@@ -50,7 +51,7 @@ def KLD_diagonal_post_cov(post_mean, log_post_var,
             axis = 0)
     log_det_prior_cov_divide_det_cov_post =\
             log_det_prior_cov - tf.math.reduce_sum(log_post_var, axis=1)
-    return 0.5*(trace_prior_cov_inv_times_cov_post +
+    return penalty*0.5*(trace_prior_cov_inv_times_cov_post +
             prior_weighted_prior_mean_minus_post_mean -
             latent_dimension + log_det_prior_cov_divide_det_cov_post)
 

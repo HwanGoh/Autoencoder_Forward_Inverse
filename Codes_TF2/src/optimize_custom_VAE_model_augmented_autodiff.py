@@ -55,11 +55,14 @@ def optimize(hyperp, run_options, file_paths,
     NN.build((hyperp.batch_size, input_dimensions))
     NN.summary()
 
+    #=== Setting Initial KLD Penalty to be Incremented ===#
+    penalty_KLD = 0
+
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    @tf.function
+    # @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
@@ -70,7 +73,8 @@ def optimize(hyperp, run_options, file_paths,
                     batch_input_train, batch_input_pred_forward_model_train,
                     noise_regularization_matrix, 1)
             batch_loss_train_KLD = KLD_loss(batch_post_mean_train, batch_log_post_var_train,
-                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
+                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                    penalty_KLD)
             batch_loss_train_post_mean = loss_penalized_difference(
                     batch_latent_train, positivity_constraint(batch_post_mean_train),
                     hyperp.penalty_post_mean)
@@ -88,12 +92,13 @@ def optimize(hyperp, run_options, file_paths,
         return gradients
 
     #=== Validation Step ===#
-    @tf.function
+    # @tf.function
     def val_step(batch_input_val, batch_latent_val):
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
         batch_loss_val_KLD = KLD_loss(batch_post_mean_val, batch_log_post_var_val,
-                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
+                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                penalty_KLD)
         batch_loss_val_post_mean = loss_penalized_difference(
                 batch_latent_val, positivity_constraint(batch_post_mean_val),
                 hyperp.penalty_post_mean)
@@ -105,12 +110,13 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_val_post_mean(batch_loss_val_post_mean)
 
     #=== Test Step ===#
-    @tf.function
+    # @tf.function
     def test_step(batch_input_test, batch_latent_test):
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
 
         batch_loss_test_KLD = KLD_loss(batch_post_mean_test, batch_log_post_var_test,
-                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension)
+                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                penalty_KLD)
         batch_loss_test_post_mean = loss_penalized_difference(
                 batch_latent_test, positivity_constraint(batch_post_mean_test),
                 hyperp.penalty_post_mean)
@@ -206,6 +212,10 @@ def optimize(hyperp, run_options, file_paths,
         if metrics.relative_gradient_norm < 1e-6:
             print('Gradient norm tolerance reached, breaking training loop')
             break
+
+        #=== Increase KLD Penalty ===#
+        if epoch %hyperp.penalty_KLD_rate == 0 and epoch != 0:
+            penalty_KLD += hyperp.penalty_KLD_incr
 
     #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)
