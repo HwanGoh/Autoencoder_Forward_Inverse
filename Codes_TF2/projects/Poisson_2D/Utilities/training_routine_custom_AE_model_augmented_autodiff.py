@@ -115,44 +115,48 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Non-distributed Training ===#
     if run_options.use_distributed_training == 0:
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
-                               kernel_initializer, bias_initializer)
+        NN = AutoencoderFwdInv(hyperp, run_options,
+                               input_dimensions, latent_dimensions,
+                               kernel_initializer, bias_initializer,
+                               positivity_constraint_log_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
 
         #=== Training ===#
         optimize(hyperp, run_options, file_paths,
-                NN, optimizer,
-                loss_penalized_difference, relative_error,
-                input_and_latent_train, input_and_latent_val, input_and_latent_test,
-                input_dimensions,
-                num_batches_train,
-                loss_weighted_penalized_difference, noise_regularization_matrix,
-                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-                positivity_constraint_log_exp,
-                forward_model.solve_PDE_prematrices_sparse)
+                 NN, optimizer,
+                 loss_penalized_difference, relative_error,
+                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                 input_dimensions,
+                 num_batches_train,
+                 loss_weighted_penalized_difference, noise_regularization_matrix,
+                 reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+                 positivity_constraint_log_exp,
+                 forward_model.solve_PDE_prematrices_sparse)
 
     #=== Distributed Training ===#
     if run_options.use_distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, input_dimensions, latent_dimensions,
-                                   kernel_initializer, bias_initializer)
+            NN = AutoencoderFwdInv(hyperp, run_options,
+                                   input_dimensions, latent_dimensions,
+                                   kernel_initializer, bias_initializer,
+                                   positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
 
         #=== Training ===#
         optimize_distributed(dist_strategy,
-                hyperp, run_options, file_paths,
-                NN, optimizer,
-                loss_penalized_difference, relative_error,
-                input_and_latent_train, input_and_latent_val, input_and_latent_test,
-                input_dimensions,
-                num_batches_train,
-                loss_weighted_penalized_difference, noise_regularization_matrix,
-                reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-                positivity_constraint_log_exp,
-                forward_model.solve_PDE_prematrices_sparse)
+                             hyperp, run_options, file_paths,
+                             NN, optimizer,
+                             loss_penalized_difference, relative_error,
+                             input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                             input_dimensions,
+                             num_batches_train,
+                             loss_weighted_penalized_difference, noise_regularization_matrix,
+                             reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+                             positivity_constraint_log_exp,
+                             forward_model.solve_PDE_prematrices_sparse)

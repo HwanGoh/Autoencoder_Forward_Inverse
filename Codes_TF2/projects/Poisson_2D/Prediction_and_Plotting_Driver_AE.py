@@ -22,9 +22,9 @@ class Hyperparameters:
     truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty_encoder   = 10
+    penalty_encoder   = 1000
     penalty_decoder   = 10
-    penalty_aug       = 0
+    penalty_aug       = 10
     penalty_prior     = 0
     batch_size        = 100
     num_epochs        = 1000
@@ -50,7 +50,7 @@ class RunOptions:
 
         #=== Noise Properties ===#
         self.add_noise = 1
-        self.noise_level = 0.05
+        self.noise_level = 0.01
         self.num_noisy_obs = 20
 
         #=== Autocorrelation Prior Properties ===#

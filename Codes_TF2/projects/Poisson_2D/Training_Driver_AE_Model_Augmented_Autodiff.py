@@ -25,8 +25,8 @@ class Hyperparameters:
     num_hidden_nodes  = 500
     activation        = 'relu'
     penalty_encoder   = 1
-    penalty_decoder   = 0
-    penalty_aug       = 50
+    penalty_decoder   = 1
+    penalty_aug       = 1
     penalty_prior     = 0.5
     batch_size        = 10
     num_epochs        = 3
@@ -43,8 +43,8 @@ class RunOptions:
         self.which_gpu = '2'
 
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.use_standard_autoencoder = 0
+        self.use_reverse_autoencoder = 1
 
         #=== Data Set Size ===#
         self.num_data_train = 5000

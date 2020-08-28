@@ -28,12 +28,12 @@ if __name__ == '__main__':
 
     # assign instance attributes for hyperp
     hyperp.num_hidden_layers = [8]
-    hyperp.truncation_layer   = [6]
+    hyperp.truncation_layer  = [6]
     hyperp.num_hidden_nodes  = [500]
     hyperp.activation        = ['relu']
     hyperp.penalty_encoder   = [10, 50, 100, 1000]
-    hyperp.penalty_decoder   = [10]
-    hyperp.penalty_prior     = [1, 10, 50, 100]
+    hyperp.penalty_decoder   = [10, 50, 100, 1000]
+    hyperp.penalty_prior     = [0]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 

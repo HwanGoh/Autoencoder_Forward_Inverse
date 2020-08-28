@@ -75,9 +75,10 @@ def test_gradient(hyperp, run_options, file_paths):
     #=== Form Neural Network ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
-    NN = AutoencoderFwdInv(hyperp,
+    NN = AutoencoderFwdInv(hyperp, run_options,
                            input_dimensions, latent_dimensions,
-                           kernel_initializer, bias_initializer)
+                           kernel_initializer, bias_initializer,
+                           positivity_constraint_log_exp)
 
     #=== Display Neural Network Architecture ===#
     NN.build((hyperp.batch_size, input_dimensions))

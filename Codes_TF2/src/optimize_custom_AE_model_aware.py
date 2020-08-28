@@ -24,13 +24,13 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize(hyperp, run_options, file_paths,
-        NN, optimizer,
-        loss_penalized_difference, relative_error,
-        input_and_latent_train, input_and_latent_val, input_and_latent_test,
-        input_dimensions, num_batches_train,
-        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-        loss_weighted_penalized_difference, noise_regularization_matrix,
-        positivity_constraint):
+             NN, optimizer,
+             loss_penalized_difference, relative_error,
+             input_and_latent_train, input_and_latent_val, input_and_latent_test,
+             input_dimensions, num_batches_train,
+             reg_prior, prior_mean, prior_covariance_cholesky_inverse,
+             loss_weighted_penalized_difference, noise_regularization_matrix,
+             positivity_constraint):
 
     #=== Define Metrics ===#
     metrics = Metrics()

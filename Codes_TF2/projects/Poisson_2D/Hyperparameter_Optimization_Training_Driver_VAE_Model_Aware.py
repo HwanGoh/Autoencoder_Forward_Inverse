@@ -109,7 +109,7 @@ if __name__ == "__main__":
     # hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
     # hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
     hyperp_of_interest_dict['penalty_KLD_incr'] = Real(10, 1000, name='penalty_KLD_incr')
-    hyperp_of_interest_dict['penalty_KLD_rate'] = Integer(10, 100, name='penalty_KLD_rate')
+    hyperp_of_interest_dict['penalty_KLD_rate'] = Rea(0, 1, name='penalty_KLD_rate')
     hyperp_of_interest_dict['penalty_post_mean'] = Real(10, 1000, name='penalty_post_mean')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 
