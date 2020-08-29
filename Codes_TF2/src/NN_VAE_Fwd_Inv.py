@@ -42,7 +42,7 @@ class VAEFwdInv(tf.keras.Model):
         self.encoder = Encoder(hyperp.truncation_layer,
                                self.architecture, self.activations,
                                self.kernel_initializer, self.bias_initializer)
-        if self.run_options.use_model_aware == 1:
+        if self.run_options.model_aware == 1:
             self.decoder = Decoder(hyperp.truncation_layer,
                                    self.architecture, self.activations,
                                    self.kernel_initializer, self.bias_initializer,
@@ -55,9 +55,9 @@ class VAEFwdInv(tf.keras.Model):
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
-        if self.run_options.use_model_augmented == 1:
+        if self.run_options.model_augmented == 1:
             return post_mean, log_post_var
-        if self.run_options.use_model_aware == 1:
+        if self.run_options.model_aware == 1:
             z = self.reparameterize(post_mean, log_post_var)
             likelihood_mean = self.decoder(self.positivity_constraint(z))
             return likelihood_mean

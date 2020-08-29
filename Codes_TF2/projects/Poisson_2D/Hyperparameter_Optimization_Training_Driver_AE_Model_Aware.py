@@ -45,7 +45,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self):
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 0
+        self.distributed_training = 0
 
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2,3'
@@ -54,8 +54,8 @@ class RunOptions:
         self.which_gpu = '2'
 
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 1
-        self.use_reverse_autoencoder = 0
+        self.standard_autoencoder = 1
+        self.reverse_autoencoder = 0
 
         #=== Data Set Size ===#
         self.num_data_train = 5000
@@ -70,6 +70,7 @@ class RunOptions:
         self.add_noise = 1
         self.noise_level = 0.05
         self.num_noisy_obs = 20
+        self.num_noisy_obs_unregularized = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1

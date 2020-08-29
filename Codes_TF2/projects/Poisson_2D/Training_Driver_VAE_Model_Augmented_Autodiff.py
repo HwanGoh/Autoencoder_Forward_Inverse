@@ -32,7 +32,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self):
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 0
+        self.distributed_training = 0
 
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2'
@@ -57,6 +57,7 @@ class RunOptions:
         self.add_noise = 0
         self.noise_level = 0.05
         self.num_noisy_obs = 20
+        self.num_noisy_obs_unregularized = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -107,8 +108,8 @@ if __name__ == "__main__":
         run_options.which_gpu    = str(sys.argv[10])
 
     #=== File Paths ===#
-    run_options.use_model_aware = 0
-    run_options.use_model_augmented = 1
+    run_options.model_aware = 0
+    run_options.model_augmented = 1
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\

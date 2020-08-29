@@ -38,9 +38,9 @@ def trainer_custom(hyperp, run_options, file_paths,
 
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    if run_options.use_distributed_training == 0:
+    if run_options.distributed_training == 0:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
-    if run_options.use_distributed_training == 1:
+    if run_options.distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
 
@@ -130,7 +130,7 @@ def trainer_custom(hyperp, run_options, file_paths,
         bias_initializer = 'zeros'
 
         #=== Non-distributed Training ===#
-        if run_options.use_distributed_training == 0:
+        if run_options.distributed_training == 0:
             #=== Neural Network ===#
             NN = VAEFwdInv(hyperp, run_options,
                            input_dimensions, latent_dimensions,
@@ -153,7 +153,7 @@ def trainer_custom(hyperp, run_options, file_paths,
                      forward_model.solve_PDE_prematrices_sparse)
 
         #=== Distributed Training ===#
-        if run_options.use_distributed_training == 1:
+        if run_options.distributed_training == 1:
             dist_strategy = tf.distribute.MirroredStrategy()
             with dist_strategy.scope():
                 #=== Neural Network ===#

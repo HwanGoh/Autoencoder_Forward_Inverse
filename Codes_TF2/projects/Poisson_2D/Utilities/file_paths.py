@@ -65,7 +65,7 @@ class FilePaths():
             obs_string = 'obs_o%d'%(run_options.num_obs_points)
         if run_options.add_noise == 1:
             noise_level_string = value_to_string(run_options.noise_level)
-            noise_string = 'ns%s'%(noise_level_string)
+            noise_string = 'ns%s_%d'%(noise_level_string,run_options.num_noisy_obs)
         else:
             noise_string = 'ns0'
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
@@ -92,9 +92,9 @@ class FilePaths():
                     run_options.prior_cov_length_test)
 
         #=== Neural Network Architecture ===#
-        if run_options.use_standard_autoencoder == 1:
+        if run_options.standard_autoencoder == 1:
             autoencoder_type = 'AE_std_'
-        if run_options.use_reverse_autoencoder == 1:
+        if run_options.reverse_autoencoder == 1:
             autoencoder_type = 'AE_rev_'
 
         #=== Penalty Strings ===#
@@ -109,7 +109,8 @@ class FilePaths():
             self.filename = project_name +\
                 data_string + prior_string_train + '_' +\
                 autoencoder_type + autoencoder_loss +\
-                'hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
+                'urg%d_hl%d_tl%d_hn%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
+                        run_options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
                         hyperp.activation, penalty_encoder_string, penalty_decoder_string,
                         penalty_prior_string,
@@ -119,7 +120,8 @@ class FilePaths():
             self.filename = project_name +\
                 data_string + prior_string_train + '_' +\
                 autoencoder_type + autoencoder_loss +\
-                'hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
+                'urg%d_hl%d_tl%d_hn%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
+                        run_options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
                         hyperp.activation, penalty_encoder_string, penalty_decoder_string,
                         penalty_aug_string,

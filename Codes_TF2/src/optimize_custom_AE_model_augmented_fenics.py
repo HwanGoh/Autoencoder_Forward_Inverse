@@ -97,7 +97,7 @@ def optimize(hyperp, run_options, file_paths,
     #@tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
-            if run_options.use_standard_autoencoder == 1:
+            if run_options.standard_autoencoder == 1:
                 batch_input_pred_train_AE = NN(tf.math.log(batch_input_train))
                 batch_latent_pred_train = NN.encoder(tf.math.log(batch_input_train))
                 batch_input_pred_train = NN.decoder(batch_latent_train)
@@ -114,7 +114,7 @@ def optimize(hyperp, run_options, file_paths,
                         batch_latent_train, tf.math.exp(batch_input_pred_train_AE),
                         hyperp.penalty_aug)
 
-            if run_options.use_reverse_autoencoder == 1:
+            if run_options.reverse_autoencoder == 1:
                 batch_state_obs_train = batch_input_train
                 batch_parameter_pred = NN.encoder(batch_input_train)
 
@@ -132,7 +132,7 @@ def optimize(hyperp, run_options, file_paths,
     #=== Validation Step ===#
     #@tf.function
     def val_step(batch_input_val, batch_latent_val):
-        if run_options.use_standard_autoencoder == 1:
+        if run_options.standard_autoencoder == 1:
             batch_input_pred_val_AE = NN(tf.math.log(batch_input_val))
             batch_latent_pred_val = NN.encoder(tf.math.log(batch_input_val))
             batch_input_pred_val = NN.decoder(batch_latent_val)
@@ -148,7 +148,7 @@ def optimize(hyperp, run_options, file_paths,
                     fenics_forward, batch_latent_val, tf.math.exp(batch_input_pred_val_AE),
                     hyperp.penalty_aug)
 
-        if run_options.use_reverse_autoencoder == 1:
+        if run_options.reverse_autoencoder == 1:
             batch_state_obs_val = batch_input_val
             batch_parameter_pred = NN.encoder(batch_input_val)
 
@@ -163,7 +163,7 @@ def optimize(hyperp, run_options, file_paths,
     #=== Test Step ===#
     #@tf.function
     def test_step(batch_input_test, batch_latent_test):
-        if run_options.use_standard_autoencoder == 1:
+        if run_options.standard_autoencoder == 1:
             batch_input_pred_test_AE = NN(tf.math.log(batch_input_test))
             batch_latent_pred_test = NN.encoder(tf.math.log(batch_input_test))
             batch_input_pred_test_decoder = NN.decoder(batch_latent_test)
@@ -186,7 +186,7 @@ def optimize(hyperp, run_options, file_paths,
             metrics.mean_relative_error_input_decoder(
                     relative_error(batch_input_test, batch_input_pred_test_decoder))
 
-        if run_options.use_reverse_autoencoder == 1:
+        if run_options.reverse_autoencoder == 1:
             batch_state_obs_test = batch_input_test
             batch_parameter_pred = NN.encoder(batch_input_test)
 

@@ -16,7 +16,7 @@ def test_gradient(hyperp, run_options, file_paths):
 ###############################################################################
 #                        Construct Directional Derivative                     #
 ###############################################################################
-    if run_options.use_reverse_autoencoder == 1:
+    if run_options.reverse_autoencoder == 1:
         print("Gradient test not coded for reverse autoencoder")
         return 0
 
@@ -69,10 +69,10 @@ def test_gradient(hyperp, run_options, file_paths):
     #   Compute Gradient   #
     ########################
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if run_options.use_standard_autoencoder == 1:
+    if run_options.standard_autoencoder == 1:
         input_dimensions = run_options.parameter_dimensions
         latent_dimensions = obs_dimensions
-    if run_options.use_reverse_autoencoder == 1:
+    if run_options.reverse_autoencoder == 1:
         input_dimensions = obs_dimensions
         latent_dimensions = run_options.parameter_dimensions
 

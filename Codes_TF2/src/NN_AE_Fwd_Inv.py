@@ -78,9 +78,9 @@ class Encoder(tf.keras.layers.Layer):
     def call(self, X):
         for hidden_layer in self.hidden_layers_encoder:
             X = hidden_layer(X)
-        if self.run_options.use_standard_autoencoder == 1:
+        if self.run_options.standard_autoencoder == 1:
             return X
-        if self.run_options.use_reverse_autoencoder == 1:
+        if self.run_options.reverse_autoencoder == 1:
             return self.positivity_constraint(X)
 
 ###############################################################################
@@ -108,9 +108,9 @@ class Decoder(tf.keras.layers.Layer):
     def call(self, X):
         for hidden_layer in self.hidden_layers_decoder:
             X = hidden_layer(X)
-        if self.run_options.use_standard_autoencoder == 1:
+        if self.run_options.standard_autoencoder == 1:
             return self.positivity_constraint(X)
-        if self.run_options.use_reverse_autoencoder == 1:
+        if self.run_options.reverse_autoencoder == 1:
             return X
 
 

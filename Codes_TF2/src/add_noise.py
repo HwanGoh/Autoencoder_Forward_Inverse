@@ -31,7 +31,10 @@ def add_noise(run_options, output_train, output_test, load_data_train_flag = 0):
 
     #=== Noise Regularization Matrix ===#
     diagonal = 1/(run_options.noise_level*output_max)*np.ones(output_train.shape[1])
-    diagonal[non_noisy_obs] = (1/dampening_scalar)*diagonal[non_noisy_obs]
+    if run_options.num_noisy_obs_unregularized != 0:
+        diagonal[non_noisy_obs[0:run_options.num_noisy_obs_unregularized]] =\
+                (1/dampening_scalar)*\
+                diagonal[non_noisy_obs[0:run_options.num_noisy_obs_unregularized]]
     noise_regularization_matrix = tf.linalg.diag(diagonal)
     noise_regularization_matrix = tf.cast(noise_regularization_matrix, dtype = tf.float32)
 

@@ -65,7 +65,7 @@ class FilePaths():
             obs_string = 'obs_o%d'%(run_options.num_obs_points)
         if run_options.add_noise == 1:
             noise_level_string = value_to_string(run_options.noise_level)
-            noise_string = 'ns%s'%(noise_level_string)
+            noise_string = 'ns%s_%d'%(noise_level_string,run_options.num_noisy_obs)
         else:
             noise_string = 'ns0'
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
@@ -97,9 +97,9 @@ class FilePaths():
 
         #=== Neural Network Architecture and Regularization ===#
         autoencoder_type = 'VAE_'
-        if run_options.use_model_aware == 1:
+        if run_options.model_aware == 1:
             forward_model_type = 'maware_'
-        if run_options.use_model_augmented == 1:
+        if run_options.model_augmented == 1:
             forward_model_type = 'maug_'
         if run_options.diagonal_posterior_covariance == 1:
             posterior_covariance_shape = 'diagpost_'
@@ -110,8 +110,9 @@ class FilePaths():
         self.filename = project_name +\
             data_string + prior_string_train + '_' +\
             autoencoder_type + forward_model_type +\
-            'hl%d_tl%d_hn%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(hyperp.num_hidden_layers,
-                    hyperp.truncation_layer, hyperp.num_hidden_nodes,
+            'urg%d_hl%d_tl%d_hn%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
+                    run_options.num_noisy_obs_unregularized,
+                    hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
                     hyperp.activation,
                     penalty_KLD_incr_string, hyperp.penalty_KLD_rate,
                     penalty_post_mean_string,

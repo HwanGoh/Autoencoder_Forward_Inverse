@@ -44,7 +44,7 @@ class Hyperparameters:
 class RunOptions:
     def __init__(self):
         #=== Use Distributed Strategy ===#
-        self.use_distributed_training = 0
+        self.distributed_training = 0
 
         #=== Which GPUs to Use for Distributed Strategy ===#
         self.dist_which_gpus = '0,1,2'
@@ -69,6 +69,7 @@ class RunOptions:
         self.add_noise = 0
         self.noise_level = 0.05
         self.num_noisy_obs = 20
+        self.num_noisy_obs_unregularized = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -109,7 +110,7 @@ if __name__ == "__main__":
     # hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
     # hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
     hyperp_of_interest_dict['penalty_KLD_incr'] = Real(10, 1000, name='penalty_KLD_incr')
-    hyperp_of_interest_dict['penalty_KLD_rate'] = Rea(0, 1, name='penalty_KLD_rate')
+    hyperp_of_interest_dict['penalty_KLD_rate'] = Real(0, 1, name='penalty_KLD_rate')
     hyperp_of_interest_dict['penalty_post_mean'] = Real(10, 1000, name='penalty_post_mean')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 
@@ -124,8 +125,8 @@ if __name__ == "__main__":
     #=== Instantiate Hyperparameters and Run Options to Load Data ===#
     hyperp = Hyperparameters()
     run_options = RunOptions()
-    run_options.use_model_aware = 1
-    run_options.use_model_augmented = 0
+    run_options.model_aware = 1
+    run_options.model_augmented = 0
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\

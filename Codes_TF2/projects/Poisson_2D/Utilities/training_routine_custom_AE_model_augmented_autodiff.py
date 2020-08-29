@@ -25,9 +25,9 @@ from positivity_constraints import positivity_constraint_log_exp
 def trainer_custom(hyperp, run_options, file_paths):
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    if run_options.use_distributed_training == 0:
+    if run_options.distributed_training == 0:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.which_gpu
-    if run_options.use_distributed_training == 1:
+    if run_options.distributed_training == 1:
         os.environ["CUDA_VISIBLE_DEVICES"] = run_options.dist_which_gpus
         gpus = tf.config.experimental.list_physical_devices('GPU')
 
@@ -58,7 +58,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         noise_regularization_matrix = tf.eye(obs_dimensions)
 
     #=== Construct Validation Set and Batches ===#
-    if run_options.use_standard_autoencoder == 1:
+    if run_options.standard_autoencoder == 1:
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
@@ -66,7 +66,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                 parameter_test, state_obs_test,
                 hyperp.batch_size, run_options.random_seed)
-    if run_options.use_reverse_autoencoder == 1:
+    if run_options.reverse_autoencoder == 1:
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
         run_options.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
@@ -76,10 +76,10 @@ def trainer_custom(hyperp, run_options, file_paths):
                 hyperp.batch_size, run_options.random_seed)
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if run_options.use_standard_autoencoder == 1:
+    if run_options.standard_autoencoder == 1:
         input_dimensions = run_options.parameter_dimensions
         latent_dimensions = obs_dimensions
-    if run_options.use_reverse_autoencoder == 1:
+    if run_options.reverse_autoencoder == 1:
         input_dimensions = obs_dimensions
         latent_dimensions = run_options.parameter_dimensions
 
@@ -113,7 +113,7 @@ def trainer_custom(hyperp, run_options, file_paths):
     bias_initializer = 'zeros'
 
     #=== Non-distributed Training ===#
-    if run_options.use_distributed_training == 0:
+    if run_options.distributed_training == 0:
         #=== Neural Network ===#
         NN = AutoencoderFwdInv(hyperp, run_options,
                                input_dimensions, latent_dimensions,
@@ -136,7 +136,7 @@ def trainer_custom(hyperp, run_options, file_paths):
                  forward_model.solve_PDE_prematrices_sparse)
 
     #=== Distributed Training ===#
-    if run_options.use_distributed_training == 1:
+    if run_options.distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
