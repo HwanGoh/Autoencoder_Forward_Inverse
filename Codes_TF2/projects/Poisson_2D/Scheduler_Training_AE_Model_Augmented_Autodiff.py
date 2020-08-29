@@ -52,7 +52,8 @@ if __name__ == '__main__':
         hyperp.activation        = ['relu']
         hyperp.penalty_encoder   = [10, 50, 100, 1000]
         hyperp.penalty_decoder   = [10]
-        hyperp.penalty_prior     = [0.001, 0.01, 0.1, 1]
+        hyperp.penalty_aug       = [10, 50, 100, 1000]
+        hyperp.penalty_prior     = [0.1]
         hyperp.batch_size        = [100]
         hyperp.num_epochs        = [1000]
 
@@ -78,13 +79,14 @@ if __name__ == '__main__':
             if status.tag == FLAGS.EXIT:
                 break
 
-            proc = subprocess.Popen(['./Training_Driver_AE_Model_Aware.py',
+            proc = subprocess.Popen(['./Training_Driver_AE_Model_Augmented_Autodiff.py',
                 f'{data.num_hidden_layers}',
                 f'{data.truncation_layer}',
                 f'{data.num_hidden_nodes}',
                 f'{data.activation}',
                 f'{data.penalty_encoder:.9f}',
                 f'{data.penalty_decoder:.9f}',
+                f'{data.penalty_aug:.9f}',
                 f'{data.penalty_prior:.9f}',
                 f'{data.batch_size}',
                 f'{data.num_epochs}',
