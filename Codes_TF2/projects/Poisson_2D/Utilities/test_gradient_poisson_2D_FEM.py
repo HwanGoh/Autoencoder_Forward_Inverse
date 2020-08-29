@@ -16,6 +16,10 @@ def test_gradient(hyperp, run_options, file_paths):
 ###############################################################################
 #                        Construct Directional Derivative                     #
 ###############################################################################
+    if run_options.use_reverse_autoencoder == 1:
+        print("Gradient test not coded for reverse autoencoder")
+        return 0
+
     ##################
     #   Load Prior   #
     ##################
