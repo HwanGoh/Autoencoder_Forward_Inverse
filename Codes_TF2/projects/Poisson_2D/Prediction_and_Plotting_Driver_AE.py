@@ -24,20 +24,20 @@ class Hyperparameters:
     activation        = 'relu'
     penalty_encoder   = 1000
     penalty_decoder   = 10
-    penalty_aug       = 10
-    penalty_prior     = 0
+    penalty_aug       = 0
+    penalty_prior     = 0.1
     batch_size        = 100
     num_epochs        = 1000
 
 class RunOptions:
     def __init__(self):
         #=== Autoencoder Type ===#
-        self.use_standard_autoencoder = 0
-        self.use_reverse_autoencoder = 1
+        self.standard_autoencoder = 0
+        self.reverse_autoencoder = 1
 
         #=== Forward Model Type ===#
-        self.use_model_aware = 1
-        self.use_model_augmented = 0
+        self.model_aware = 1
+        self.model_augmented = 0
 
         #=== Data Set Size ===#
         self.num_data_train = 10000
@@ -50,9 +50,9 @@ class RunOptions:
 
         #=== Noise Properties ===#
         self.add_noise = 1
-        self.noise_level = 0.01
+        self.noise_level = 0.05
         self.num_noisy_obs = 20
-        self.num_noisy_obs_unregularized = 0
+        self.num_noisy_obs_unregularized = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -98,9 +98,9 @@ if __name__ == "__main__":
         hyperp.num_epochs        = int(sys.argv[9])
 
     #=== File Names ===#
-    if run_options.use_model_aware == 1:
+    if run_options.model_aware == 1:
         forward_model_type = 'maware_'
-    if run_options.use_model_augmented == 1:
+    if run_options.model_augmented == 1:
         forward_model_type = 'maug_'
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)

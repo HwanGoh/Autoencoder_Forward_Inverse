@@ -29,7 +29,7 @@ class FLAGS:
 ###############################################################################
 if __name__ == '__main__':
 
-    # To run this code "mpirun -n 5 ./Scheduler_Training_AE_Model_Aware.py" in command line
+    # To run this code "mpirun -n 5 ./Scheduler_Training_AE_Model_Augmented_Autodiff.py" in command line
 
     # mpi stuff
     comm   = MPI.COMM_WORLD

@@ -38,10 +38,10 @@ def predict_and_plot(hyperp, run_options, file_paths,
         obs_indices = df_obs_indices.to_numpy()
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if run_options.use_standard_autoencoder == 1:
+    if run_options.standard_autoencoder == 1:
         input_dimensions = run_options.parameter_dimensions
         latent_dimensions = obs_dimensions
-    if run_options.use_reverse_autoencoder == 1:
+    if run_options.reverse_autoencoder == 1:
         input_dimensions = obs_dimensions
         latent_dimensions = run_options.parameter_dimensions
 
@@ -74,10 +74,10 @@ def predict_and_plot(hyperp, run_options, file_paths,
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
     #=== Predictions ===#
-    if run_options.use_standard_autoencoder == 1:
+    if run_options.standard_autoencoder == 1:
         state_obs_pred_sample = NN.encoder(parameter_test_sample)
         parameter_pred_sample = NN.decoder(state_obs_test_sample)
-    if run_options.use_reverse_autoencoder == 1:
+    if run_options.reverse_autoencoder == 1:
         state_obs_pred_sample = NN.decoder(parameter_test_sample)
         parameter_pred_sample = NN.encoder(state_obs_test_sample)
     parameter_pred_sample = parameter_pred_sample.numpy().flatten()
@@ -235,7 +235,7 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     plt.savefig(figures_savefile_name)
     plt.close(fig_gradient_norm)
 
-    if run_options.use_model_augmented == 1:
+    if run_options.model_augmented == 1:
         #=== Relative Error Decoder ===#
         fig_loss = plt.figure()
         x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
