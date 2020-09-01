@@ -31,9 +31,10 @@ if __name__ == '__main__':
     hyperp.truncation_layer  = [6]
     hyperp.num_hidden_nodes  = [500]
     hyperp.activation        = ['relu']
-    hyperp.penalty_encoder   = [1000, 2500, 5000, 10000]
-    hyperp.penalty_decoder   = [1000, 2500, 5000, 10000]
-    hyperp.penalty_prior     = [0]
+    hyperp.penalty_encoder   = [10, 50, 100, 1000]
+    hyperp.penalty_decoder   = [10]
+    hyperp.penalty_aug       = [10, 50, 100, 1000]
+    hyperp.penalty_prior     = [0.1]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 
@@ -56,6 +57,7 @@ if __name__ == '__main__':
             f'{scenario.activation}',
             f'{scenario.penalty_encoder:.9f}',
             f'{scenario.penalty_decoder:.9f}',
+            f'{scenario.penalty_aug:.9f}',
             f'{scenario.penalty_prior:.9f}',
             f'{scenario.batch_size}',
             f'{scenario.num_epochs}'])

@@ -36,8 +36,8 @@ class RunOptions:
         self.reverse_autoencoder = 1
 
         #=== Forward Model Type ===#
-        self.model_aware = 1
-        self.model_augmented = 0
+        self.model_aware = 0
+        self.model_augmented = 1
 
         #=== Data Set Size ===#
         self.num_data_train = 10000
@@ -93,9 +93,10 @@ if __name__ == "__main__":
         hyperp.activation        = str(sys.argv[4])
         hyperp.penalty_encoder   = float(sys.argv[5])
         hyperp.penalty_decoder   = float(sys.argv[6])
-        hyperp.penalty_prior     = float(sys.argv[7])
-        hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
+        hyperp.penalty_aug       = float(sys.argv[7])
+        hyperp.penalty_prior     = float(sys.argv[8])
+        hyperp.batch_size        = int(sys.argv[9])
+        hyperp.num_epochs        = int(sys.argv[10])
 
     #=== File Names ===#
     if run_options.model_aware == 1:
