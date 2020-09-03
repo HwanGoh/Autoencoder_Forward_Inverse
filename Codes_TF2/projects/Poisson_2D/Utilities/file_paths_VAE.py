@@ -180,6 +180,24 @@ class FilePaths():
         self.load_vector_savefilepath = dataset_directory +\
                 'load_vector_' + data_options
 
+        #=== Mesh ===# For plotting FEM function
+        mesh_name = 'mesh_square_2D_n%d' %(run_options.parameter_dimensions)
+        mesh_directory = '../../../../Datasets/Mesh/' + mesh_name + '/'
+        self.mesh_nodes_savefilepath = mesh_directory + mesh_name + '_nodes.csv'
+        self.mesh_elements_savefilepath = mesh_directory + mesh_name + '_elements.csv'
+        self.mesh_boundary_indices_edges_savefilepath = mesh_directory + mesh_name +\
+                '_boundary_indices_edges.csv'
+        self.mesh_boundary_indices_savefilepath = mesh_directory + mesh_name +\
+                '_boundary_indices.csv'
+        self.mesh_boundary_indices_bottom_savefilepath = mesh_directory + mesh_name +\
+                '_boundary_indices_bottom.csv'
+        self.mesh_boundary_indices_left_savefilepath = mesh_directory + mesh_name +\
+                '_boundary_indices_left.csv'
+        self.mesh_boundary_indices_right_savefilepath = mesh_directory + mesh_name +\
+                '_boundary_indices_right.csv'
+        self.mesh_boundary_indices_top_savefilepath = mesh_directory + mesh_name +\
+                '_boundary_indices_top.csv'
+
 ###############################################################################
 #                               Derived Classes                               #
 ###############################################################################
@@ -286,14 +304,12 @@ class FilePathsPredictionAndPlotting(FilePaths):
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.filename
 
         #=== File Path for Loading Displayable Test Data ===#
-        self.savefile_name_parameter_test = self.NN_savefile_directory +\
-                '/parameter_test'
-        self.savefile_name_state_test = self.NN_savefile_directory +\
-                '/state_test'
+        self.savefile_name_parameter_test = self.NN_savefile_directory + '/parameter_test'
+        self.savefile_name_state_test = self.NN_savefile_directory + '/state_test'
 
         #=== File Path for Loading Displayable Predictions ===#
-        self.savefile_name_parameter_pred = self.NN_savefile_name + '_parameter_pred'
-        self.savefile_name_state_pred = self.NN_savefile_name + '_state_pred'
+        self.savefile_name_parameter_pred = self.NN_savefile_directory + '_parameter_pred'
+        self.savefile_name_state_pred = self.NN_savefile_directory + '_state_pred'
 
         #=== File Path for Saving Figures ===#
         self.figures_savefile_directory = '../../../Figures/' + self.filename
@@ -302,8 +318,9 @@ class FilePathsPredictionAndPlotting(FilePaths):
                 'parameter_test'
         self.figures_savefile_name_state_test = self.figures_savefile_directory+ '/' +\
                 'state_test'
-        self.figures_savefile_name_parameter_pred = self.figures_savefile_name + '_parameter_pred'
-        self.figures_savefile_name_state_pred = self.figures_savefile_name + '_state_pred'
+        self.figures_savefile_name_parameter_pred =\
+                self.figures_savefile_directory + '/parameter_pred'
+        self.figures_savefile_name_state_pred = self.figures_savefile_directory + '/state_pred'
 
         #=== Creating Directories ===#
         if not os.path.exists(self.figures_savefile_directory):

@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 from get_train_and_test_data import load_train_and_test_data
-from NN_AE_Fwd_Inv import AutoencoderFwdInv
+from NN_VAE_Fwd_Inv import VAEFwdInv
 from positivity_constraints import positivity_constraint_log_exp
 from Finite_Element_Method.src.load_mesh import load_mesh
 from Utilities.plot_FEM_function import plot_FEM_function
@@ -38,18 +38,14 @@ def predict_and_plot(hyperp, run_options, file_paths,
         obs_indices = df_obs_indices.to_numpy()
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if run_options.standard_autoencoder == 1:
-        input_dimensions = run_options.parameter_dimensions
-        latent_dimensions = obs_dimensions
-    if run_options.reverse_autoencoder == 1:
-        input_dimensions = obs_dimensions
-        latent_dimensions = run_options.parameter_dimensions
+    input_dimensions = obs_dimensions
+    latent_dimensions = run_options.parameter_dimensions
 
     #=== Load Trained Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, run_options,
-                           input_dimensions, latent_dimensions,
-                           None, None,
-                           positivity_constraint_log_exp)
+    NN = VAEFwdInv(hyperp, run_options,
+                    input_dimensions, latent_dimensions,
+                    None, None,
+                    positivity_constraint_log_exp)
     NN.load_weights(file_paths.NN_savefile_name)
 
     #=== Load Data ===#
@@ -74,12 +70,8 @@ def predict_and_plot(hyperp, run_options, file_paths,
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
     #=== Predictions ===#
-    if run_options.standard_autoencoder == 1:
-        state_obs_pred_sample = NN.encoder(parameter_test_sample)
-        parameter_pred_sample = NN.decoder(state_obs_test_sample)
-    if run_options.reverse_autoencoder == 1:
-        state_obs_pred_sample = NN.decoder(parameter_test_sample)
-        parameter_pred_sample = NN.encoder(state_obs_test_sample)
+    parameter_pred_sample, _ = NN.encoder(state_obs_test_sample)
+    state_obs_pred_sample = NN.decoder(parameter_test_sample)
     parameter_pred_sample = parameter_pred_sample.numpy().flatten()
     state_obs_pred_sample = state_obs_pred_sample.numpy().flatten()
 
@@ -127,14 +119,12 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     #   Load Metrics   #
     ####################
     storage_array_loss_train = array_metrics[:,0]
-    storage_array_loss_train_autoencoder = array_metrics[:,1]
-    storage_array_loss_train_encoder = array_metrics[:,2]
-    storage_array_loss_train_decoder = array_metrics[:,3]
-    storage_array_loss_train_forward_model = array_metrics[:,4]
-    storage_array_relative_error_input_autoencoder = array_metrics[:,10]
-    storage_array_relative_error_input_encoder = array_metrics[:,11]
-    storage_array_relative_error_input_decoder = array_metrics[:,12]
-    storage_array_relative_gradient_norm = array_metrics[:,13]
+    storage_array_loss_train_VAE = array_metrics[:,1]
+    storage_array_loss_train_KLD = array_metrics[:,2]
+    storage_array_relative_error_input_VAE = array_metrics[:,8]
+    storage_array_relative_error_latent_encoder = array_metrics[:,9]
+    storage_array_relative_error_input_decoder = array_metrics[:,10]
+    storage_array_relative_gradient_norm = array_metrics[:,11]
 
     ################
     #   Plotting   #
@@ -154,8 +144,8 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     #=== Loss Autoencoder ===#
     fig_loss = plt.figure()
     x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
-    plt.plot(x_axis, np.log(storage_array_loss_train_autoencoder))
-    plt.title('Log-Loss for Autoencoder')
+    plt.plot(x_axis, np.log(storage_array_loss_train_VAE))
+    plt.title('Log-Loss for VAE')
     plt.xlabel('Epochs')
     plt.ylabel('Log-Loss')
     figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
@@ -166,8 +156,8 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     #=== Loss Encoder ===#
     fig_loss = plt.figure()
     x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
-    plt.plot(x_axis, np.log(storage_array_loss_train_encoder))
-    plt.title('Log-Loss for Encoder')
+    plt.plot(x_axis, np.log(storage_array_loss_train_KLD))
+    plt.title('Log-Loss for KLD')
     plt.xlabel('Epochs')
     plt.ylabel('Log-Loss')
     figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
@@ -175,22 +165,10 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
 
-    #=== Loss Decoder ===#
-    fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
-    plt.plot(x_axis, np.log(storage_array_loss_train_decoder))
-    plt.title('Log-Loss for Decoder')
-    plt.xlabel('Epochs')
-    plt.ylabel('Log-Loss')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
-            'loss_decoder.png'
-    plt.savefig(figures_savefile_name)
-    plt.close(fig_loss)
-
     #=== Relative Error Autoencoder ===#
     fig_accuracy = plt.figure()
     x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
-    plt.plot(x_axis, storage_array_relative_error_input_autoencoder)
+    plt.plot(x_axis, storage_array_relative_error_input_VAE)
     plt.title('Relative Error for Autoencoder')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
@@ -202,7 +180,7 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     #=== Relative Error Encoder ===#
     fig_accuracy = plt.figure()
     x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
-    plt.plot(x_axis, storage_array_relative_error_input_encoder)
+    plt.plot(x_axis, storage_array_relative_error_latent_encoder)
     plt.title('Relative Error for Encoder')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
