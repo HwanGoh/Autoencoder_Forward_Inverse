@@ -73,10 +73,10 @@ def optimize(hyperp, run_options, file_paths,
                     batch_input_train, batch_input_pred_forward_model_train,
                     noise_regularization_matrix, 1)
             batch_loss_train_KLD = KLD_loss(batch_post_mean_train, batch_log_post_var_train,
-                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                    batch_latent_train, prior_cov_inv, log_det_prior_cov, latent_dimension,
                     penalty_KLD)
             batch_loss_train_post_mean = loss_penalized_difference(
-                    batch_latent_train, positivity_constraint(batch_post_mean_train),
+                    batch_latent_train, batch_post_mean_train,
                     hyperp.penalty_post_mean)
 
             batch_loss_train = -(-batch_loss_train_VAE - batch_loss_train_KLD\
@@ -97,10 +97,10 @@ def optimize(hyperp, run_options, file_paths,
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
         batch_loss_val_KLD = KLD_loss(batch_post_mean_val, batch_log_post_var_val,
-                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                batch_latent_val, prior_cov_inv, log_det_prior_cov, latent_dimension,
                 penalty_KLD)
         batch_loss_val_post_mean = loss_penalized_difference(
-                batch_latent_val, positivity_constraint(batch_post_mean_val),
+                batch_latent_val, batch_post_mean_val,
                 hyperp.penalty_post_mean)
 
         batch_loss_val = -(-batch_loss_val_KLD - batch_loss_val_post_mean)
@@ -115,10 +115,10 @@ def optimize(hyperp, run_options, file_paths,
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
 
         batch_loss_test_KLD = KLD_loss(batch_post_mean_test, batch_log_post_var_test,
-                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                batch_latent_test, prior_cov_inv, log_det_prior_cov, latent_dimension,
                 penalty_KLD)
         batch_loss_test_post_mean = loss_penalized_difference(
-                batch_latent_test, positivity_constraint(batch_post_mean_test),
+                batch_latent_test, batch_post_mean_test,
                 hyperp.penalty_post_mean)
 
         batch_loss_test = -(-batch_loss_test_KLD - batch_loss_test_post_mean)
@@ -128,7 +128,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_test_post_mean(batch_loss_test_post_mean)
 
         metrics.mean_relative_error_latent_encoder(relative_error(
-            batch_latent_test, positivity_constraint(batch_post_mean_test)))
+            batch_latent_test, batch_post_mean_test))
 
 ###############################################################################
 #                             Train Neural Network                            #
