@@ -19,7 +19,7 @@ from get_prior import load_prior
 from NN_VAE_Fwd_Inv import VAEFwdInv
 from loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
-        KLD_diagonal_post_cov, KLD_full_post_cov, relative_error
+        KLD_diagonal_post_cov, relative_error
 from optimize_custom_VAE_model_augmented_autodiff import optimize
 from optimize_distributed_custom_VAE_model_augmented_autodiff import optimize_distributed
 from positivity_constraints import positivity_constraint_log_exp
@@ -98,12 +98,6 @@ def trainer_custom(hyperp, run_options, file_paths,
         input_dimensions = obs_dimensions
         latent_dimensions = run_options.parameter_dimensions
 
-        #=== Posterior Covariance Loss Functional ===#
-        if run_options.diagonal_posterior_covariance == 1:
-            KLD_loss = KLD_diagonal_post_cov
-        if run_options.full_posterior_covariance == 1:
-            KLD_loss = KLD_full_post_cov
-
         #=== Load FEM Matrices ===#
         _, prestiffness, boundary_matrix, load_vector =\
                 load_FEM_matrices_tf(run_options, file_paths,
@@ -143,7 +137,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             #=== Training ===#
             optimize(hyperp, run_options, file_paths,
                      NN, optimizer,
-                     loss_penalized_difference, KLD_loss, relative_error,
+                     loss_penalized_difference, KLD_diagonal_post_cov, relative_error,
                      prior_mean, prior_covariance,
                      input_and_latent_train, input_and_latent_val, input_and_latent_test,
                      input_dimensions, latent_dimensions,
@@ -169,7 +163,7 @@ def trainer_custom(hyperp, run_options, file_paths,
             optimize_distributed(dist_strategy,
                     hyperp, run_options, file_paths,
                     NN, optimizer,
-                    loss_penalized_difference, KLD_loss, relative_error,
+                    loss_penalized_difference, KLD_diagonal_post_cov, relative_error,
                     prior_mean, prior_covariance,
                     input_and_latent_train, input_and_latent_val, input_and_latent_test,
                     input_dimensions, latent_dimensions,

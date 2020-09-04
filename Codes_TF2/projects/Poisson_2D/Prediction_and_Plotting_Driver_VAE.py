@@ -30,6 +30,10 @@ class Hyperparameters:
 
 class RunOptions:
     def __init__(self):
+        #=== Posterior Type ===#
+        self.posterior_diagonal_covariance = 1
+        self.posterior_IAF = 0
+
         #=== Forward Model Type ===#
         self.model_aware = 0
         self.model_augmented = 1
@@ -37,10 +41,6 @@ class RunOptions:
         #=== Data Set Size ===#
         self.num_data_train = 10000
         self.num_data_test = 200
-
-        #=== Posterior Covariance Shape ===#
-        self.diagonal_posterior_covariance = 1
-        self.full_posterior_covariance = 0
 
         #=== Data Properties ===#
         self.parameter_dimensions = 225
@@ -97,15 +97,13 @@ if __name__ == "__main__":
         hyperp.num_epochs        = int(sys.argv[9])
 
     #=== File Names ===#
-    run_options.model_aware = 1
-    run_options.model_augmented = 0
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
             'n%d/'%(run_options.parameter_dimensions)
     file_paths = FilePathsPredictionAndPlotting(hyperp, run_options,
-                                            project_name,
-                                            data_options, dataset_directory)
+                                                project_name,
+                                                data_options, dataset_directory)
 
     #=== Predict and Save ===#
     predict_and_plot(hyperp, run_options, file_paths,

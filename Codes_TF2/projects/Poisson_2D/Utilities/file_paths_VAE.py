@@ -96,20 +96,20 @@ class FilePaths():
         penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
 
         #=== Neural Network Architecture and Regularization ===#
-        autoencoder_type = 'VAE_'
+        autoencoder_type = 'VAE'
+        if run_options.posterior_diagonal_covariance == 1:
+            posterior_type = '_'
+        if run_options.posterior_IAF == 1:
+            posterior_type = 'IAF_'
         if run_options.model_aware == 1:
             forward_model_type = 'maware_'
         if run_options.model_augmented == 1:
             forward_model_type = 'maug_'
-        if run_options.diagonal_posterior_covariance == 1:
-            posterior_covariance_shape = 'diagpost_'
-        if run_options.full_posterior_covariance == 1:
-            posterior_covariance_shape = 'fullpost_'
 
         #=== File Name ===#
         self.filename = project_name +\
             data_string + prior_string_train + '_' +\
-            autoencoder_type + forward_model_type +\
+            autoencoder_type + posterior_type + forward_model_type +\
             'urg%d_hl%d_tl%d_hn%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
                     run_options.num_noisy_obs_unregularized,
                     hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,

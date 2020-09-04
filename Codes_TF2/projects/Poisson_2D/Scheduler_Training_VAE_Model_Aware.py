@@ -50,7 +50,7 @@ if __name__ == '__main__':
         hyperp.truncation_layer  = [6]
         hyperp.num_hidden_nodes  = [500]
         hyperp.activation        = ['relu']
-        hyperp.penalty_KLD_incr  = [0.001, 0.005, 0.01, 0.1]
+        hyperp.penalty_KLD_incr  = [10, 50, 100, 250]
         hyperp.penalty_KLD_rate  = [10, 50, 100, 250]
         hyperp.penalty_post_mean = [0]
         hyperp.batch_size        = [100]

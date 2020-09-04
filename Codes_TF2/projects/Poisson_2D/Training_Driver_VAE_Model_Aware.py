@@ -44,10 +44,6 @@ class RunOptions:
         self.num_data_train = 5000
         self.num_data_test = 200
 
-        #=== Posterior Covariance Shape ===#
-        self.diagonal_posterior_covariance = 1
-        self.full_posterior_covariance = 0
-
         #=== Data Properties ===#
         self.parameter_dimensions = 225
         self.obs_type = 'full'
@@ -106,6 +102,8 @@ if __name__ == "__main__":
     #=== File Paths ===#
     run_options.model_aware = 1
     run_options.model_augmented = 0
+    run_options.posterior_diagonal_covariance = 1
+    run_options.posterior_IAF = 0
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
