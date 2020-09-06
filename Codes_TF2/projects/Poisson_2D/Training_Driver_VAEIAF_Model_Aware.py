@@ -27,7 +27,7 @@ class Hyperparameters:
     num_hidden_nodes_IAF   = 100
     activation_IAF         = 'relu'
     penalty_IAF            = 1
-    penalty_post_mean      = 1
+    penalty_prior          = 1
     batch_size             = 100
     num_epochs             = 10
 
@@ -41,6 +41,9 @@ class RunOptions:
 
         #=== Which Single GPU to Use ===#
         self.which_gpu = '3'
+
+        #=== IAF Type ===#
+        self.IAF_LSTM_update = 0
 
         #=== Data Set Size ===#
         self.num_data_train = 5000
@@ -90,16 +93,18 @@ if __name__ == "__main__":
     run_options = RunOptions()
 
     if len(sys.argv) > 1:
-        hyperp.num_hidden_layers = int(sys.argv[1])
-        hyperp.truncation_layer  = int(sys.argv[2])
-        hyperp.num_hidden_nodes  = int(sys.argv[3])
-        hyperp.activation        = str(sys.argv[4])
-        hyperp.penalty_KLD_incr  = float(sys.argv[5])
-        hyperp.penalty_KLD_rate  = int(sys.argv[6])
-        hyperp.penalty_post_mean = float(sys.argv[7])
-        hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
-        run_options.which_gpu    = str(sys.argv[10])
+        hyperp.num_hidden_layers    = int(sys.argv[1])
+        hyperp.truncation_layer     = int(sys.argv[2])
+        hyperp.num_hidden_nodes     = int(sys.argv[3])
+        hyperp.activation           = str(sys.argv[4])
+        hyperp.num_IAF_transforms   = float(sys.argv[5])
+        hyperp.num_hidden_nodes_IAF = int(sys.argv[6])
+        hyperp.activation_IAF       = float(sys.argv[7])
+        hyperp.penalty_IAF          = float(sys.argv[8])
+        hyperp.penalty_prior        = float(sys.argv[9])
+        hyperp.batch_size           = int(sys.argv[10])
+        hyperp.num_epochs           = int(sys.argv[11])
+        run_options.which_gpu       = str(sys.argv[12])
 
     #=== File Paths ===#
     run_options.model_aware = 1

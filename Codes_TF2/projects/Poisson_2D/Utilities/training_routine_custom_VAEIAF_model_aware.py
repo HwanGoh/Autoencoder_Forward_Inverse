@@ -12,8 +12,7 @@ from form_train_val_test import form_train_val_test_tf_batches
 from get_prior import load_prior
 from NN_VAEIAF_Fwd_Inv import VAEIAFFwdInv
 from loss_and_relative_errors import\
-        loss_penalized_difference, loss_weighted_penalized_difference,\
-        loss_posterior_IAF, relative_error
+        loss_penalized_difference, loss_weighted_penalized_difference, relative_error
 from optimize_custom_VAEIAF_model_aware import optimize
 from optimize_distributed_custom_VAEIAF_model_aware import optimize_distributed
 from positivity_constraints import positivity_constraint_log_exp
@@ -73,11 +72,11 @@ def trainer_custom(hyperp, run_options, file_paths):
 
     #=== Prior ===#
     prior_mean,\
-    prior_covariance, prior_covariance_cholesky, _\
+    _ , _, prior_covariance_cholesky_inverse\
     = load_prior(run_options, file_paths,
                  load_mean = 0,
-                 load_covariance = 1,
-                 load_covariance_cholesky = 0, load_covariance_cholesky_inverse = 0)
+                 load_covariance = 0,
+                 load_covariance_cholesky = 0, load_covariance_cholesky_inverse = 1)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
@@ -100,8 +99,8 @@ def trainer_custom(hyperp, run_options, file_paths):
         #=== Training ===#
         optimize(hyperp, run_options, file_paths,
                  NN, optimizer,
-                 loss_penalized_difference, loss_posterior_IAF, relative_error,
-                 prior_mean, prior_covariance,
+                 loss_penalized_difference, relative_error,
+                 prior_mean, prior_covariance_cholesky_inverse,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
                  input_dimensions, latent_dimensions,
                  num_batches_train,

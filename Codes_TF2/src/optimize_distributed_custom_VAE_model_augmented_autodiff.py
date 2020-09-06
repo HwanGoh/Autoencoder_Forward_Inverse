@@ -101,7 +101,7 @@ def optimize_distributed(dist_strategy,
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
             metrics.mean_loss_train_VAE(-unscaled_replica_batch_loss_train_VAE)
-            metrics.mean_loss_train_KLD(unscaled_replica_batch_loss_loss_train_KLD)
+            metrics.mean_loss_train_encoder(unscaled_replica_batch_loss_loss_train_KLD)
             metrics.mean_loss_train_post_mean(unscaled_replica_batch_loss_train_post_mean)
 
             return scaled_replica_batch_loss_train
@@ -130,7 +130,7 @@ def optimize_distributed(dist_strategy,
                       -unscaled_replica_batch_loss_val_post_mean)
 
             metrics.mean_loss_val(unscaled_replica_batch_loss_val)
-            metrics.mean_loss_val_KLD(unscaled_replica_batch_loss_val_KLD)
+            metrics.mean_loss_val_encoder(unscaled_replica_batch_loss_val_KLD)
             metrics.mean_loss_val_post_mean(unscaled_replica_batch_loss_val_post_mean)
 
         # @tf.function
@@ -154,7 +154,7 @@ def optimize_distributed(dist_strategy,
                       -unscaled_replica_batch_loss_val_post_mean)
 
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
-            metrics.mean_loss_test_KLD(unscaled_replica_batch_loss_test_KLD)
+            metrics.mean_loss_test_encoder(unscaled_replica_batch_loss_test_KLD)
             metrics.mean_loss_test_post_mean(unscaled_replica_batch_loss_test_post_mean)
 
             metrics.mean_relative_error_latent_encoder(relative_error(
@@ -210,15 +210,15 @@ def optimize_distributed(dist_strategy,
         print('Train Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_train,
                   metrics.mean_loss_train_VAE.result(),
-                  metrics.mean_loss_train_KLD.result(),
+                  metrics.mean_loss_train_encoder.result(),
                   metrics.mean_loss_train_post_mean.result()))
         print('Val Loss: Full: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_val.result(),
-                  metrics.mean_loss_val_KLD.result(),
+                  metrics.mean_loss_val_encoder.result(),
                   metrics.mean_loss_val_post_mean.result()))
         print('Test Loss: Full: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_test.result(),
-                  metrics.mean_loss_test_KLD.result(),
+                  metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_val_post_mean.result()))
         print('Rel Errors: Encoder: %.3e\n'\
                 %(metrics.mean_relative_error_latent_encoder.result()))

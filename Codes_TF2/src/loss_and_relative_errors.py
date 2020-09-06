@@ -55,10 +55,6 @@ def KLD_diagonal_post_cov(post_mean, log_post_var,
             prior_weighted_prior_mean_minus_post_mean -
             latent_dimension + log_det_prior_cov_divide_det_cov_post)
 
-def loss_posterior_IAF(post_mean, post_var, prior_mean,
-        prior_cov_inv, det_prior_cov, latent_dimension):
-    return 0
-
 ###############################################################################
 #                               Relative Error                                #
 ###############################################################################

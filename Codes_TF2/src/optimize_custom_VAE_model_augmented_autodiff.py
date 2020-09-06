@@ -86,7 +86,7 @@ def optimize(hyperp, run_options, file_paths,
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)
         metrics.mean_loss_train_VAE(batch_loss_train_VAE)
-        metrics.mean_loss_train_KLD(batch_loss_train_KLD)
+        metrics.mean_loss_train_encoder(batch_loss_train_KLD)
         metrics.mean_loss_train_post_mean(batch_loss_train_post_mean)
 
         return gradients
@@ -106,7 +106,7 @@ def optimize(hyperp, run_options, file_paths,
         batch_loss_val = -(-batch_loss_val_KLD - batch_loss_val_post_mean)
 
         metrics.mean_loss_val(batch_loss_val)
-        metrics.mean_loss_val_KLD(batch_loss_val_KLD)
+        metrics.mean_loss_val_encoder(batch_loss_val_KLD)
         metrics.mean_loss_val_post_mean(batch_loss_val_post_mean)
 
     #=== Test Step ===#
@@ -124,7 +124,7 @@ def optimize(hyperp, run_options, file_paths,
         batch_loss_test = -(-batch_loss_test_KLD - batch_loss_test_post_mean)
 
         metrics.mean_loss_test(batch_loss_test)
-        metrics.mean_loss_test_KLD(batch_loss_test_KLD)
+        metrics.mean_loss_test_encoder(batch_loss_test_KLD)
         metrics.mean_loss_test_post_mean(batch_loss_test_post_mean)
 
         metrics.mean_relative_error_latent_encoder(relative_error(
@@ -184,15 +184,15 @@ def optimize(hyperp, run_options, file_paths,
         print('Train Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_train.result(),
                   metrics.mean_loss_train_VAE.result(),
-                  metrics.mean_loss_train_KLD.result(),
+                  metrics.mean_loss_train_encoder.result(),
                   metrics.mean_loss_train_post_mean.result()))
         print('Val Loss: Full: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_val.result(),
-                  metrics.mean_loss_val_KLD.result(),
+                  metrics.mean_loss_val_encoder.result(),
                   metrics.mean_loss_val_post_mean.result()))
         print('Test Loss: Full: %.3e, KLD: %.3e, post_mean: %.3e'\
                 %(metrics.mean_loss_test.result(),
-                  metrics.mean_loss_test_KLD.result(),
+                  metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_test_post_mean.result()))
         print('Rel Errors: Encoder: %.3e\n'\
                 %(metrics.mean_relative_error_latent_encoder.result()))

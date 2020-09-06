@@ -91,32 +91,47 @@ class FilePaths():
                     run_options.prior_kern_type_test,
                     run_options.prior_cov_length_test)
 
-        #=== Penalty Strings ===#
-        penalty_KLD_incr_string = value_to_string(hyperp.penalty_KLD_incr)
-        penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
-
         #=== Neural Network Architecture and Regularization ===#
         autoencoder_type = 'VAE'
-        if run_options.posterior_diagonal_covariance == 1:
-            posterior_type = '_'
-        if run_options.posterior_IAF == 1:
-            posterior_type = 'IAF_'
         if run_options.model_aware == 1:
             forward_model_type = 'maware_'
         if run_options.model_augmented == 1:
             forward_model_type = 'maug_'
 
         #=== File Name ===#
-        self.filename = project_name +\
-            data_string + prior_string_train + '_' +\
-            autoencoder_type + posterior_type + forward_model_type +\
-            'urg%d_hl%d_tl%d_hn%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
-                    run_options.num_noisy_obs_unregularized,
-                    hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
-                    hyperp.activation,
-                    penalty_KLD_incr_string, hyperp.penalty_KLD_rate,
-                    penalty_post_mean_string,
-                    run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+        if run_options.posterior_diagonal_covariance == 1:
+            penalty_KLD_incr_string = value_to_string(hyperp.penalty_KLD_incr)
+            penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
+            self.filename = project_name +\
+                data_string + prior_string_train + '_' +\
+                autoencoder_type + '_' + forward_model_type +\
+                'urg%d_hl%d_tl%d_hn%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
+                        run_options.num_noisy_obs_unregularized,
+                        hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
+                        hyperp.activation,
+                        penalty_KLD_incr_string, hyperp.penalty_KLD_rate,
+                        penalty_post_mean_string,
+                        run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+
+        if run_options.posterior_IAF == 1:
+            if run_options.IAF_LSTM_update == 1:
+                IAF_type_string = 'IAFLSTM_'
+            else:
+                IAF_type_string = 'IAF'
+            penalty_IAF_string = value_to_string(hyperp.penalty_IAF)
+            penalty_prior_string = value_to_string(hyperp.penalty_prior)
+            self.filename = project_name +\
+                data_string + prior_string_train + '_' +\
+                autoencoder_type + IAF_type_string + forward_model_type +\
+                'urg%d_hl%d_tl%d_hn%d_%s_hli%d_hni%d_%s_pi%s_pr%s_d%d_b%d_e%d' %(
+                        run_options.num_noisy_obs_unregularized,
+                        hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
+                        hyperp.activation,
+                        hyperp.num_IAF_transforms, hyperp.num_hidden_nodes_IAF,
+                        hyperp.activation_IAF,
+                        penalty_IAF_string,
+                        penalty_prior_string,
+                        run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         ################
         #   Datasets   #
@@ -166,6 +181,8 @@ class FilePaths():
                 'prior_covariance_cholesky_' + data_options + '_' + prior_string_train
         self.prior_covariance_inverse_savefilepath = dataset_directory +\
                 'prior_covariance_inverse_' + data_options + '_' + prior_string_train
+        self.prior_covariance_cholesky_inverse_savefilepath = dataset_directory +\
+                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string_train
 
         ###################
         #   FEM Objects   #
