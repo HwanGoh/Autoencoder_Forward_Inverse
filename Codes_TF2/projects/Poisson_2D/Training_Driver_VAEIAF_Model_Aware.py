@@ -19,15 +19,17 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       Hyperparameters and Run_Options                       #
 ###############################################################################
 class Hyperparameters:
-    num_hidden_layers = 8
-    truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
-    activation        = 'relu'
-    penalty_KLD_incr  = 0.001
-    penalty_KLD_rate  = 10
-    penalty_post_mean = 1
-    batch_size        = 100
-    num_epochs        = 10
+    num_hidden_layers      = 8
+    truncation_layer       = 6
+    num_hidden_nodes       = 500
+    activation             = 'relu'
+    num_IAF_transforms     = 2
+    num_hidden_nodes_IAF   = 100
+    activation_IAF         = 'relu'
+    penalty_IAF            = 1
+    penalty_post_mean      = 1
+    batch_size             = 100
+    num_epochs             = 10
 
 class RunOptions:
     def __init__(self):

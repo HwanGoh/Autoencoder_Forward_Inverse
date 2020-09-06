@@ -69,7 +69,7 @@ def predict_and_plot(hyperp, run_options, file_paths,
     #     noise_regularization_matrix = tf.eye(obs_dimensions)
 
     #=== Selecting Samples ===#
-    sample_number = 105
+    sample_number = 5
     parameter_test_sample = np.expand_dims(parameter_test[sample_number,:], 0)
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
@@ -92,11 +92,11 @@ def predict_and_plot(hyperp, run_options, file_paths,
 
     #=== Plot FEM Functions ===#
     plot_FEM_function(file_paths.figures_savefile_name_parameter_test,
-                     'True Parameter', 7.0,
+                     'True Parameter', 4.0,
                       nodes, elements,
                       parameter_test_sample)
     plot_FEM_function(file_paths.figures_savefile_name_parameter_pred,
-                      'Parameter Prediction', 7.0,
+                      'Parameter Prediction', 4.0,
                       nodes, elements,
                       parameter_pred_sample)
     if run_options.obs_type == 'full':

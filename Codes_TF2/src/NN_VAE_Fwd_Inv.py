@@ -16,9 +16,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class VAEFwdInv(tf.keras.Model):
     def __init__(self, hyperp, run_options,
-            input_dimensions, latent_dimensions,
-            kernel_initializer, bias_initializer,
-            positivity_constraint):
+                 input_dimensions, latent_dimensions,
+                 kernel_initializer, bias_initializer,
+                 positivity_constraint):
         super(VAEFwdInv, self).__init__()
 
         #=== Define Architecture and Create Layer Storage ===#
@@ -26,27 +26,23 @@ class VAEFwdInv(tf.keras.Model):
                 [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [input_dimensions]
         self.architecture[hyperp.truncation_layer] = latent_dimensions + latent_dimensions
         print(self.architecture)
-        self.num_layers = len(self.architecture)
 
         #=== Define Other Attributes ===#
         self.run_options = run_options
-        self.hidden_layers_decoder = [] # This will be a list of layers
-        activation = hyperp.activation
-        self.activations = ['not required'] + [activation]*hyperp.num_hidden_layers + ['linear']
+        self.activations = ['not required'] +\
+                [hyperp.activation]*hyperp.num_hidden_layers + ['linear']
         self.activations[hyperp.truncation_layer] = 'linear' # This is the identity activation
-        self.kernel_initializer = kernel_initializer
-        self.bias_initializer = bias_initializer
         self.positivity_constraint = positivity_constraint
 
         #=== Encoder and Decoder ===#
         self.encoder = Encoder(hyperp.truncation_layer,
                                self.architecture, self.activations,
-                               self.kernel_initializer, self.bias_initializer)
+                               kernel_initializer, bias_initializer)
         if self.run_options.model_aware == 1:
             self.decoder = Decoder(hyperp.truncation_layer,
                                    self.architecture, self.activations,
-                                   self.kernel_initializer, self.bias_initializer,
-                                   self.num_layers)
+                                   kernel_initializer, bias_initializer,
+                                   len(self.architecture))
 
     #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
@@ -66,8 +62,9 @@ class VAEFwdInv(tf.keras.Model):
 #                                  Encoder                                    #
 ###############################################################################
 class Encoder(tf.keras.layers.Layer):
-    def __init__(self, truncation_layer, architecture, activations,
-            kernel_initializer, bias_initializer):
+    def __init__(self, truncation_layer,
+                 architecture, activations,
+                 kernel_initializer, bias_initializer):
         super(Encoder, self).__init__()
         self.hidden_layers_encoder = [] # This will be a list of layers
         for l in range(1, truncation_layer+1):
@@ -88,7 +85,11 @@ class Encoder(tf.keras.layers.Layer):
 #                                  Decoder                                    #
 ###############################################################################
 class Decoder(tf.keras.layers.Layer):
-    def __init__(self, truncation_layer, architecture, activations, kernel_initializer, bias_initializer, num_layers):
+    def __init__(self, truncation_layer,
+                 architecture,
+                 activations,
+                 kernel_initializer, bias_initializer,
+                 num_layers):
         super(Decoder, self).__init__()
         self.hidden_layers_decoder = [] # This will be a list of layers
         for l in range(truncation_layer+1, num_layers):

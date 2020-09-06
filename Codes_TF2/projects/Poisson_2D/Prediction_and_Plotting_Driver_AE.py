@@ -36,8 +36,8 @@ class RunOptions:
         self.reverse_autoencoder = 1
 
         #=== Forward Model Type ===#
-        self.model_aware = 0
-        self.model_augmented = 1
+        self.model_aware = 1
+        self.model_augmented = 0
 
         #=== Data Set Size ===#
         self.num_data_train = 10000

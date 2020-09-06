@@ -33,8 +33,8 @@ if __name__ == '__main__':
     hyperp.activation        = ['relu']
     hyperp.penalty_encoder   = [10, 50, 100, 1000]
     hyperp.penalty_decoder   = [10]
-    hyperp.penalty_aug       = [10, 50, 100, 1000]
-    hyperp.penalty_prior     = [0.1]
+    hyperp.penalty_aug       = [10]
+    hyperp.penalty_prior     = [0.001, 0.01, 0.1, 1]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 

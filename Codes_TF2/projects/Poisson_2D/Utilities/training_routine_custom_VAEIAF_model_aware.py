@@ -15,7 +15,7 @@ from loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
         loss_posterior_IAF, relative_error
 from optimize_custom_VAEIAF_model_aware import optimize
-from optimize_distributed_custom_VAE_model_aware import optimize_distributed
+from optimize_distributed_custom_VAEIAF_model_aware import optimize_distributed
 from positivity_constraints import positivity_constraint_log_exp
 
 import pdb
@@ -82,6 +82,8 @@ def trainer_custom(hyperp, run_options, file_paths):
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
+    kernel_initializer_IAF = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
+    bias_initializer_IAF = 'zeros'
 
     #=== Non-distributed Training ===#
     if run_options.distributed_training == 0:
@@ -89,6 +91,7 @@ def trainer_custom(hyperp, run_options, file_paths):
         NN = VAEIAFFwdInv(hyperp, run_options,
                           input_dimensions, latent_dimensions,
                           kernel_initializer, bias_initializer,
+                          kernel_initializer_IAF, bias_initializer_IAF,
                           positivity_constraint_log_exp)
 
         #=== Optimizer ===#
@@ -111,8 +114,8 @@ def trainer_custom(hyperp, run_options, file_paths):
         with dist_strategy.scope():
             #=== Neural Network ===#
             NN = VAEIAFFwdInv(hyperp, run_options,
-                           input_dimensions, latent_dimensions,
-                           kernel_initializer, bias_initializer)
+                              input_dimensions, latent_dimensions,
+                              kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()

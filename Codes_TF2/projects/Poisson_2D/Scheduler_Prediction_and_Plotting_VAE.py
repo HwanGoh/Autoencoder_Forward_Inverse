@@ -33,7 +33,7 @@ if __name__ == '__main__':
     hyperp.activation        = ['relu']
     hyperp.penalty_KLD_incr  = [10, 50, 100, 1000]
     hyperp.penalty_KLD_rate  = [10, 50, 100, 250]
-    hyperp.penalty_post_mean = [100]
+    hyperp.penalty_post_mean = [1]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 

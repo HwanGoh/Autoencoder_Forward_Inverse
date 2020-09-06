@@ -22,9 +22,9 @@ class Hyperparameters:
     truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
     num_hidden_nodes  = 500
     activation        = 'relu'
-    penalty_KLD_incr  = 0.001
-    penalty_KLD_rate  = 10
-    penalty_post_mean = 0
+    penalty_KLD_incr  = 1000
+    penalty_KLD_rate  = 250
+    penalty_post_mean = 1
     batch_size        = 100
     num_epochs        = 1000
 
@@ -35,8 +35,8 @@ class RunOptions:
         self.posterior_IAF = 0
 
         #=== Forward Model Type ===#
-        self.model_aware = 0
-        self.model_augmented = 1
+        self.model_aware = 1
+        self.model_augmented = 0
 
         #=== Data Set Size ===#
         self.num_data_train = 10000

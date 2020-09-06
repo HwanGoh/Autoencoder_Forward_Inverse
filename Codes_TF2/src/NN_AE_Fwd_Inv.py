@@ -25,27 +25,22 @@ class AutoencoderFwdInv(tf.keras.Model):
                 [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers +\
                 [input_dimensions]
         self.architecture[hyperp.truncation_layer] = latent_dimensions
-        print(self.architecture)
-        self.num_layers = len(self.architecture)
 
         #=== Define Other Attributes ===#
-        self.hidden_layers_decoder = []
         self.activations = ['not required'] +\
                 [hyperp.activation]*hyperp.num_hidden_layers + ['linear']
         self.activations[hyperp.truncation_layer] = 'linear'
-        self.kernel_initializer = kernel_initializer
-        self.bias_initializer = bias_initializer
 
         #=== Encoder and Decoder ===#
         self.encoder = Encoder(run_options, positivity_constraint,
                                hyperp.truncation_layer,
                                self.architecture, self.activations,
-                               self.kernel_initializer, self.bias_initializer)
+                               kernel_initializer, bias_initializer)
         self.decoder = Decoder(run_options, positivity_constraint,
                                hyperp.truncation_layer,
                                self.architecture, self.activations,
-                               self.kernel_initializer, self.bias_initializer,
-                               self.num_layers)
+                               kernel_initializer, bias_initializer,
+                               len(self.architecture))
 
     #=== Autoencoder Propagation ===#
     def call(self, X):
