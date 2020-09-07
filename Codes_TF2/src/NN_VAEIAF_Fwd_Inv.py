@@ -45,7 +45,6 @@ class VAEIAFFwdInv(tf.keras.Model):
                                kernel_initializer, bias_initializer)
         self.IAF_chain_posterior = IAFChainPosterior(run_options.IAF_LSTM_update,
                                                      hyperp.num_IAF_transforms,
-                                                     latent_dimensions,
                                                      hyperp.num_hidden_nodes_IAF,
                                                      hyperp.activation_IAF,
                                                      kernel_initializer_IAF, bias_initializer_IAF)
@@ -57,7 +56,7 @@ class VAEIAFFwdInv(tf.keras.Model):
 
     #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
-        return self.IAF_chain_posterior(mean, log_var, sample = 1, inference = 0)
+        return self.IAF_chain_posterior((mean, log_var, 1, 0))
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
@@ -121,6 +120,61 @@ class Decoder(tf.keras.layers.Layer):
         return X
 
 ###############################################################################
+#                    Chain of Inverse Autoregressive Flow                     #
+###############################################################################
+class IAFChainPosterior(tf.keras.layers.Layer):
+    def __init__(self, IAF_LSTM_update_flag,
+                 num_IAF_transforms,
+                 hidden_units,
+                 activation,
+                 kernel_initializer, bias_initializer):
+        super(IAFChainPosterior, self).__init__()
+        #=== Attributes ===#
+        self.IAF_LSTM_update_flag = IAF_LSTM_update_flag
+        self.num_IAF_transforms = num_IAF_transforms
+        self.hidden_units = hidden_units
+        self.activation = activation
+        self.kernel_initializer = kernel_initializer
+        self.bias_initializer = bias_initializer
+
+    def build(self, input_shape):
+        latent_dimension = input_shape[0][-1]
+        self.event_shape = [latent_dimension]
+        #=== IAF Chain ===#
+        bijectors_list = []
+        if self.IAF_LSTM_update_flag == 0:
+            for i in range(0, self.num_IAF_transforms):
+                bijectors_list.append(tfb.Invert(
+                    tfb.MaskedAutoregressiveFlow(
+                        shift_and_log_scale_fn = Made(params=2,
+                                                      event_shape = self.event_shape,
+                                                      hidden_units = self.hidden_units,
+                                                      activation = self.activation,
+                                                      kernel_initializer = self.kernel_initializer,
+                                                      bias_initializer = self.bias_initializer))))
+                bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimension)))))
+        self.IAF_chain = tfb.Chain(bijectors_list)
+
+    def call(self, inputs):
+        mean = inputs[0]
+        log_var = inputs[1]
+        sample_flag = inputs[2]
+        inference_flag = inputs[3]
+
+        #=== Base Distribution ===#
+        base_distribution = tfd.MultivariateNormalDiag(loc = mean,
+                                                       scale_diag = tf.exp(0.5*log_var))
+        #=== Transformed Distribution ===#
+        self.distribution = tfd.TransformedDistribution(distribution = base_distribution,
+                                                        bijector = self.IAF_chain)
+        #=== Inference and Sampling ===#
+        sample = self.distribution.sample()
+        if sample_flag == 1:
+            return sample
+        if inference_flag == 1:
+            return self.distribution.log_prob(sample)
+
+###############################################################################
 #                          Masked Autoregressive Flow                         #
 ###############################################################################
 class Made(tf.keras.layers.Layer):
@@ -138,50 +192,8 @@ class Made(tf.keras.layers.Layer):
                                                  kernel_initializer = kernel_initializer,
                                                  bias_initializer = bias_initializer)
 
-    def call(self, x):
-        shift, log_scale = tf.unstack(self.network(x), num=2, axis=-1)
+    def call(self, X):
+        pdb.set_trace()
+        test = self.network(X)
+        shift, log_scale = tf.unstack(self.network(X), num=2, axis=-1)
         return shift, log_scale
-
-###############################################################################
-#                    Chain of Inverse Autoregressive Flow                     #
-###############################################################################
-class IAFChainPosterior:
-    def __init__(self,
-                 IAF_LSTM_update_flag,
-                 num_IAF_transforms,
-                 event_shape,
-                 hidden_units,
-                 activation,
-                 kernel_initializer, bias_initializer):
-
-        self.event_shape = event_shape
-
-        #=== IAF Chain ===#
-        bijectors_list = []
-        if IAF_LSTM_update_flag == 0:
-            for i in range(0, num_IAF_transforms):
-                bijectors_list.append(tfb.Invert(
-                    tfb.MaskedAutoregressiveFlow(
-                        shift_and_log_scale_fn = Made(params=2,
-                                                    event_shape = event_shape,
-                                                    hidden_units = hidden_units,
-                                                    activation = activation,
-                                                    kernel_initializer = kernel_initializer,
-                                                    bias_initializer = bias_initializer))))
-                bijectors_list.append(tfb.Permute(permutation=[1, 0]))
-        self.IAF_chain = tfb.Chain(bijectors=list(reversed(bijectors_list)))
-
-    def call(self, mean, log_var, sample = 1, inference = 1):
-        #=== Base Distribution ===#
-        base_distribution = tfd.MultivariateNormalDiag(loc = mean,
-                                                       scale_diag = tf.exp(0.5*log_var))
-        #=== Transformed Distribution ===#
-        self.distribution = tfd.TransformedDistribution(distribution = base_distribution,
-                                                        bijector = self.IAF_chain,
-                                                        event_shape = self.event_shape)
-        #=== Inference and Sampling ===#
-        sample = distribution.sample()
-        if sample == 1:
-            return sample
-        if inference == 1:
-            return distribution.log_prob(sample)
