@@ -84,6 +84,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_train(batch_loss_train)
         metrics.mean_loss_train_VAE(batch_loss_train_VAE)
         metrics.mean_loss_train_encoder(batch_loss_train_IAF_posterior)
+        metrics.mean_loss_train_prior(batch_loss_train_prior)
 
         return gradients
 
@@ -116,6 +117,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_val(batch_loss_val)
         metrics.mean_loss_val_VAE(batch_loss_val_VAE)
         metrics.mean_loss_val_encoder(batch_loss_val_IAF_posterior)
+        metrics.mean_loss_val_prior(batch_loss_val_prior)
 
     #=== Test Step ===#
     # @tf.function
@@ -147,6 +149,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_test(batch_loss_test)
         metrics.mean_loss_test_VAE(batch_loss_test_VAE)
         metrics.mean_loss_test_encoder(batch_loss_test_IAF_posterior)
+        metrics.mean_loss_test_prior(batch_loss_test_prior)
 
         metrics.mean_relative_error_input_VAE(relative_error(
             batch_input_test, batch_likelihood_test))

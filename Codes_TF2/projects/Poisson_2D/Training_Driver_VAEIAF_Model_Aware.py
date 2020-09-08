@@ -23,7 +23,7 @@ class Hyperparameters:
     truncation_layer       = 6
     num_hidden_nodes       = 500
     activation             = 'relu'
-    num_IAF_transforms     = 1
+    num_IAF_transforms     = 5
     num_hidden_nodes_IAF   = 100
     activation_IAF         = 'relu'
     penalty_IAF            = 1

@@ -117,7 +117,7 @@ class FilePaths():
             if run_options.IAF_LSTM_update == 1:
                 IAF_type_string = 'IAFLSTM_'
             else:
-                IAF_type_string = 'IAF'
+                IAF_type_string = 'IAF_'
             penalty_IAF_string = value_to_string(hyperp.penalty_IAF)
             penalty_prior_string = value_to_string(hyperp.penalty_prior)
             self.filename = project_name +\

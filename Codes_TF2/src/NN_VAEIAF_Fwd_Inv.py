@@ -152,9 +152,10 @@ class IAFChainPosterior(tf.keras.layers.Layer):
                                                       hidden_units = self.hidden_units,
                                                       activation = self.activation,
                                                       kernel_initializer = self.kernel_initializer,
-                                                      bias_initializer = self.bias_initializer))))
+                                                      bias_initializer = self.bias_initializer,
+                                                      name = "IAF_W" + str(i)))))
                 bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimensions)))))
-        self.IAF_chain = tfb.Chain(bijectors_list[:-1])
+        self.IAF_chain = tfb.Chain(bijectors_list)
 
     def call(self, inputs, sample_flag = True, infer_flag = False):
         mean = inputs[0]
@@ -166,11 +167,14 @@ class IAFChainPosterior(tf.keras.layers.Layer):
         #=== Transformed Distribution ===#
         self.distribution = tfd.TransformedDistribution(distribution = base_distribution,
                                                         bijector = self.IAF_chain)
+
         #=== Inference and Sampling ===#
         sample_draw = self.distribution.sample()
-        if sample_flag == 1:
+        self.foo = self.distribution.variables # for some reason,
+                                               # this is required to register trainable variables
+        if sample_flag == True:
             return sample_draw
-        if infer_flag == 1:
+        if infer_flag == True:
             return self.distribution.log_prob(sample_draw)
 
 ###############################################################################
@@ -181,9 +185,9 @@ class Made(tf.keras.layers.Layer):
                  event_shape,
                  hidden_units,
                  activation,
-                 kernel_initializer, bias_initializer):
-        super(Made, self).__init__()
-
+                 kernel_initializer, bias_initializer,
+                 name):
+        super(Made, self).__init__(name = name)
         self.network = tfb.AutoregressiveNetwork(params = params,
                                                  event_shape = event_shape,
                                                  hidden_units = [hidden_units, hidden_units],

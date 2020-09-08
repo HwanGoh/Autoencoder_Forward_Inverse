@@ -52,7 +52,7 @@ class RunOptions:
         self.add_noise = 1
         self.noise_level = 0.05
         self.num_noisy_obs = 20
-        self.num_noisy_obs_unregularized = 0
+        self.num_noisy_obs_unregularized = 20
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
