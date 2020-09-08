@@ -79,8 +79,9 @@ def optimize(hyperp, run_options, file_paths,
                     batch_latent_train, batch_post_mean_train,
                     hyperp.penalty_post_mean)
 
-            batch_loss_train = -(-batch_loss_train_VAE - batch_loss_train_KLD\
-                    - batch_loss_train_post_mean)
+            batch_loss_train = -(-batch_loss_train_VAE\
+                                 -batch_loss_train_KLD\
+                                 -batch_loss_train_post_mean)
 
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -103,7 +104,8 @@ def optimize(hyperp, run_options, file_paths,
                 batch_latent_val, batch_post_mean_val,
                 hyperp.penalty_post_mean)
 
-        batch_loss_val = -(-batch_loss_val_KLD - batch_loss_val_post_mean)
+        batch_loss_val = -(-batch_loss_val_KLD\
+                           -batch_loss_val_post_mean)
 
         metrics.mean_loss_val(batch_loss_val)
         metrics.mean_loss_val_encoder(batch_loss_val_KLD)
@@ -121,7 +123,8 @@ def optimize(hyperp, run_options, file_paths,
                 batch_latent_test, batch_post_mean_test,
                 hyperp.penalty_post_mean)
 
-        batch_loss_test = -(-batch_loss_test_KLD - batch_loss_test_post_mean)
+        batch_loss_test = -(-batch_loss_test_KLD\
+                            -batch_loss_test_post_mean)
 
         metrics.mean_loss_test(batch_loss_test)
         metrics.mean_loss_test_encoder(batch_loss_test_KLD)

@@ -30,7 +30,6 @@ class VAEIAFFwdInv(tf.keras.Model):
         self.architecture = [input_dimensions] +\
                 [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [input_dimensions]
         self.architecture[hyperp.truncation_layer] = latent_dimensions + latent_dimensions
-        print(self.architecture)
 
         #=== Define Other Attributes ===#
         self.run_options = run_options
@@ -56,7 +55,8 @@ class VAEIAFFwdInv(tf.keras.Model):
 
     #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
-        return self.IAF_chain_posterior((mean, log_var, 1, 0))
+        return self.IAF_chain_posterior((mean, log_var),
+                                        sample_flag = True, infer_flag = False)
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
@@ -129,6 +129,7 @@ class IAFChainPosterior(tf.keras.layers.Layer):
                  activation,
                  kernel_initializer, bias_initializer):
         super(IAFChainPosterior, self).__init__()
+
         #=== Attributes ===#
         self.IAF_LSTM_update_flag = IAF_LSTM_update_flag
         self.num_IAF_transforms = num_IAF_transforms
@@ -138,9 +139,9 @@ class IAFChainPosterior(tf.keras.layers.Layer):
         self.bias_initializer = bias_initializer
 
     def build(self, input_shape):
-        latent_dimension = input_shape[0][-1]
-        self.event_shape = [latent_dimension]
         #=== IAF Chain ===#
+        latent_dimensions = input_shape[0][1]
+        self.event_shape = [latent_dimensions]
         bijectors_list = []
         if self.IAF_LSTM_update_flag == 0:
             for i in range(0, self.num_IAF_transforms):
@@ -152,14 +153,12 @@ class IAFChainPosterior(tf.keras.layers.Layer):
                                                       activation = self.activation,
                                                       kernel_initializer = self.kernel_initializer,
                                                       bias_initializer = self.bias_initializer))))
-                bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimension)))))
-        self.IAF_chain = tfb.Chain(bijectors_list)
+                bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimensions)))))
+        self.IAF_chain = tfb.Chain(bijectors_list[:-1])
 
-    def call(self, inputs):
+    def call(self, inputs, sample_flag = True, infer_flag = False):
         mean = inputs[0]
         log_var = inputs[1]
-        sample_flag = inputs[2]
-        inference_flag = inputs[3]
 
         #=== Base Distribution ===#
         base_distribution = tfd.MultivariateNormalDiag(loc = mean,
@@ -168,11 +167,11 @@ class IAFChainPosterior(tf.keras.layers.Layer):
         self.distribution = tfd.TransformedDistribution(distribution = base_distribution,
                                                         bijector = self.IAF_chain)
         #=== Inference and Sampling ===#
-        sample = self.distribution.sample()
+        sample_draw = self.distribution.sample()
         if sample_flag == 1:
-            return sample
-        if inference_flag == 1:
-            return self.distribution.log_prob(sample)
+            return sample_draw
+        if infer_flag == 1:
+            return self.distribution.log_prob(sample_draw)
 
 ###############################################################################
 #                          Masked Autoregressive Flow                         #
@@ -187,13 +186,11 @@ class Made(tf.keras.layers.Layer):
 
         self.network = tfb.AutoregressiveNetwork(params = params,
                                                  event_shape = event_shape,
-                                                 hidden_units = hidden_units,
+                                                 hidden_units = [hidden_units, hidden_units],
                                                  activation = activation,
                                                  kernel_initializer = kernel_initializer,
                                                  bias_initializer = bias_initializer)
 
     def call(self, X):
-        pdb.set_trace()
-        test = self.network(X)
-        shift, log_scale = tf.unstack(self.network(X), num=2, axis=-1)
-        return shift, log_scale
+        mean, log_var = tf.unstack(self.network(X), num=2, axis=-1)
+        return mean, log_var

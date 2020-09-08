@@ -59,29 +59,31 @@ def optimize(hyperp, run_options, file_paths,
             batch_likelihood_train = NN(batch_input_train)
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
             batch_posterior_sample_train = NN.IAF_chain_posterior((batch_post_mean_train,
-                                                                   batch_log_post_var_train,
-                                                                   1, 0))
+                                                                   batch_log_post_var_train),
+                                                                   sample_flag = True,
+                                                                   infer_flag = False)
 
             batch_loss_train_VAE = loss_weighted_penalized_difference(
                     batch_input_train, batch_likelihood_train,
                     noise_regularization_matrix, 1)
             batch_loss_train_IAF_posterior = hyperp.penalty_IAF*\
                     NN.IAF_chain_posterior((batch_post_mean_train,
-                                            batch_log_post_var_train,
-                                            0, 1))
+                                            batch_log_post_var_train),
+                                            sample_flag = False,
+                                            infer_flag = True)
             batch_loss_train_prior = loss_weighted_penalized_difference(
                     batch_latent_train, batch_posterior_sample_train,
                     prior_covariance_cholesky_inverse, hyperp.penalty_prior)
 
-            batch_loss_train = -(-batch_loss_train_VAE - batch_loss_train_IAF_posterior\
-                    - batch_loss_train_prior)
+            batch_loss_train = -(-batch_loss_train_VAE\
+                                 -batch_loss_train_IAF_posterior\
+                                 -batch_loss_train_prior)
 
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)
         metrics.mean_loss_train_VAE(batch_loss_train_VAE)
-        metrics.mean_loss_train_encoder(batch_loss_train_KLD)
-        metrics.mean_loss_train_post_mean(batch_loss_train_post_mean)
+        metrics.mean_loss_train_encoder(batch_loss_train_IAF_posterior)
 
         return gradients
 
@@ -91,27 +93,29 @@ def optimize(hyperp, run_options, file_paths,
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
         batch_posterior_sample_val = NN.IAF_chain_posterior((batch_post_mean_val,
-                                                             batch_log_post_var_val,
-                                                             1, 0))
+                                                             batch_log_post_var_val),
+                                                             sample_flag = True,
+                                                             infer_flag = False)
 
         batch_loss_val_VAE = loss_weighted_penalized_difference(
                 batch_input_val, batch_likelihood_val,
                 noise_regularization_matrix, 1)
         batch_loss_val_IAF_posterior = hyperp.penalty_IAF*\
                 NN.IAF_chain_posterior((batch_post_mean_val,
-                                        batch_log_post_var_val,
-                                        0, 1))
+                                        batch_log_post_var_val),
+                                        sample_flag = False,
+                                        infer_flag = True)
         batch_loss_val_prior = loss_weighted_penalized_difference(
                 batch_latent_val, batch_posterior_sample_val,
                 prior_covariance_cholesky_inverse, hyperp.penalty_prior)
 
-        batch_loss_val = -(-batch_loss_val_VAE - batch_loss_val_IAF_posterior\
-                - batch_loss_val_prior)
+        batch_loss_val = -(-batch_loss_val_VAE\
+                           -batch_loss_val_IAF_posterior\
+                           -batch_loss_val_prior)
 
         metrics.mean_loss_val(batch_loss_val)
         metrics.mean_loss_val_VAE(batch_loss_val_VAE)
-        metrics.mean_loss_val_encoder(batch_loss_val_KLD)
-        metrics.mean_loss_val_post_mean(batch_loss_val_post_mean)
+        metrics.mean_loss_val_encoder(batch_loss_val_IAF_posterior)
 
     #=== Test Step ===#
     # @tf.function
@@ -119,27 +123,30 @@ def optimize(hyperp, run_options, file_paths,
         batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
         batch_posterior_sample_test = NN.IAF_chain_posterior((batch_post_mean_test,
-                                                              batch_log_post_var_test,
-                                                              1, 0))
+                                                              batch_log_post_var_test),
+                                                              sample_flag = True,
+                                                              infer_flag = False)
+        batch_input_pred_test = NN.decoder(batch_latent_test)
 
         batch_loss_test_VAE = loss_weighted_penalized_difference(
                 batch_input_test, batch_likelihood_test,
                 noise_regularization_matrix, 1)
         batch_loss_test_IAF_posterior = hyperp.penalty_IAF*\
                 NN.IAF_chain_posterior((batch_post_mean_test,
-                                        batch_log_post_var_test,
-                                        0, 1))
+                                        batch_log_post_var_test),
+                                        sample_flag = False,
+                                        infer_flag = True)
         batch_loss_test_prior = loss_weighted_penalized_difference(
                 batch_latent_test, batch_posterior_sample_test,
                 prior_covariance_cholesky_inverse, hyperp.penalty_prior)
 
-        batch_loss_test = -(-batch_loss_test_VAE - batch_loss_test_IAF_posterior\
-                - batch_loss_test_prior)
+        batch_loss_test = -(-batch_loss_test_VAE\
+                            -batch_loss_test_IAF_posterior\
+                            -batch_loss_test_prior)
 
         metrics.mean_loss_test(batch_loss_test)
         metrics.mean_loss_test_VAE(batch_loss_test_VAE)
-        metrics.mean_loss_test_encoder(batch_loss_test_KLD)
-        metrics.mean_loss_test_post_mean(batch_loss_test_post_mean)
+        metrics.mean_loss_test_encoder(batch_loss_test_IAF_posterior)
 
         metrics.mean_relative_error_input_VAE(relative_error(
             batch_input_test, batch_likelihood_test))
