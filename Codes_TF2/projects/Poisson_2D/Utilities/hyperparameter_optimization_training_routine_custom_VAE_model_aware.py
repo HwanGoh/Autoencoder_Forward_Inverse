@@ -55,7 +55,7 @@ def trainer_custom(hyperp, run_options, file_paths,
     parameter_train, state_obs_train,\
     parameter_test, state_obs_test\
     = load_train_and_test_data(file_paths,
-            run_options.num_data_train, run_options.num_data_test,
+            hyperp.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 1,
             normalize_input_flag = 0, normalize_output_flag = 0)
@@ -79,7 +79,7 @@ def trainer_custom(hyperp, run_options, file_paths,
 
         #=== Construct Validation Set and Batches ===#
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
-        run_options.num_data_train, num_data_val, run_options.num_data_test,\
+        hyperp.num_data_train, num_data_val, run_options.num_data_test,\
         num_batches_train, num_batches_val, num_batches_test,\
         input_dimensions\
         = form_train_val_test_tf_batches(state_obs_train, parameter_train,

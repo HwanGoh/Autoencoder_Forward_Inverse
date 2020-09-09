@@ -26,6 +26,7 @@ class Hyperparameters:
     penalty_KLD_incr  = 0.001
     penalty_KLD_rate  = 10
     penalty_post_mean = 1000
+    num_data_train    = 500
     batch_size        = 100
     num_epochs        = 10
 
@@ -41,7 +42,8 @@ class RunOptions:
         self.which_gpu = '3'
 
         #=== Data Set Size ===#
-        self.num_data_train = 5000
+        self.num_data_train_load = 5000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Posterior Covariance Shape ===#
@@ -104,8 +106,9 @@ if __name__ == "__main__":
         hyperp.penalty_KLD_rate  = int(sys.argv[6])
         hyperp.penalty_post_mean = float(sys.argv[7])
         hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
-        run_options.which_gpu    = str(sys.argv[10])
+        hyperp.num_data_train    = int(sys.argv[9])
+        hyperp.num_epochs        = int(sys.argv[10])
+        run_options.which_gpu    = str(sys.argv[11])
 
     #=== File Paths ===#
     run_options.model_aware = 0

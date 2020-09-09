@@ -34,6 +34,7 @@ if __name__ == '__main__':
     hyperp.penalty_KLD_incr  = [10, 50, 100, 1000]
     hyperp.penalty_KLD_rate  = [10, 50, 100, 250]
     hyperp.penalty_post_mean = [1]
+    hyperp.num_data_train    = [10000]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 
@@ -57,6 +58,7 @@ if __name__ == '__main__':
             f'{scenario.penalty_KLD_incr:.9f}',
             f'{scenario.penalty_KLD_rate}',
             f'{scenario.penalty_post_mean:.9f}',
+            f'{scenario.num_data_train}',
             f'{scenario.batch_size}',
             f'{scenario.num_epochs}'])
         proc.wait()

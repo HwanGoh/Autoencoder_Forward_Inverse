@@ -16,7 +16,7 @@ import matplotlib; matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
 # Import FilePaths class and training routine
-from Utilities.file_paths import FilePathsHyperparameterOptimization
+from Utilities.file_paths_AE import FilePathsHyperparameterOptimization
 from\
 Utilities.hyperparameter_optimization_training_routine_custom_AE_model_aware\
         import trainer_custom
@@ -39,6 +39,7 @@ class Hyperparameters:
     penalty_encoder   = 50
     penalty_decoder   = 1
     penalty_prior     = 0.0
+    num_data_train    = 500
     batch_size        = 1000
     num_epochs        = 2
 
@@ -58,7 +59,8 @@ class RunOptions:
         self.reverse_autoencoder = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 5000
+        self.num_data_train_load = 5000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Data Properties ===#

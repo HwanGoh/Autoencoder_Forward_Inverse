@@ -55,6 +55,7 @@ if __name__ == '__main__':
         hyperp.activation_IAF        = ['relu']
         hyperp.penalty_IAF           = [1, 5, 10, 50]
         hyperp.penalty_prior         = [1]
+        hyperp.num_data_train        = [10000]
         hyperp.batch_size            = [100]
         hyperp.num_epochs            = [1000]
 
@@ -90,6 +91,7 @@ if __name__ == '__main__':
                 f'{data.activation_IAF}',
                 f'{data.penalty_IAF:.9f}',
                 f'{data.penalty_prior:.9f}',
+                f'{data.num_data_train}',
                 f'{data.batch_size}',
                 f'{data.num_epochs}',
                 f'{data.gpu}'])

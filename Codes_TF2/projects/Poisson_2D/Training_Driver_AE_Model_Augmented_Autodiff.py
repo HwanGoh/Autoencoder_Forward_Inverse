@@ -10,7 +10,7 @@ import sys
 sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and training routine
-from Utilities.file_paths import FilePathsTraining
+from Utilities.file_paths_AE import FilePathsTraining
 from Utilities.training_routine_custom_AE_model_augmented_autodiff import\
         trainer_custom
 from Utilities.test_gradient_poisson_2D_FEM import test_gradient
@@ -28,6 +28,7 @@ class Hyperparameters:
     penalty_decoder   = 1
     penalty_aug       = 1
     penalty_prior     = 0.5
+    num_data_train    = 500
     batch_size        = 10
     num_epochs        = 3
 
@@ -47,7 +48,8 @@ class RunOptions:
         self.reverse_autoencoder = 1
 
         #=== Data Set Size ===#
-        self.num_data_train = 5000
+        self.num_data_train_load = 5000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Data Properties ===#
@@ -106,9 +108,10 @@ if __name__ == "__main__":
         hyperp.penalty_decoder   = float(sys.argv[6])
         hyperp.penalty_aug       = float(sys.argv[7])
         hyperp.penalty_prior     = float(sys.argv[8])
-        hyperp.batch_size        = int(sys.argv[9])
-        hyperp.num_epochs        = int(sys.argv[10])
-        run_options.which_gpu    = str(sys.argv[11])
+        hyperp.num_data_train    = int(sys.argv[9])
+        hyperp.batch_size        = int(sys.argv[10])
+        hyperp.num_epochs        = int(sys.argv[11])
+        run_options.which_gpu    = str(sys.argv[12])
 
     #=== File Paths ===#
     autoencoder_loss = 'maug_'

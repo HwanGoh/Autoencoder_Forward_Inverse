@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and plotting routine
-from Utilities.file_paths import FilePathsPredictionAndPlotting
+from Utilities.file_paths_AE import FilePathsPredictionAndPlotting
 from Utilities.prediction_and_plotting_routine_AE import predict_and_plot, plot_and_save_metrics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -24,8 +24,9 @@ class Hyperparameters:
     activation        = 'relu'
     penalty_encoder   = 1000
     penalty_decoder   = 10
-    penalty_aug       = 10
+    penalty_aug       = 1000
     penalty_prior     = 0.1
+    num_data_train    = 10000
     batch_size        = 100
     num_epochs        = 1000
 
@@ -40,7 +41,8 @@ class RunOptions:
         self.model_augmented = 1
 
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train_load = 10000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Data Properties ===#
@@ -52,7 +54,7 @@ class RunOptions:
         self.add_noise = 1
         self.noise_level = 0.05
         self.num_noisy_obs = 20
-        self.num_noisy_obs_unregularized = 20
+        self.num_noisy_obs_unregularized = 0
 
         #=== Autocorrelation Prior Properties ===#
         self.prior_type_AC_train = 1
@@ -95,8 +97,9 @@ if __name__ == "__main__":
         hyperp.penalty_decoder   = float(sys.argv[6])
         hyperp.penalty_aug       = float(sys.argv[7])
         hyperp.penalty_prior     = float(sys.argv[8])
-        hyperp.batch_size        = int(sys.argv[9])
-        hyperp.num_epochs        = int(sys.argv[10])
+        hyperp.num_data_train    = int(sys.argv[9])
+        hyperp.batch_size        = int(sys.argv[10])
+        hyperp.num_epochs        = int(sys.argv[11])
 
     #=== File Names ===#
     if run_options.model_aware == 1:

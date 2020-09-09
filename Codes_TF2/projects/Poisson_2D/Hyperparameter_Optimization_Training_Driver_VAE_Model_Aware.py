@@ -38,6 +38,7 @@ class Hyperparameters:
     penalty_KLD_incr  = 0.001
     penalty_KLD_rate  = 10
     penalty_post_mean = 1
+    num_data_train    = 500
     batch_size        = 100
     num_epochs        = 2
 
@@ -53,7 +54,8 @@ class RunOptions:
         self.which_gpu = '3'
 
         #=== Data Set Size ===#
-        self.num_data_train = 5000
+        self.num_data_train_load = 5000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Data Properties ===#

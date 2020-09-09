@@ -53,6 +53,7 @@ if __name__ == '__main__':
         hyperp.penalty_KLD_incr  = [10, 50, 100, 250]
         hyperp.penalty_KLD_rate  = [10, 50, 100, 250]
         hyperp.penalty_post_mean = [0]
+        hyperp.num_data_train    = [10000]
         hyperp.batch_size        = [100]
         hyperp.num_epochs        = [1000]
 
@@ -86,6 +87,7 @@ if __name__ == '__main__':
                 f'{data.penalty_KLD_incr:.9f}',
                 f'{data.penalty_KLD_rate}',
                 f'{data.penalty_post_mean:.9f}',
+                f'{data.num_data_train}',
                 f'{data.batch_size}',
                 f'{data.num_epochs}',
                 f'{data.gpu}'])

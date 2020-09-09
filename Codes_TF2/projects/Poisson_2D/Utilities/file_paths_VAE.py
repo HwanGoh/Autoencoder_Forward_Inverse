@@ -111,7 +111,7 @@ class FilePaths():
                         hyperp.activation,
                         penalty_KLD_incr_string, hyperp.penalty_KLD_rate,
                         penalty_post_mean_string,
-                        run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+                        hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         if run_options.posterior_IAF == 1:
             if run_options.IAF_LSTM_update == 1:
@@ -131,7 +131,7 @@ class FilePaths():
                         hyperp.activation_IAF,
                         penalty_IAF_string,
                         penalty_prior_string,
-                        run_options.num_data_train, hyperp.batch_size, hyperp.num_epochs)
+                        hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         ################
         #   Datasets   #
@@ -143,30 +143,31 @@ class FilePaths():
         self.input_train_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_train_' +\
-                'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string_train
+                'd%d_'%(run_options.num_data_train_load) + data_options + '_' + prior_string_train
         self.input_test_savefilepath = dataset_directory +\
                 project_name +\
                 'parameter_test_' +\
-                'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string_test
+                'd%d_'%(run_options.num_data_test_load) + data_options + '_' + prior_string_test
         if run_options.obs_type == 'full':
             self.output_train_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_train_' +\
-                    'd%d_'%(run_options.num_data_train) + data_options + '_' + prior_string_train
+                    'd%d_'%(run_options.num_data_train_load) + data_options + '_' +\
+                    prior_string_train
             self.output_test_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_test_' +\
-                    'd%d_'%(run_options.num_data_test) + data_options + '_' + prior_string_test
+                    'd%d_'%(run_options.num_data_test_load) + data_options + '_' + prior_string_test
         if run_options.obs_type == 'obs':
             self.output_train_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_train_' +\
-                    'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_train) +\
+                    'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_train_load) +\
                     data_options + '_' + prior_string_train
             self.output_test_savefilepath = dataset_directory +\
                     project_name +\
                     'state_' + run_options.obs_type + '_test_' +\
-                    'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_test) +\
+                    'o%d_d%d_' %(run_options.num_obs_points, run_options.num_data_test_load) +\
                     data_options + '_' + prior_string_test
 
         #############

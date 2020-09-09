@@ -28,6 +28,7 @@ class Hyperparameters:
     activation_IAF         = 'relu'
     penalty_IAF            = 1
     penalty_prior          = 1
+    num_data_train         = 500
     batch_size             = 100
     num_epochs             = 10
 
@@ -46,7 +47,8 @@ class RunOptions:
         self.IAF_LSTM_update = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 5000
+        self.num_data_train_load = 5000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Data Properties ===#
@@ -102,9 +104,10 @@ if __name__ == "__main__":
         hyperp.activation_IAF       = str(sys.argv[7])
         hyperp.penalty_IAF          = float(sys.argv[8])
         hyperp.penalty_prior        = float(sys.argv[9])
-        hyperp.batch_size           = int(sys.argv[10])
-        hyperp.num_epochs           = int(sys.argv[11])
-        run_options.which_gpu       = str(sys.argv[12])
+        hyperp.num_data_train       = int(sys.argv[10])
+        hyperp.batch_size           = int(sys.argv[11])
+        hyperp.num_epochs           = int(sys.argv[12])
+        run_options.which_gpu       = str(sys.argv[13])
 
     #=== File Paths ===#
     run_options.model_aware = 1

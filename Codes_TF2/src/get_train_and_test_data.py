@@ -28,8 +28,10 @@ def load_train_and_test_data(file_paths,
         df_output_train = pd.read_csv(file_paths.output_train_savefilepath + '.csv')
         input_train = df_input_train.to_numpy()
         output_train = df_output_train.to_numpy()
-        input_train = input_train.reshape((num_training_data,input_dimensions))
-        output_train = output_train.reshape((num_training_data,output_dimensions))
+        input_train = input_train.reshape((-1,input_dimensions))
+        output_train = output_train.reshape((-1,output_dimensions))
+        input_train = input_train[0:num_training_data,:]
+        output_train = output_train[0:num_training_data,:]
     else:
         input_train = []
         output_train = []
@@ -38,8 +40,10 @@ def load_train_and_test_data(file_paths,
     df_output_test = pd.read_csv(file_paths.output_test_savefilepath + '.csv')
     input_test = df_input_test.to_numpy()
     output_test = df_output_test.to_numpy()
-    input_test = input_test.reshape((num_testing_data, input_dimensions))
-    output_test = output_test.reshape((num_testing_data, output_dimensions))
+    input_test = input_test.reshape((-1, input_dimensions))
+    output_test = output_test.reshape((-1, output_dimensions))
+    input_test = input_test[0:num_testing_data,:]
+    output_test = output_test[0:num_testing_data,:]
 
     elapsed_time_load_data = time.time() - start_time_load_data
     print('Time taken to load data: %.4f' %(elapsed_time_load_data))

@@ -35,6 +35,7 @@ if __name__ == '__main__':
     hyperp.penalty_decoder   = [10]
     hyperp.penalty_aug       = [10, 50, 100, 1000]
     hyperp.penalty_prior     = [0.1]
+    hyperp.num_data_train    = [10000]
     hyperp.batch_size        = [100]
     hyperp.num_epochs        = [1000]
 
@@ -59,6 +60,7 @@ if __name__ == '__main__':
             f'{scenario.penalty_decoder:.9f}',
             f'{scenario.penalty_aug:.9f}',
             f'{scenario.penalty_prior:.9f}',
+            f'{scenario.num_data_train}',
             f'{scenario.batch_size}',
             f'{scenario.num_epochs}'])
         proc.wait()

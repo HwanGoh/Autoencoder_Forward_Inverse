@@ -9,7 +9,7 @@ import sys
 sys.path.insert(0, os.path.realpath('../../src'))
 
 # Import FilePaths class and training routine
-from Utilities.file_paths import FilePathsTraining
+from Utilities.file_paths_AE import FilePathsTraining
 from Utilities.training_routine_custom_AE_model_aware import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -25,6 +25,7 @@ class Hyperparameters:
     penalty_encoder   = 50
     penalty_decoder   = 1
     penalty_prior     = 0.5
+    num_data_train    = 500
     batch_size        = 100
     num_epochs        = 10
 
@@ -44,7 +45,8 @@ class RunOptions:
         self.reverse_autoencoder = 1
 
         #=== Data Set Size ===#
-        self.num_data_train = 5000
+        self.num_data_train_load = 5000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Data Properties ===#
@@ -98,9 +100,10 @@ if __name__ == "__main__":
         hyperp.penalty_encoder   = float(sys.argv[5])
         hyperp.penalty_decoder   = float(sys.argv[6])
         hyperp.penalty_prior     = float(sys.argv[7])
-        hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
-        run_options.which_gpu    = str(sys.argv[10])
+        hyperp.num_data_train    = int(sys.argv[8])
+        hyperp.batch_size        = int(sys.argv[9])
+        hyperp.num_epochs        = int(sys.argv[10])
+        run_options.which_gpu    = str(sys.argv[11])
 
     #=== File Names ===#
     autoencoder_loss = 'maware_'

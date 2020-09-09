@@ -25,6 +25,7 @@ class Hyperparameters:
     penalty_KLD_incr  = 1000
     penalty_KLD_rate  = 250
     penalty_post_mean = 1
+    num_data_train    = 10000
     batch_size        = 100
     num_epochs        = 1000
 
@@ -39,7 +40,8 @@ class RunOptions:
         self.model_augmented = 0
 
         #=== Data Set Size ===#
-        self.num_data_train = 10000
+        self.num_data_train_load = 10000
+        self.num_data_test_load = 200
         self.num_data_test = 200
 
         #=== Data Properties ===#
@@ -93,8 +95,9 @@ if __name__ == "__main__":
         hyperp.penalty_KLD_incr  = float(sys.argv[5])
         hyperp.penalty_KLD_rate  = int(sys.argv[6])
         hyperp.penalty_post_mean = float(sys.argv[7])
-        hyperp.batch_size        = int(sys.argv[8])
-        hyperp.num_epochs        = int(sys.argv[9])
+        hyperp.num_data_train    = int(sys.argv[8])
+        hyperp.batch_size        = int(sys.argv[9])
+        hyperp.num_epochs        = int(sys.argv[10])
 
     #=== File Names ===#
     project_name = 'poisson_2D_'
