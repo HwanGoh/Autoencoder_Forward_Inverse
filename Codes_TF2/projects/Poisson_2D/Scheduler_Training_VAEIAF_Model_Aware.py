@@ -14,7 +14,7 @@ import sys
 sys.path.insert(0, os.path.realpath('../../src'))
 from get_hyperparameter_permutations import get_hyperparameter_permutations
 from schedule_and_run import schedule_runs
-from Training_Driver_AE_Model_Aware import Hyperparameters
+from Training_Driver_VAEIAF_Model_Aware import Hyperparameters
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
