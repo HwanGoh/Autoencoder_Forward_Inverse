@@ -52,7 +52,7 @@ def predict_and_plot(hyperp, run_options, file_paths,
     _, _,\
     parameter_test, state_obs_test\
     = load_train_and_test_data(file_paths,
-            run_options.num_data_train, run_options.num_data_test,
+            hyperp.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 0,
             normalize_input_flag = 0, normalize_output_flag = 0)
@@ -120,11 +120,11 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     ####################
     storage_array_loss_train = array_metrics[:,0]
     storage_array_loss_train_VAE = array_metrics[:,1]
-    storage_array_loss_train_KLD = array_metrics[:,2]
-    storage_array_relative_error_input_VAE = array_metrics[:,8]
-    storage_array_relative_error_latent_encoder = array_metrics[:,9]
-    storage_array_relative_error_input_decoder = array_metrics[:,10]
-    storage_array_relative_gradient_norm = array_metrics[:,11]
+    storage_array_loss_train_encoder = array_metrics[:,2]
+    storage_array_relative_error_input_VAE = array_metrics[:,10]
+    storage_array_relative_error_latent_encoder = array_metrics[:,11]
+    storage_array_relative_error_input_decoder = array_metrics[:,12]
+    storage_array_relative_gradient_norm = array_metrics[:,13]
 
     ################
     #   Plotting   #
@@ -156,8 +156,8 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     #=== Loss Encoder ===#
     fig_loss = plt.figure()
     x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
-    plt.plot(x_axis, np.log(storage_array_loss_train_KLD))
-    plt.title('Log-Loss for KLD')
+    plt.plot(x_axis, np.log(storage_array_loss_train_encoder))
+    plt.title('Log-Loss for Encoder')
     plt.xlabel('Epochs')
     plt.ylabel('Log-Loss')
     figures_savefile_name = file_paths.figures_savefile_directory + '/' +\

@@ -56,7 +56,7 @@ def predict_and_plot(hyperp, run_options, file_paths,
     _, _,\
     parameter_test, state_obs_test\
     = load_train_and_test_data(file_paths,
-            run_options.num_data_train, run_options.num_data_test,
+            hyperp.num_data_train, run_options.num_data_test,
             run_options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 0,
             normalize_input_flag = 0, normalize_output_flag = 0)
