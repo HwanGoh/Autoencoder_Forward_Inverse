@@ -53,7 +53,7 @@ def optimize(hyperp, run_options, file_paths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    # @tf.function
+    @tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
             batch_likelihood_train = NN(batch_input_train)
@@ -89,7 +89,7 @@ def optimize(hyperp, run_options, file_paths,
         return gradients
 
     #=== Validation Step ===#
-    # @tf.function
+    @tf.function
     def val_step(batch_input_val, batch_latent_val):
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
@@ -120,7 +120,7 @@ def optimize(hyperp, run_options, file_paths,
         metrics.mean_loss_val_prior(batch_loss_val_prior)
 
     #=== Test Step ===#
-    # @tf.function
+    @tf.function
     def test_step(batch_input_test, batch_latent_test):
         batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
