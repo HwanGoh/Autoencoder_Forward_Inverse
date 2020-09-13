@@ -92,6 +92,10 @@ class FilePaths():
                     run_options.prior_cov_length_test)
 
         #=== Neural Network Architecture ===#
+        if run_options.resnet == 1:
+            resnet = 'res_'
+        else:
+            resnet = 'nores_'
         if run_options.standard_autoencoder == 1:
             autoencoder_type = 'AE_std_'
         if run_options.reverse_autoencoder == 1:
@@ -108,7 +112,7 @@ class FilePaths():
         if autoencoder_loss == 'maware_':
             self.filename = project_name +\
                 data_string + prior_string_train + '_' +\
-                autoencoder_type + autoencoder_loss +\
+                autoencoder_type + autoencoder_loss + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
                         run_options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
@@ -120,7 +124,7 @@ class FilePaths():
         if autoencoder_loss == 'maug_':
             self.filename = project_name +\
                 data_string + prior_string_train + '_' +\
-                autoencoder_type + autoencoder_loss +\
+                autoencoder_type + autoencoder_loss + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
                         run_options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,

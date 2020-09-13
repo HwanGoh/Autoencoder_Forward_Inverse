@@ -65,6 +65,7 @@ class Encoder(tf.keras.layers.Layer):
 
         self.run_options = run_options
         self.positivity_constraint = positivity_constraint
+        self.truncation_layer = truncation_layer
         self.hidden_layers_encoder = []
 
         for l in range(1, truncation_layer+1):
@@ -78,8 +79,12 @@ class Encoder(tf.keras.layers.Layer):
 
     #=== Encoder Propagation ===#
     def call(self, X):
-        for hidden_layer in self.hidden_layers_encoder:
-            X = hidden_layer(X)
+        for hidden_layer in enumerate(self.hidden_layers_encoder):
+            if self.run_options.resnet == 1\
+                    and 0 < hidden_layer[0] < self.truncation_layer-1:
+                X += hidden_layer[1](X)
+            else:
+                X = hidden_layer[1](X)
         if self.run_options.standard_autoencoder == 1:
             return X
         if self.run_options.reverse_autoencoder == 1:
@@ -99,6 +104,8 @@ class Decoder(tf.keras.layers.Layer):
 
         self.run_options = run_options
         self.positivity_constraint = positivity_constraint
+        self.truncation_layer = truncation_layer
+        self.num_layers = num_layers
         self.hidden_layers_decoder = [] # This will be a list of layers
 
         for l in range(truncation_layer+1, num_layers):
@@ -112,8 +119,13 @@ class Decoder(tf.keras.layers.Layer):
 
     #=== Decoder Propagation ===#
     def call(self, X):
-        for hidden_layer in self.hidden_layers_decoder:
-            X = hidden_layer(X)
+        for hidden_layer in enumerate(self.hidden_layers_decoder):
+            if self.run_options.resnet == 1\
+                    and self.truncation_layer < hidden_layer[0]+self.truncation_layer\
+                            < self.num_layers-2:
+                X += hidden_layer[1](X)
+            else:
+                X = hidden_layer[1](X)
         if self.run_options.standard_autoencoder == 1:
             return self.positivity_constraint(X)
         if self.run_options.reverse_autoencoder == 1:
