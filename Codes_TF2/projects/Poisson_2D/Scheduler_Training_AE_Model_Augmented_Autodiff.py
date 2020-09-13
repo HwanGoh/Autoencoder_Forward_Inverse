@@ -48,16 +48,16 @@ if __name__ == '__main__':
         # assign instance attributes for hyperp
         hyperp.num_hidden_layers_encoder = [5]
         hyperp.num_hidden_layers_decoder = [2]
-        hyperp.num_hidden_nodes_encoder = [500]
-        hyperp.num_hidden_nodes_decoder = [500]
-        hyperp.activation        = ['relu']
-        hyperp.penalty_encoder   = [10, 50, 100, 1000]
-        hyperp.penalty_decoder   = [10]
-        hyperp.penalty_aug       = [10, 50, 100, 1000]
-        hyperp.penalty_prior     = [0.1]
-        hyperp.num_data_train    = [10000]
-        hyperp.batch_size        = [100]
-        hyperp.num_epochs        = [1000]
+        hyperp.num_hidden_nodes_encoder  = [500]
+        hyperp.num_hidden_nodes_decoder  = [500]
+        hyperp.activation                = ['relu']
+        hyperp.penalty_encoder           = [10, 50, 100, 1000]
+        hyperp.penalty_decoder           = [10]
+        hyperp.penalty_aug               = [10, 50, 100, 1000]
+        hyperp.penalty_prior             = [0.1]
+        hyperp.num_data_train            = [10000]
+        hyperp.batch_size                = [100]
+        hyperp.num_epochs                = [1000]
 
         permutations_list, hyperp_keys = get_hyperparameter_permutations(hyperp)
         print('permutations_list generated')

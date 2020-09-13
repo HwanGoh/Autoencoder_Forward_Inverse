@@ -105,9 +105,10 @@ class FilePaths():
             self.filename = project_name +\
                 data_string + prior_string_train + '_' +\
                 autoencoder_type + '_' + forward_model_type +\
-                'urg%d_hl%d_tl%d_hn%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
+                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
                         run_options.num_noisy_obs_unregularized,
-                        hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
+                        hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
+                        hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
                         penalty_KLD_incr_string, hyperp.penalty_KLD_rate,
                         penalty_post_mean_string,
@@ -123,9 +124,10 @@ class FilePaths():
             self.filename = project_name +\
                 data_string + prior_string_train + '_' +\
                 autoencoder_type + IAF_type_string + forward_model_type +\
-                'urg%d_hl%d_tl%d_hn%d_%s_hli%d_hni%d_%s_pi%s_pr%s_d%d_b%d_e%d' %(
+                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pi%s_pr%s_d%d_b%d_e%d' %(
                         run_options.num_noisy_obs_unregularized,
-                        hyperp.num_hidden_layers, hyperp.truncation_layer, hyperp.num_hidden_nodes,
+                        hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
+                        hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
                         hyperp.num_IAF_transforms, hyperp.num_hidden_nodes_IAF,
                         hyperp.activation_IAF,

@@ -27,18 +27,19 @@ if __name__ == '__main__':
     hyperp = Hyperparameters() # Assign instance attributes below
 
     # assign instance attributes for hyperp
-    hyperp.num_hidden_layers     = [8]
-    hyperp.truncation_layer      = [6]
-    hyperp.num_hidden_nodes      = [500]
-    hyperp.activation            = ['relu']
-    hyperp.num_IAF_transforms    = [1, 5, 10, 20]
-    hyperp.num_hidden_nodes_IAF  = [100]
-    hyperp.activation_IAF        = ['relu']
-    hyperp.penalty_IAF           = [1, 5, 10, 50]
-    hyperp.penalty_prior         = [1]
-    hyperp.num_data_train        = [10000]
-    hyperp.batch_size            = [100]
-    hyperp.num_epochs            = [1000]
+    hyperp.num_hidden_layers_encoder = [5]
+    hyperp.num_hidden_layers_decoder = [2]
+    hyperp.num_hidden_nodes_encoder  = [500]
+    hyperp.num_hidden_nodes_decoder  = [500]
+    hyperp.activation                = ['relu']
+    hyperp.num_IAF_transforms        = [1, 5, 10, 20]
+    hyperp.num_hidden_nodes_IAF      = [100]
+    hyperp.activation_IAF            = ['relu']
+    hyperp.penalty_IAF               = [1, 5, 10, 50]
+    hyperp.penalty_prior             = [1]
+    hyperp.num_data_train            = [10000]
+    hyperp.batch_size                = [100]
+    hyperp.num_epochs                = [1000]
 
     permutations_list, hyperp_keys = get_hyperparameter_permutations(hyperp)
     print('permutations_list generated')
@@ -53,9 +54,10 @@ if __name__ == '__main__':
 
     for scenario in scenarios_class_instances:
         proc = subprocess.Popen(['./Prediction_and_Plotting_Driver_VAEIAF.py',
-            f'{scenario.num_hidden_layers}',
-            f'{scenario.truncation_layer}',
-            f'{scenario.num_hidden_nodes}',
+            f'{data.num_hidden_layers_encoder}',
+            f'{data.num_hidden_layers_decoder}',
+            f'{data.num_hidden_nodes_encoder}',
+            f'{data.num_hidden_nodes_decoder}',
             f'{scenario.activation}',
             f'{scenario.num_IAF_transforms}',
             f'{scenario.num_hidden_nodes_IAF}',

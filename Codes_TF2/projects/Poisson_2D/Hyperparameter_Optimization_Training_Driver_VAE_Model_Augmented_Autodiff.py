@@ -31,16 +31,17 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                      Hyperparameters and Run_Options                        #
 ###############################################################################
 class Hyperparameters:
-    num_hidden_layers = 8
-    truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
-    activation        = 'relu'
-    penalty_KLD_incr  = 0.001
-    penalty_KLD_rate  = 10
-    penalty_post_mean = 1
-    num_data_train    = 500
-    batch_size        = 100
-    num_epochs        = 2
+    num_hidden_layers_encoder = 5
+    num_hidden_layers_decoder = 2
+    num_hidden_nodes_encoder  = 500
+    num_hidden_nodes_decoder  = 500
+    activation                = 'relu'
+    penalty_KLD_incr          = 0.001
+    penalty_KLD_rate          = 10
+    penalty_post_mean         = 1
+    num_data_train            = 500
+    batch_size                = 100
+    num_epochs                = 2
 
 class RunOptions:
     def __init__(self):
@@ -108,8 +109,10 @@ if __name__ == "__main__":
 
     #=== Select Hyperparameters of Interest ===#
     hyperp_of_interest_dict = {}
-    hyperp_of_interest_dict['num_hidden_layers'] = Integer(5, 10, name='num_hidden_layers')
-    hyperp_of_interest_dict['num_hidden_nodes'] = Integer(100, 1000, name='num_hidden_nodes')
+    hyperp_of_interest_dict['num_hidden_layers_encoder'] = Integer(5, 10,
+            name='num_hidden_layers_encoder')
+    hyperp_of_interest_dict['num_hidden_nodes_encoder'] = Integer(100, 1000,
+            name='num_hidden_nodes_encoder')
     hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
     hyperp_of_interest_dict['penalty_KLD_incr'] = Real(10, 1000, name='penalty_KLD_incr')
     hyperp_of_interest_dict['penalty_KLD_rate'] = Real(0, 1, name='penalty_KLD_rate')
@@ -196,7 +199,6 @@ if __name__ == "__main__":
     #=== Assigning hyperp with Optimal Hyperparameters ===#
     for num, parameter in enumerate(hyperp_of_interest_list):
         setattr(hyperp, parameter, hyperp_opt_result.x[num])
-    # hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,

@@ -27,16 +27,17 @@ if __name__ == '__main__':
     hyperp = Hyperparameters() # Assign instance attributes below
 
     # assign instance attributes for hyperp
-    hyperp.num_hidden_layers = [8]
-    hyperp.truncation_layer  = [6]
-    hyperp.num_hidden_nodes  = [500]
-    hyperp.activation        = ['relu']
-    hyperp.penalty_KLD_incr  = [10, 50, 100, 1000]
-    hyperp.penalty_KLD_rate  = [10, 50, 100, 250]
-    hyperp.penalty_post_mean = [1]
-    hyperp.num_data_train    = [10000]
-    hyperp.batch_size        = [100]
-    hyperp.num_epochs        = [1000]
+    hyperp.num_hidden_layers_encoder = [5]
+    hyperp.num_hidden_layers_decoder = [2]
+    hyperp.num_hidden_nodes_encoder  = [500]
+    hyperp.num_hidden_nodes_decoder  = [500]
+    hyperp.activation                = ['relu']
+    hyperp.penalty_KLD_incr          = [10, 50, 100, 1000]
+    hyperp.penalty_KLD_rate          = [10, 50, 100, 250]
+    hyperp.penalty_post_mean         = [1]
+    hyperp.num_data_train            = [10000]
+    hyperp.batch_size                = [100]
+    hyperp.num_epochs                = [1000]
 
     permutations_list, hyperp_keys = get_hyperparameter_permutations(hyperp)
     print('permutations_list generated')
@@ -51,9 +52,10 @@ if __name__ == '__main__':
 
     for scenario in scenarios_class_instances:
         proc = subprocess.Popen(['./Prediction_and_Plotting_Driver_VAE.py',
-            f'{scenario.num_hidden_layers}',
-            f'{scenario.truncation_layer}',
-            f'{scenario.num_hidden_nodes}',
+            f'{scenario.num_hidden_layers_encoder}',
+            f'{scenario.num_hidden_layers_decoder}',
+            f'{scenario.num_hidden_nodes_encoder}',
+            f'{scenario.num_hidden_nodes_decoder}',
             f'{scenario.activation}',
             f'{scenario.penalty_KLD_incr:.9f}',
             f'{scenario.penalty_KLD_rate}',

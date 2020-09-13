@@ -46,16 +46,17 @@ if __name__ == '__main__':
                                    # attribute to GPU
 
         # assign instance attributes for hyperp
-        hyperp.num_hidden_layers = [8]
-        hyperp.truncation_layer  = [6]
-        hyperp.num_hidden_nodes  = [500]
-        hyperp.activation        = ['relu']
-        hyperp.penalty_KLD_incr  = [10, 50, 100, 250]
-        hyperp.penalty_KLD_rate  = [10, 50, 100, 250]
-        hyperp.penalty_post_mean = [0]
-        hyperp.num_data_train    = [10000]
-        hyperp.batch_size        = [100]
-        hyperp.num_epochs        = [1000]
+        hyperp.num_hidden_layers_encoder = [5]
+        hyperp.num_hidden_layers_decoder = [2]
+        hyperp.num_hidden_nodes_encoder  = [500]
+        hyperp.num_hidden_nodes_decoder  = [500]
+        hyperp.activation                = ['relu']
+        hyperp.penalty_KLD_incr          = [10, 50, 100, 250]
+        hyperp.penalty_KLD_rate          = [10, 50, 100, 250]
+        hyperp.penalty_post_mean         = [0]
+        hyperp.num_data_train            = [10000]
+        hyperp.batch_size                = [100]
+        hyperp.num_epochs                = [1000]
 
         permutations_list, hyperp_keys = get_hyperparameter_permutations(hyperp)
         print('permutations_list generated')
@@ -80,9 +81,10 @@ if __name__ == '__main__':
                 break
 
             proc = subprocess.Popen(['./Training_Driver_VAE_Model_Aware.py',
-                f'{data.num_hidden_layers}',
-                f'{data.truncation_layer}',
-                f'{data.num_hidden_nodes}',
+                f'{data.num_hidden_layers_encoder}',
+                f'{data.num_hidden_layers_decoder}',
+                f'{data.num_hidden_nodes_encoder}',
+                f'{data.num_hidden_nodes_decoder}',
                 f'{data.activation}',
                 f'{data.penalty_KLD_incr:.9f}',
                 f'{data.penalty_KLD_rate}',

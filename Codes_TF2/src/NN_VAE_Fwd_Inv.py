@@ -23,23 +23,26 @@ class VAEFwdInv(tf.keras.Model):
 
         #=== Define Architecture and Create Layer Storage ===#
         self.architecture = [input_dimensions] +\
-                [hyperp.num_hidden_nodes]*hyperp.num_hidden_layers + [input_dimensions]
-        self.architecture[hyperp.truncation_layer] = latent_dimensions + latent_dimensions
-        print(self.architecture)
+                [hyperp.num_hidden_nodes_encoder]*hyperp.num_hidden_layers_encoder +\
+                [latent_dimensions + latent_dimensions] +\
+                [hyperp.num_hidden_nodes_decoder]*hyperp.num_hidden_layers_decoder +\
+                [input_dimensions]
 
         #=== Define Other Attributes ===#
         self.run_options = run_options
-        self.activations = ['not required'] +\
-                [hyperp.activation]*hyperp.num_hidden_layers + ['linear']
-        self.activations[hyperp.truncation_layer] = 'linear' # This is the identity activation
         self.positivity_constraint = positivity_constraint
+        self.activations = ['not required'] +\
+                [hyperp.activation]*hyperp.num_hidden_layers_encoder +\
+                ['linear'] +\
+                [hyperp.activation]*hyperp.num_hidden_layers_decoder +\
+                ['linear']
 
         #=== Encoder and Decoder ===#
-        self.encoder = Encoder(hyperp.truncation_layer,
+        self.encoder = Encoder(hyperp.num_hidden_layers_encoder + 1,
                                self.architecture, self.activations,
                                kernel_initializer, bias_initializer)
         if self.run_options.model_aware == 1:
-            self.decoder = Decoder(hyperp.truncation_layer,
+            self.decoder = Decoder(hyperp.num_hidden_layers_encoder + 1,
                                    self.architecture, self.activations,
                                    kernel_initializer, bias_initializer,
                                    len(self.architecture))
@@ -63,7 +66,8 @@ class VAEFwdInv(tf.keras.Model):
 ###############################################################################
 class Encoder(tf.keras.layers.Layer):
     def __init__(self, truncation_layer,
-                 architecture, activations,
+                 architecture,
+                 activations,
                  kernel_initializer, bias_initializer):
         super(Encoder, self).__init__()
         self.hidden_layers_encoder = [] # This will be a list of layers
