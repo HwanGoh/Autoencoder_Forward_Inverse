@@ -43,7 +43,7 @@ class AutoencoderFwdInv(tf.keras.Model):
                                hyperp.num_hidden_layers_encoder + 1,
                                self.architecture, self.activations,
                                kernel_initializer, bias_initializer,
-                               len(self.architecture))
+                               len(self.architecture) - 1)
 
     #=== Autoencoder Propagation ===#
     def call(self, X):
@@ -99,16 +99,16 @@ class Decoder(tf.keras.layers.Layer):
                  truncation_layer, architecture,
                  activations,
                  kernel_initializer, bias_initializer,
-                 num_layers):
+                 last_layer_index):
         super(Decoder, self).__init__()
 
         self.run_options = run_options
         self.positivity_constraint = positivity_constraint
         self.truncation_layer = truncation_layer
-        self.num_layers = num_layers
+        self.last_layer_index = last_layer_index
         self.hidden_layers_decoder = [] # This will be a list of layers
 
-        for l in range(truncation_layer+1, num_layers):
+        for l in range(truncation_layer+1, last_layer_index+1):
             hidden_layer_decoder = tf.keras.layers.Dense(units = architecture[l],
                                                          activation = activations[l],
                                                          use_bias = True,
@@ -122,7 +122,7 @@ class Decoder(tf.keras.layers.Layer):
         for hidden_layer in enumerate(self.hidden_layers_decoder):
             if self.run_options.resnet == 1\
                     and self.truncation_layer < hidden_layer[0]+self.truncation_layer\
-                            < self.num_layers-2:
+                            < self.last_layer_index-1:
                 X += hidden_layer[1](X)
             else:
                 X = hidden_layer[1](X)
