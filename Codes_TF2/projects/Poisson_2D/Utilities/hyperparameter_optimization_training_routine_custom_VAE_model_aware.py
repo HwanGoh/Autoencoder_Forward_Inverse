@@ -75,7 +75,6 @@ def trainer_custom(hyperp, run_options, file_paths,
         #=== Assign Hyperparameters of Interest ===#
         for key, val in hyperp_of_interest_dict.items():
             setattr(hyperp, key, val)
-        # hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
         #=== Construct Validation Set and Batches ===#
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\

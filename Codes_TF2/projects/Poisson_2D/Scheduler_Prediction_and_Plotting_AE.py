@@ -27,9 +27,10 @@ if __name__ == '__main__':
     hyperp = Hyperparameters() # Assign instance attributes below
 
     # assign instance attributes for hyperp
-    hyperp.num_hidden_layers = [8]
-    hyperp.truncation_layer  = [6]
-    hyperp.num_hidden_nodes  = [500]
+    hyperp.num_hidden_layers_encoder = [5]
+    hyperp.num_hidden_layers_decoder = [2]
+    hyperp.num_hidden_nodes_encoder = [500]
+    hyperp.num_hidden_nodes_decoder = [500]
     hyperp.activation        = ['relu']
     hyperp.penalty_encoder   = [10, 50, 100, 1000]
     hyperp.penalty_decoder   = [10]
@@ -52,9 +53,10 @@ if __name__ == '__main__':
 
     for scenario in scenarios_class_instances:
         proc = subprocess.Popen(['./Prediction_and_Plotting_Driver_AE.py',
-            f'{scenario.num_hidden_layers}',
-            f'{scenario.truncation_layer}',
-            f'{scenario.num_hidden_nodes}',
+            f'{data.num_hidden_layers_encoder}',
+            f'{data.num_hidden_layers_decoder}',
+            f'{data.num_hidden_nodes_encoder}',
+            f'{data.num_hidden_nodes_decoder}',
             f'{scenario.activation}',
             f'{scenario.penalty_encoder:.9f}',
             f'{scenario.penalty_decoder:.9f}',

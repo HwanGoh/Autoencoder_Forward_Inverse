@@ -32,9 +32,10 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                       HyperParameters and RunOptions                        #
 ###############################################################################
 class Hyperparameters:
-    num_hidden_layers = 8
-    truncation_layer  = 6 # Indexing includes input and output layer with input layer indexed by 0
-    num_hidden_nodes  = 500
+    num_hidden_layers_encoder = 5
+    num_hidden_layers_decoder = 2
+    num_hidden_nodes_encoder  = 500
+    num_hidden_nodes_decoder  = 500
     activation        = 'relu'
     penalty_encoder   = 50
     penalty_decoder   = 0
@@ -45,62 +46,61 @@ class Hyperparameters:
     num_epochs        = 2
 
 class RunOptions:
-    def __init__(self):
-        #=== Use Distributed Strategy ===#
-        self.distributed_training = 0
+    #=== Use Distributed Strategy ===#
+    distributed_training = 0
 
-        #=== Which GPUs to Use for Distributed Strategy ===#
-        self.dist_which_gpus = '0,1,2,3'
+    #=== Which GPUs to Use for Distributed Strategy ===#
+    dist_which_gpus = '0,1,2,3'
 
-        #=== Which Single GPU to Use ===#
-        self.which_gpu = '2'
+    #=== Which Single GPU to Use ===#
+    which_gpu = '2'
 
-        #=== Autoencoder Type ===#
-        self.standard_autoencoder = 1
-        self.reverse_autoencoder = 0
+    #=== Autoencoder Type ===#
+    standard_autoencoder = 1
+    reverse_autoencoder = 0
 
-        #=== Data Set Size ===#
-        self.num_data_train_load = 5000
-        self.num_data_test_load = 200
-        self.num_data_test = 200
+    #=== Data Set Size ===#
+    num_data_train_load = 5000
+    num_data_test_load = 200
+    num_data_test = 200
 
-        #=== Data Properties ===#
-        self.parameter_dimensions = 225
-        self.obs_type = 'obs'
-        self.num_obs_points = 43
+    #=== Data Properties ===#
+    parameter_dimensions = 225
+    obs_type = 'obs'
+    num_obs_points = 43
 
-        #=== Noise Properties ===#
-        self.add_noise = 1
-        self.noise_level = 0.05
-        self.num_noisy_obs = 20
-        self.num_noisy_obs_unregularized = 0
+    #=== Noise Properties ===#
+    add_noise = 1
+    noise_level = 0.05
+    num_noisy_obs = 20
+    num_noisy_obs_unregularized = 0
 
-        #=== Autocorrelation Prior Properties ===#
-        self.prior_type_AC_train = 1
-        self.prior_mean_AC_train = 2
-        self.prior_variance_AC_train = 2.0
-        self.prior_corr_AC_train = 0.5
+    #=== Autocorrelation Prior Properties ===#
+    prior_type_AC_train = 1
+    prior_mean_AC_train = 2
+    prior_variance_AC_train = 2.0
+    prior_corr_AC_train = 0.5
 
-        self.prior_type_AC_test = 1
-        self.prior_mean_AC_test = 2
-        self.prior_variance_AC_test = 2.0
-        self.prior_corr_AC_test = 0.5
+    prior_type_AC_test = 1
+    prior_mean_AC_test = 2
+    prior_variance_AC_test = 2.0
+    prior_corr_AC_test = 0.5
 
-        #=== Matern Prior Properties ===#
-        self.prior_type_matern_train = 0
-        self.prior_kern_type_train = 'm32'
-        self.prior_cov_length_train = 0.5
+    #=== Matern Prior Properties ===#
+    prior_type_matern_train = 0
+    prior_kern_type_train = 'm32'
+    prior_cov_length_train = 0.5
 
-        self.prior_type_matern_test = 0
-        self.prior_kern_type_test = 'm32'
-        self.prior_cov_length_test = 0.5
+    prior_type_matern_test = 0
+    prior_kern_type_test = 'm32'
+    prior_cov_length_test = 0.5
 
-        #=== PDE Properties ===#
-        self.boundary_matrix_constant = 0.5
-        self.load_vector_constant = -1
+    #=== PDE Properties ===#
+    boundary_matrix_constant = 0.5
+    load_vector_constant = -1
 
-        #=== Random Seed ===#
-        self.random_seed = 4
+    #=== Random Seed ===#
+    random_seed = 4
 
 ###############################################################################
 #                                  Driver                                     #
@@ -114,8 +114,10 @@ if __name__ == "__main__":
 
     #=== Select Hyperparameters of Interest ===#
     hyperp_of_interest_dict = {}
-    hyperp_of_interest_dict['num_hidden_layers'] = Integer(2, 10, name='num_hidden_layers')
-    hyperp_of_interest_dict['num_hidden_nodes'] = Integer(10, 1000, name='num_hidden_nodes')
+    hyperp_of_interest_dict['num_hidden_layers_encoder'] = Integer(2, 10,
+            name='num_hidden_layers_encoder')
+    hyperp_of_interest_dict['num_hidden_nodes_encoder'] = Integer(10, 1000,
+            name='num_hidden_nodes_encoder')
     hyperp_of_interest_dict['penalty_encoder'] = Real(10, 1000, name='penalty_encoder')
     hyperp_of_interest_dict['penalty_decoder'] = Real(10, 1000, name='penalty_decoder')
     hyperp_of_interest_dict['penalty_aug'] = Real(0.001, 50, name='penalty_aug')
@@ -200,7 +202,6 @@ if __name__ == "__main__":
     #=== Assigning hyperp with Optimal Hyperparameters ===#
     for num, parameter in enumerate(hyperp_of_interest_list):
         setattr(hyperp, parameter, hyperp_opt_result.x[num])
-    hyperp.truncation_layer = int(np.ceil(hyperp.num_hidden_layers/2))
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
