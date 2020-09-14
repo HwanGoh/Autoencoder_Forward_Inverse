@@ -30,53 +30,55 @@ class Hyperparameters:
     num_epochs        = 1000
 
 class RunOptions:
-    def __init__(self):
-        #=== Posterior Type ===#
-        self.posterior_diagonal_covariance = 1
-        self.posterior_IAF = 0
+    #=== Posterior Type ===#
+    posterior_diagonal_covariance = 1
+    posterior_IAF = 0
 
-        #=== Forward Model Type ===#
-        self.model_aware = 1
-        self.model_augmented = 0
+    #=== Forward Model Type ===#
+    model_aware = 1
+    model_augmented = 0
 
-        #=== Data Set Size ===#
-        self.num_data_train_load = 10000
-        self.num_data_test_load = 200
-        self.num_data_test = 200
+    #=== Use Resnet ===#
+    resnet = 0
 
-        #=== Data Properties ===#
-        self.parameter_dimensions = 225
-        self.obs_type = 'full'
-        self.num_obs_points = 43
+    #=== Data Set Size ===#
+    num_data_train_load = 10000
+    num_data_test_load = 200
+    num_data_test = 200
 
-        #=== Noise Properties ===#
-        self.add_noise = 0
-        self.noise_level = 0.05
-        self.num_noisy_obs = 20
-        self.num_noisy_obs_unregularized = 20
+    #=== Data Properties ===#
+    parameter_dimensions = 225
+    obs_type = 'full'
+    num_obs_points = 43
 
-        #=== Autocorrelation Prior Properties ===#
-        self.prior_type_AC_train = 1
-        self.prior_mean_AC_train = 2
-        self.prior_variance_AC_train = 2.0
-        self.prior_corr_AC_train = 0.5
+    #=== Noise Properties ===#
+    add_noise = 0
+    noise_level = 0.05
+    num_noisy_obs = 20
+    num_noisy_obs_unregularized = 20
 
-        self.prior_type_AC_test = 1
-        self.prior_mean_AC_test = 2
-        self.prior_variance_AC_test = 2.0
-        self.prior_corr_AC_test = 0.5
+    #=== Autocorrelation Prior Properties ===#
+    prior_type_AC_train = 1
+    prior_mean_AC_train = 2
+    prior_variance_AC_train = 2.0
+    prior_corr_AC_train = 0.5
 
-        #=== Matern Prior Properties ===#
-        self.prior_type_matern_train = 0
-        self.prior_kern_type_train = 'm32'
-        self.prior_cov_length_train = 0.5
+    prior_type_AC_test = 1
+    prior_mean_AC_test = 2
+    prior_variance_AC_test = 2.0
+    prior_corr_AC_test = 0.5
 
-        self.prior_type_matern_test = 0
-        self.prior_kern_type_test = 'm32'
-        self.prior_cov_length_test = 0.5
+    #=== Matern Prior Properties ===#
+    prior_type_matern_train = 0
+    prior_kern_type_train = 'm32'
+    prior_cov_length_train = 0.5
 
-        #=== Random Seed ===#
-        self.random_seed = 4
+    prior_type_matern_test = 0
+    prior_kern_type_test = 'm32'
+    prior_cov_length_test = 0.5
+
+    #=== Random Seed ===#
+    random_seed = 4
 
 ###############################################################################
 #                                   Driver                                    #

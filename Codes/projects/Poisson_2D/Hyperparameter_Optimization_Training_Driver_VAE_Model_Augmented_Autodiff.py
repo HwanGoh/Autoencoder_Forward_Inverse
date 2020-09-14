@@ -6,13 +6,14 @@ Created on Tue Feb 25 13:51:00 2020
 """
 import os
 import sys
-sys.path.insert(0, os.path.realpath('../src'))
+sys.path.insert(0, os.path.realpath('../../src'))
 import shutil
 
 import numpy as np
 import pandas as pd
-import matplotlib; matplotlib.use('agg')
-import matplotlib.pyplot as plt
+
+# Routine for outputting results
+from hyperparameter_optimization_output import output_results
 
 # Import FilePaths class and training routine
 from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
@@ -22,8 +23,6 @@ Utilities.hyperparameter_optimization_training_routine_custom_VAE_model_augmente
 
 # Import skopt code
 from skopt.space import Real, Integer, Categorical
-from skopt.plots import plot_convergence
-from skopt import dump, load
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -44,58 +43,60 @@ class Hyperparameters:
     num_epochs                = 2
 
 class RunOptions:
-    def __init__(self):
-        #=== Use Distributed Strategy ===#
-        self.distributed_training = 0
+    #=== Use Distributed Strategy ===#
+    distributed_training = 0
 
-        #=== Which GPUs to Use for Distributed Strategy ===#
-        self.dist_which_gpus = '0,1,2'
+    #=== Which GPUs to Use for Distributed Strategy ===#
+    dist_which_gpus = '0,1,2'
 
-        #=== Which Single GPU to Use ===#
-        self.which_gpu = '3'
+    #=== Which Single GPU to Use ===#
+    which_gpu = '3'
 
-        #=== Data Set Size ===#
-        self.num_data_train_load = 5000
-        self.num_data_test_load = 200
-        self.num_data_test = 200
+    #=== Use Resnet ===#
+    resnet = 0
 
-        #=== Data Properties ===#
-        self.parameter_dimensions = 225
-        self.obs_type = 'full'
-        self.num_obs_points = 43
+    #=== Data Set Size ===#
+    num_data_train_load = 5000
+    num_data_test_load = 200
+    num_data_test = 200
 
-        #=== Noise Properties ===#
-        self.add_noise = 0
-        self.noise_level = 0.05
-        self.num_noisy_obs = 20
-        self.num_noisy_obs_unregularized = 20
+    #=== Data Properties ===#
+    parameter_dimensions = 225
+    obs_type = 'full'
+    num_obs_points = 43
 
-        #=== Autocorrelation Prior Properties ===#
-        self.prior_type_AC_train = 1
-        self.prior_mean_AC_train = 2
-        self.prior_variance_AC_train = 2.0
-        self.prior_corr_AC_train = 0.5
+    #=== Noise Properties ===#
+    add_noise = 0
+    noise_level = 0.05
+    num_noisy_obs = 20
+    num_noisy_obs_unregularized = 20
 
-        self.prior_type_AC_test = 1
-        self.prior_mean_AC_test = 2
-        self.prior_variance_AC_test = 2.0
-        self.prior_corr_AC_test = 0.5
+    #=== Autocorrelation Prior Properties ===#
+    prior_type_AC_train = 1
+    prior_mean_AC_train = 2
+    prior_variance_AC_train = 2.0
+    prior_corr_AC_train = 0.5
 
-        #=== Matern Prior Properties ===#
-        self.prior_type_matern_train = 0
-        self.prior_kern_type_train = 'm32'
-        self.prior_cov_length_train = 0.5
+    prior_type_AC_test = 1
+    prior_mean_AC_test = 2
+    prior_variance_AC_test = 2.0
+    prior_corr_AC_test = 0.5
 
-        self.prior_type_matern_test = 0
-        self.prior_kern_type_test = 'm32'
-        self.prior_cov_length_test = 0.5
+    #=== Matern Prior Properties ===#
+    prior_type_matern_train = 0
+    prior_kern_type_train = 'm32'
+    prior_cov_length_train = 0.5
 
-        #=== PDE Properties ===#
-        self.boundary_matrix_constant = 0.5
-        self.load_vector_constant = -1
+    prior_type_matern_test = 0
+    prior_kern_type_test = 'm32'
+    prior_cov_length_test = 0.5
 
-        #=== Random Seed ===#
-        self.random_seed = 4
+    #=== PDE Properties ===#
+    boundary_matrix_constant = 0.5
+    load_vector_constant = -1
+
+    #=== Random Seed ===#
+    random_seed = 4
 
 ###############################################################################
 #                                  Driver                                     #
@@ -114,8 +115,8 @@ if __name__ == "__main__":
     hyperp_of_interest_dict['num_hidden_nodes_encoder'] = Integer(100, 1000,
             name='num_hidden_nodes_encoder')
     hyperp_of_interest_dict['activation'] = Categorical(['relu', 'elu', 'sigmoid', 'tanh'], name='activation')
-    hyperp_of_interest_dict['penalty_KLD_incr'] = Real(10, 1000, name='penalty_KLD_incr')
-    hyperp_of_interest_dict['penalty_KLD_rate'] = Real(0, 1, name='penalty_KLD_rate')
+    hyperp_of_interest_dict['penalty_KLD_incr'] = Real(0, 1, name='penalty_KLD_incr')
+    hyperp_of_interest_dict['penalty_KLD_rate'] = Integer(0, 500, name='penalty_KLD_rate')
     hyperp_of_interest_dict['penalty_post_mean'] = Real(10, 1000, name='penalty_post_mean')
     #hyperp_of_interest_dict['batch_size'] = Integer(100, 500, name='batch_size')
 
@@ -150,67 +151,34 @@ if __name__ == "__main__":
                                        project_name,
                                        data_options, dataset_directory)
 
-    ##################################
-    #   Display Optimal Parameters   #
-    ##################################
-    print('=================================================')
-    print('      Hyperparameter Optimization Complete')
-    print('=================================================')
-    print('Optimized Validation Loss: {}\n'.format(hyperp_opt_result.fun))
-    print('Optimized Parameters:')
-    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys())
-    for n, parameter_name in enumerate(hyperp_of_interest_list):
-        print(parameter_name + ': {}'.format(hyperp_opt_result.x[n]))
-
-    #####################################
-    #   Save Optimization Information   #
-    #####################################
-    #=== Save .pkl File ===#
-    dump(hyperp_opt_result, file_paths.hyperp_opt_skopt_res_savefile_name, store_objective=False)
-
-    #=== Write Optimal Set Hyperparameters ===#
-    with open(file_paths.hyperp_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
-        optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(hyperp_opt_result.fun))
-        optimal_set_txt.write('\n')
-        optimal_set_txt.write('Optimized parameters:\n')
-        for n, parameter_name in enumerate(hyperp_of_interest_list):
-            optimal_set_txt.write(parameter_name + ': {}\n'.format(hyperp_opt_result.x[n]))
-
-    #=== Write List of Scenarios Trained ===#
-    with open(file_paths.hyperp_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
-        for scenario in hyperp_opt_result.x_iters:
-            scenarios_trained_txt.write("%s\n" % scenario)
-
-    #=== Write List of Validation Losses ===#
-    validation_losses_dict = {}
-    validation_losses_dict['validation_losses'] = hyperp_opt_result.func_vals
-    df_validation_losses = pd.DataFrame(validation_losses_dict)
-    df_validation_losses.to_csv(file_paths.hyperp_opt_validation_losses_savefile_name, index=False)
-
-    #=== Convergence Plot ===#
-    plot_convergence(hyperp_opt_result)
-    plt.savefig(file_paths.hyperp_opt_convergence_savefile_name)
-
-    print('Outputs Saved')
+    ######################
+    #   Output Results   #
+    ######################
+    output_results(hyperp, run_options, file_paths,
+                   hyperp_of_interest_dict, hyperp_opt_result)
 
     #####################################################
     #   Delete All Suboptimal Trained Neural Networks   #
     #####################################################
     #=== Assigning hyperp with Optimal Hyperparameters ===#
+    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys())
     for num, parameter in enumerate(hyperp_of_interest_list):
         setattr(hyperp, parameter, hyperp_opt_result.x[num])
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,
-            project_name,
-            data_options, dataset_directory)
+                                                     project_name,
+                                                     data_options, dataset_directory)
 
     #=== Deleting Suboptimal Neural Networks ===#
-    directories_list_Trained_NNs = os.listdir(path=file_paths.hyperp_opt_Trained_NNs_directory)
-    directories_list_Tensorboard = os.listdir(path=file_paths.hyperp_opt_Tensorboard_directory)
-    for filename in directories_list_Trained_NNs:
-        if filename != file_paths.filename:
-            shutil.rmtree(file_paths.hyperp_opt_Trained_NNs_directory + '/' + filename)
-            shutil.rmtree(file_paths.hyperp_opt_Tensorboard_directory + '/' + filename)
+    directories_list_trained_NNs = os.listdir(
+            path=file_paths.hyperp_opt_trained_NNs_case_directory)
+    directories_list_tensorboard = os.listdir(
+            path=file_paths.hyperp_opt_tensorboard_case_directory)
+
+    for filename in directories_list_trained_NNs:
+        if filename != file_paths.NN_name:
+            shutil.rmtree(file_paths.hyperp_opt_trained_NNs_case_directory + '/' + filename)
+            shutil.rmtree(file_paths.hyperp_opt_tensorboard_case_directory + '/' + filename)
 
     print('Suboptimal Trained Networks Deleted')

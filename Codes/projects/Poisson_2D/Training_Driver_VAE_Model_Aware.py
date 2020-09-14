@@ -41,6 +41,9 @@ class RunOptions:
     #=== Which Single GPU to Use ===#
     which_gpu = '3'
 
+    #=== Use Resnet ===#
+    resnet = 0
+
     #=== Data Set Size ===#
     num_data_train_load = 5000
     num_data_test_load = 200

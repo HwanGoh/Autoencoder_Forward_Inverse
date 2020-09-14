@@ -43,6 +43,9 @@ class RunOptions:
     #=== Which Single GPU to Use ===#
     which_gpu = '3'
 
+    #=== Use Resnet ===#
+    resnet = 0
+
     #=== IAF Type ===#
     IAF_LSTM_update = 0
 

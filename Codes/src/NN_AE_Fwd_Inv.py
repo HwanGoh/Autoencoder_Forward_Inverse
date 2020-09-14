@@ -130,16 +130,3 @@ class Decoder(tf.keras.layers.Layer):
             return self.positivity_constraint(X)
         if self.run_options.reverse_autoencoder == 1:
             return X
-
-
-
-
-
-
-
-
-
-
-
-
-

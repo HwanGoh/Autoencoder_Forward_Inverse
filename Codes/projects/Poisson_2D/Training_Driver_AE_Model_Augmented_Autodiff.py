@@ -47,6 +47,9 @@ class RunOptions:
     standard_autoencoder = 0
     reverse_autoencoder = 1
 
+    #=== Use Resnet ===#
+    resnet = 1
+
     #=== Data Set Size ===#
     num_data_train_load = 5000
     num_data_test_load = 200

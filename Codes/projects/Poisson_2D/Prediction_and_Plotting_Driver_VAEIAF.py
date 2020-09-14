@@ -37,6 +37,9 @@ class RunOptions:
     model_aware = 1
     model_augmented = 0
 
+    #=== Use Resnet ===#
+    resnet = 0
+
     #=== IAF Type ===#
     IAF_LSTM_update = 0
 

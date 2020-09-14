@@ -40,6 +40,9 @@ class RunOptions:
     model_aware = 0
     model_augmented = 1
 
+    #=== Use Resnet ===#
+    resnet = 0
+
     #=== Data Set Size ===#
     num_data_train_load = 10000
     num_data_test_load = 200

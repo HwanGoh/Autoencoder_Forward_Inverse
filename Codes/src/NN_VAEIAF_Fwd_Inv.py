@@ -43,7 +43,8 @@ class VAEIAFFwdInv(tf.keras.Model):
                 ['linear']
 
         #=== Encoder, IAF Chain and Decoder ===#
-        self.encoder = Encoder(hyperp.num_hidden_layers_encoder + 1,
+        self.encoder = Encoder(run_options,
+                               hyperp.num_hidden_layers_encoder + 1,
                                self.architecture, self.activations,
                                kernel_initializer, bias_initializer)
         self.IAF_chain_posterior = IAFChainPosterior(run_options.IAF_LSTM_update,
@@ -52,10 +53,11 @@ class VAEIAFFwdInv(tf.keras.Model):
                                                      hyperp.activation_IAF,
                                                      kernel_initializer_IAF, bias_initializer_IAF)
         if self.run_options.model_aware == 1:
-            self.decoder = Decoder(hyperp.num_hidden_layers_encoder + 1,
+            self.decoder = Decoder(run_options,
+                                   hyperp.num_hidden_layers_encoder + 1,
                                    self.architecture, self.activations,
                                    kernel_initializer, bias_initializer,
-                                   len(self.architecture))
+                                   len(self.architecture) - 1)
 
     #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
@@ -75,13 +77,17 @@ class VAEIAFFwdInv(tf.keras.Model):
 #                                  Encoder                                    #
 ###############################################################################
 class Encoder(tf.keras.layers.Layer):
-    def __init__(self, truncation_layer,
+    def __init__(self, run_options,
+                 truncation_layer,
                  architecture,
                  activations,
                  kernel_initializer, bias_initializer):
         super(Encoder, self).__init__()
 
+        self.run_options = run_options
+        self.truncation_layer = truncation_layer
         self.hidden_layers_encoder = []
+
         for l in range(1, truncation_layer+1):
             hidden_layer_encoder = tf.keras.layers.Dense(units = architecture[l],
                                                          activation = activations[l],
@@ -92,8 +98,12 @@ class Encoder(tf.keras.layers.Layer):
             self.hidden_layers_encoder.append(hidden_layer_encoder)
 
     def call(self, X):
-        for hidden_layer in self.hidden_layers_encoder:
-            X = hidden_layer(X)
+        for hidden_layer in enumerate(self.hidden_layers_encoder):
+            if self.run_options.resnet == 1\
+                    and 0 < hidden_layer[0] < self.truncation_layer-1:
+                X += hidden_layer[1](X)
+            else:
+                X = hidden_layer[1](X)
         post_mean, log_post_var = tf.split(X, num_or_size_splits=2, axis=1)
         return post_mean, log_post_var
 
@@ -101,15 +111,20 @@ class Encoder(tf.keras.layers.Layer):
 #                                  Decoder                                    #
 ###############################################################################
 class Decoder(tf.keras.layers.Layer):
-    def __init__(self, truncation_layer,
+    def __init__(self, run_options,
+                 truncation_layer,
                  architecture,
                  activations,
                  kernel_initializer, bias_initializer,
-                 num_layers):
+                 last_layer_index):
         super(Decoder, self).__init__()
 
+        self.run_options = run_options
+        self.truncation_layer = truncation_layer
+        self.last_layer_index = last_layer_index
         self.hidden_layers_decoder = []
-        for l in range(truncation_layer+1, num_layers):
+
+        for l in range(truncation_layer+1, last_layer_index+1):
             hidden_layer_decoder = tf.keras.layers.Dense(units = architecture[l],
                                                          activation = activations[l],
                                                          use_bias = True,
@@ -119,8 +134,13 @@ class Decoder(tf.keras.layers.Layer):
             self.hidden_layers_decoder.append(hidden_layer_decoder)
 
     def call(self, X):
-        for hidden_layer in self.hidden_layers_decoder:
-            X = hidden_layer(X)
+        for hidden_layer in enumerate(self.hidden_layers_decoder):
+            if self.run_options.resnet == 1\
+                    and self.truncation_layer < hidden_layer[0]+self.truncation_layer\
+                            < self.last_layer_index-1:
+                X += hidden_layer[1](X)
+            else:
+                X = hidden_layer[1](X)
         return X
 
 ###############################################################################
