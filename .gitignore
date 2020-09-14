@@ -8,3 +8,12 @@ Tensorboard/
 Trained_NNs/
 Figures/
 Hyperparameter_Optimization/
+
+copy_and_zip
+overwrite_server_runs_branch
+quick_git
+retrieve_Hyperparameter_Opt
+retrieve_Tensorboard
+retrieve_Tensorboard_Maverick
+retrieve_Trained_NNs
+retrieve_Trained_NNs_Maverick
