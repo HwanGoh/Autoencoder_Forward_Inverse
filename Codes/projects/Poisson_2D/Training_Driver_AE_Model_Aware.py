@@ -50,15 +50,16 @@ if __name__ == "__main__":
         options = json.load(f)
     options = AttrDict(options)
     options = add_options(options)
+    options.model_aware = 1
+    options.model_augmented = 0
 
     #=== File Names ===#
-    autoencoder_loss = 'maware_'
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
             'n%d/'%(options.parameter_dimensions)
     file_paths = FilePathsTraining(hyperp, options,
-                                   autoencoder_loss, project_name,
+                                   project_name,
                                    data_options, dataset_directory)
 
     #=== Initiate training ===#

@@ -12,91 +12,38 @@ import shutil
 import numpy as np
 import pandas as pd
 
-# Routine for outputting results
+import json
+from attrdict import AttrDict
+
+# Import routine for outputting results
 from hyperparameter_optimization_output import output_results
 
 # Import FilePaths class and training routine
 from Utilities.file_paths_VAE import FilePathsHyperparameterOptimization
-from\
-Utilities.hyperparameter_optimization_training_routine_custom_VAE_model_augmented_autodiff\
-        import trainer_custom
+from Utilities.training_routine_custom_VAE_model_augmented_autodiff import trainer_custom
 
 # Import skopt code
 from skopt.space import Real, Integer, Categorical
+from skopt.utils import use_named_args
+from skopt import gp_minimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                      Hyperparameters and Run_Options                        #
+#                                 Add Options                                 #
 ###############################################################################
-class Hyperparameters:
-    num_hidden_layers_encoder = 5
-    num_hidden_layers_decoder = 2
-    num_hidden_nodes_encoder  = 500
-    num_hidden_nodes_decoder  = 500
-    activation                = 'relu'
-    penalty_KLD_incr          = 0.001
-    penalty_KLD_rate          = 10
-    penalty_post_mean         = 1
-    num_data_train            = 500
-    batch_size                = 100
-    num_epochs                = 2
+def add_options(options):
 
-class RunOptions:
     #=== Use Distributed Strategy ===#
-    distributed_training = 0
+    options.distributed_training = 0
 
     #=== Which GPUs to Use for Distributed Strategy ===#
-    dist_which_gpus = '0,1,2'
+    options.dist_which_gpus = '0,1,2,3'
 
     #=== Which Single GPU to Use ===#
-    which_gpu = '3'
+    options.which_gpu = '2'
 
-    #=== Use Resnet ===#
-    resnet = 0
-
-    #=== Data Set Size ===#
-    num_data_train_load = 5000
-    num_data_test_load = 200
-    num_data_test = 200
-
-    #=== Data Properties ===#
-    parameter_dimensions = 225
-    obs_type = 'full'
-    num_obs_points = 43
-
-    #=== Noise Properties ===#
-    add_noise = 0
-    noise_level = 0.05
-    num_noisy_obs = 20
-    num_noisy_obs_unregularized = 20
-
-    #=== Autocorrelation Prior Properties ===#
-    prior_type_AC_train = 1
-    prior_mean_AC_train = 2
-    prior_variance_AC_train = 2.0
-    prior_corr_AC_train = 0.5
-
-    prior_type_AC_test = 1
-    prior_mean_AC_test = 2
-    prior_variance_AC_test = 2.0
-    prior_corr_AC_test = 0.5
-
-    #=== Matern Prior Properties ===#
-    prior_type_matern_train = 0
-    prior_kern_type_train = 'm32'
-    prior_cov_length_train = 0.5
-
-    prior_type_matern_test = 0
-    prior_kern_type_test = 'm32'
-    prior_cov_length_test = 0.5
-
-    #=== PDE Properties ===#
-    boundary_matrix_constant = 0.5
-    load_vector_constant = -1
-
-    #=== Random Seed ===#
-    random_seed = 4
+    return options
 
 ###############################################################################
 #                                  Driver                                     #
@@ -128,13 +75,22 @@ if __name__ == "__main__":
     for key, val in hyperp_of_interest_dict.items():
         space.append(val)
 
-    #=== Instantiate Hyperparameters and Run Options to Load Data ===#
-    hyperp = Hyperparameters()
-    run_options = RunOptions()
+    #=== Hyperparameters ===#
+    with open('json_files/hyperparameters_VAE.json') as f:
+        hyperp = json.load(f)
+    hyperp = AttrDict(hyperp)
+
+    #=== Options ===#
+    with open('json_files/options_VAE.json') as f:
+        options = json.load(f)
+    options = AttrDict(options)
+    options = add_options(options)
     run_options.model_aware = 0
     run_options.model_augmented = 1
     run_options.posterior_diagonal_covariance = 1
     run_options.posterior_IAF = 0
+
+    #=== File Paths ===#
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(run_options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\

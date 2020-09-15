@@ -18,6 +18,8 @@ from optimize_custom_AE_model_aware import optimize
 from optimize_distributed_custom_AE_model_aware import optimize_distributed
 from positivity_constraints import positivity_constraint_log_exp
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 ###############################################################################
 #                                  Training                                   #
 ###############################################################################
@@ -59,17 +61,13 @@ def trainer_custom(hyperp, options, file_paths):
     #=== Construct Validation Set and Batches ===#
     if options.standard_autoencoder == 1:
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
-        hyperp.num_data_train, num_data_val, options.num_data_test,\
-        num_batches_train, num_batches_val, num_batches_test,\
-        input_dimensions\
+        num_batches_train, num_batches_val, num_batches_test\
         = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                 parameter_test, state_obs_test,
                 hyperp.batch_size, options.random_seed)
     if options.reverse_autoencoder == 1:
         input_and_latent_train, input_and_latent_val, input_and_latent_test,\
-        hyperp.num_data_train, num_data_val, options.num_data_test,\
-        num_batches_train, num_batches_val, num_batches_test,\
-        input_dimensions\
+        num_batches_train, num_batches_val, num_batches_test\
         = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                 state_obs_test, parameter_test,
                 hyperp.batch_size, options.random_seed)

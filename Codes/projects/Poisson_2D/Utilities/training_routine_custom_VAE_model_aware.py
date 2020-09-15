@@ -60,9 +60,7 @@ def trainer_custom(hyperp, options, file_paths):
 
     #=== Construct Validation Set and Batches ===#
     input_and_latent_train, input_and_latent_val, input_and_latent_test,\
-    hyperp.num_data_train, num_data_val, options.num_data_test,\
-    num_batches_train, num_batches_val, num_batches_test,\
-    input_dimensions\
+    num_batches_train, num_batches_val, num_batches_test\
     = form_train_val_test_tf_batches(state_obs_train, parameter_train,
             state_obs_test, parameter_test,
             hyperp.batch_size, options.random_seed)

@@ -8,7 +8,6 @@ Created on Tue Feb 25 13:51:00 2020
 import os
 import sys
 sys.path.insert(0, os.path.realpath('../../src'))
-import shutil
 
 import numpy as np
 import pandas as pd
@@ -17,7 +16,7 @@ import json
 from attrdict import AttrDict
 
 # Import routine for outputting results
-from hyperparameter_optimization_routine import output_results
+from hyperparameter_optimization_routine import optimize_hyperparameters
 
 # Import FilePaths class and training routine
 from Utilities.file_paths_AE import FilePathsHyperparameterOptimization
@@ -25,8 +24,6 @@ from Utilities.training_routine_custom_AE_model_aware import trainer_custom
 
 # Import skopt routines
 from skopt.space import Real, Integer, Categorical
-from skopt.utils import use_named_args
-from skopt import gp_minimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -73,8 +70,8 @@ if __name__ == "__main__":
     #####################
     #=== Generate skopt 'space' list ===#
     space = []
-    for key, val in hyperp_of_interest_dict.items():
-        space.append(val)
+    for key, value in hyperp_of_interest_dict.items():
+        space.append(value)
 
     #=== Hyperparameters ===#
     with open('json_files/hyperparameters_AE.json') as f:
@@ -98,62 +95,11 @@ if __name__ == "__main__":
                                                      project_name,
                                                      data_options, dataset_directory)
 
-    ############################
-    #   Objective Functional   #
-    ############################
-    @use_named_args(space)
-    def objective_functional(**hyperp_of_interest_dict):
-        #=== Assign Hyperparameters of Interest ===#
-        for key, val in hyperp_of_interest_dict.items():
-            hyperp[key] = val
-
-        #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsHyperparameterOptimization(hyperp, options,
-                                                         project_name,
-                                                         data_options, dataset_directory)
-        #=== Training Routine ===#
-        trainer_custom(hyperp, options, file_paths)
-
-        #=== Loading Metrics For Output ===#
-        print('Loading Metrics')
-        df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
-        array_metrics = df_metrics.to_numpy()
-        storage_array_loss_val = array_metrics[:,5]
-
-        return storage_array_loss_val[-1]
-
-    ################################
-    #   Optimize Hyperparameters   #
-    ################################
-    hyperp_opt_result = gp_minimize(objective_functional, space,
-                                    n_calls=n_calls, random_state=None)
-
-    ######################
-    #   Output Results   #
-    ######################
-    output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result)
-
-    #####################################################
-    #   Delete All Suboptimal Trained Neural Networks   #
-    #####################################################
-    #=== Assigning hyperp with Optimal Hyperparameters ===#
-    for num, key in enumerate(hyperp_of_interest_dict.keys()):
-        hyperp[key] = hyperp_opt_result.x[num]
-
-    #=== Updating File Paths with Optimal Hyperparameters ===#
-    file_paths = FilePathsHyperparameterOptimization(hyperp, options,
-                                                     project_name,
-                                                     data_options, dataset_directory)
-
-    #=== Deleting Suboptimal Neural Networks ===#
-    directories_list_trained_NNs = os.listdir(
-            path=file_paths.hyperp_opt_trained_NNs_case_directory)
-    directories_list_tensorboard = os.listdir(
-            path=file_paths.hyperp_opt_tensorboard_case_directory)
-
-    for filename in directories_list_trained_NNs:
-        if filename != file_paths.NN_name:
-            shutil.rmtree(file_paths.hyperp_opt_trained_NNs_case_directory + '/' + filename)
-            shutil.rmtree(file_paths.hyperp_opt_tensorboard_case_directory + '/' + filename)
-
-    print('Suboptimal Trained Networks Deleted')
+    ###############################
+    #   Optimize Hyperparameters  #
+    ###############################
+    optimize_hyperparameters(hyperp, options,
+                             n_calls, space, hyperp_of_interest_dict,
+                             trainer_custom, 5,
+                             FilePathsHyperparameterOptimization,
+                             project_name, data_options, dataset_directory)
