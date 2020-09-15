@@ -19,8 +19,10 @@ from attrdict import AttrDict
 # Import routine for outputting results
 from hyperparameter_optimization_routine import output_results
 
-# Import FilePaths class and training routine
+# Import project utilities
 from Utilities.file_paths_AE import FilePathsHyperparameterOptimization
+from Utilities.load_data_dict import load_data_dict
+from Utilities.load_prior_dict_AE import load_prior_dict
 from Utilities.training_routine_custom_AE_model_aware import trainer_custom
 
 # Import skopt routines
@@ -98,6 +100,18 @@ if __name__ == "__main__":
                                                      project_name,
                                                      data_options, dataset_directory)
 
+    #=== Data and Prior Dictionary ===#
+    data_dict = load_data_dict(hyperp, options, file_paths)
+    prior_dict = load_prior_dict(hyperp, options, file_paths)
+
+    #################
+    ##   Training   #
+    #################
+    #hyperp_opt_result = trainer_custom(hyperp, options, file_paths,
+    #                                   n_calls, space,
+    #                                   project_name,
+    #                                   data_options, dataset_directory)
+
     ############################
     #   Objective Functional   #
     ############################
@@ -112,7 +126,8 @@ if __name__ == "__main__":
                                                          project_name,
                                                          data_options, dataset_directory)
         #=== Training Routine ===#
-        trainer_custom(hyperp, options, file_paths)
+        trainer_custom(hyperp, options, file_paths,
+                       data_dict, prior_dict)
 
         #=== Loading Metrics For Output ===#
         print('Loading Metrics')
@@ -121,10 +136,6 @@ if __name__ == "__main__":
         storage_array_loss_val = array_metrics[:,5]
 
         return storage_array_loss_val[-1]
-
-    ################################
-    #   Optimize Hyperparameters   #
-    ################################
     hyperp_opt_result = gp_minimize(objective_functional, space,
                                     n_calls=n_calls, random_state=None)
 

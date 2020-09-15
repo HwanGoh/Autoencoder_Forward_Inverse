@@ -11,8 +11,10 @@ sys.path.insert(0, os.path.realpath('../../src'))
 import json
 from attrdict import AttrDict
 
-# Import FilePaths class and training routine
+# Import Project Utilities
 from Utilities.file_paths_AE import FilePathsTraining
+from Utilities.load_data_dict import load_data_dict
+from Utilities.load_prior_dict_AE import load_prior_dict
 from Utilities.training_routine_custom_AE_model_aware import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -53,7 +55,7 @@ if __name__ == "__main__":
     options.model_aware = 1
     options.model_augmented = 0
 
-    #=== File Names ===#
+    #=== File Paths ===#
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
@@ -62,5 +64,10 @@ if __name__ == "__main__":
                                    project_name,
                                    data_options, dataset_directory)
 
+    #=== Data and Prior Dictionary ===#
+    data_dict = load_data_dict(hyperp, options, file_paths)
+    prior_dict = load_prior_dict(hyperp, options, file_paths)
+
     #=== Initiate training ===#
-    trainer_custom(hyperp, options, file_paths)
+    trainer_custom(hyperp, options, file_paths,
+                   data_dict, prior_dict)

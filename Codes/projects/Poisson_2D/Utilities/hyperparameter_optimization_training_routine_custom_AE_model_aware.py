@@ -31,16 +31,8 @@ from skopt import gp_minimize
 ###############################################################################
 def trainer_custom(hyperp, options, file_paths,
         n_calls, space,
-        autoencoder_loss, project_name,
+        project_name,
         data_options, dataset_directory):
-
-    #=== GPU Settings ===#
-    os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
-    if options.distributed_training == 0:
-        os.environ["CUDA_VISIBLE_DEVICES"] = options.which_gpu
-    if options.distributed_training == 1:
-        os.environ["CUDA_VISIBLE_DEVICES"] = options.dist_which_gpus
-        gpus = tf.config.experimental.list_physical_devices('GPU')
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
@@ -89,33 +81,39 @@ def trainer_custom(hyperp, options, file_paths,
         for key, val in hyperp_of_interest_dict.items():
             hyperp[key] = val
 
+        #=== Update File Paths with New Hyperparameters ===#
+        file_paths = FilePathsHyperparameterOptimization(hyperp, options,
+                                                         project_name,
+                                                         data_options, dataset_directory)
+
+        #=== GPU Settings ===#
+        os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
+        if options.distributed_training == 0:
+            os.environ["CUDA_VISIBLE_DEVICES"] = options.which_gpu
+        if options.distributed_training == 1:
+            os.environ["CUDA_VISIBLE_DEVICES"] = options.dist_which_gpus
+            gpus = tf.config.experimental.list_physical_devices('GPU')
+
         #=== Construct Validation Set and Batches ===#
         if options.standard_autoencoder == 1:
             input_and_latent_train, input_and_latent_val, input_and_latent_test,\
-            hyperp.num_data_train, num_data_val, options.num_data_test,\
-            num_batches_train, num_batches_val, num_batches_test,\
-            input_dimensions\
+            num_batches_train, num_batches_val, num_batches_test\
             = form_train_val_test_tf_batches(parameter_train, state_obs_train,
                     parameter_test, state_obs_test,
                     hyperp.batch_size, options.random_seed)
         if options.reverse_autoencoder == 1:
             input_and_latent_train, input_and_latent_val, input_and_latent_test,\
-            hyperp.num_data_train, num_data_val, options.num_data_test,\
-            num_batches_train, num_batches_val, num_batches_test,\
-            input_dimensions\
+            num_batches_train, num_batches_val, num_batches_test\
             = form_train_val_test_tf_batches(state_obs_train, parameter_train,
                     state_obs_test, parameter_test,
                     hyperp.batch_size, options.random_seed)
 
-        #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsHyperparameterOptimization(hyperp, options,
-                                                     autoencoder_loss, project_name,
-                                                     data_options, dataset_directory)
-
         #=== Data and Latent Dimensions of Autoencoder ===#
         if options.standard_autoencoder == 1:
+            input_dimensions = options.parameter_dimensions
             latent_dimensions = obs_dimensions
         if options.reverse_autoencoder == 1:
+            input_dimensions = obs_dimensions
             latent_dimensions = options.parameter_dimensions
 
         #=== Neural Network Regularizers ===#
