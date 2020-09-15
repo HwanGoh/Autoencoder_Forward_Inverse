@@ -25,8 +25,9 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                     Hyperparameter Optimization Routine                     #
 ###############################################################################
-def optimize_hyperparameters(hyperp, options,
+def optimize_hyperparameters(hyperp, options, file_paths,
                              n_calls, space, hyperp_of_interest_dict,
+                             data_dict, prior_dict,
                              training_routine, loss_val_index,
                              FilePathsClass, *args):
 
@@ -43,7 +44,8 @@ def optimize_hyperparameters(hyperp, options,
         file_paths = FilePathsClass(hyperp, options, *args)
 
         #=== Training Routine ===#
-        training_routine(hyperp, options, file_paths)
+        training_routine(hyperp, options, file_paths,
+                         data_dict, prior_dict)
 
         #=== Loading Metrics For Output ===#
         print('Loading Metrics')

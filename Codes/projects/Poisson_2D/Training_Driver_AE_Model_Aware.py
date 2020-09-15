@@ -13,8 +13,8 @@ from attrdict import AttrDict
 
 # Import Project Utilities
 from Utilities.file_paths_AE import FilePathsTraining
-from Utilities.load_data_dict import load_data_dict
-from Utilities.load_prior_dict_AE import load_prior_dict
+from Utilities.construct_data_dict import construct_data_dict
+from Utilities.construct_prior_dict_AE import construct_prior_dict
 from Utilities.training_routine_custom_AE_model_aware import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -65,8 +65,8 @@ if __name__ == "__main__":
                                    data_options, dataset_directory)
 
     #=== Data and Prior Dictionary ===#
-    data_dict = load_data_dict(hyperp, options, file_paths)
-    prior_dict = load_prior_dict(hyperp, options, file_paths)
+    data_dict = construct_data_dict(hyperp, options, file_paths)
+    prior_dict = construct_prior_dict(hyperp, options, file_paths)
 
     #=== Initiate training ===#
     trainer_custom(hyperp, options, file_paths,
