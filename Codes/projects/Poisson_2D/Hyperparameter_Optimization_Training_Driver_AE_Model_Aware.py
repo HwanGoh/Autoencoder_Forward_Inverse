@@ -21,7 +21,7 @@ from hyperparameter_optimization_routine import optimize_hyperparameters
 # Import Project Utilities
 from Utilities.file_paths_AE import FilePathsHyperparameterOptimization
 from Utilities.construct_data_dict import construct_data_dict
-from Utilities.construct_prior_dict_AE import construct_prior_dict
+from Utilities.construct_prior_dict import construct_prior_dict
 from Utilities.training_routine_custom_AE_model_aware import trainer_custom
 
 # Import skopt routines
@@ -76,12 +76,12 @@ if __name__ == "__main__":
         space.append(value)
 
     #=== Hyperparameters ===#
-    with open('json_files/hyperparameters_AE.json') as f:
+    with open('config_files/hyperparameters_AE.json') as f:
         hyperp = json.load(f)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#
-    with open('json_files/options_AE.json') as f:
+    with open('config_files/options_AE.json') as f:
         options = json.load(f)
     options = AttrDict(options)
     options = add_options(options)
@@ -98,7 +98,11 @@ if __name__ == "__main__":
                                                      data_options, dataset_directory)
     #=== Data and Prior Dictionary ===#
     data_dict = construct_data_dict(hyperp, options, file_paths)
-    prior_dict = construct_prior_dict(hyperp, options, file_paths)
+    prior_dict = construct_prior_dict(hyperp, options, file_paths,
+                                      load_mean = 1,
+                                      load_covariance = 0,
+                                      load_covariance_cholesky = 0,
+                                      load_covariance_cholesky_inverse = 1)
 
     ###############################
     #   Optimize Hyperparameters  #

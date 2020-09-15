@@ -14,7 +14,7 @@ from attrdict import AttrDict
 # Import Project Utilities
 from Utilities.file_paths_AE import FilePathsTraining
 from Utilities.construct_data_dict import construct_data_dict
-from Utilities.construct_prior_dict_AE import construct_prior_dict
+from Utilities.construct_prior_dict import construct_prior_dict
 from Utilities.training_routine_custom_AE_model_aware import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -41,14 +41,14 @@ def add_options(options):
 if __name__ == "__main__":
 
     #=== Hyperparameters ===#
-    with open('json_files/hyperparameters_AE.json') as f:
+    with open('config_files/hyperparameters_AE.json') as f:
         hyperp = json.load(f)
     if len(sys.argv) > 1:
         hyperp = command_line_json_string_to_dict(sys.argv, hyperp)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#
-    with open('json_files/options_AE.json') as f:
+    with open('config_files/options_AE.json') as f:
         options = json.load(f)
     options = AttrDict(options)
     options = add_options(options)
@@ -66,7 +66,11 @@ if __name__ == "__main__":
 
     #=== Data and Prior Dictionary ===#
     data_dict = construct_data_dict(hyperp, options, file_paths)
-    prior_dict = construct_prior_dict(hyperp, options, file_paths)
+    prior_dict = construct_prior_dict(hyperp, options, file_paths,
+                                      load_mean = 1,
+                                      load_covariance = 0,
+                                      load_covariance_cholesky = 0,
+                                      load_covariance_cholesky_inverse = 1)
 
     #=== Initiate training ===#
     trainer_custom(hyperp, options, file_paths,

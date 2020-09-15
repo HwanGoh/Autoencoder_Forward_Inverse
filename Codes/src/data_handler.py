@@ -8,10 +8,10 @@ class DataHandler:
     def __init__(self,hyperp, options, file_paths,
                  input_dimensions, output_dimensions):
 
-        self.file_path_input_train = file_paths.input_train_savefilepath
-        self.file_path_output_train = file_paths.output_train_savefilepath
-        self.file_path_input_test = file_paths.input_test_savefilepath
-        self.file_path_output_test = file_paths.output_test_savefilepath
+        self.input_train_savefilepath = file_paths.input_train_savefilepath
+        self.output_train_savefilepath = file_paths.output_train_savefilepath
+        self.input_test_savefilepath = file_paths.input_test_savefilepath
+        self.output_test_savefilepath = file_paths.output_test_savefilepath
 
         self.input_dimensions = input_dimensions
         self.output_dimensions = output_dimensions
@@ -34,14 +34,14 @@ class DataHandler:
     def load_data_train(self):
         print('Loading Training Data')
         self.input_train, self.output_train = self.load_data(
-                self.file_path_input_train,
-                self.file_path_output_train,
+                self.input_train_savefilepath,
+                self.output_train_savefilepath,
                 self.num_data_train)
     def load_data_test(self):
         print('Loading Training Data')
         self.input_test, self.output_test = self.load_data(
-                self.file_path_input_test,
-                self.file_path_output_test,
+                self.input_test_savefilepath,
+                self.output_test_savefilepath,
                 self.num_data_test)
 
     def load_data(self, file_path_input_data, file_path_output_data,
