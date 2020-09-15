@@ -6,7 +6,7 @@ from convert_dense_to_sparse_tensor import convert_dense_to_sparse_tensor
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def load_FEM_matrices_tf(run_options, file_paths,
+def load_FEM_matrices_tf(options, file_paths,
                          load_premass = 0,
                          load_prestiffness = 0):
     #=== Premass ===#
@@ -23,11 +23,11 @@ def load_FEM_matrices_tf(run_options, file_paths,
 
     #=== Boundary Matrix ===#
     boundary_matrix = sparse.load_npz(file_paths.boundary_matrix_savefilepath + '.npz')
-    boundary_matrix = run_options.boundary_matrix_constant*boundary_matrix
+    boundary_matrix = options.boundary_matrix_constant*boundary_matrix
 
     #=== Load Vector ===#
     load_vector = sparse.load_npz(file_paths.load_vector_savefilepath + '.npz')
-    load_vector = -run_options.load_vector_constant*load_vector
+    load_vector = -options.load_vector_constant*load_vector
 
     #=== Convert to Tensor ===#
     if load_premass == 1:

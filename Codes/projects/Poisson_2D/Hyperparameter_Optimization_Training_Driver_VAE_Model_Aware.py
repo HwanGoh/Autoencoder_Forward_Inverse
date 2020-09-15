@@ -151,16 +151,14 @@ if __name__ == "__main__":
     ######################
     #   Output Results   #
     ######################
-    output_results(hyperp, run_options, file_paths,
-                   hyperp_of_interest_dict, hyperp_opt_result)
+    output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result)
 
     #####################################################
     #   Delete All Suboptimal Trained Neural Networks   #
     #####################################################
     #=== Assigning hyperp with Optimal Hyperparameters ===#
-    hyperp_of_interest_list = list(hyperp_of_interest_dict.keys())
-    for num, parameter in enumerate(hyperp_of_interest_list):
-        setattr(hyperp, parameter, hyperp_opt_result.x[num])
+    for num, key in enumerate(hyperp_of_interest_dict.keys()):
+        hyperp[key] = hyperp_opt_result.x[num]
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
     file_paths = FilePathsHyperparameterOptimization(hyperp, run_options,

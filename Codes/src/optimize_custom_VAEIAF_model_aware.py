@@ -23,7 +23,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths,
+def optimize(hyperp, options, file_paths,
              NN, optimizer,
              loss_penalized_difference, relative_error,
              prior_mean, prior_covariance_cholesky_inverse,
@@ -167,7 +167,7 @@ def optimize(hyperp, run_options, file_paths,
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print('Case: ' + file_paths.case_name + '\n' + 'NN: ' + file_paths.NN_name + '\n')
-        print('GPU: ' + run_options.which_gpu + '\n')
+        print('GPU: ' + options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (batch_input_train, batch_latent_train) in input_and_latent_train.enumerate():

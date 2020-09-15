@@ -11,17 +11,13 @@ import pandas as pd
 import matplotlib; matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-# Import FilePaths class and training routine
-from Utilities.file_paths_AE import FilePathsHyperparameterOptimization
-
 # Import skopt code
 from skopt.plots import plot_convergence
 from skopt import dump, load
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def output_results(hyperp, run_options, file_paths,
-                   hyperp_of_interest_dict, hyperp_opt_result):
+def output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result):
 
     ##################################
     #   Display Optimal Parameters   #

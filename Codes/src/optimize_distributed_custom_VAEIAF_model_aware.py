@@ -23,7 +23,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                             Training Properties                             #
 ###############################################################################
 def optimize_distributed(dist_strategy,
-        hyperp, run_options, file_paths,
+        hyperp, options, file_paths,
         NN, optimizer,
         loss_penalized_difference, KLD_loss, relative_error,
         prior_mean, prior_covariance,
@@ -189,7 +189,7 @@ def optimize_distributed(dist_strategy,
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print('Case: ' + file_paths.case_name + '\n' + 'NN: ' + file_paths.NN_name + '\n')
-        print('GPUs: ' + run_options.dist_which_gpus + '\n')
+        print('GPUs: ' + options.dist_which_gpus + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         batch_counter = 0

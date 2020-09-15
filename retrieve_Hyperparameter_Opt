@@ -1,9 +1,0 @@
-#!/bin/bash
-
-# rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Hyperparameter_Optimization .
-
-# rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Codes_TF2/projects/1g_hete_uncol_simple/Hyperparameter_Optimization .
-# rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Codes_TF2/projects/borated_concrete/Hyperparameter_Optimization .
-# rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Codes_TF2/projects/Cylindrical_Transport/Hyperparameter_Optimization .
-# rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Codes_TF2/projects/IronWater_Benchmark/Hyperparameter_Optimization .
-rsync -rP PhoTai:/workspace/hwan/Autoencoder_Forward_Inverse/Codes_TF2/projects/Poisson_2D/Hyperparameter_Optimization_AE .

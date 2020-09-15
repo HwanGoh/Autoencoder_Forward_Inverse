@@ -19,7 +19,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                           Variational Autoencoder                           #
 ###############################################################################
 class VAEIAFFwdInv(tf.keras.Model):
-    def __init__(self, hyperp, run_options,
+    def __init__(self, hyperp, options,
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,
                  kernel_initializer_IAF, bias_initializer_IAF,
@@ -34,7 +34,7 @@ class VAEIAFFwdInv(tf.keras.Model):
                 [input_dimensions]
 
         #=== Define Other Attributes ===#
-        self.run_options = run_options
+        self.options = options
         self.positivity_constraint = positivity_constraint
         self.activations = ['not required'] +\
                 [hyperp.activation]*hyperp.num_hidden_layers_encoder +\
@@ -43,17 +43,17 @@ class VAEIAFFwdInv(tf.keras.Model):
                 ['linear']
 
         #=== Encoder, IAF Chain and Decoder ===#
-        self.encoder = Encoder(run_options,
+        self.encoder = Encoder(options,
                                hyperp.num_hidden_layers_encoder + 1,
                                self.architecture, self.activations,
                                kernel_initializer, bias_initializer)
-        self.IAF_chain_posterior = IAFChainPosterior(run_options.IAF_LSTM_update,
+        self.IAF_chain_posterior = IAFChainPosterior(options.IAF_LSTM_update,
                                                      hyperp.num_IAF_transforms,
                                                      hyperp.num_hidden_nodes_IAF,
                                                      hyperp.activation_IAF,
                                                      kernel_initializer_IAF, bias_initializer_IAF)
-        if self.run_options.model_aware == 1:
-            self.decoder = Decoder(run_options,
+        if self.options.model_aware == 1:
+            self.decoder = Decoder(options,
                                    hyperp.num_hidden_layers_encoder + 1,
                                    self.architecture, self.activations,
                                    kernel_initializer, bias_initializer,
@@ -66,9 +66,9 @@ class VAEIAFFwdInv(tf.keras.Model):
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
-        if self.run_options.model_augmented == 1:
+        if self.options.model_augmented == 1:
             return reparameterize(post_mean, log_post_var)
-        if self.run_options.model_aware == 1:
+        if self.options.model_aware == 1:
             z = self.reparameterize(post_mean, log_post_var)
             likelihood_mean = self.decoder(self.positivity_constraint(z))
             return likelihood_mean
@@ -77,14 +77,14 @@ class VAEIAFFwdInv(tf.keras.Model):
 #                                  Encoder                                    #
 ###############################################################################
 class Encoder(tf.keras.layers.Layer):
-    def __init__(self, run_options,
+    def __init__(self, options,
                  truncation_layer,
                  architecture,
                  activations,
                  kernel_initializer, bias_initializer):
         super(Encoder, self).__init__()
 
-        self.run_options = run_options
+        self.options = options
         self.truncation_layer = truncation_layer
         self.hidden_layers_encoder = []
 
@@ -99,7 +99,7 @@ class Encoder(tf.keras.layers.Layer):
 
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_encoder):
-            if self.run_options.resnet == 1\
+            if self.options.resnet == 1\
                     and 0 < hidden_layer[0] < self.truncation_layer-1:
                 X += hidden_layer[1](X)
             else:
@@ -111,7 +111,7 @@ class Encoder(tf.keras.layers.Layer):
 #                                  Decoder                                    #
 ###############################################################################
 class Decoder(tf.keras.layers.Layer):
-    def __init__(self, run_options,
+    def __init__(self, options,
                  truncation_layer,
                  architecture,
                  activations,
@@ -119,7 +119,7 @@ class Decoder(tf.keras.layers.Layer):
                  last_layer_index):
         super(Decoder, self).__init__()
 
-        self.run_options = run_options
+        self.options = options
         self.truncation_layer = truncation_layer
         self.last_layer_index = last_layer_index
         self.hidden_layers_decoder = []
@@ -135,7 +135,7 @@ class Decoder(tf.keras.layers.Layer):
 
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_decoder):
-            if self.run_options.resnet == 1\
+            if self.options.resnet == 1\
                     and self.truncation_layer < hidden_layer[0]+self.truncation_layer\
                             < self.last_layer_index-1:
                 X += hidden_layer[1](X)

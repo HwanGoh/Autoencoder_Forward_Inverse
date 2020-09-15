@@ -23,7 +23,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths,
+def optimize(hyperp, options, file_paths,
              NN, optimizer,
              loss_penalized_difference, relative_error,
              input_and_latent_train, input_and_latent_val, input_and_latent_test,
@@ -59,7 +59,7 @@ def optimize(hyperp, run_options, file_paths,
             batch_latent_pred_train = NN.encoder(batch_input_train)
             batch_input_pred_train = NN.decoder(batch_latent_train)
 
-            if run_options.standard_autoencoder == 1:
+            if options.standard_autoencoder == 1:
                 batch_loss_train_autoencoder = loss_penalized_difference(
                         batch_input_train, batch_input_pred_train_AE, 1)
                 batch_loss_train_encoder = loss_weighted_penalized_difference(
@@ -73,7 +73,7 @@ def optimize(hyperp, run_options, file_paths,
                         prior_mean, prior_covariance_cholesky_inverse,
                         hyperp.penalty_prior)
 
-            if run_options.reverse_autoencoder == 1:
+            if options.reverse_autoencoder == 1:
                 batch_loss_train_autoencoder = loss_weighted_penalized_difference(
                         batch_input_train, batch_input_pred_train_AE,
                         noise_regularization_matrix, 1)
@@ -106,7 +106,7 @@ def optimize(hyperp, run_options, file_paths,
         batch_latent_pred_val = NN.encoder(batch_input_val)
         batch_input_pred_val = NN.decoder(batch_latent_val)
 
-        if run_options.standard_autoencoder == 1:
+        if options.standard_autoencoder == 1:
             batch_loss_val_autoencoder = loss_penalized_difference(
                     batch_input_val, batch_input_pred_val_AE, 1)
             batch_loss_val_encoder = loss_weighted_penalized_difference(
@@ -120,7 +120,7 @@ def optimize(hyperp, run_options, file_paths,
                     prior_mean, prior_covariance_cholesky_inverse,
                     hyperp.penalty_prior)
 
-        if run_options.reverse_autoencoder == 1:
+        if options.reverse_autoencoder == 1:
             batch_loss_val_autoencoder = loss_weighted_penalized_difference(
                     batch_input_val, batch_input_pred_val_AE,
                     noise_regularization_matrix, 1)
@@ -150,7 +150,7 @@ def optimize(hyperp, run_options, file_paths,
         batch_latent_pred_test = NN.encoder(batch_input_test)
         batch_input_pred_test = NN.decoder(batch_latent_test)
 
-        if run_options.standard_autoencoder == 1:
+        if options.standard_autoencoder == 1:
             batch_loss_test_autoencoder = loss_penalized_difference(
                     batch_input_test, batch_input_pred_test_AE, 1)
             batch_loss_test_encoder = loss_weighted_penalized_difference(
@@ -164,7 +164,7 @@ def optimize(hyperp, run_options, file_paths,
                     prior_mean, prior_covariance_cholesky_inverse,
                     hyperp.penalty_prior)
 
-        if run_options.reverse_autoencoder == 1:
+        if options.reverse_autoencoder == 1:
             batch_loss_test_autoencoder = loss_weighted_penalized_difference(
                     batch_input_test, batch_input_pred_test_AE,
                     noise_regularization_matrix, 1)
@@ -203,7 +203,7 @@ def optimize(hyperp, run_options, file_paths,
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print('Case: ' + file_paths.case_name + '\n' + 'NN: ' + file_paths.NN_name + '\n')
-        print('GPU: ' + run_options.which_gpu + '\n')
+        print('GPU: ' + options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (batch_input_train, batch_latent_train) in input_and_latent_train.enumerate():

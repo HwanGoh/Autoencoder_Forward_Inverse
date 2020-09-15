@@ -10,14 +10,14 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                 Standard                                    #
 ###############################################################################
-def solve_PDE_standard(run_options, file_paths,
+def solve_PDE_standard(options, file_paths,
                        parameters,
                        obs_indices, nodes, elements,
                        boundary_matrix, load_vector):
 
     #=== Create Storage ===#
     stiffness_matrix = np.zeros(
-            (run_options.parameter_dimensions, run_options.parameter_dimensions))
+            (options.parameter_dimensions, options.parameter_dimensions))
 
     #=== Construct Matrices ===#
     for k in range(0, elements.shape[0]):
@@ -32,18 +32,18 @@ def solve_PDE_standard(run_options, file_paths,
 ###############################################################################
 #                                 Sensitivity                                 #
 ###############################################################################
-def construct_sensitivity(run_options, file_paths,
+def construct_sensitivity(options, file_paths,
                           parameters, state,
                           obs_indices, nodes, elements,
                           boundary_matrix, load_vector):
 
     #=== Create Storage ===#
     stiffness_matrix = np.zeros(
-            (run_options.parameter_dimensions, run_options.parameter_dimensions))
+            (options.parameter_dimensions, options.parameter_dimensions))
     partial_derivative_parameter = np.zeros(
-            (run_options.parameter_dimensions, run_options.parameter_dimensions))
+            (options.parameter_dimensions, options.parameter_dimensions))
     partial_derivative_matrix = np.zeros(
-            (run_options.parameter_dimensions, run_options.parameter_dimensions))
+            (options.parameter_dimensions, options.parameter_dimensions))
 
     #=== Construct Matrices ===#
     for k in range(0, elements.shape[0]):
@@ -59,6 +59,6 @@ def construct_sensitivity(run_options, file_paths,
     partial_derivative_matrix = np.repeat(
             np.matmul(
                 partial_derivative_parameter, np.expand_dims(state, axis = 1)),
-            repeats=run_options.parameter_dimensions, axis=1)
+            repeats=options.parameter_dimensions, axis=1)
 
     return -np.linalg.solve(stiffness_matrix + boundary_matrix, partial_derivative_matrix)

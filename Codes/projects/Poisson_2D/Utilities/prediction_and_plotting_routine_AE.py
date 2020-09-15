@@ -24,29 +24,29 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                              Plot Predictions                               #
 ###############################################################################
-def predict_and_plot(hyperp, run_options, file_paths,
+def predict_and_plot(hyperp, options, file_paths,
                      project_name, data_options, dataset_directory):
 
     #=== Load Observation Indices ===#
-    if run_options.obs_type == 'full':
-        obs_dimensions = run_options.parameter_dimensions
+    if options.obs_type == 'full':
+        obs_dimensions = options.parameter_dimensions
         obs_indices = []
-    if run_options.obs_type == 'obs':
-        obs_dimensions = run_options.num_obs_points
+    if options.obs_type == 'obs':
+        obs_dimensions = options.num_obs_points
         print('Loading Boundary Indices')
         df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
         obs_indices = df_obs_indices.to_numpy()
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if run_options.standard_autoencoder == 1:
-        input_dimensions = run_options.parameter_dimensions
+    if options.standard_autoencoder == 1:
+        input_dimensions = options.parameter_dimensions
         latent_dimensions = obs_dimensions
-    if run_options.reverse_autoencoder == 1:
+    if options.reverse_autoencoder == 1:
         input_dimensions = obs_dimensions
-        latent_dimensions = run_options.parameter_dimensions
+        latent_dimensions = options.parameter_dimensions
 
     #=== Load Trained Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, run_options,
+    NN = AutoencoderFwdInv(hyperp, options,
                            input_dimensions, latent_dimensions,
                            None, None,
                            positivity_constraint_log_exp)
@@ -56,28 +56,28 @@ def predict_and_plot(hyperp, run_options, file_paths,
     _, _,\
     parameter_test, state_obs_test\
     = load_train_and_test_data(file_paths,
-            hyperp.num_data_train, run_options.num_data_test,
-            run_options.parameter_dimensions, obs_dimensions,
+            hyperp.num_data_train, options.num_data_test,
+            options.parameter_dimensions, obs_dimensions,
             load_data_train_flag = 0,
             normalize_input_flag = 0, normalize_output_flag = 0)
 
     #=== Add Noise to Data ===#
-    # if run_options.add_noise == 1:
+    # if options.add_noise == 1:
     #     _, state_obs_test, noise_regularization_matrix\
-    #     = add_noise(run_options, _, state_obs_test, load_data_train_flag = 0)
+    #     = add_noise(options, _, state_obs_test, load_data_train_flag = 0)
     # else:
     #     noise_regularization_matrix = tf.eye(obs_dimensions)
 
     #=== Selecting Samples ===#
-    sample_number = 100
+    sample_number = 5
     parameter_test_sample = np.expand_dims(parameter_test[sample_number,:], 0)
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
     #=== Predictions ===#
-    if run_options.standard_autoencoder == 1:
+    if options.standard_autoencoder == 1:
         state_obs_pred_sample = NN.encoder(parameter_test_sample)
         parameter_pred_sample = NN.decoder(state_obs_test_sample)
-    if run_options.reverse_autoencoder == 1:
+    if options.reverse_autoencoder == 1:
         state_obs_pred_sample = NN.decoder(parameter_test_sample)
         parameter_pred_sample = NN.encoder(state_obs_test_sample)
     parameter_pred_sample = parameter_pred_sample.numpy().flatten()
@@ -92,14 +92,14 @@ def predict_and_plot(hyperp, run_options, file_paths,
 
     #=== Plot FEM Functions ===#
     plot_FEM_function(file_paths.figures_savefile_name_parameter_test,
-                     'True Parameter', 5.0,
+                     'True Parameter', 4.0,
                       nodes, elements,
                       parameter_test_sample)
     plot_FEM_function(file_paths.figures_savefile_name_parameter_pred,
-                      'Parameter Prediction', 5.0,
+                      'Parameter Prediction', 4.0,
                       nodes, elements,
                       parameter_pred_sample)
-    if run_options.obs_type == 'full':
+    if options.obs_type == 'full':
         plot_FEM_function(file_paths.figures_savefile_name_state_test,
                           'True State', 2.6,
                           nodes, elements,
@@ -114,7 +114,7 @@ def predict_and_plot(hyperp, run_options, file_paths,
 ###############################################################################
 #                                Plot Metrics                                 #
 ###############################################################################
-def plot_and_save_metrics(hyper_p, run_options, file_paths):
+def plot_and_save_metrics(hyper_p, options, file_paths):
     print('================================')
     print('        Plotting Metrics        ')
     print('================================')
@@ -235,7 +235,7 @@ def plot_and_save_metrics(hyper_p, run_options, file_paths):
     plt.savefig(figures_savefile_name)
     plt.close(fig_gradient_norm)
 
-    if run_options.model_augmented == 1:
+    if options.model_augmented == 1:
         #=== Relative Error Decoder ===#
         fig_loss = plt.figure()
         x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)

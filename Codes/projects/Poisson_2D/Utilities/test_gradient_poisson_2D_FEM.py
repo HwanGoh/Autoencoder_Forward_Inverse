@@ -12,11 +12,11 @@ from loss_and_relative_errors import loss_penalized_difference
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def test_gradient(hyperp, run_options, file_paths):
+def test_gradient(hyperp, options, file_paths):
 ###############################################################################
 #                        Construct Directional Derivative                     #
 ###############################################################################
-    if run_options.reverse_autoencoder == 1:
+    if options.reverse_autoencoder == 1:
         print("Gradient test not coded for reverse autoencoder")
         return 0
 
@@ -24,7 +24,7 @@ def test_gradient(hyperp, run_options, file_paths):
     #   Load Prior   #
     ##################
     prior_mean, _, prior_covariance_cholesky, _\
-    = load_prior(run_options, file_paths,
+    = load_prior(options, file_paths,
                  load_mean = 1,
                  load_covariance = 0,
                  load_covariance_cholesky = 1, load_covariance_cholesky_inverse = 0)
@@ -34,30 +34,30 @@ def test_gradient(hyperp, run_options, file_paths):
     #   Generate Data   #
     #####################
     #=== Draw True Parameter ===#
-    normal_draw = np.random.normal(0, 1, run_options.parameter_dimensions)
+    normal_draw = np.random.normal(0, 1, options.parameter_dimensions)
     parameter_true = np.matmul(prior_covariance_cholesky, normal_draw) + prior_mean.T
     parameter_true = positivity_constraint_log_exp(parameter_true)
     parameter_true = tf.cast(parameter_true, tf.float32)
     parameter_true = tf.expand_dims(parameter_true, axis = 0)
 
     #=== Load Observation Indices ===#
-    if run_options.obs_type == 'full':
-        obs_dimensions = run_options.parameter_dimensions
+    if options.obs_type == 'full':
+        obs_dimensions = options.parameter_dimensions
         obs_indices = []
-    if run_options.obs_type == 'obs':
-        obs_dimensions = run_options.num_obs_points
+    if options.obs_type == 'obs':
+        obs_dimensions = options.num_obs_points
         print('Loading Boundary Indices')
         df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
         obs_indices = df_obs_indices.to_numpy()
 
     #=== Load FEM Matrices ===#
     _, prestiffness, boundary_matrix, load_vector =\
-            load_FEM_matrices_tf(run_options, file_paths,
+            load_FEM_matrices_tf(options, file_paths,
                                  load_premass = 0,
                                  load_prestiffness = 1)
 
     #=== Construct Forward Model ===#
-    forward_model = FEMPrematricesPoisson2D(run_options, file_paths,
+    forward_model = FEMPrematricesPoisson2D(options, file_paths,
                                             obs_indices,
                                             prestiffness,
                                             boundary_matrix, load_vector)
@@ -69,17 +69,17 @@ def test_gradient(hyperp, run_options, file_paths):
     #   Compute Gradient   #
     ########################
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if run_options.standard_autoencoder == 1:
-        input_dimensions = run_options.parameter_dimensions
+    if options.standard_autoencoder == 1:
+        input_dimensions = options.parameter_dimensions
         latent_dimensions = obs_dimensions
-    if run_options.reverse_autoencoder == 1:
+    if options.reverse_autoencoder == 1:
         input_dimensions = obs_dimensions
-        latent_dimensions = run_options.parameter_dimensions
+        latent_dimensions = options.parameter_dimensions
 
     #=== Form Neural Network ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
-    NN = AutoencoderFwdInv(hyperp, run_options,
+    NN = AutoencoderFwdInv(hyperp, options,
                            input_dimensions, latent_dimensions,
                            kernel_initializer, bias_initializer,
                            positivity_constraint_log_exp)

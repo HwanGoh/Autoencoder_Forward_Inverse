@@ -28,7 +28,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, run_options, file_paths,
+def optimize(hyperp, options, file_paths,
         NN, optimizer,
         obs_indices,
         loss_penalized_difference, loss_forward_model,
@@ -39,14 +39,14 @@ def optimize(hyperp, run_options, file_paths,
 
     #=== Generate Dolfin Function Space and Mesh ===# These are in the scope and used below in the
                                                     # Fenics forward function and gradient
-    if run_options.fin_dimensions_2D == 1:
+    if options.fin_dimensions_2D == 1:
         V, mesh = get_space_2D(40)
-    if run_options.fin_dimensions_3D == 1:
+    if options.fin_dimensions_3D == 1:
         V, mesh = get_space_3D(40)
     solver = Fin(V)
     parameter_pred_dl = dl.Function(V)
     print(V.dim())
-    if run_options.data_thermal_fin_nine == 1:
+    if options.data_thermal_fin_nine == 1:
         B_obs = solver.observation_operator()
     else:
         B_obs = np.zeros((len(obs_indices), V.dim()), dtype=np.float32)
@@ -97,7 +97,7 @@ def optimize(hyperp, run_options, file_paths,
     #@tf.function
     def train_step(batch_input_train, batch_latent_train):
         with tf.GradientTape() as tape:
-            if run_options.standard_autoencoder == 1:
+            if options.standard_autoencoder == 1:
                 batch_input_pred_train_AE = NN(tf.math.log(batch_input_train))
                 batch_latent_pred_train = NN.encoder(tf.math.log(batch_input_train))
                 batch_input_pred_train = NN.decoder(batch_latent_train)
@@ -109,12 +109,12 @@ def optimize(hyperp, run_options, file_paths,
                 batch_loss_train_decoder = loss_penalized_difference(
                         batch_input_train, batch_input_pred_train, hyperp.penalty_decoder)
                 batch_loss_train_forward_model = loss_forward_model(
-                        hyperp, run_options,
+                        hyperp, options,
                         fenics_forward,
                         batch_latent_train, tf.math.exp(batch_input_pred_train_AE),
                         hyperp.penalty_aug)
 
-            if run_options.reverse_autoencoder == 1:
+            if options.reverse_autoencoder == 1:
                 batch_state_obs_train = batch_input_train
                 batch_parameter_pred = NN.encoder(batch_input_train)
 
@@ -132,7 +132,7 @@ def optimize(hyperp, run_options, file_paths,
     #=== Validation Step ===#
     #@tf.function
     def val_step(batch_input_val, batch_latent_val):
-        if run_options.standard_autoencoder == 1:
+        if options.standard_autoencoder == 1:
             batch_input_pred_val_AE = NN(tf.math.log(batch_input_val))
             batch_latent_pred_val = NN.encoder(tf.math.log(batch_input_val))
             batch_input_pred_val = NN.decoder(batch_latent_val)
@@ -144,11 +144,11 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_val_decoder = loss_penalized_difference(
                     batch_input_val, batch_input_pred_val, hyperp.penalty_decoder)
             batch_loss_val_forward_model = loss_forward_model(
-                    hyperp, run_options,
+                    hyperp, options,
                     fenics_forward, batch_latent_val, tf.math.exp(batch_input_pred_val_AE),
                     hyperp.penalty_aug)
 
-        if run_options.reverse_autoencoder == 1:
+        if options.reverse_autoencoder == 1:
             batch_state_obs_val = batch_input_val
             batch_parameter_pred = NN.encoder(batch_input_val)
 
@@ -163,7 +163,7 @@ def optimize(hyperp, run_options, file_paths,
     #=== Test Step ===#
     #@tf.function
     def test_step(batch_input_test, batch_latent_test):
-        if run_options.standard_autoencoder == 1:
+        if options.standard_autoencoder == 1:
             batch_input_pred_test_AE = NN(tf.math.log(batch_input_test))
             batch_latent_pred_test = NN.encoder(tf.math.log(batch_input_test))
             batch_input_pred_test_decoder = NN.decoder(batch_latent_test)
@@ -175,7 +175,7 @@ def optimize(hyperp, run_options, file_paths,
             batch_loss_test_decoder = loss_penalized_difference(
                     batch_input_test, batch_input_pred_test_decoder, hyperp.penalty_decoder)
             batch_loss_test_forward_model = loss_forward_model(
-                    hyperp, run_options,
+                    hyperp, options,
                     fenics_forward, batch_latent_test, tf.math.exp(batch_input_pred_test_AE),
                     hyperp.penalty_aug)
 
@@ -186,7 +186,7 @@ def optimize(hyperp, run_options, file_paths,
             metrics.mean_relative_error_input_decoder(
                     relative_error(batch_input_test, batch_input_pred_test_decoder))
 
-        if run_options.reverse_autoencoder == 1:
+        if options.reverse_autoencoder == 1:
             batch_state_obs_test = batch_input_test
             batch_parameter_pred = NN.encoder(batch_input_test)
 
@@ -207,7 +207,7 @@ def optimize(hyperp, run_options, file_paths,
         print('            Epoch %d            ' %(epoch))
         print('================================')
         print('Case: ' + file_paths.case_name + '\n' + 'NN: ' + file_paths.NN_name + '\n')
-        print('GPU: ' + run_options.which_gpu + '\n')
+        print('GPU: ' + options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
         for batch_num, (batch_input_train, batch_latent_train) in input_and_latent_train.enumerate():

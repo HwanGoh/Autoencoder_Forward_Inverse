@@ -29,7 +29,7 @@ def reg_prior(parameter, prior_mean, prior_covariance_cholesky_inverse, penalty)
     else:
         return 0
 
-def loss_forward_model(hyperp, run_options,
+def loss_forward_model(hyperp, options,
                        forward_model,
                        state_obs_true, parameter_pred,
                        penalty):
