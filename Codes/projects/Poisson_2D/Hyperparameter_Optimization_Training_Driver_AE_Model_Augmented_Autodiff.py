@@ -13,96 +13,39 @@ import shutil
 import numpy as np
 import pandas as pd
 
-# Routine for outputting results
+import json
+from attrdict import AttrDict
+
+# Import routine for outputting results
 from hyperparameter_optimization_output import output_results
 
 # Import FilePaths class and training routine
 from Utilities.file_paths_AE import FilePathsHyperparameterOptimization
-from\
-Utilities.hyperparameter_optimization_training_routine_custom_AE_model_aware\
-        import trainer_custom
+from Utilities.training_routine_custom_AE_model_augmented_autodiff import\
+        trainer_custom
 
 # Import skopt code
 from skopt.space import Real, Integer, Categorical
+from skopt.utils import use_named_args
+from skopt import gp_minimize
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
-#                       HyperParameters and RunOptions                        #
+#                                 Add Options                                 #
 ###############################################################################
-class Hyperparameters:
-    num_hidden_layers_encoder = 5
-    num_hidden_layers_decoder = 2
-    num_hidden_nodes_encoder  = 500
-    num_hidden_nodes_decoder  = 500
-    activation        = 'relu'
-    penalty_encoder   = 50
-    penalty_decoder   = 0
-    penalty_aug       = 50
-    penalty_prior     = 0.007
-    num_data_train    = 500
-    batch_size        = 100
-    num_epochs        = 2
+def add_options(options):
 
-class RunOptions:
     #=== Use Distributed Strategy ===#
-    distributed_training = 0
+    options.distributed_training = 0
 
     #=== Which GPUs to Use for Distributed Strategy ===#
-    dist_which_gpus = '0,1,2,3'
+    options.dist_which_gpus = '0,1,2,3'
 
     #=== Which Single GPU to Use ===#
-    which_gpu = '2'
+    options.which_gpu = '2'
 
-    #=== Autoencoder Type ===#
-    standard_autoencoder = 1
-    reverse_autoencoder = 0
-
-    #=== Use Resnet ===#
-    resnet = 1
-
-    #=== Data Set Size ===#
-    num_data_train_load = 5000
-    num_data_test_load = 200
-    num_data_test = 200
-
-    #=== Data Properties ===#
-    parameter_dimensions = 225
-    obs_type = 'obs'
-    num_obs_points = 43
-
-    #=== Noise Properties ===#
-    add_noise = 1
-    noise_level = 0.05
-    num_noisy_obs = 20
-    num_noisy_obs_unregularized = 0
-
-    #=== Autocorrelation Prior Properties ===#
-    prior_type_AC_train = 1
-    prior_mean_AC_train = 2
-    prior_variance_AC_train = 2.0
-    prior_corr_AC_train = 0.5
-
-    prior_type_AC_test = 1
-    prior_mean_AC_test = 2
-    prior_variance_AC_test = 2.0
-    prior_corr_AC_test = 0.5
-
-    #=== Matern Prior Properties ===#
-    prior_type_matern_train = 0
-    prior_kern_type_train = 'm32'
-    prior_cov_length_train = 0.5
-
-    prior_type_matern_test = 0
-    prior_kern_type_test = 'm32'
-    prior_cov_length_test = 0.5
-
-    #=== PDE Properties ===#
-    boundary_matrix_constant = 0.5
-    load_vector_constant = -1
-
-    #=== Random Seed ===#
-    random_seed = 4
+    return options
 
 ###############################################################################
 #                                  Driver                                     #
@@ -147,13 +90,35 @@ if __name__ == "__main__":
                                    autoencoder_loss, project_name,
                                    data_options, dataset_directory)
 
-    ################
-    #   Training   #
-    ################
-    hyperp_opt_result = trainer_custom(hyperp, run_options, file_paths,
-                                       n_calls, space,
-                                       autoencoder_loss, project_name,
-                                       data_options, dataset_directory)
+    ############################
+    #   Objective Functional   #
+    ############################
+    @use_named_args(space)
+    def objective_functional(**hyperp_of_interest_dict):
+        #=== Assign Hyperparameters of Interest ===#
+        for key, val in hyperp_of_interest_dict.items():
+            hyperp[key] = val
+
+        #=== Update File Paths with New Hyperparameters ===#
+        file_paths = FilePathsHyperparameterOptimization(hyperp, options,
+                                                     autoencoder_loss, project_name,
+                                                     data_options, dataset_directory)
+        #=== Training Routine ===#
+        trainer_custom(hyperp, options, file_paths)
+
+        #=== Loading Metrics For Output ===#
+        print('Loading Metrics')
+        df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
+        array_metrics = df_metrics.to_numpy()
+        storage_array_loss_val = array_metrics[:,5]
+
+        return storage_array_loss_val[-1]
+
+    ################################
+    #   Optimize Hyperparameters   #
+    ################################
+    hyperp_opt_result = gp_minimize(objective_functional, space,
+                                    n_calls=n_calls, random_state=None)
 
     ######################
     #   Output Results   #

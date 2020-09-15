@@ -5,10 +5,9 @@
     "num_hidden_nodes_decoder"  : 500,
     "activation"                : "relu",
 
-    "penalty_encoder"           : 1000,
-    "penalty_decoder"           : 10,
-    "penalty_aug"               : 1000,
-    "penalty_prior"             : 0.001,
+    "penalty_KLD_incr"          : 0.001,
+    "penalty_KLD_rate"          : 10,
+    "penalty_post_mean"         : 1,
 
     "num_data_train"            : 5000,
     "batch_size"                : 100,

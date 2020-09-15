@@ -52,8 +52,8 @@ def prior_string_matern(prior_type, kern_type, cov_length):
 ###############################################################################
 class FilePaths():
     def __init__(self, hyperp, options,
-            autoencoder_loss, project_name,
-            data_options, dataset_directory):
+                 project_name,
+                 data_options, dataset_directory):
 
         #################
         #   File Name   #
@@ -103,17 +103,21 @@ class FilePaths():
             autoencoder_type = 'AE_std_'
         if options.reverse_autoencoder == 1:
             autoencoder_type = 'AE_rev_'
+        if options.model_aware == 1:
+            forward_model_type = 'maware_'
+        if options.model_augmented == 1:
+            forward_model_type = 'maug_'
 
         #=== Penalty Strings ===#
         penalty_encoder_string = value_to_string(hyperp.penalty_encoder)
         penalty_decoder_string = value_to_string(hyperp.penalty_decoder)
-        if autoencoder_loss == 'maug_':
+        if options.model_augmented == 1:
             penalty_aug_string = value_to_string(hyperp.penalty_aug)
         penalty_prior_string = value_to_string(hyperp.penalty_prior)
 
         #=== Neural Network String ===#
-        if autoencoder_loss == 'maware_':
-            self.NN_name = autoencoder_type + autoencoder_loss + resnet +\
+        if options.model_aware == 1:
+            self.NN_name = autoencoder_type + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
@@ -122,8 +126,8 @@ class FilePaths():
                         penalty_prior_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-        if autoencoder_loss == 'maug_':
-            self.NN_name = autoencoder_type + autoencoder_loss + resnet +\
+        if options.model_augmented == 1:
+            self.NN_name = autoencoder_type + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
