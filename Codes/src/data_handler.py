@@ -20,7 +20,6 @@ class DataHandler:
         self.num_data_test = options.num_data_test
 
         self.noise_level = options.noise_level
-
         self.num_obs_points = options.num_obs_points
         self.num_noisy_obs = options.num_noisy_obs
         self.num_noisy_obs_unregularized = options.num_noisy_obs_unregularized
@@ -75,8 +74,8 @@ class DataHandler:
         self.output_test = self.add_noise(self.output_test, self.output_test_max)
 
     def add_noise(self, data, data_max):
-        np.random.seed(self.random_seed)
         #=== Add Noise ===#
+        np.random.seed(self.random_seed)
         noisy_obs = np.random.choice(
                 range(0, data.shape[1]), self.num_noisy_obs , replace=False)
         non_noisy_obs = np.setdiff1d(range(0, self.num_obs_points), noisy_obs)
@@ -97,6 +96,7 @@ class DataHandler:
 
     def construct_noise_regularization_matrix(self, data, data_max):
         #=== Noise Regularization Matrix ===#
+        np.random.seed(self.random_seed)
         noisy_obs = np.random.choice(
                 range(0, data.shape[1]), self.num_noisy_obs , replace=False)
         non_noisy_obs = np.setdiff1d(range(0, self.num_obs_points), noisy_obs)
