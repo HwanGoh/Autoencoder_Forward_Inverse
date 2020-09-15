@@ -3,8 +3,7 @@ import pandas as pd
 
 from get_prior import load_prior
 
-def load_prior_dict(hyperp, options, file_paths):
-
+def construct_prior_dict(hyperp, options, file_paths):
     #=== Load Objects ===#
     prior_mean, _, _,\
     prior_covariance_cholesky_inverse\
