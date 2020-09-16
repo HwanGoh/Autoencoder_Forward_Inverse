@@ -27,7 +27,7 @@ def construct_data_dict(hyperp, options, file_paths):
         data.add_noise_output_test()
         noise_regularization_matrix = data.construct_noise_regularization_matrix_train()
     else:
-        noise_regularization_matrix = np.eye(obs_dimensions)
+        noise_regularization_matrix = np.eye(obs_dimensions).astype(np.float_32)
 
     #=== Construct Dictionary ===#
     data_dict = {}

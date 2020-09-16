@@ -18,7 +18,7 @@ class AEFwdInv(tf.keras.Model):
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,
                  positivity_constraint):
-        super(AutoencoderFwdInv, self).__init__()
+        super(AEFwdInv, self).__init__()
 
         #=== Define Architecture and Create Layer Storage ===#
         self.architecture = [input_dimensions] +\

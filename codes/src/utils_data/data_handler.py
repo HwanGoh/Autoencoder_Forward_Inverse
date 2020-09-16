@@ -2,7 +2,6 @@ import time
 
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 
 class DataHandler:
     def __init__(self,hyperp, options, file_paths,
@@ -106,8 +105,7 @@ class DataHandler:
             diagonal[non_noisy_obs[0:self.num_noisy_obs_unregularized]] =\
                     (1/self.dampening_scalar)*\
                     diagonal[non_noisy_obs[0:self.num_noisy_obs_unregularized]]
-        noise_regularization_matrix = tf.linalg.diag(diagonal)
-        noise_regularization_matrix = tf.cast(noise_regularization_matrix, dtype = tf.float32)
+        noise_regularization_matrix = np.diag(diagonal).astype(np.float32)
 
         return noise_regularization_matrix
 
