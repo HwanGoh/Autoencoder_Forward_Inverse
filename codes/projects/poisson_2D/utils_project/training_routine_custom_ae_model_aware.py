@@ -4,14 +4,14 @@ import sys
 import tensorflow as tf
 
 # Import src code
-from form_train_val_test import form_train_val_test_tf_batches
-from NN_AE_Fwd_Inv import AutoencoderFwdInv
-from loss_and_relative_errors import\
+from utils_training.form_train_val_test import form_train_val_test_tf_batches
+from neural_networks.nn_ae_fwd_inv import AutoencoderFwdInv
+from utils_training.loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
         relative_error, reg_prior
-from optimize_custom_AE_model_aware import optimize
-from optimize_distributed_custom_AE_model_aware import optimize_distributed
-from positivity_constraints import positivity_constraint_log_exp
+from optimize.optimize_custom_ae_model_aware import optimize
+from optimize.optimize_distributed_custom_ae_model_aware import optimize_distributed
+from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

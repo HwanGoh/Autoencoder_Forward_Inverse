@@ -15,7 +15,7 @@ import time
 import tensorflow as tf
 import numpy as np
 
-from metrics_distributed_AE import Metrics
+from utils_training.metrics_distributed_ae import Metrics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

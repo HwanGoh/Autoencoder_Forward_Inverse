@@ -16,7 +16,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
-from metrics_AE import Metrics
+from utils_training.metrics_ae import Metrics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

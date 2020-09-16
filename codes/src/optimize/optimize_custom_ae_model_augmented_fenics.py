@@ -18,7 +18,7 @@ dl.set_log_level(30)
 import numpy as np
 import pandas as pd
 
-from metrics_AE_model_augmented import Metrics
+from utils_training.metrics_ae_model_augmented import Metrics
 
 from Thermal_Fin_Heat_Simulator.Utilities.forward_solve import Fin
 from Thermal_Fin_Heat_Simulator.Utilities.thermal_fin import get_space_2D, get_space_3D

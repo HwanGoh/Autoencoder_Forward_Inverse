@@ -6,16 +6,17 @@ Created on Thu Nov 14 21:41:12 2019
 """
 import os
 import sys
-sys.path.insert(0, os.path.realpath('../../src'))
+sys.path.insert(0, os.path.realpath('../../../src'))
+sys.path.insert(0, os.path.realpath('..'))
 
 import yaml
 from attrdict import AttrDict
 
 # Import Project Utilities
-from project_utils.file_paths_ae import FilePathsTraining
-from project_utils.construct_data_dict import construct_data_dict
-from project_utils.construct_prior_dict import construct_prior_dict
-from project_utils.training_routine_custom_ae_model_aware import trainer_custom
+from utils_project.file_paths_ae import FilePathsTraining
+from utils_project.construct_data_dict import construct_data_dict
+from utils_project.construct_prior_dict import construct_prior_dict
+from utils_project.training_routine_custom_ae_model_aware import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -41,14 +42,14 @@ def add_options(options):
 if __name__ == "__main__":
 
     #=== Hyperparameters ===#
-    with open('config_files/hyperparameters_ae.yaml') as f:
+    with open('../config_files/hyperparameters_ae.yaml') as f:
         hyperp = yaml.load(f, Loader=yaml.FullLoader)
     if len(sys.argv) > 1:
         hyperp = command_line_json_string_to_dict(sys.argv, hyperp)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#
-    with open('config_files/options_ae.yaml') as f:
+    with open('../config_files/options_ae.yaml') as f:
         options = yaml.load(f, Loader=yaml.FullLoader)
     options = AttrDict(options)
     options = add_options(options)
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     #=== File Paths ===#
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(options.parameter_dimensions)
-    dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
+    dataset_directory = '../../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
             'n%d/'%(options.parameter_dimensions)
     file_paths = FilePathsTraining(hyperp, options,
                                    project_name,

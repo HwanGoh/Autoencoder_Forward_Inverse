@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from prior_handler import PriorHandler
+from utils_data.prior_handler import PriorHandler
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
