@@ -114,7 +114,7 @@ def optimize_distributed(dist_strategy,
                         unscaled_replica_batch_loss_train_autoencoder +\
                         unscaled_replica_batch_loss_train_encoder +\
                         unscaled_replica_batch_loss_train_decoder +\
-                        unscaled_replica_reg_train_prior
+                        unscaled_replica_batch_reg_train_prior
                 scaled_replica_batch_loss_train = tf.reduce_sum(
                         unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
 
@@ -179,7 +179,7 @@ def optimize_distributed(dist_strategy,
                         unscaled_replica_batch_loss_val_autoencoder +\
                         unscaled_replica_batch_loss_val_encoder +\
                         unscaled_replica_batch_loss_val_decoder +\
-                        unscaled_replica_reg_val_prior
+                        unscaled_replica_batch_reg_val_prior
                 scaled_replica_batch_loss_val = tf.reduce_sum(
                         unscaled_replica_batch_loss_val * (1./hyperp.batch_size))
 
@@ -240,7 +240,7 @@ def optimize_distributed(dist_strategy,
                         unscaled_replica_batch_loss_test_autoencoder +\
                         unscaled_replica_batch_loss_test_encoder +\
                         unscaled_replica_batch_loss_test_decoder +\
-                        unscaled_replica_reg_test_prior
+                        unscaled_replica_batch_reg_test_prior
                 scaled_replica_batch_loss_test = tf.reduce_sum(
                         unscaled_replica_batch_loss_test * (1./hyperp.batch_size))
 
@@ -254,7 +254,7 @@ def optimize_distributed(dist_strategy,
             metrics.mean_relative_error_latent_encoder(
                     relative_error(batch_latent_test, batch_latent_pred_test))
             metrics.mean_relative_error_data_decoder(
-                    relative_error(batch_input_test, batch_input_pred_test_decoder))
+                    relative_error(batch_input_test, batch_input_pred_test))
 
         @tf.function
         def dist_test_step(batch_input_test, batch_latent_test):
