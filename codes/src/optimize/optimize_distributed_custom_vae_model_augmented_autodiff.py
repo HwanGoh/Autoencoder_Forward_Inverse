@@ -16,6 +16,7 @@ import tensorflow as tf
 import numpy as np
 
 from utils_training.metrics_distributed_vae import Metrics
+from utils_config.config_io import dump_attrdict_as_yaml
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -231,8 +232,9 @@ def optimize_distributed(dist_strategy,
         if epoch % 5 == 0:
             NN.save_weights(file_paths.NN_savefile_name)
             metrics.save_metrics(file_paths)
+            dump_attrdict_as_yaml(hyperp, file_paths.NN_savefile_directory, 'hyperp')
+            dump_attrdict_as_yaml(options, file_paths.NN_savefile_directory, 'options')
             print('Current Model and Metrics Saved')
-
 
         #=== Increase KLD Penalty ===#
         if epoch %hyperp.penalty_KLD_rate == 0 and epoch != 0:
@@ -241,4 +243,6 @@ def optimize_distributed(dist_strategy,
     #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)
     metrics.save_metrics(file_paths)
+    dump_attrdict_as_yaml(hyperp, file_paths.NN_savefile_directory, 'hyperp')
+    dump_attrdict_as_yaml(options, file_paths.NN_savefile_directory, 'options')
     print('Final Model Saved')

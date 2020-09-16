@@ -1,4 +1,5 @@
 import os
+import yaml
 import json
 import warnings
 
@@ -27,3 +28,12 @@ def command_line_json_string_to_dict(args_list, hyperp):
                 f'Key "{key}" is not in hyper_p and has been added. Make sure this is correct.')
         hyperp[key] = value
     return hyperp
+
+def dump_attrdict_as_yaml(attrdict, filepath, filename):
+
+    dump_dict = {}
+    for key, value in attrdict.items():
+        dump_dict[key] = value
+
+    with open(filepath + '/' + filename + '.yaml', 'w') as f:
+        yaml.dump(dump_dict, f)

@@ -19,6 +19,9 @@ from utils_project.construct_data_dict import construct_data_dict
 from utils_project.construct_prior_dict import construct_prior_dict
 from utils_project.training_routine_custom_ae_model_aware import trainer_custom
 
+# Import src code
+from utils_config.config_io import command_line_json_string_to_dict
+
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################

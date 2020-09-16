@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 
 from utils_training.metrics_ae import Metrics
+from utils_config.config_io import dump_attrdict_as_yaml
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -270,6 +271,8 @@ def optimize(hyperp, options, file_paths,
         if epoch % 100 == 0:
             NN.save_weights(file_paths.NN_savefile_name)
             metrics.save_metrics(file_paths)
+            dump_attrdict_as_yaml(hyperp, file_paths.NN_savefile_directory, 'hyperp')
+            dump_attrdict_as_yaml(options, file_paths.NN_savefile_directory, 'options')
             print('Current Model and Metrics Saved')
 
         #=== Gradient Norm Termination Condition ===#
@@ -280,5 +283,6 @@ def optimize(hyperp, options, file_paths,
     #=== Save Final Model ===#
     NN.save_weights(file_paths.NN_savefile_name)
     metrics.save_metrics(file_paths)
+    dump_attrdict_as_yaml(hyperp, file_paths.NN_savefile_directory, 'hyperp')
+    dump_attrdict_as_yaml(options, file_paths.NN_savefile_directory, 'options')
     print('Final Model Saved')
-
