@@ -20,7 +20,7 @@ class FLAGS:
 ###############################################################################
 #                            Schedule and Run                                 #
 ###############################################################################
-def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
+def schedule_runs(scenarios, nprocs, comm):
 
     pynvml.nvmlInit()
 
@@ -48,12 +48,12 @@ def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
                 available_processes.append(s.source)
 
         # assign training to process
-        available_gpus = available_GPUs(total_gpus) # check which GPUs have available memory or computation space
+        available_gpus = available_GPUs() # check which GPUs have available memory or computation space
 
         if len(available_gpus) > 0 and len(available_processes) > 0 and len(scenarios) > 0:
             curr_process = available_processes.pop(0) # rank of the process to send to
             curr_scenario = scenarios.pop(0)
-            curr_scenario.gpu = str(available_gpus.pop(0)) # which GPU we want to run the process on. Note that the extra "gpu" field is created here as well
+            curr_scenario.['gpu'] = str(available_gpus.pop(0)) # which GPU we want to run the process on. Note that the extra "gpu" field is created here as well
 
             print('Beginning Training of NN:')
             print()
@@ -68,14 +68,19 @@ def schedule_runs(scenarios, nprocs, comm, total_gpus = 4):
                 proc = available_processes.pop(0) # removes all leftover processes in the event that all scenarios are complete
                 comm.send([], proc, flags.EXIT)
 
-        sleep(210) # Tensorflow environment takes a while to fill up the GPU. This sleep command gives tensorflow time to fill up the GPU before checking if its available
+        sleep(60) # Tensorflow environment takes a while to fill up the GPU. This sleep command gives tensorflow time to fill up the GPU before checking if its available
 
-def available_GPUs(total_gpus):
+def available_GPUs():
     available_gpus = []
-    for i in range(total_gpus):
+    for i in range(pynvml.nvmlDeviceGetCount()):
         handle  = pynvml.nvmlDeviceGetHandleByIndex(i)
         res     = pynvml.nvmlDeviceGetUtilizationRates(handle)
         mem_res = pynvml.nvmlDeviceGetMemoryInfo(handle)
-        if res.gpu < 30 and (mem_res.used / mem_res.total *100) < 30: # Jon heuristically defines what it means for a GPU to be available
+
+        # Sometimes we want multiple processes on one GPU. This heuristic gives
+        # an indication on whether the GPU has memory to support another process.
+        # Adjust memory_threshold higher if less memory is needed for new process.
+        memory_threshold = 30
+        if res.gpu < memory_threshold and (mem_res.used / mem_res.total *100) < memory_threshold:
             available_gpus.append(i)
     return available_gpus

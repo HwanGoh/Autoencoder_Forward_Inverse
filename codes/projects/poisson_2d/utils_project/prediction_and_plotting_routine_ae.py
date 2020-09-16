@@ -6,18 +6,24 @@ Created on Sat Oct 26 21:17:53 2019
 @author: hwan
 """
 import sys
-sys.path.append('../../../..')
+sys.path.append('../../../../..')
 
 import numpy as np
 import pandas as pd
-
-from get_train_and_test_data import load_train_and_test_data
-from NN_AE_Fwd_Inv import AutoencoderFwdInv
-from positivity_constraints import positivity_constraint_log_exp
-from Finite_Element_Method.src.load_mesh import load_mesh
-from Utilities.plot_FEM_function import plot_FEM_function
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
+
+# Import src code
+from utils_data.data_handler import DataHandler
+from neural_networks.nn_ae_fwd_inv import AutoencoderFwdInv
+from utils_training.loss_and_relative_errors import\
+        loss_penalized_difference, loss_weighted_penalized_difference,\
+        relative_error, reg_prior
+from utils_misc.positivity_constraints import positivity_constraint_log_exp
+
+# Import FEM Code
+from Finite_Element_Method.src.load_mesh import load_mesh
+from Utilities.plot_FEM_function import plot_FEM_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -30,12 +36,8 @@ def predict_and_plot(hyperp, options, file_paths,
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
         obs_dimensions = options.parameter_dimensions
-        obs_indices = []
     if options.obs_type == 'obs':
         obs_dimensions = options.num_obs_points
-        print('Loading Boundary Indices')
-        df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
-        obs_indices = df_obs_indices.to_numpy()
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     if options.standard_autoencoder == 1:
@@ -45,28 +47,19 @@ def predict_and_plot(hyperp, options, file_paths,
         input_dimensions = obs_dimensions
         latent_dimensions = options.parameter_dimensions
 
+    #=== Prepare Data ===#
+    data = DataHandler(hyperp, options, file_paths,
+                       options.parameter_dimensions, obs_dimensions)
+    data.load_data_test()
+    parameter_test = data.input_test
+    state_obs_test = data.output_test
+
     #=== Load Trained Neural Network ===#
     NN = AutoencoderFwdInv(hyperp, options,
                            input_dimensions, latent_dimensions,
                            None, None,
                            positivity_constraint_log_exp)
     NN.load_weights(file_paths.NN_savefile_name)
-
-    #=== Load Data ===#
-    _, _,\
-    parameter_test, state_obs_test\
-    = load_train_and_test_data(file_paths,
-            hyperp.num_data_train, options.num_data_test,
-            options.parameter_dimensions, obs_dimensions,
-            load_data_train_flag = 0,
-            normalize_input_flag = 0, normalize_output_flag = 0)
-
-    #=== Add Noise to Data ===#
-    # if options.add_noise == 1:
-    #     _, state_obs_test, noise_regularization_matrix\
-    #     = add_noise(options, _, state_obs_test, load_data_train_flag = 0)
-    # else:
-    #     noise_regularization_matrix = tf.eye(obs_dimensions)
 
     #=== Selecting Samples ===#
     sample_number = 5

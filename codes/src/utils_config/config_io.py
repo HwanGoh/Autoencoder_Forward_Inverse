@@ -25,7 +25,7 @@ def command_line_json_string_to_dict(args_list, hyperp):
     for key, value in command_line_arguments.items():
         if key not in hyperp:
             warnings.warn(
-                f'Key "{key}" is not in hyper_p and has been added. Make sure this is correct.')
+                f'Key "{key}" is not in hyperp and has been added. Make sure this is correct.')
         hyperp[key] = value
     return hyperp
 

@@ -6,16 +6,19 @@ Created on Thu Nov 14 21:41:12 2019
 """
 import os
 import sys
-sys.path.insert(0, os.path.realpath('../../src'))
+sys.path.insert(0, os.path.realpath('../../../src'))
+sys.path.insert(0, os.path.realpath('..'))
 
+import yaml
 import json
 from attrdict import AttrDict
 
-from config_utilities import command_line_json_string_to_dict
-
 # Import FilePaths class and plotting routine
-from Utilities.file_paths_AE import FilePathsPredictionAndPlotting
-from Utilities.prediction_and_plotting_routine_AE import predict_and_plot, plot_and_save_metrics
+from utils_project.file_paths_ae import FilePathsPredictionAndPlotting
+from utils_project.prediction_and_plotting_routine_ae import predict_and_plot, plot_and_save_metrics
+
+# Import src code
+from utils_config.config_io import command_line_json_string_to_dict
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -35,15 +38,15 @@ def add_options(options):
 if __name__ == "__main__":
 
     #=== Hyperparameters ===#
-    with open('json_files/hyperparameters_AE.json') as f:
-        hyperp = json.load(f)
-    if len(sys.argv) > 1:
+    with open('../config_files/hyperparameters_ae.yaml') as f:
+        hyperp = yaml.load(f, Loader=yaml.FullLoader)
+    if len(sys.argv) > 1: # if run from scheduler
         hyperp = command_line_json_string_to_dict(sys.argv, hyperp)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#
-    with open('json_files/options_AE.json') as f:
-        options = json.load(f)
+    with open('../config_files/options_ae.yaml') as f:
+        options = yaml.load(f, Loader=yaml.FullLoader)
     options = AttrDict(options)
     options = add_options(options)
 

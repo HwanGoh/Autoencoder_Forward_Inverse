@@ -7,12 +7,13 @@ Created on Wed Sep 18 20:53:06 2019
 """
 import subprocess
 from mpi4py import MPI
-import copy
 
 import os
 import sys
 sys.path.insert(0, os.path.realpath('../../../src'))
-from utils_scheduler.get_hyperparameter_permutations import get_hyperparameter_permutations
+import json
+
+from utils_scheduler.get_hyperparameter_combinations import get_hyperparameter_combinations
 from utils_scheduler.schedule_and_run import schedule_runs
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -48,7 +49,7 @@ def generate_scenarios_list():
 ###############################################################################
 if __name__ == '__main__':
 
-    # To run this code "mpirun -n 5 ./scheduler_training_ae_model_aware.py" in command line
+    # To run this code "mpirun -n 5 ./scheduler_training_ae.py" in command line
 
     # mpi stuff
     comm   = MPI.COMM_WORLD
@@ -73,11 +74,11 @@ if __name__ == '__main__':
                 break
 
             # Dump scenario to driver code and run
-            scenario = json.dumps(scenario)
+            scenario_json = json.dumps(scenario)
             proc = subprocess.Popen(['./training_driver_ae_model_aware.py',
-                f'{scenario}'])
+                f'{scenario_json}',f'{scenario["gpu"]}'])
             # proc = subprocess.Popen(['./training_driver_ae_model_augmented_autodiff.py',
-            #     f'{scenario}'])
+                # f'{scenario_json}',f'{scenario["gpu"]}'])
             proc.wait()
 
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)

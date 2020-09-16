@@ -55,10 +55,10 @@ if __name__ == "__main__":
     #=== Options ===#
     with open('../config_files/options_ae.yaml') as f:
         options = yaml.load(f, Loader=yaml.FullLoader)
-    if len(sys.argv) > 1: # if run from scheduler
-        options.which_gpu = hyperp.gpu
     options = AttrDict(options)
     options = add_options(options)
+    if len(sys.argv) > 1: # if run from scheduler
+        options.which_gpu = sys.argv[2]
     options.model_aware = 1
     options.model_augmented = 0
 

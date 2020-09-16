@@ -8,11 +8,11 @@ Created on Wed Sep 18 20:53:06 2019
 
 import os
 import sys
-sys.path.insert(0, os.path.realpath('../../src'))
+sys.path.insert(0, os.path.realpath('../../../src'))
 import json
 import subprocess
-import copy
-from get_hyperparameter_combinations import get_hyperparameter_combinations
+
+from utils_scheduler.get_hyperparameter_combinations import get_hyperparameter_combinations
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -47,9 +47,9 @@ if __name__ == '__main__':
 
     #=== Convert dictionary to json string ===#
     for scenario in scenarios_list:
-        scenario = json.dumps(scenario)
+        scenario_json = json.dumps(scenario)
         proc = subprocess.Popen(
-                ['./prediction_and_plotting_driver_ae.py', f'{scenario}'])
+                ['./prediction_and_plotting_driver_ae.py', f'{scenario_json}'])
         proc.wait()
 
     print('All scenarios computed')
