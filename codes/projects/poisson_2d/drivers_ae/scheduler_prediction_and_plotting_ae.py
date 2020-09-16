@@ -49,7 +49,7 @@ if __name__ == '__main__':
     for scenario in scenarios_list:
         scenario = json.dumps(scenario)
         proc = subprocess.Popen(
-                ['./Prediction_and_Plotting_Driver_AE.py', f'{scenario}'])
+                ['./prediction_and_plotting_driver_ae.py', f'{scenario}'])
         proc.wait()
 
     print('All scenarios computed')
