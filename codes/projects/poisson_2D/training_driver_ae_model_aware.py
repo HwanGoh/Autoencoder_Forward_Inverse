@@ -8,14 +8,14 @@ import os
 import sys
 sys.path.insert(0, os.path.realpath('../../src'))
 
-import json
+import yaml
 from attrdict import AttrDict
 
 # Import Project Utilities
-from Utilities.file_paths_AE import FilePathsTraining
-from Utilities.construct_data_dict import construct_data_dict
-from Utilities.construct_prior_dict import construct_prior_dict
-from Utilities.training_routine_custom_AE_model_aware import trainer_custom
+from project_utils.file_paths_ae import FilePathsTraining
+from project_utils.construct_data_dict import construct_data_dict
+from project_utils.construct_prior_dict import construct_prior_dict
+from project_utils.training_routine_custom_ae_model_aware import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -41,15 +41,15 @@ def add_options(options):
 if __name__ == "__main__":
 
     #=== Hyperparameters ===#
-    with open('config_files/hyperparameters_AE.json') as f:
-        hyperp = json.load(f)
+    with open('config_files/hyperparameters_ae.yaml') as f:
+        hyperp = yaml.load(f, Loader=yaml.FullLoader)
     if len(sys.argv) > 1:
         hyperp = command_line_json_string_to_dict(sys.argv, hyperp)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#
-    with open('config_files/options_AE.json') as f:
-        options = json.load(f)
+    with open('config_files/options_ae.yaml') as f:
+        options = yaml.load(f, Loader=yaml.FullLoader)
     options = AttrDict(options)
     options = add_options(options)
     options.model_aware = 1
