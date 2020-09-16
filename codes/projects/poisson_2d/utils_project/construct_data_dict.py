@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import tensorflow as tf
 
 from utils_data.data_handler import DataHandler
 
@@ -28,7 +27,7 @@ def construct_data_dict(hyperp, options, file_paths):
         data.add_noise_output_test()
         noise_regularization_matrix = data.construct_noise_regularization_matrix_train()
     else:
-        noise_regularization_matrix = tf.eye(obs_dimensions)
+        noise_regularization_matrix = np.eye(obs_dimensions)
 
     #=== Construct Dictionary ===#
     data_dict = {}

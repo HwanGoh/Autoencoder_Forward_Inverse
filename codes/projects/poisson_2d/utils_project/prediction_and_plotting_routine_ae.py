@@ -15,10 +15,7 @@ plt.ioff() # Turn interactive plotting off
 
 # Import src code
 from utils_data.data_handler import DataHandler
-from neural_networks.nn_ae_fwd_inv import AutoencoderFwdInv
-from utils_training.loss_and_relative_errors import\
-        loss_penalized_difference, loss_weighted_penalized_difference,\
-        relative_error, reg_prior
+from neural_networks.nn_ae_fwd_inv import AEFwdInv
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import FEM Code
@@ -30,8 +27,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                              Plot Predictions                               #
 ###############################################################################
-def predict_and_plot(hyperp, options, file_paths,
-                     project_name, data_options, dataset_directory):
+def predict_and_plot(hyperp, options, file_paths):
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
@@ -55,10 +51,10 @@ def predict_and_plot(hyperp, options, file_paths,
     state_obs_test = data.output_test
 
     #=== Load Trained Neural Network ===#
-    NN = AutoencoderFwdInv(hyperp, options,
-                           input_dimensions, latent_dimensions,
-                           None, None,
-                           positivity_constraint_log_exp)
+    NN = AEFwdInv(hyperp, options,
+                  input_dimensions, latent_dimensions,
+                  None, None,
+                  positivity_constraint_log_exp)
     NN.load_weights(file_paths.NN_savefile_name)
 
     #=== Selecting Samples ===#
@@ -107,7 +103,7 @@ def predict_and_plot(hyperp, options, file_paths,
 ###############################################################################
 #                                Plot Metrics                                 #
 ###############################################################################
-def plot_and_save_metrics(hyper_p, options, file_paths):
+def plot_and_save_metrics(hyperp, options, file_paths):
     print('================================')
     print('        Plotting Metrics        ')
     print('================================')
@@ -134,7 +130,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
     ################
     #=== Loss Train ===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train))
     plt.title('Log-Loss for Training Neural Network')
     plt.xlabel('Epochs')
@@ -146,7 +142,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Loss Autoencoder ===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train_autoencoder))
     plt.title('Log-Loss for Autoencoder')
     plt.xlabel('Epochs')
@@ -158,7 +154,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Loss Encoder ===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train_encoder))
     plt.title('Log-Loss for Encoder')
     plt.xlabel('Epochs')
@@ -170,7 +166,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Loss Decoder ===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train_decoder))
     plt.title('Log-Loss for Decoder')
     plt.xlabel('Epochs')
@@ -182,7 +178,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Error Autoencoder ===#
     fig_accuracy = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_error_input_autoencoder)
     plt.title('Relative Error for Autoencoder')
     plt.xlabel('Epochs')
@@ -194,7 +190,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Error Encoder ===#
     fig_accuracy = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_error_latent_encoder)
     plt.title('Relative Error for Encoder')
     plt.xlabel('Epochs')
@@ -206,7 +202,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Error Decoder ===#
     fig_accuracy = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_error_input_decoder)
     plt.title('Relative Error for Decoder')
     plt.xlabel('Epochs')
@@ -218,7 +214,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Gradient Norm ===#
     fig_gradient_norm = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_gradient_norm)
     plt.title('Relative Gradient Norm')
     plt.xlabel('Epochs')
@@ -231,7 +227,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
     if options.model_augmented == 1:
         #=== Relative Error Decoder ===#
         fig_loss = plt.figure()
-        x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+        x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
         plt.plot(x_axis, storage_array_loss_train_forward_model)
         plt.title('Log-loss Forward Model')
         plt.xlabel('Epochs')

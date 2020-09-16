@@ -13,7 +13,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                  Autoencoder                                #
 ###############################################################################
-class AutoencoderFwdInv(tf.keras.Model):
+class AEFwdInv(tf.keras.Model):
     def __init__(self, hyperp, options,
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,

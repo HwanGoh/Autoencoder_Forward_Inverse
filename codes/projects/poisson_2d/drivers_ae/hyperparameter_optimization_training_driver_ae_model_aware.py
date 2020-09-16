@@ -16,7 +16,7 @@ import pandas as pd
 import yaml
 from attrdict import AttrDict
 
-# Import routine for outputting results
+# Import src code
 from utils_hyperparameter_optimization.hyperparameter_optimization_routine\
         import optimize_hyperparameters
 

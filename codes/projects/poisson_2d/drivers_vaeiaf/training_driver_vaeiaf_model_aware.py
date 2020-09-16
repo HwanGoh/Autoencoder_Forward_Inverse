@@ -14,6 +14,9 @@ import yaml
 import json
 from attrdict import AttrDict
 
+# Import src code
+from utils_config.config_io import command_line_json_string_to_dict
+
 # Import Project Utilities
 from utils_project.file_paths_vae import FilePathsTraining
 from utils_project.construct_data_dict import construct_data_dict

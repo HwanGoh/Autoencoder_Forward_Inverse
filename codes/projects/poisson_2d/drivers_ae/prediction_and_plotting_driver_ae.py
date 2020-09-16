@@ -13,12 +13,12 @@ import yaml
 import json
 from attrdict import AttrDict
 
+# Import src code
+from utils_config.config_io import command_line_json_string_to_dict
+
 # Import FilePaths class and plotting routine
 from utils_project.file_paths_ae import FilePathsPredictionAndPlotting
 from utils_project.prediction_and_plotting_routine_ae import predict_and_plot, plot_and_save_metrics
-
-# Import src code
-from utils_config.config_io import command_line_json_string_to_dict
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -51,21 +51,16 @@ if __name__ == "__main__":
     options = add_options(options)
 
     #=== File Names ===#
-    if options.model_aware == 1:
-        forward_model_type = 'maware_'
-    if options.model_augmented == 1:
-        forward_model_type = 'maug_'
     project_name = 'poisson_2D_'
     data_options = 'n%d' %(options.parameter_dimensions)
     dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
             'n%d/'%(options.parameter_dimensions)
     file_paths = FilePathsPredictionAndPlotting(hyperp, options,
-                                   forward_model_type, project_name,
-                                   data_options, dataset_directory)
+                                                project_name,
+                                                data_options, dataset_directory)
 
     #=== Predict and Save ===#
-    predict_and_plot(hyperp, options, file_paths,
-                     project_name, data_options, dataset_directory)
+    predict_and_plot(hyperp, options, file_paths)
 
     #=== Plot and Save ===#
     plot_and_save_metrics(hyperp, options, file_paths)

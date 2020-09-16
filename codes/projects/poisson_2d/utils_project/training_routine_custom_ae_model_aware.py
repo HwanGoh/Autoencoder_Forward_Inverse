@@ -5,7 +5,7 @@ import tensorflow as tf
 
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
-from neural_networks.nn_ae_fwd_inv import AutoencoderFwdInv
+from neural_networks.nn_ae_fwd_inv import AEFwdInv
 from utils_training.loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
         relative_error, reg_prior
@@ -60,10 +60,10 @@ def trainer_custom(hyperp, options, file_paths,
     #=== Non-distributed Training ===#
     if options.distributed_training == 0:
         #=== Neural Network ===#
-        NN = AutoencoderFwdInv(hyperp, options,
-                               input_dimensions, latent_dimensions,
-                               kernel_initializer, bias_initializer,
-                               positivity_constraint_log_exp)
+        NN = AEFwdInv(hyperp, options,
+                      input_dimensions, latent_dimensions,
+                      kernel_initializer, bias_initializer,
+                      positivity_constraint_log_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -85,10 +85,10 @@ def trainer_custom(hyperp, options, file_paths,
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AutoencoderFwdInv(hyperp, options,
-                                   input_dimensions, latent_dimensions,
-                                   kernel_initializer, bias_initializer,
-                                   positivity_constraint_log_exp)
+            NN = AEFwdInv(hyperp, options,
+                          input_dimensions, latent_dimensions,
+                          kernel_initializer, bias_initializer,
+                          positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()

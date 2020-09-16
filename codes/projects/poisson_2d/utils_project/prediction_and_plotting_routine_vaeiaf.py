@@ -6,40 +6,49 @@ Created on Sat Oct 26 21:17:53 2019
 @author: hwan
 """
 import sys
-sys.path.append('../../../..')
+sys.path.append('../../../../..')
 
 import numpy as np
 import pandas as pd
-
-from get_train_and_test_data import load_train_and_test_data
-from NN_VAEIAF_Fwd_Inv import VAEIAFFwdInv
-from positivity_constraints import positivity_constraint_log_exp
-from Finite_Element_Method.src.load_mesh import load_mesh
-from Utilities.plot_FEM_function import plot_FEM_function
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
+
+# Import src code
+from utils_data.data_handler import DataHandler
+from neural_networks.nn_vaeiaf_fwd_inv import VAEIAFFwdInv
+from utils_misc.positivity_constraints import positivity_constraint_log_exp
+
+# Import FEM Code
+from Finite_Element_Method.src.load_mesh import load_mesh
+from Utilities.plot_FEM_function import plot_FEM_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 ###############################################################################
 #                              Plot Predictions                               #
 ###############################################################################
-def predict_and_plot(hyperp, options, file_paths,
-                     project_name, data_options, dataset_directory):
+def predict_and_plot(hyperp, options, file_paths):
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
         obs_dimensions = options.parameter_dimensions
-        obs_indices = []
     if options.obs_type == 'obs':
         obs_dimensions = options.num_obs_points
-        print('Loading Boundary Indices')
-        df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
-        obs_indices = df_obs_indices.to_numpy()
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    input_dimensions = obs_dimensions
-    latent_dimensions = options.parameter_dimensions
+    if options.standard_autoencoder == 1:
+        input_dimensions = options.parameter_dimensions
+        latent_dimensions = obs_dimensions
+    if options.reverse_autoencoder == 1:
+        input_dimensions = obs_dimensions
+        latent_dimensions = options.parameter_dimensions
+
+    #=== Prepare Data ===#
+    data = DataHandler(hyperp, options, file_paths,
+                       options.parameter_dimensions, obs_dimensions)
+    data.load_data_test()
+    parameter_test = data.input_test
+    state_obs_test = data.output_test
 
     #=== Load Trained Neural Network ===#
     NN = VAEIAFFwdInv(hyperp, options,
@@ -48,22 +57,6 @@ def predict_and_plot(hyperp, options, file_paths,
                         None, None,
                         positivity_constraint_log_exp)
     NN.load_weights(file_paths.NN_savefile_name)
-
-    #=== Load Data ===#
-    _, _,\
-    parameter_test, state_obs_test\
-    = load_train_and_test_data(file_paths,
-            hyperp.num_data_train, options.num_data_test,
-            options.parameter_dimensions, obs_dimensions,
-            load_data_train_flag = 0,
-            normalize_input_flag = 0, normalize_output_flag = 0)
-
-    #=== Add Noise to Data ===#
-    # if options.add_noise == 1:
-    #     _, state_obs_test, noise_regularization_matrix\
-    #     = add_noise(options, _, state_obs_test, load_data_train_flag = 0)
-    # else:
-    #     noise_regularization_matrix = tf.eye(obs_dimensions)
 
     #=== Selecting Samples ===#
     sample_number = 105
@@ -108,7 +101,7 @@ def predict_and_plot(hyperp, options, file_paths,
 ###############################################################################
 #                                Plot Metrics                                 #
 ###############################################################################
-def plot_and_save_metrics(hyper_p, options, file_paths):
+def plot_and_save_metrics(hyperp, options, file_paths):
     print('================================')
     print('        Plotting Metrics        ')
     print('================================')
@@ -133,7 +126,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
     ################
     #=== Loss Train ===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train))
     plt.title('Log-Loss for Training Neural Network')
     plt.xlabel('Epochs')
@@ -145,7 +138,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Loss Autoencoder ===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train_VAE))
     plt.title('Log-Loss for VAE')
     plt.xlabel('Epochs')
@@ -157,7 +150,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Loss Encoder ===#
     fig_loss = plt.figure()
-    x_axis = np.linspace(1, hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1, hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, np.log(storage_array_loss_train_encoder))
     plt.title('Log-Loss for Encoder')
     plt.xlabel('Epochs')
@@ -169,7 +162,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Error Autoencoder ===#
     fig_accuracy = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_error_input_VAE)
     plt.title('Relative Error for Autoencoder')
     plt.xlabel('Epochs')
@@ -181,7 +174,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Error Encoder ===#
     fig_accuracy = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_error_latent_encoder)
     plt.title('Relative Error for Encoder')
     plt.xlabel('Epochs')
@@ -193,7 +186,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Error Decoder ===#
     fig_accuracy = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_error_input_decoder)
     plt.title('Relative Error for Decoder')
     plt.xlabel('Epochs')
@@ -205,7 +198,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
 
     #=== Relative Gradient Norm ===#
     fig_gradient_norm = plt.figure()
-    x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
     plt.plot(x_axis, storage_array_relative_gradient_norm)
     plt.title('Relative Gradient Norm')
     plt.xlabel('Epochs')
@@ -218,7 +211,7 @@ def plot_and_save_metrics(hyper_p, options, file_paths):
     if options.model_augmented == 1:
         #=== Relative Error Decoder ===#
         fig_loss = plt.figure()
-        x_axis = np.linspace(1,hyper_p.num_epochs, hyper_p.num_epochs, endpoint = True)
+        x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
         plt.plot(x_axis, storage_array_loss_train_forward_model)
         plt.title('Log-loss Forward Model')
         plt.xlabel('Epochs')
