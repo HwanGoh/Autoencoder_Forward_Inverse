@@ -24,7 +24,7 @@ class FEMPrematricesPoisson2D:
 ###############################################################################
 #                                 PDE Solvers                                 #
 ###############################################################################
-    def solve_PDE_prematrices(self, parameters):
+    def solve_pde_prematrices(self, parameters):
 
         #=== Solving PDE ===#
         prestiffness = tf.linalg.matmul(self.prestiffness, tf.transpose(parameters))
@@ -45,7 +45,7 @@ class FEMPrematricesPoisson2D:
         else:
             return state
 
-    def solve_PDE_prematrices(self, parameters):
+    def solve_pde_prematrices(self, parameters):
 
         state = tf.Variable(tf.zeros((parameters.shape[0], self.options.parameter_dimensions)))
 
@@ -66,7 +66,7 @@ class FEMPrematricesPoisson2D:
 ###############################################################################
 #                           Using Sparse Prematrices                          #
 ###############################################################################
-    def solve_PDE_prematrices_sparse(self, parameters):
+    def solve_pde_prematrices_sparse(self, parameters):
 
         #=== Solving PDE ===#
         stiffness_matrix = tf.reshape(

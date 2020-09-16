@@ -84,7 +84,7 @@ def trainer_custom(hyperp, options, file_paths,
                  loss_weighted_penalized_difference,
                  data_dict["noise_regularization_matrix"],
                  positivity_constraint_log_exp,
-                 forward_model.solve_PDE_prematrices_sparse)
+                 forward_model.solve_pde_prematrices_sparse)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -110,4 +110,4 @@ def trainer_custom(hyperp, options, file_paths,
                 loss_weighted_penalized_difference,
                 data_dict["noise_regularization_matrix"],
                 positivity_constraint_log_exp,
-                forward_model.solve_PDE_prematrices_sparse)
+                forward_model.solve_pde_prematrices_sparse)

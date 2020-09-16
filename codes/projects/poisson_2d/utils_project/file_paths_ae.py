@@ -204,7 +204,7 @@ class FilePaths():
 
         #=== Mesh ===# For plotting FEM function
         mesh_name = 'mesh_square_2D_n%d' %(options.parameter_dimensions)
-        mesh_directory = '../../../../Datasets/Mesh/' + mesh_name + '/'
+        mesh_directory = '../../../../../Datasets/Mesh/' + mesh_name + '/'
         self.mesh_nodes_savefilepath = mesh_directory + mesh_name + '_nodes.csv'
         self.mesh_elements_savefilepath = mesh_directory + mesh_name + '_elements.csv'
         self.mesh_boundary_indices_edges_savefilepath = mesh_directory + mesh_name +\

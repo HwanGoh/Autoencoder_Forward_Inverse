@@ -95,7 +95,7 @@ def trainer_custom(hyperp, options, file_paths,
                  reg_prior,
                  prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
                  positivity_constraint_log_exp,
-                 forward_model.solve_PDE_prematrices_sparse)
+                 forward_model.solve_pde_prematrices_sparse)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -123,4 +123,4 @@ def trainer_custom(hyperp, options, file_paths,
                              prior_dict["prior_mean"],
                              prior_dict["prior_covariance_cholesky_inverse"],
                              positivity_constraint_log_exp,
-                             forward_model.solve_PDE_prematrices_sparse)
+                             forward_model.solve_pde_prematrices_sparse)

@@ -98,6 +98,7 @@ if __name__ == "__main__":
     file_paths = FilePathsHyperparameterOptimization(hyperp, options,
                                                      project_name,
                                                      data_options, dataset_directory)
+
     #=== Data and Prior Dictionary ===#
     data_dict = construct_data_dict(hyperp, options, file_paths)
     prior_dict = construct_prior_dict(hyperp, options, file_paths,
