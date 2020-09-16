@@ -1,12 +1,12 @@
 import tensorflow as tf
 import pandas as pd
 from scipy import sparse
-from convert_scipy_sparse_to_sparse_tensor import convert_scipy_sparse_to_sparse_tensor
-from convert_dense_to_sparse_tensor import convert_dense_to_sparse_tensor
+from utils_misc.convert_scipy_sparse_to_sparse_tensor import convert_scipy_sparse_to_sparse_tensor
+from utils_misc.convert_dense_to_sparse_tensor import convert_dense_to_sparse_tensor
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def load_FEM_matrices_tf(options, file_paths,
+def load_fem_matrices_tf(options, file_paths,
                          load_premass = 0,
                          load_prestiffness = 0):
     #=== Premass ===#

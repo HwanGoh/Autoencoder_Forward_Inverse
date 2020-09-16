@@ -3,11 +3,10 @@ import pandas as pd
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from get_prior import load_prior
 from positivity_constraints import positivity_constraint_log_exp
-from Utilities.get_FEM_matrices_tf import load_FEM_matrices_tf
-from Utilities.FEM_prematrices_poisson_2D import FEMPrematricesPoisson2D
-from NN_AE_Fwd_Inv import AutoencoderFwdInv
+from utils_misc.get_FEM_matrices_tf import load_FEM_matrices_tf
+from utils_project.FEM_prematrices_poisson_2D import FEMPrematricesPoisson2D
+from neural_networks.nn_ae_fwd_inv import AutoencoderFwdInv
 from loss_and_relative_errors import loss_penalized_difference
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -52,7 +51,7 @@ def test_gradient(hyperp, options, file_paths):
 
     #=== Load FEM Matrices ===#
     _, prestiffness, boundary_matrix, load_vector =\
-            load_FEM_matrices_tf(options, file_paths,
+            load_fem_matrices_tf(options, file_paths,
                                  load_premass = 0,
                                  load_prestiffness = 1)
 

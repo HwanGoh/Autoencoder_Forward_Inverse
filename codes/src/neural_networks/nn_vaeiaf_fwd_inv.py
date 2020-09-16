@@ -22,7 +22,7 @@ class VAEIAFFwdInv(tf.keras.Model):
     def __init__(self, hyperp, options,
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,
-                 kernel_initializer_IAF, bias_initializer_IAF,
+                 kernel_initializer_iaf, bias_initializer_iaf,
                  positivity_constraint):
         super(VAEIAFFwdInv, self).__init__()
 
@@ -47,11 +47,11 @@ class VAEIAFFwdInv(tf.keras.Model):
                                hyperp.num_hidden_layers_encoder + 1,
                                self.architecture, self.activations,
                                kernel_initializer, bias_initializer)
-        self.IAF_chain_posterior = IAFChainPosterior(options.IAF_LSTM_update,
-                                                     hyperp.num_IAF_transforms,
-                                                     hyperp.num_hidden_nodes_IAF,
-                                                     hyperp.activation_IAF,
-                                                     kernel_initializer_IAF, bias_initializer_IAF)
+        self.iaf_chain_posterior = IAFChainPosterior(options.iaf_lstm_update,
+                                                     hyperp.num_iaf_transforms,
+                                                     hyperp.num_hidden_nodes_iaf,
+                                                     hyperp.activation_iaf,
+                                                     kernel_initializer_iaf, bias_initializer_iaf)
         if self.options.model_aware == 1:
             self.decoder = Decoder(options,
                                    hyperp.num_hidden_layers_encoder + 1,
@@ -61,7 +61,7 @@ class VAEIAFFwdInv(tf.keras.Model):
 
     #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
-        return self.IAF_chain_posterior((mean, log_var),
+        return self.iaf_chain_posterior((mean, log_var),
                                         sample_flag = True, infer_flag = False)
 
     def call(self, X):
@@ -147,16 +147,16 @@ class Decoder(tf.keras.layers.Layer):
 #                    Chain of Inverse Autoregressive Flow                     #
 ###############################################################################
 class IAFChainPosterior(tf.keras.layers.Layer):
-    def __init__(self, IAF_LSTM_update_flag,
-                 num_IAF_transforms,
+    def __init__(self, iaf_lstm_update_flag,
+                 num_iaf_transforms,
                  hidden_units,
                  activation,
                  kernel_initializer, bias_initializer):
         super(IAFChainPosterior, self).__init__()
 
         #=== Attributes ===#
-        self.IAF_LSTM_update_flag = IAF_LSTM_update_flag
-        self.num_IAF_transforms = num_IAF_transforms
+        self.iaf_lstm_update_flag = iaf_lstm_update_flag
+        self.num_iaf_transforms = num_iaf_transforms
         self.hidden_units = hidden_units
         self.activation = activation
         self.kernel_initializer = kernel_initializer
@@ -167,8 +167,8 @@ class IAFChainPosterior(tf.keras.layers.Layer):
         latent_dimensions = input_shape[0][1]
         self.event_shape = [latent_dimensions]
         bijectors_list = []
-        if self.IAF_LSTM_update_flag == 0:
-            for i in range(0, self.num_IAF_transforms):
+        if self.iaf_lstm_update_flag == 0:
+            for i in range(0, self.num_iaf_transforms):
                 bijectors_list.append(tfb.Invert(
                     tfb.MaskedAutoregressiveFlow(
                         shift_and_log_scale_fn = Made(params=2,
@@ -179,7 +179,7 @@ class IAFChainPosterior(tf.keras.layers.Layer):
                                                       bias_initializer = self.bias_initializer,
                                                       name = "IAF_W" + str(i)))))
                 bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimensions)))))
-        self.IAF_chain = tfb.Chain(bijectors_list)
+        self.iaf_chain = tfb.Chain(bijectors_list)
 
     def call(self, inputs, sample_flag = True, infer_flag = False):
         mean = inputs[0]
@@ -190,7 +190,7 @@ class IAFChainPosterior(tf.keras.layers.Layer):
                                                        scale_diag = tf.exp(0.5*log_var))
         #=== Transformed Distribution ===#
         self.distribution = tfd.TransformedDistribution(distribution = base_distribution,
-                                                        bijector = self.IAF_chain)
+                                                        bijector = self.iaf_chain)
 
         #=== Inference and Sampling ===#
         sample_draw = self.distribution.sample()

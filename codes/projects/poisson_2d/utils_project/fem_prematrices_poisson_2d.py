@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import time
 
-from Utilities.integrals_pwl_prestiffness import integrals_pwl_prestiffness
+from utils_project.integrals_pwl_prestiffness import integrals_pwl_prestiffness
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 

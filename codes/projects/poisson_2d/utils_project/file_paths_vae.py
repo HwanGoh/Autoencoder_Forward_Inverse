@@ -105,7 +105,7 @@ class FilePaths():
 
         #=== File Name ===#
         if options.posterior_diagonal_covariance == 1:
-            penalty_KLD_incr_string = value_to_string(hyperp.penalty_KLD_incr)
+            penalty_kld_incr_string = value_to_string(hyperp.penalty_kld_incr)
             penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
@@ -113,26 +113,26 @@ class FilePaths():
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
-                        penalty_KLD_incr_string, hyperp.penalty_KLD_rate,
+                        penalty_kld_incr_string, hyperp.penalty_kld_rate,
                         penalty_post_mean_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-        if options.posterior_IAF == 1:
-            if options.IAF_LSTM_update == 1:
-                IAF_type_string = 'IAFLSTM_'
+        if options.posterior_iaf == 1:
+            if options.iaf_lstm_update == 1:
+                iaf_type_string = 'IAFLSTM_'
             else:
-                IAF_type_string = 'IAF_'
-            penalty_IAF_string = value_to_string(hyperp.penalty_IAF)
+                iaf_type_string = 'IAF_'
+            penalty_iaf_string = value_to_string(hyperp.penalty_iaf)
             penalty_prior_string = value_to_string(hyperp.penalty_prior)
-            self.NN_name = autoencoder_type + IAF_type_string + forward_model_type + resnet +\
+            self.NN_name = autoencoder_type + iaf_type_string + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pi%s_pr%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
-                        hyperp.num_IAF_transforms, hyperp.num_hidden_nodes_IAF,
-                        hyperp.activation_IAF,
-                        penalty_IAF_string,
+                        hyperp.num_iaf_transforms, hyperp.num_hidden_nodes_iaf,
+                        hyperp.activation_iaf,
+                        penalty_iaf_string,
                         penalty_prior_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
@@ -230,9 +230,9 @@ class FilePathsTraining(FilePaths):
         super(FilePathsTraining, self).__init__(*args, **kwargs)
 
         #=== Saving Trained Neural Network and Tensorboard ===#
-        self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
+        self.NN_savefile_directory = '../../../../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.NN_name
-        self.tensorboard_directory = '../../../Tensorboard/' + self.filename
+        self.tensorboard_directory = '../../../../Tensorboard/' + self.filename
 
 class FilePathsHyperparameterOptimization(FilePaths):
     def __init__(self, *args, **kwargs):
@@ -271,7 +271,7 @@ class FilePathsPredictionAndPlotting(FilePaths):
         super(FilePathsPredictionAndPlotting, self).__init__(*args, **kwargs)
 
         #=== File Path for Loading Trained Neural Network ===#
-        self.NN_savefile_directory = '../../../Trained_NNs/' + self.filename
+        self.NN_savefile_directory = '../../../../Trained_NNs/' + self.filename
         self.NN_savefile_name = self.NN_savefile_directory + '/' + self.NN_name
 
         #=== File Path for Loading Displayable Test Data ===#
@@ -283,7 +283,7 @@ class FilePathsPredictionAndPlotting(FilePaths):
         self.savefile_name_state_pred = self.NN_savefile_directory + '_state_pred'
 
         #=== File Path for Saving Figures ===#
-        self.figures_savefile_directory = '../../../Figures/' + self.filename
+        self.figures_savefile_directory = '../../../../Figures/' + self.filename
         self.figures_savefile_name = self.figures_savefile_directory + '/' + self.NN_name
         self.figures_savefile_name_parameter_test = self.figures_savefile_directory + '/' +\
                 'parameter_test'

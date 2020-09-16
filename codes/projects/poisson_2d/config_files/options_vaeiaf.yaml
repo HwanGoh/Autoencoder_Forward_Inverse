@@ -1,5 +1,8 @@
 #=== Use Resnet ===#
-resnet : 1
+resnet : 0
+
+#=== IAF Type ===#
+iaf_lstm_update : 0
 
 #=== Load Dataset Size ===#
 num_data_train_load : 5000
@@ -8,11 +11,11 @@ num_data_test : 200
 
 #=== Data Properties ===#
 parameter_dimensions : 225
-obs_type : "obs"
+obs_type : "full"
 num_obs_points : 43
 
 #=== Noise Properties ===#
-add_noise : 1
+add_noise : 0
 noise_level : 0.05
 num_noisy_obs : 20
 num_noisy_obs_unregularized : 20
