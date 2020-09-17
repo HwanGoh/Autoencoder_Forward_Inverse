@@ -1,21 +1,26 @@
 # Code Structure:
+* Below is a description of the source codes as well as the key codes in my
+  input/output system. However, there is no need to use this system; you can use
+  your own input/output codes so long as the appropriate calls to the neural
+  networks in src/neural_networks and optimization routines in src/optimize are
+  implemented.
 
 ## src:
-* `file_paths_.py`:                     Class containing file paths for neural
-                                        network and training related objects
 * `data_handler.py`:                    Class that loads and processes data
 * `form_train_val_test_tf_batches.py`:  Form training, validation and test batches
-                                        loaded data using Tensorflow's Dataset
+                                        from loaded data using Tensorflow's Dataset
                                         API
 * `nn_.py`:                             The neural network
 * `loss_and_relative_errors.py`:        Functionals that form the overall loss
                                         functional
 * `optimize_.py`:                       The optimization routine for the neural network
-* `metrics_.py`:                        Metrics class storing and updating the optimization information
-* `get_hyperparameter_combinations.py`: Form combinations of the hyperparameters
+* `metrics_.py`:                        Class storing and updating the optimization information
+* `get_hyperparameter_combinations.py`: Forms combinations of the hyperparameters
                                         for scheduled routines
 * `schedule_and_run.py`:                Uses hyperparameter combinations to run a distributed
                                         schedule of training routines using mpi4py
+* `file_paths_.py`:                     Class containing file paths for neural
+                                        network and training related objects
 
 ## projects:
 * Contains project specific wrappers and routines. Note that drivers are agnostic to the project. Project dependant codes are all stored in utils_project

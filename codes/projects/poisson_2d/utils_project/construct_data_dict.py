@@ -22,7 +22,7 @@ def construct_data_dict(hyperp, options, file_paths):
                        options.parameter_dimensions, obs_dimensions)
     data.load_data_train()
     data.load_data_test()
-    if options.add_noise == 1:
+    if options.add_noise == True:
         data.add_noise_output_train()
         data.add_noise_output_test()
         noise_regularization_matrix = data.construct_noise_regularization_matrix_train()

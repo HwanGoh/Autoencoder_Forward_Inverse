@@ -56,9 +56,9 @@ class VAEFwdInv(tf.keras.Model):
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
-        if self.options.model_augmented == 1:
+        if self.options.model_augmented == True:
             return post_mean, log_post_var
-        if self.options.model_aware == 1:
+        if self.options.model_aware == True:
             z = self.reparameterize(post_mean, log_post_var)
             likelihood_mean = self.decoder(self.positivity_constraint(z))
             return likelihood_mean
@@ -89,7 +89,7 @@ class Encoder(tf.keras.layers.Layer):
 
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_encoder):
-            if self.options.resnet == 1\
+            if self.options.resnet == True\
                     and 0 < hidden_layer[0] < self.truncation_layer-1:
                 X += hidden_layer[1](X)
             else:
@@ -125,7 +125,7 @@ class Decoder(tf.keras.layers.Layer):
 
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_decoder):
-            if self.options.resnet == 1\
+            if self.options.resnet == True\
                     and self.truncation_layer < hidden_layer[0]+self.truncation_layer\
                             < self.last_layer_index-1:
                 X += hidden_layer[1](X)

@@ -62,7 +62,7 @@ def optimize(hyperp, options, file_paths,
             batch_latent_pred_train = NN.encoder(batch_input_train)
             batch_input_pred_train = NN.decoder(batch_latent_train)
 
-            if options.standard_autoencoder == 1:
+            if options.standard_autoencoder == True:
                 batch_input_pred_forward_model_train = solve_forward_model(batch_input_pred_train_AE)
 
                 batch_loss_train_autoencoder = loss_penalized_difference(
@@ -81,7 +81,7 @@ def optimize(hyperp, options, file_paths,
                                     batch_latent_train, batch_input_pred_forward_model_train,
                                     noise_regularization_matrix, hyperp.penalty_aug)
 
-            if options.reverse_autoencoder == 1:
+            if options.reverse_autoencoder == True:
                 batch_latent_pred_forward_model_train = solve_forward_model(batch_latent_pred_train)
 
                 batch_loss_train_autoencoder = loss_weighted_penalized_difference(
@@ -121,7 +121,7 @@ def optimize(hyperp, options, file_paths,
         batch_latent_pred_val = NN.encoder(batch_input_val)
         batch_input_pred_val = NN.decoder(batch_latent_val)
 
-        if options.standard_autoencoder == 1:
+        if options.standard_autoencoder == True:
             batch_loss_val_autoencoder = loss_penalized_difference(
                     batch_input_val, batch_input_pred_val_AE, 1)
             batch_loss_val_encoder = loss_weighted_penalized_difference(
@@ -135,7 +135,7 @@ def optimize(hyperp, options, file_paths,
                     prior_mean, prior_covariance_cholesky_inverse,
                     hyperp.penalty_prior)
 
-        if options.reverse_autoencoder == 1:
+        if options.reverse_autoencoder == True:
             batch_loss_val_autoencoder = loss_weighted_penalized_difference(
                     batch_input_val, batch_input_pred_val_AE,
                     noise_regularization_matrix, 1)
@@ -165,7 +165,7 @@ def optimize(hyperp, options, file_paths,
         batch_latent_pred_test = NN.encoder(batch_input_test)
         batch_input_pred_test = NN.decoder(batch_latent_test)
 
-        if options.standard_autoencoder == 1:
+        if options.standard_autoencoder == True:
             batch_loss_test_autoencoder = loss_penalized_difference(
                     batch_input_test, batch_input_pred_test_AE, 1)
             batch_loss_test_encoder = loss_weighted_penalized_difference(
@@ -179,7 +179,7 @@ def optimize(hyperp, options, file_paths,
                     prior_mean, prior_covariance_cholesky_inverse,
                     hyperp.penalty_prior)
 
-        if options.reverse_autoencoder == 1:
+        if options.reverse_autoencoder == True:
             batch_loss_test_autoencoder = loss_weighted_penalized_difference(
                     batch_input_test, batch_input_pred_test_AE,
                     noise_regularization_matrix, 1)

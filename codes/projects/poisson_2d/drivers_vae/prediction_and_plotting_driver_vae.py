@@ -28,8 +28,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def add_options(options):
 
-    options.model_aware = 1
-    options.model_augmented = 0
+    options.model_aware = True
+    options.model_augmented = False
 
     return options
 
@@ -50,8 +50,8 @@ if __name__ == "__main__":
         options = yaml.load(f, Loader=yaml.FullLoader)
     options = AttrDict(options)
     options = add_options(options)
-    options.posterior_diagonal_covariance = 1
-    options.posterior_iaf = 0
+    options.posterior_diagonal_covariance = True
+    options.posterior_iaf = False
 
     #=== File Names ===#
     project_paths = FilePathsProject(options)

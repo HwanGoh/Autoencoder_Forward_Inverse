@@ -52,7 +52,7 @@ class VAEIAFFwdInv(tf.keras.Model):
                                                      hyperp.num_hidden_nodes_iaf,
                                                      hyperp.activation_iaf,
                                                      kernel_initializer_iaf, bias_initializer_iaf)
-        if self.options.model_aware == 1:
+        if self.options.model_aware == True:
             self.decoder = Decoder(options,
                                    hyperp.num_hidden_layers_encoder + 1,
                                    self.architecture, self.activations,
@@ -66,9 +66,9 @@ class VAEIAFFwdInv(tf.keras.Model):
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)
-        if self.options.model_augmented == 1:
+        if self.options.model_augmented == True:
             return reparameterize(post_mean, log_post_var)
-        if self.options.model_aware == 1:
+        if self.options.model_aware == True:
             z = self.reparameterize(post_mean, log_post_var)
             likelihood_mean = self.decoder(self.positivity_constraint(z))
             return likelihood_mean
@@ -99,7 +99,7 @@ class Encoder(tf.keras.layers.Layer):
 
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_encoder):
-            if self.options.resnet == 1\
+            if self.options.resnet == True\
                     and 0 < hidden_layer[0] < self.truncation_layer-1:
                 X += hidden_layer[1](X)
             else:
@@ -135,7 +135,7 @@ class Decoder(tf.keras.layers.Layer):
 
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_decoder):
-            if self.options.resnet == 1\
+            if self.options.resnet == True\
                     and self.truncation_layer < hidden_layer[0]+self.truncation_layer\
                             < self.last_layer_index-1:
                 X += hidden_layer[1](X)
@@ -167,7 +167,7 @@ class IAFChainPosterior(tf.keras.layers.Layer):
         latent_dimensions = input_shape[0][1]
         self.event_shape = [latent_dimensions]
         bijectors_list = []
-        if self.iaf_lstm_update_flag == 0:
+        if self.iaf_lstm_update_flag == False:
             for i in range(0, self.num_iaf_transforms):
                 bijectors_list.append(tfb.Invert(
                     tfb.MaskedAutoregressiveFlow(

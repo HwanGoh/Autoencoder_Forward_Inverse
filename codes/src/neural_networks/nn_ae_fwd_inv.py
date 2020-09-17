@@ -80,14 +80,14 @@ class Encoder(tf.keras.layers.Layer):
     #=== Encoder Propagation ===#
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_encoder):
-            if self.options.resnet == 1\
+            if self.options.resnet == True\
                     and 0 < hidden_layer[0] < self.truncation_layer-1:
                 X += hidden_layer[1](X)
             else:
                 X = hidden_layer[1](X)
-        if self.options.standard_autoencoder == 1:
+        if self.options.standard_autoencoder == True:
             return X
-        if self.options.reverse_autoencoder == 1:
+        if self.options.reverse_autoencoder == True:
             return self.positivity_constraint(X)
 
 ###############################################################################
@@ -120,13 +120,13 @@ class Decoder(tf.keras.layers.Layer):
     #=== Decoder Propagation ===#
     def call(self, X):
         for hidden_layer in enumerate(self.hidden_layers_decoder):
-            if self.options.resnet == 1\
+            if self.options.resnet == True\
                     and self.truncation_layer < hidden_layer[0]+self.truncation_layer\
                             < self.last_layer_index-1:
                 X += hidden_layer[1](X)
             else:
                 X = hidden_layer[1](X)
-        if self.options.standard_autoencoder == 1:
+        if self.options.standard_autoencoder == True:
             return self.positivity_constraint(X)
-        if self.options.reverse_autoencoder == 1:
+        if self.options.reverse_autoencoder == True:
             return X

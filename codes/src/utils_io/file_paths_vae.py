@@ -42,17 +42,17 @@ class FilePaths():
 
         #=== Neural Network Architecture and Regularization ===#
         autoencoder_type = 'VAE'
-        if options.resnet == 1:
+        if options.resnet == True:
             resnet = 'res_'
         else:
             resnet = 'nores_'
-        if options.model_aware == 1:
+        if options.model_aware == True:
             forward_model_type = 'maware_'
-        if options.model_augmented == 1:
+        if options.model_augmented == True:
             forward_model_type = 'maug_'
 
         #=== File Name ===#
-        if options.posterior_diagonal_covariance == 1:
+        if options.posterior_diagonal_covariance == True:
             penalty_kld_incr_string = value_to_string(hyperp.penalty_kld_incr)
             penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
@@ -65,8 +65,8 @@ class FilePaths():
                         penalty_post_mean_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-        if options.posterior_iaf == 1:
-            if options.iaf_lstm_update == 1:
+        if options.posterior_iaf == True:
+            if options.iaf_lstm_update == True:
                 iaf_type_string = 'IAFLSTM_'
             else:
                 iaf_type_string = 'IAF_'

@@ -28,8 +28,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def add_options(options):
 
-    options.model_aware = 0
-    options.model_augmented = 1
+    options.model_aware = False
+    options.model_augmented = True
 
     return options
 

@@ -72,7 +72,7 @@ def optimize_distributed(dist_strategy,
                 batch_latent_pred_train = NN.encoder(batch_input_train)
                 batch_input_pred_train = NN.decoder(batch_latent_train)
 
-                if options.standard_autoencoder == 1:
+                if options.standard_autoencoder == True:
                     unscaled_replica_batch_loss_train_autoencoder =\
                             loss_penalized_difference(
                                     batch_input_train, batch_input_pred_train_AE, 1)
@@ -89,7 +89,7 @@ def optimize_distributed(dist_strategy,
                             prior_mean, prior_covariance_cholesky_inverse,
                             hyperp.penalty_prior)
 
-                if options.reverse_autoencoder == 1:
+                if options.reverse_autoencoder == True:
                     unscaled_replica_batch_loss_train_autoencoder =\
                             loss_weighted_penalized_difference(
                                     batch_input_train,
@@ -137,7 +137,7 @@ def optimize_distributed(dist_strategy,
             batch_latent_pred_val = NN.encoder(batch_input_val)
             batch_input_pred_val = NN.decoder(batch_latent_val)
 
-            if options.standard_autoencoder == 1:
+            if options.standard_autoencoder == True:
                 unscaled_replica_batch_loss_val_autoencoder =\
                         loss_penalized_difference(
                                 batch_input_val, batch_input_pred_val_AE, 1)
@@ -154,7 +154,7 @@ def optimize_distributed(dist_strategy,
                         prior_mean, prior_covariance_cholesky_inverse,
                         hyperp.penalty_prior)
 
-            if options.reverse_autoencoder == 1:
+            if options.reverse_autoencoder == True:
                 unscaled_replica_batch_loss_val_autoencoder =\
                         loss_weighted_penalized_difference(
                                 batch_input_val,
@@ -198,7 +198,7 @@ def optimize_distributed(dist_strategy,
             batch_latent_pred_test = NN.encoder(batch_input_test)
             batch_input_pred_test = NN.decoder(batch_latent_test)
 
-            if options.standard_autoencoder == 1:
+            if options.standard_autoencoder == True:
                 unscaled_replica_batch_loss_test_autoencoder =\
                         loss_penalized_difference(
                                 batch_input_test, batch_input_pred_test_AE, 1)
@@ -215,7 +215,7 @@ def optimize_distributed(dist_strategy,
                         prior_mean, prior_covariance_cholesky_inverse,
                         hyperp.penalty_prior)
 
-            if options.reverse_autoencoder == 1:
+            if options.reverse_autoencoder == True:
                 unscaled_replica_batch_loss_test_autoencoder =\
                         loss_weighted_penalized_difference(
                                 batch_input_test,

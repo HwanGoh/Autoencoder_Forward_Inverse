@@ -44,28 +44,28 @@ class FilePaths():
         #   File Name   #
         #################
         #=== Neural Network Architecture ===#
-        if options.resnet == 1:
+        if options.resnet == True:
             resnet = 'res_'
         else:
             resnet = 'nores_'
-        if options.standard_autoencoder == 1:
+        if options.standard_autoencoder == True:
             autoencoder_type = 'AE_std_'
-        if options.reverse_autoencoder == 1:
+        if options.reverse_autoencoder == True:
             autoencoder_type = 'AE_rev_'
-        if options.model_aware == 1:
+        if options.model_aware == True:
             forward_model_type = 'maware_'
-        if options.model_augmented == 1:
+        if options.model_augmented == True:
             forward_model_type = 'maug_'
 
         #=== Penalty Strings ===#
         penalty_encoder_string = value_to_string(hyperp.penalty_encoder)
         penalty_decoder_string = value_to_string(hyperp.penalty_decoder)
-        if options.model_augmented == 1:
+        if options.model_augmented == True:
             penalty_aug_string = value_to_string(hyperp.penalty_aug)
         penalty_prior_string = value_to_string(hyperp.penalty_prior)
 
         #=== Neural Network String ===#
-        if options.model_aware == 1:
+        if options.model_aware == True:
             self.NN_name = autoencoder_type + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
@@ -75,7 +75,7 @@ class FilePaths():
                         penalty_prior_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
-        if options.model_augmented == 1:
+        if options.model_augmented == True:
             self.NN_name = autoencoder_type + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,

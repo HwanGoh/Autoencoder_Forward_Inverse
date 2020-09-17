@@ -36,22 +36,22 @@ class FilePathsProject:
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
-        if options.prior_type_AC_train == 1:
+        if options.prior_type_AC_train == True:
             prior_string_train = self.prior_string_AC('AC',
                     options.prior_mean_AC_train,
                     options.prior_variance_AC_train,
                     options.prior_corr_AC_train)
-        if options.prior_type_AC_test == 1:
+        if options.prior_type_AC_test == True:
             prior_string_test = self.prior_string_AC('AC',
                     options.prior_mean_AC_test,
                     options.prior_variance_AC_test,
                     options.prior_corr_AC_test)
 
-        if options.prior_type_matern_train == 1:
+        if options.prior_type_matern_train == True:
             prior_string_train = prior_string_matern('matern',
                     options.prior_kern_type_train,
                     options.prior_cov_length_train)
-        if options.prior_type_matern_test == 1:
+        if options.prior_type_matern_test == True:
             prior_string_test = prior_string_matern('matern',
                     options.prior_kern_type_test,
                     options.prior_cov_length_test)
