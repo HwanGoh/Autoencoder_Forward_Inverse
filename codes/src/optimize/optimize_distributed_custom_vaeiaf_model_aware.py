@@ -16,7 +16,7 @@ import tensorflow as tf
 import numpy as np
 
 from utils_training.metrics_distributed_vae import Metrics
-from utils_config.config_io import dump_attrdict_as_yaml
+from utils_io.config_io import dump_attrdict_as_yaml
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
