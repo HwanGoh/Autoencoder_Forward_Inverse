@@ -13,26 +13,26 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 class PriorHandler:
     def __init__(self, hyperp, options, file_paths, input_dimensions):
 
-        self.prior_mean_savefilepath = file_paths.prior_mean_savefilepath
-        self.prior_covariance_savefilepath = file_paths.prior_covariance_savefilepath
-        self.prior_covariance_cholesky_savefilepath =\
-            file_paths.prior_covariance_cholesky_savefilepath
-        self.prior_covariance_cholesky_inverse_savefilepath =\
-            file_paths.prior_covariance_cholesky_inverse_savefilepath
+        self.prior_mean_file_path = file_paths.prior_mean_file_path
+        self.prior_covariance_file_path = file_paths.prior_covariance_file_path
+        self.prior_covariance_cholesky_file_path =\
+            file_paths.prior_covariance_cholesky_file_path
+        self.prior_covariance_cholesky_inverse_file_path =\
+            file_paths.prior_covariance_cholesky_inverse_file_path
 
         self.input_dimensions = input_dimensions
 
     def load_prior_mean(self):
-        return self.load_vector(self.prior_mean_savefilepath)
+        return self.load_vector(self.prior_mean_file_path)
 
     def load_prior_covariance(self):
-        return self.load_matrix(self.prior_covariance_savefilepath)
+        return self.load_matrix(self.prior_covariance_file_path)
 
     def load_prior_covariance_cholesky(self):
-        return self.load_matrix(self.prior_covariance_cholesky_savefilepath)
+        return self.load_matrix(self.prior_covariance_cholesky_file_path)
 
     def load_prior_covariance_cholesky_inverse(self):
-        return self.load_matrix(self.prior_covariance_cholesky_inverse_savefilepath)
+        return self.load_matrix(self.prior_covariance_cholesky_inverse_file_path)
 
     def load_vector(self, file_path):
         df_vector = pd.read_csv(file_path + '.csv')

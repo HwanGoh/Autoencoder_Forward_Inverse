@@ -7,7 +7,7 @@ import numpy as np
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def plot_FEM_function(file_path, plot_title, colorbar_max,
+def plot_fem_function(file_path, plot_title, colorbar_max,
         nodes, elements,
         nodal_values):
 

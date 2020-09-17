@@ -16,11 +16,12 @@ import yaml
 from attrdict import AttrDict
 
 # Import src code
+from utils_io.file_paths_vae import FilePathsHyperparameterOptimization
 from utils_hyperparameter_optimization.hyperparameter_optimization_routine\
         import optimize_hyperparameters
 
 # Import Project Utilities
-from utils_project.file_paths_vae import FilePathsHyperparameterOptimization
+from utils_project.file_paths_project import FilePathsProject
 from utils_project.construct_data_dict import construct_data_dict
 from utils_project.construct_prior_dict import construct_prior_dict
 from utils_project.training_routine_custom_vae_model_augmented_autodiff import trainer_custom
@@ -91,16 +92,11 @@ if __name__ == "__main__":
     options.model_aware = 0
     options.model_augmented = 1
     options.posterior_diagonal_covariance = 1
-    options.posterior_IAF = 0
+    options.posterior_iaf = 0
 
     #=== File Paths ===#
-    project_name = 'poisson_2D_'
-    data_options = 'n%d' %(options.parameter_dimensions)
-    dataset_directory = '../../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
-            'n%d/'%(options.parameter_dimensions)
-    file_paths = FilePathsHyperparameterOptimization(hyperp, options,
-                                                     project_name,
-                                                     data_options, dataset_directory)
+    project_paths = FilePathsProject(options)
+    file_paths = FilePathsHyperparameterOptimization(hyperp, options, project_paths)
 
     #=== Data and Prior Dictionary ===#
     data_dict = construct_data_dict(hyperp, options, file_paths)
@@ -117,5 +113,4 @@ if __name__ == "__main__":
                              n_calls, space, hyperp_of_interest_dict,
                              data_dict, prior_dict,
                              trainer_custom, 5,
-                             FilePathsHyperparameterOptimization,
-                             project_name, data_options, dataset_directory)
+                             FilePathsHyperparameterOptimization, project_paths)

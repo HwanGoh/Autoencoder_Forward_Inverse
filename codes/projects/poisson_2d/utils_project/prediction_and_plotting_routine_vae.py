@@ -20,7 +20,7 @@ from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import FEM Code
 from Finite_Element_Method.src.load_mesh import load_mesh
-from Utilities.plot_FEM_function import plot_FEM_function
+from utils_project.plot_fem_function import plot_fem_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -36,12 +36,8 @@ def predict_and_plot(hyperp, options, file_paths):
         obs_dimensions = options.num_obs_points
 
     #=== Data and Latent Dimensions of Autoencoder ===#
-    if options.standard_autoencoder == 1:
-        input_dimensions = options.parameter_dimensions
-        latent_dimensions = obs_dimensions
-    if options.reverse_autoencoder == 1:
-        input_dimensions = obs_dimensions
-        latent_dimensions = options.parameter_dimensions
+    input_dimensions = obs_dimensions
+    latent_dimensions = options.parameter_dimensions
 
     #=== Prepare Data ===#
     data = DataHandler(hyperp, options, file_paths,
@@ -76,20 +72,20 @@ def predict_and_plot(hyperp, options, file_paths):
     nodes, elements, _, _, _, _, _, _ = load_mesh(file_paths)
 
     #=== Plot FEM Functions ===#
-    plot_FEM_function(file_paths.figures_savefile_name_parameter_test,
+    plot_fem_function(file_paths.figures_savefile_name_parameter_test,
                      'True Parameter', 7.0,
                       nodes, elements,
                       parameter_test_sample)
-    plot_FEM_function(file_paths.figures_savefile_name_parameter_pred,
+    plot_fem_function(file_paths.figures_savefile_name_parameter_pred,
                       'Parameter Prediction', 7.0,
                       nodes, elements,
                       parameter_pred_sample)
     if options.obs_type == 'full':
-        plot_FEM_function(file_paths.figures_savefile_name_state_test,
+        plot_fem_function(file_paths.figures_savefile_name_state_test,
                           'True State', 2.6,
                           nodes, elements,
                           state_obs_test_sample)
-        plot_FEM_function(file_paths.figures_savefile_name_state_pred,
+        plot_fem_function(file_paths.figures_savefile_name_state_pred,
                           'State Prediction', 2.6,
                           nodes, elements,
                           state_obs_pred_sample)

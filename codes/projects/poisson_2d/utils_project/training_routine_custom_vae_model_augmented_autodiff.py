@@ -14,7 +14,7 @@ from utils_misc.get_fem_matrices_tf import load_fem_matrices_tf
 from neural_networks.nn_vae_fwd_inv import VAEFwdInv
 from utils_training.loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
-        KLD_diagonal_post_cov, relative_error
+        kld_diagonal_post_cov, relative_error
 from optimize.optimize_custom_vae_model_augmented_autodiff import optimize
 from optimize.optimize_distributed_custom_vae_model_augmented_autodiff import optimize_distributed
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
@@ -77,7 +77,7 @@ def trainer_custom(hyperp, options, file_paths,
         #=== Training ===#
         optimize(hyperp, options, file_paths,
                  NN, optimizer,
-                 loss_penalized_difference, KLD_diagonal_post_cov, relative_error,
+                 loss_penalized_difference, kld_diagonal_post_cov, relative_error,
                  prior_dict["prior_mean"], prior_dict["prior_covariance"],
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
                  input_dimensions, latent_dimensions, num_batches_train,
@@ -103,7 +103,7 @@ def trainer_custom(hyperp, options, file_paths,
         optimize_distributed(dist_strategy,
                 hyperp, options, file_paths,
                 NN, optimizer,
-                loss_penalized_difference, KLD_diagonal_post_cov, relative_error,
+                loss_penalized_difference, kld_diagonal_post_cov, relative_error,
                 prior_dict["prior_mean"], prior_dict["prior_covariance"],
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, latent_dimensions, num_batches_train,

@@ -11,22 +11,22 @@ def load_fem_matrices_tf(options, file_paths,
                          load_prestiffness = 0):
     #=== Premass ===#
     if load_premass == 1:
-        premass = sparse.load_npz(file_paths.premass_savefilepath + '.npz')
+        premass = sparse.load_npz(file_paths.project.premass_file_path + '.npz')
     else:
         premass = 0
 
     #=== Prestiffness ===#
     if load_prestiffness == 1:
-        prestiffness = sparse.load_npz(file_paths.prestiffness_savefilepath + '.npz')
+        prestiffness = sparse.load_npz(file_paths.project.prestiffness_file_path + '.npz')
     else:
         prestiffness = 0
 
     #=== Boundary Matrix ===#
-    boundary_matrix = sparse.load_npz(file_paths.boundary_matrix_savefilepath + '.npz')
+    boundary_matrix = sparse.load_npz(file_paths.project.boundary_matrix_file_path + '.npz')
     boundary_matrix = options.boundary_matrix_constant*boundary_matrix
 
     #=== Load Vector ===#
-    load_vector = sparse.load_npz(file_paths.load_vector_savefilepath + '.npz')
+    load_vector = sparse.load_npz(file_paths.project.load_vector_file_path + '.npz')
     load_vector = -options.load_vector_constant*load_vector
 
     #=== Convert to Tensor ===#

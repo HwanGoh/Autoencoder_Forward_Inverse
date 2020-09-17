@@ -16,9 +16,10 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_io.config_io import command_line_json_string_to_dict
+from utils_io.file_paths_ae import FilePathsTraining
 
 # Import Project Utilities
-from utils_project.file_paths_ae import FilePathsTraining
+from utils_project.file_paths_project import FilePathsProject
 from utils_project.construct_data_dict import construct_data_dict
 from utils_project.construct_prior_dict import construct_prior_dict
 from utils_project.training_routine_custom_ae_model_augmented_autodiff import trainer_custom
@@ -63,14 +64,8 @@ if __name__ == "__main__":
     options.model_augmented = 1
 
     #=== File Paths ===#
-    autoencoder_loss = 'maug_'
-    project_name = 'poisson_2D_'
-    data_options = 'n%d' %(options.parameter_dimensions)
-    dataset_directory = '../../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
-            'n%d/'%(options.parameter_dimensions)
-    file_paths = FilePathsTraining(hyperp, options,
-                                   project_name,
-                                   data_options, dataset_directory)
+    project_paths = FilePathsProject(options)
+    file_paths = FilePathsTraining(hyperp, options, project_paths)
 
     #=== Test Gradient ===#
     # test_gradient(hyperp, options, file_paths)

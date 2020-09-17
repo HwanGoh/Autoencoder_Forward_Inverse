@@ -33,7 +33,7 @@ def optimize_hyperparameters(hyperp, options, file_paths,
                              n_calls, space, hyperp_of_interest_dict,
                              data_dict, prior_dict,
                              training_routine, loss_val_index,
-                             FilePathsClass, *args):
+                             FilePathsClass, project_paths):
 
     ############################
     #   Objective Functional   #
@@ -45,7 +45,7 @@ def optimize_hyperparameters(hyperp, options, file_paths,
             hyperp[key] = value
 
         #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsClass(hyperp, options, *args)
+        file_paths = FilePathsClass(hyperp, options, project_paths)
 
         #=== Training Routine ===#
         training_routine(hyperp, options, file_paths,
@@ -78,7 +78,7 @@ def optimize_hyperparameters(hyperp, options, file_paths,
         hyperp[key] = hyperp_opt_result.x[num]
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
-    file_paths = FilePathsClass(hyperp, options, *args)
+    file_paths = FilePathsClass(hyperp, options, project_paths)
 
     #=== Deleting Suboptimal Neural Networks ===#
     directories_list_trained_NNs = os.listdir(

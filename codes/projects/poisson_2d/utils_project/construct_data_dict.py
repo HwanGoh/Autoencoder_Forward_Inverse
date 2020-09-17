@@ -14,7 +14,7 @@ def construct_data_dict(hyperp, options, file_paths):
     if options.obs_type == 'obs':
         obs_dimensions = options.num_obs_points
         print('Loading Boundary Indices')
-        df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
+        df_obs_indices = pd.read_csv(file_paths.project.obs_indices_file_path + '.csv')
         obs_indices = df_obs_indices.to_numpy()
 
     #=== Prepare Data ===#
@@ -27,7 +27,7 @@ def construct_data_dict(hyperp, options, file_paths):
         data.add_noise_output_test()
         noise_regularization_matrix = data.construct_noise_regularization_matrix_train()
     else:
-        noise_regularization_matrix = np.eye(obs_dimensions).astype(np.float_32)
+        noise_regularization_matrix = np.eye(obs_dimensions).astype(np.float32)
 
     #=== Construct Dictionary ===#
     data_dict = {}

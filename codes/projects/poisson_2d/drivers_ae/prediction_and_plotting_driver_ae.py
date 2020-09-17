@@ -15,9 +15,10 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_io.config_io import command_line_json_string_to_dict
+from utils_io.file_paths_ae import FilePathsPredictionAndPlotting
 
 # Import FilePaths class and plotting routine
-from utils_project.file_paths_ae import FilePathsPredictionAndPlotting
+from utils_project.file_paths_project import FilePathsProject
 from utils_project.prediction_and_plotting_routine_ae import predict_and_plot, plot_and_save_metrics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -51,13 +52,8 @@ if __name__ == "__main__":
     options = add_options(options)
 
     #=== File Names ===#
-    project_name = 'poisson_2D_'
-    data_options = 'n%d' %(options.parameter_dimensions)
-    dataset_directory = '../../../../Datasets/Finite_Element_Method/Poisson_2D/' +\
-            'n%d/'%(options.parameter_dimensions)
-    file_paths = FilePathsPredictionAndPlotting(hyperp, options,
-                                                project_name,
-                                                data_options, dataset_directory)
+    project_paths = FilePathsProject(options)
+    file_paths = FilePathsPredictionAndPlotting(hyperp, options, project_paths)
 
     #=== Predict and Save ===#
     predict_and_plot(hyperp, options, file_paths)
