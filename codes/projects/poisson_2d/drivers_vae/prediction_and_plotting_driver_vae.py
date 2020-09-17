@@ -14,7 +14,7 @@ import json
 from attrdict import AttrDict
 
 # Import src code
-from utils_config.config_io import command_line_json_string_to_dict
+from utils_io.config_io import command_line_json_string_to_dict
 
 # Import FilePaths class and plotting routine
 from utils_project.file_paths_vae import FilePathsPredictionAndPlotting
