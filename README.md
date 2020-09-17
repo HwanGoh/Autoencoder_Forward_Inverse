@@ -34,6 +34,9 @@
                                        and schedule of training routines using mpi4py
 * utils_project:
 	* `file_paths_project.py`: Class containing file paths for project specific objects
+    * `construct_data_dict.py`: Constructs dictionary storing processed data and
+                                data related objects to be passed to be the
+                                training routine
 	* `training_routine_.py`:  Loads the data, constructs the neural
                                network and runs the optimization routine
 	* `hyperparameter_optimization_training_routine_*.py`: Optimization
