@@ -14,11 +14,12 @@
 * `metrics_.py`:                        Metrics class storing and updating the optimization information
 * `get_hyperparameter_combinations.py`: Form combinations of the hyperparameters
                                         for scheduled routines
-* `schedule_and_run.py`:                Uses hyperparameter permutations to run a distributed
+* `schedule_and_run.py`:                Uses hyperparameter combinations to run a distributed
                                         schedule of training routines using mpi4py
 
-## projects: Contains project specific wrappers and routines. Project dependant codes are all stored in utils_project
-* drivers: (note that drivers are agnostic to the project)
+## projects:
+* Contains project specific wrappers and routines. Note that drivers are agnostic to the project. Project dependant codes are all stored in utils_project
+* drivers:
     * `training_driver_.py`:           Drives the training routine. Consists of the
                                        Hyperparameter class and calls the FilePaths class and the training_routine
                                        method
@@ -29,7 +30,7 @@
                                        network
     * `plotting_driver_.py`:           Drives the plotting routine given a trained neural
                                        network and predictions
-    * `scheduler_training_.py`:        Drives the formation of hyperparameter permutations
+    * `scheduler_training_.py`:        Drives the formation of hyperparameter combinations
                                        and schedule of training routines using mpi4py
 * utils_project:
 	* `file_paths_project.py`: Class containing file paths for project specific objects
@@ -44,3 +45,9 @@
 	* `plot_and_save_.py`:     Plotting routine; using trained network
                                and predictions, plot predictiions and
                                optimization information
+
+* config_files:
+    * `hyperparameters_.yaml`: YAML file containing hyperparameters for training
+                               the neural network
+    * `options_.yaml`:         YAML file containing the options for the project
+                               as well as the neural network
