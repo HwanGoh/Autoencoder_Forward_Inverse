@@ -82,12 +82,12 @@ if __name__ == "__main__":
 
     #=== Hyperparameters ===#
     with open('../config_files/hyperparameters_ae.yaml') as f:
-        hyperp = yaml.load(f, Loader=yaml.FullLoader)
+        hyperp = yaml.safe_load(f)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#
     with open('../config_files/options_ae.yaml') as f:
-        options = yaml.load(f, Loader=yaml.FullLoader)
+        options = yaml.safe_load(f)
     options = AttrDict(options)
     options = add_options(options)
     options.model_aware = False

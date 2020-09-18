@@ -3,7 +3,7 @@ standard_autoencoder : 0
 reverse_autoencoder : 1
 
 #=== Use Resnet ===#
-resnet : True
+resnet : False
 
 #=== Load Dataset Size ===#
 num_data_train_load : 5000
@@ -21,7 +21,7 @@ normalize_output : 0
 add_noise : True
 noise_level : 0.05
 num_noisy_obs : 20
-num_noisy_obs_unregularized : 20
+num_noisy_obs_unregularized : 23
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_AC_train : True
