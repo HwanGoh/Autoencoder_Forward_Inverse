@@ -10,7 +10,6 @@ sys.path.insert(0, os.path.realpath('../../../src'))
 sys.path.insert(0, os.path.realpath('..'))
 
 import yaml
-import json
 from attrdict import AttrDict
 
 # Import src code
@@ -42,7 +41,7 @@ if __name__ == "__main__":
     with open('../config_files/hyperparameters_vae.yaml') as f:
         hyperp = yaml.safe_load(f)
     if len(sys.argv) > 1: # if run from scheduler
-        hyperp = command_line_json_string_to_dict(sys.argv, hyperp)
+        hyperp = command_line_json_string_to_dict(sys.argv[1], hyperp)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#

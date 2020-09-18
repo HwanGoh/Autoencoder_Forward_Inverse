@@ -80,8 +80,6 @@ if __name__ == "__main__":
     #=== Hyperparameters ===#
     with open('../config_files/hyperparameters_vae.yaml') as f:
         hyperp = yaml.safe_load(f)
-    if len(sys.argv) > 1:
-        hyperp = command_line_json_string_to_dict(sys.argv, hyperp)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#

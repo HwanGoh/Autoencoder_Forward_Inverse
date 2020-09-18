@@ -5,7 +5,7 @@ import warnings
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def command_line_json_string_to_dict(args_list, hyperp):
+def command_line_json_string_to_dict(json_string, hyperp):
     '''
     Overwrite the hyperparameters loaded from file.
 
@@ -21,7 +21,7 @@ def command_line_json_string_to_dict(args_list, hyperp):
     are in the form of a single JSON string in args[1]
     '''
     #=== Overwrite Hyperparameter Keys ===#
-    command_line_arguments = json.loads(args_list[1])
+    command_line_arguments = json.loads(json_string)
     for key, value in command_line_arguments.items():
         if key not in hyperp:
             warnings.warn(
