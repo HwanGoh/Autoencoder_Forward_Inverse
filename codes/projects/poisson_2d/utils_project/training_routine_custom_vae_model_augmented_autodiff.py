@@ -5,9 +5,6 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
-# Import project utilities
-from utils_project.fem_prematrices_poisson_2d import FEMPrematricesPoisson2D
-
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
 from utils_misc.get_fem_matrices_tf import load_fem_matrices_tf
@@ -18,6 +15,9 @@ from utils_training.loss_and_relative_errors import\
 from optimize.optimize_custom_vae_model_augmented_autodiff import optimize
 from optimize.optimize_distributed_custom_vae_model_augmented_autodiff import optimize_distributed
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
+
+# Import project utilities
+from utils_project.solve_fem_prematrices_poisson_2d import SolveFEMPrematricesPoisson2D
 
 import pdb
 
@@ -54,10 +54,10 @@ def trainer_custom(hyperp, options, file_paths,
                                  load_prestiffness = 1)
 
     #=== Construct Forward Model ===#
-    forward_model = FEMPrematricesPoisson2D(options, file_paths,
-                                            data_dict["obs_indices"],
-                                            prestiffness,
-                                            boundary_matrix, load_vector)
+    forward_model = SolveFEMPrematricesPoisson2D(options, file_paths,
+                                                 data_dict["obs_indices"],
+                                                 prestiffness,
+                                                 boundary_matrix, load_vector)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)

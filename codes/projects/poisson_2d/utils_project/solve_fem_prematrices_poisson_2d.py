@@ -7,7 +7,7 @@ from utils_project.integrals_pwl_prestiffness import integrals_pwl_prestiffness
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-class FEMPrematricesPoisson2D:
+class SolveFEMPrematricesPoisson2D:
     def __init__(self, options, file_paths,
                  obs_indices,
                  prestiffness,

@@ -77,7 +77,7 @@ def predict_and_plot(hyperp, options, file_paths):
     print('      Plotting Predictions      ')
     print('================================')
     #=== Load Mesh ===#
-    nodes, elements, _, _, _, _, _, _ = load_mesh(file_paths)
+    nodes, elements, _, _, _, _, _, _ = load_mesh(file_paths.project)
 
     #=== Plot FEM Functions ===#
     plot_fem_function(file_paths.figures_savefile_name_parameter_test,
