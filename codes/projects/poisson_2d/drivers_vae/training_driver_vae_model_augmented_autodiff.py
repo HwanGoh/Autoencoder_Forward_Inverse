@@ -59,6 +59,8 @@ if __name__ == "__main__":
         options = yaml.safe_load(f)
     options = AttrDict(options)
     options = add_options(options)
+    if len(sys.argv) > 1: # if run from scheduler
+        options.which_gpu = sys.argv[2]
     options.model_aware = False
     options.model_augmented = True
     options.posterior_diagonal_covariance = True
