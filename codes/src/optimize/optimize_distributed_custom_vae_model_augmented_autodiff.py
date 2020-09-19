@@ -52,13 +52,13 @@ def optimize_distributed(dist_strategy,
     metrics = Metrics(dist_strategy)
 
     #=== Creating Directory for Trained Neural Network ===#
-    if not os.path.exists(filepaths.NN_savefile_directory):
-        os.makedirs(filepaths.NN_savefile_directory)
+    if not os.path.exists(filepaths.directory_trained_NN):
+        os.makedirs(filepaths.directory_trained_NN)
 
     #=== Tensorboard ===# "tensorboard --logdir=Tensorboard"
-    if os.path.exists(filepaths.tensorboard_directory):
-        shutil.rmtree(filepaths.tensorboard_directory)
-    summary_writer = tf.summary.create_file_writer(filepaths.tensorboard_directory)
+    if os.path.exists(filepaths.directory_tensorboard):
+        shutil.rmtree(filepaths.directory_tensorboard)
+    summary_writer = tf.summary.create_file_writer(filepaths.directory_tensorboard)
 
     #=== Display Neural Network Architecture ===#
     with dist_strategy.scope():
@@ -230,10 +230,10 @@ def optimize_distributed(dist_strategy,
 
         #=== Save Current Model and Metrics ===#
         if epoch % 5 == 0:
-            NN.save_weights(filepaths.NN_savefile_name)
+            NN.save_weights(filepaths.trained_NN)
             metrics.save_metrics(filepaths)
-            dump_attrdict_as_yaml(hyperp, filepaths.NN_savefile_directory, 'hyperp')
-            dump_attrdict_as_yaml(options, filepaths.NN_savefile_directory, 'options')
+            dump_attrdict_as_yaml(hyperp, filepaths.directory_trained_NN, 'hyperp')
+            dump_attrdict_as_yaml(options, filepaths.directory_trained_NN, 'options')
             print('Current Model and Metrics Saved')
 
         #=== Increase KLD Penalty ===#
@@ -241,8 +241,8 @@ def optimize_distributed(dist_strategy,
             penalty_KLD += hyperp.penalty_KLD_incr
 
     #=== Save Final Model ===#
-    NN.save_weights(filepaths.NN_savefile_name)
+    NN.save_weights(filepaths.trained_NN)
     metrics.save_metrics(filepaths)
-    dump_attrdict_as_yaml(hyperp, filepaths.NN_savefile_directory, 'hyperp')
-    dump_attrdict_as_yaml(options, filepaths.NN_savefile_directory, 'options')
-    print('Final Model Saved')
+    dump_attrdict_as_yaml(hyperp, filepaths.directory_trained_NN, 'hyperp')
+    dump_attrdict_as_yaml(options, filepaths.directory_trained_NN, 'options')
+    print('Final Model and Metrics Saved')

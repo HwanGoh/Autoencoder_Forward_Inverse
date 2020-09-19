@@ -175,4 +175,4 @@ class Metrics:
                 self.storage_array_relative_error_latent_encoder
         metrics_dict['relative_error_data_decoder'] = self.storage_array_relative_error_data_decoder
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(filepaths.NN_savefile_name + "_metrics" + '.csv', index=False)
+        df_metrics.to_csv(filepaths.trained_NN + "_metrics" + '.csv', index=False)

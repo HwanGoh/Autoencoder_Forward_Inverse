@@ -16,12 +16,12 @@ import pandas as pd
 import yaml
 from attrdict import AttrDict
 
-# Import routine for outputting results
+# Import src codes
 from utils_io.filepaths_vae import FilePathsHyperparameterOptimization
 from utils_hyperparameter_optimization.hyperparameter_optimization_routine\
         import optimize_hyperparameters
 
-# Import Project Utilities
+# Import project utilities
 from utils_project.filepaths_project import FilePathsProject
 from utils_project.construct_data_dict import construct_data_dict
 from utils_project.construct_prior_dict import construct_prior_dict

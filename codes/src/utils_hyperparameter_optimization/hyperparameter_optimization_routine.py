@@ -53,7 +53,7 @@ def optimize_hyperparameters(hyperp, options, filepaths,
 
         #=== Loading Metrics For Output ===#
         print('Loading Metrics')
-        df_metrics = pd.read_csv(filepaths.NN_savefile_name + "_metrics" + '.csv')
+        df_metrics = pd.read_csv(filepaths.trained_NN + "_metrics" + '.csv')
         array_metrics = df_metrics.to_numpy()
         storage_array_loss_val = array_metrics[:,loss_val_index]
 
@@ -81,14 +81,12 @@ def optimize_hyperparameters(hyperp, options, filepaths,
     filepaths = FilePathsClass(hyperp, options, project_paths)
 
     #=== Deleting Suboptimal Neural Networks ===#
-    directories_list_trained_NNs = os.listdir(
-            path=filepaths.hyperp_opt_trained_NNs_case_directory)
-    directories_list_tensorboard = os.listdir(
-            path=filepaths.hyperp_opt_tensorboard_case_directory)
+    directories_list_trained_NN = os.listdir(
+            path=filepaths.directory_hyperp_opt_trained_NN_case)
 
-    for filename in directories_list_trained_NNs:
+    for filename in directories_list_trained_NN:
         if filename != filepaths.NN_name:
-            shutil.rmtree(filepaths.hyperp_opt_trained_NNs_case_directory + '/' + filename)
-            shutil.rmtree(filepaths.hyperp_opt_tensorboard_case_directory + '/' + filename)
+            shutil.rmtree(filepaths.directory_hyperp_opt_trained_NN_case + '/' + filename)
+            shutil.rmtree(filepaths.directory_hyperp_opt_tensorboard_case + '/' + filename)
 
     print('Suboptimal Trained Networks Deleted')

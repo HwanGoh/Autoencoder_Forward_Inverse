@@ -224,4 +224,4 @@ class Metrics:
         metrics_dict['relative_gradient_norm'] = self.storage_array_relative_gradient_norm
 
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(filepaths.NN_savefile_name + "_metrics" + '.csv', index=False)
+        df_metrics.to_csv(filepaths.trained_NN + "_metrics" + '.csv', index=False)

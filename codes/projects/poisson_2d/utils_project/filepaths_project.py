@@ -63,33 +63,33 @@ class FilePathsProject:
         #   Datasets   #
         ################
         #=== Parameters ===#
-        self.obs_indices_file_path = dataset_directory +\
+        self.obs_indices = dataset_directory +\
                 project_name + 'obs_indices_' +\
                 'o%d_'%(options.num_obs_points) + data_options
-        self.input_train_file_path = dataset_directory +\
+        self.input_train = dataset_directory +\
                 project_name +\
                 'parameter_train_' +\
                 'd%d_'%(options.num_data_train_load) + data_options + '_' + prior_string_train
-        self.input_test_file_path = dataset_directory +\
+        self.input_test = dataset_directory +\
                 project_name +\
                 'parameter_test_' +\
                 'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
         if options.obs_type == 'full':
-            self.output_train_file_path = dataset_directory +\
+            self.output_train = dataset_directory +\
                     project_name +\
                     'state_' + options.obs_type + '_train_' +\
                     'd%d_'%(options.num_data_train_load) + data_options + '_' + prior_string_train
-            self.output_test_file_path = dataset_directory +\
+            self.output_test = dataset_directory +\
                     project_name +\
                     'state_' + options.obs_type + '_test_' +\
                     'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
         if options.obs_type == 'obs':
-            self.output_train_file_path = dataset_directory +\
+            self.output_train = dataset_directory +\
                     project_name +\
                     'state_' + options.obs_type + '_train_' +\
                     'o%d_d%d_' %(options.num_obs_points, options.num_data_train_load) +\
                     data_options + '_' + prior_string_train
-            self.output_test_file_path = dataset_directory +\
+            self.output_test = dataset_directory +\
                     project_name +\
                     'state_' + options.obs_type + '_test_' +\
                     'o%d_d%d_' %(options.num_obs_points, options.num_data_test_load) +\
@@ -99,44 +99,44 @@ class FilePathsProject:
         #   Prior   #
         #############
         #=== Prior ===#
-        self.prior_mean_file_path = dataset_directory +\
+        self.prior_mean = dataset_directory +\
                 'prior_mean_' + data_options + '_' + prior_string_train
-        self.prior_covariance_file_path = dataset_directory +\
+        self.prior_covariance = dataset_directory +\
                 'prior_covariance_' + data_options + '_' + prior_string_train
-        self.prior_covariance_cholesky_file_path = dataset_directory +\
+        self.prior_covariance_cholesky = dataset_directory +\
                 'prior_covariance_cholesky_' + data_options + '_' + prior_string_train
-        self.prior_covariance_cholesky_inverse_file_path = dataset_directory +\
+        self.prior_covariance_cholesky_inverse = dataset_directory +\
                 'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string_train
 
         ###################
         #   FEM Objects   #
         ###################
         #=== Pre-Matrices ===#
-        self.premass_file_path = dataset_directory +\
+        self.premass = dataset_directory +\
                 'premass_' + data_options
-        self.prestiffness_file_path = dataset_directory +\
+        self.prestiffness = dataset_directory +\
                 'prestiffness_' + data_options
-        self.boundary_matrix_file_path = dataset_directory +\
+        self.boundary_matrix = dataset_directory +\
                 'boundary_matrix_' + data_options
-        self.load_vector_file_path = dataset_directory +\
+        self.load_vector = dataset_directory +\
                 'load_vector_' + data_options
 
         #=== Mesh ===# For plotting FEM function
         mesh_name = 'mesh_square_2D_n%d' %(options.parameter_dimensions)
         mesh_directory = '../../../../../Datasets/Mesh/' + mesh_name + '/'
-        self.mesh_nodes_file_path = mesh_directory + mesh_name + '_nodes.csv'
-        self.mesh_elements_file_path = mesh_directory + mesh_name + '_elements.csv'
-        self.mesh_boundary_indices_edges_file_path = mesh_directory + mesh_name +\
+        self.mesh_nodes = mesh_directory + mesh_name + '_nodes.csv'
+        self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
+        self.mesh_boundary_indices_edges = mesh_directory + mesh_name +\
                 '_boundary_indices_edges.csv'
-        self.mesh_boundary_indices_file_path = mesh_directory + mesh_name +\
+        self.mesh_boundary_indices = mesh_directory + mesh_name +\
                 '_boundary_indices.csv'
-        self.mesh_boundary_indices_bottom_file_path = mesh_directory + mesh_name +\
+        self.mesh_boundary_indices_bottom = mesh_directory + mesh_name +\
                 '_boundary_indices_bottom.csv'
-        self.mesh_boundary_indices_left_file_path = mesh_directory + mesh_name +\
+        self.mesh_boundary_indices_left = mesh_directory + mesh_name +\
                 '_boundary_indices_left.csv'
-        self.mesh_boundary_indices_right_file_path = mesh_directory + mesh_name +\
+        self.mesh_boundary_indices_right = mesh_directory + mesh_name +\
                 '_boundary_indices_right.csv'
-        self.mesh_boundary_indices_top_file_path = mesh_directory + mesh_name +\
+        self.mesh_boundary_indices_top = mesh_directory + mesh_name +\
                 '_boundary_indices_top.csv'
 
 ###############################################################################

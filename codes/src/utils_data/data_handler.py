@@ -4,13 +4,13 @@ import numpy as np
 import pandas as pd
 
 class DataHandler:
-    def __init__(self,hyperp, options, file_paths,
+    def __init__(self,hyperp, options, filepaths,
                  input_dimensions, output_dimensions):
 
-        self.input_train_file_path = file_paths.input_train_file_path
-        self.output_train_file_path = file_paths.output_train_file_path
-        self.input_test_file_path = file_paths.input_test_file_path
-        self.output_test_file_path = file_paths.output_test_file_path
+        self.filepath_input_train = filepaths.input_train
+        self.filepath_output_train = filepaths.output_train
+        self.filepath_input_test = filepaths.input_test
+        self.filepath_output_test = filepaths.output_test
 
         self.input_dimensions = input_dimensions
         self.output_dimensions = output_dimensions
@@ -33,23 +33,23 @@ class DataHandler:
     def load_data_train(self):
         print('Loading Training Data')
         self.input_train, self.output_train = self.load_data(
-                self.input_train_file_path,
-                self.output_train_file_path,
+                self.filepath_input_train,
+                self.filepath_output_train,
                 self.num_data_train)
     def load_data_test(self):
         print('Loading Training Data')
         self.input_test, self.output_test = self.load_data(
-                self.input_test_file_path,
-                self.output_test_file_path,
+                self.filepath_input_test,
+                self.filepath_output_test,
                 self.num_data_test)
 
-    def load_data(self, file_path_input_data, file_path_output_data,
+    def load_data(self, filepath_input_data, filepath_output_data,
                   num_data):
 
         start_time_load_data = time.time()
 
-        df_input_data = pd.read_csv(file_path_input_data + '.csv')
-        df_output_data = pd.read_csv(file_path_output_data + '.csv')
+        df_input_data = pd.read_csv(filepath_input_data + '.csv')
+        df_output_data = pd.read_csv(filepath_output_data + '.csv')
         input_data = df_input_data.to_numpy()
         output_data = df_output_data.to_numpy()
         input_data = input_data.reshape((-1,self.input_dimensions))

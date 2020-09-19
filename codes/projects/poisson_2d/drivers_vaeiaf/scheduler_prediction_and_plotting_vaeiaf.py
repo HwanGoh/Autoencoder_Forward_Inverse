@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Sep 18 20:53:06 2019
-
 @author: Jon Wittmer
 """
 

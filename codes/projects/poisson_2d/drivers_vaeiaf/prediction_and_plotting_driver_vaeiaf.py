@@ -47,13 +47,13 @@ if __name__ == "__main__":
 
     #=== Options ===#
     with open('../config_files/options_vaeiaf.yaml') as f:
-        options = yaml.safe_load(f)
+        options = yaml.load(f, Loader=yaml.FullLoader)
     options = AttrDict(options)
     options = add_options(options)
     options.posterior_diagonal_covariance = False
     options.posterior_iaf = True
 
-    #=== Predict and Save ===#
+    #=== File Names ===#
     project_paths = FilePathsProject(options)
     filepaths = FilePathsPredictionAndPlotting(hyperp, options, project_paths)
 
