@@ -14,10 +14,10 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_io.config_io import command_line_json_string_to_dict
-from utils_io.file_paths_vae import FilePathsPredictionAndPlotting
+from utils_io.filepaths_vae import FilePathsPredictionAndPlotting
 
 # Import FilePaths class and plotting routine
-from utils_project.file_paths_project import FilePathsProject
+from utils_project.filepaths_project import FilePathsProject
 from utils_project.prediction_and_plotting_routine_vaeiaf\
         import predict_and_plot, plot_and_save_metrics
 
@@ -55,10 +55,10 @@ if __name__ == "__main__":
 
     #=== Predict and Save ===#
     project_paths = FilePathsProject(options)
-    file_paths = FilePathsPredictionAndPlotting(hyperp, options, project_paths)
+    filepaths = FilePathsPredictionAndPlotting(hyperp, options, project_paths)
 
     #=== Predict and Save ===#
-    predict_and_plot(hyperp, options, file_paths)
+    predict_and_plot(hyperp, options, filepaths)
 
     #=== Plot and Save ===#
-    plot_and_save_metrics(hyperp, options, file_paths)
+    plot_and_save_metrics(hyperp, options, filepaths)

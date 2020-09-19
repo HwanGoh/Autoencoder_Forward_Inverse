@@ -159,7 +159,7 @@ class Metrics:
 ###############################################################################
 #                                 Save Metrics                                #
 ###############################################################################
-    def save_metrics(self, file_paths):
+    def save_metrics(self, filepaths):
         metrics_dict = {}
         metrics_dict['loss_train'] = self.storage_array_loss_train
         metrics_dict['loss_train_autoencoder'] = self.storage_array_loss_train_autoencoder
@@ -175,4 +175,4 @@ class Metrics:
                 self.storage_array_relative_error_latent_encoder
         metrics_dict['relative_error_data_decoder'] = self.storage_array_relative_error_data_decoder
         df_metrics = pd.DataFrame(metrics_dict)
-        df_metrics.to_csv(file_paths.NN_savefile_name + "_metrics" + '.csv', index=False)
+        df_metrics.to_csv(filepaths.NN_savefile_name + "_metrics" + '.csv', index=False)

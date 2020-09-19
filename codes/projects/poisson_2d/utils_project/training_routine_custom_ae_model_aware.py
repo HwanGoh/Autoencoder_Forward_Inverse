@@ -18,7 +18,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                  Training                                   #
 ###############################################################################
-def trainer_custom(hyperp, options, file_paths,
+def trainer_custom(hyperp, options, filepaths,
                    data_dict, prior_dict):
 
     #=== GPU Settings ===#
@@ -69,7 +69,7 @@ def trainer_custom(hyperp, options, file_paths,
         optimizer = tf.keras.optimizers.Adam()
 
         #=== Training ===#
-        optimize(hyperp, options, file_paths,
+        optimize(hyperp, options, filepaths,
                  NN, optimizer,
                  loss_penalized_difference, relative_error,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
@@ -95,7 +95,7 @@ def trainer_custom(hyperp, options, file_paths,
 
         #=== Training ===#
         optimize_distributed(dist_strategy,
-                hyperp, options, file_paths,
+                hyperp, options, filepaths,
                 NN, optimizer,
                 loss_penalized_difference, relative_error,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,

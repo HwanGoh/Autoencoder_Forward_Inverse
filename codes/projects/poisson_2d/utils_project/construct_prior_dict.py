@@ -5,14 +5,14 @@ from utils_data.prior_handler import PriorHandler
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def construct_prior_dict(hyperp, options, file_paths,
+def construct_prior_dict(hyperp, options, filepaths,
                          load_mean = True,
                          load_covariance = True,
                          load_covariance_cholesky = True,
                          load_covariance_cholesky_inverse = True):
 
     prior_dict = {}
-    prior = PriorHandler(hyperp, options, file_paths,
+    prior = PriorHandler(hyperp, options, filepaths,
                          options.parameter_dimensions)
 
     #=== Prior Mean ===#

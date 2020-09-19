@@ -24,7 +24,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                             Training Properties                             #
 ###############################################################################
-def optimize(hyperp, options, file_paths,
+def optimize(hyperp, options, filepaths,
         NN, optimizer,
         loss_penalized_difference, kld_loss, relative_error,
         prior_mean, prior_covariance,
@@ -44,13 +44,13 @@ def optimize(hyperp, options, file_paths,
     metrics = Metrics()
 
     #=== Creating Directory for Trained Neural Network ===#
-    if not os.path.exists(file_paths.NN_savefile_directory):
-        os.makedirs(file_paths.NN_savefile_directory)
+    if not os.path.exists(filepaths.NN_savefile_directory):
+        os.makedirs(filepaths.NN_savefile_directory)
 
     #=== Tensorboard ===# "tensorboard --logdir=Tensorboard"
-    if os.path.exists(file_paths.tensorboard_directory):
-        shutil.rmtree(file_paths.tensorboard_directory)
-    summary_writer = tf.summary.create_file_writer(file_paths.tensorboard_directory)
+    if os.path.exists(filepaths.tensorboard_directory):
+        shutil.rmtree(filepaths.tensorboard_directory)
+    summary_writer = tf.summary.create_file_writer(filepaths.tensorboard_directory)
 
     #=== Display Neural Network Architecture ===#
     NN.build((hyperp.batch_size, input_dimensions))
@@ -142,7 +142,7 @@ def optimize(hyperp, options, file_paths,
         print('================================')
         print('            Epoch %d            ' %(epoch))
         print('================================')
-        print('Case: ' + file_paths.case_name + '\n' + 'NN: ' + file_paths.NN_name + '\n')
+        print('Case: ' + filepaths.case_name + '\n' + 'NN: ' + filepaths.NN_name + '\n')
         print('GPU: ' + options.which_gpu + '\n')
         print('Optimizing %d batches of size %d:' %(num_batches_train, hyperp.batch_size))
         start_time_epoch = time.time()
@@ -208,10 +208,10 @@ def optimize(hyperp, options, file_paths,
 
         #=== Saving Current Model and  Metrics ===#
         if epoch %100 ==0:
-            NN.save_weights(file_paths.NN_savefile_name)
-            metrics.save_metrics(file_paths)
-            dump_attrdict_as_yaml(hyperp, file_paths.NN_savefile_directory, 'hyperp')
-            dump_attrdict_as_yaml(options, file_paths.NN_savefile_directory, 'options')
+            NN.save_weights(filepaths.NN_savefile_name)
+            metrics.save_metrics(filepaths)
+            dump_attrdict_as_yaml(hyperp, filepaths.NN_savefile_directory, 'hyperp')
+            dump_attrdict_as_yaml(options, filepaths.NN_savefile_directory, 'options')
             print('Current Model and Metrics Saved')
 
         #=== Gradient Norm Termination Condition ===#
@@ -224,8 +224,8 @@ def optimize(hyperp, options, file_paths,
             penalty_kld += hyperp.penalty_kld_incr
 
     #=== Save Final Model ===#
-    NN.save_weights(file_paths.NN_savefile_name)
-    metrics.save_metrics(file_paths)
-    dump_attrdict_as_yaml(hyperp, file_paths.NN_savefile_directory, 'hyperp')
-    dump_attrdict_as_yaml(options, file_paths.NN_savefile_directory, 'options')
+    NN.save_weights(filepaths.NN_savefile_name)
+    metrics.save_metrics(filepaths)
+    dump_attrdict_as_yaml(hyperp, filepaths.NN_savefile_directory, 'hyperp')
+    dump_attrdict_as_yaml(options, filepaths.NN_savefile_directory, 'options')
     print('Final Model and Metrics Saved')

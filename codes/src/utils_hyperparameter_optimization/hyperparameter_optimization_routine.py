@@ -29,7 +29,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                     Hyperparameter Optimization Routine                     #
 ###############################################################################
-def optimize_hyperparameters(hyperp, options, file_paths,
+def optimize_hyperparameters(hyperp, options, filepaths,
                              n_calls, space, hyperp_of_interest_dict,
                              data_dict, prior_dict,
                              training_routine, loss_val_index,
@@ -45,15 +45,15 @@ def optimize_hyperparameters(hyperp, options, file_paths,
             hyperp[key] = value
 
         #=== Update File Paths with New Hyperparameters ===#
-        file_paths = FilePathsClass(hyperp, options, project_paths)
+        filepaths = FilePathsClass(hyperp, options, project_paths)
 
         #=== Training Routine ===#
-        training_routine(hyperp, options, file_paths,
+        training_routine(hyperp, options, filepaths,
                          data_dict, prior_dict)
 
         #=== Loading Metrics For Output ===#
         print('Loading Metrics')
-        df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
+        df_metrics = pd.read_csv(filepaths.NN_savefile_name + "_metrics" + '.csv')
         array_metrics = df_metrics.to_numpy()
         storage_array_loss_val = array_metrics[:,loss_val_index]
 
@@ -68,7 +68,7 @@ def optimize_hyperparameters(hyperp, options, file_paths,
     ######################
     #   Output Results   #
     ######################
-    output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result)
+    output_results(filepaths, hyperp_of_interest_dict, hyperp_opt_result)
 
     #####################################################
     #   Delete All Suboptimal Trained Neural Networks   #
@@ -78,17 +78,17 @@ def optimize_hyperparameters(hyperp, options, file_paths,
         hyperp[key] = hyperp_opt_result.x[num]
 
     #=== Updating File Paths with Optimal Hyperparameters ===#
-    file_paths = FilePathsClass(hyperp, options, project_paths)
+    filepaths = FilePathsClass(hyperp, options, project_paths)
 
     #=== Deleting Suboptimal Neural Networks ===#
     directories_list_trained_NNs = os.listdir(
-            path=file_paths.hyperp_opt_trained_NNs_case_directory)
+            path=filepaths.hyperp_opt_trained_NNs_case_directory)
     directories_list_tensorboard = os.listdir(
-            path=file_paths.hyperp_opt_tensorboard_case_directory)
+            path=filepaths.hyperp_opt_tensorboard_case_directory)
 
     for filename in directories_list_trained_NNs:
-        if filename != file_paths.NN_name:
-            shutil.rmtree(file_paths.hyperp_opt_trained_NNs_case_directory + '/' + filename)
-            shutil.rmtree(file_paths.hyperp_opt_tensorboard_case_directory + '/' + filename)
+        if filename != filepaths.NN_name:
+            shutil.rmtree(filepaths.hyperp_opt_trained_NNs_case_directory + '/' + filename)
+            shutil.rmtree(filepaths.hyperp_opt_tensorboard_case_directory + '/' + filename)
 
     print('Suboptimal Trained Networks Deleted')

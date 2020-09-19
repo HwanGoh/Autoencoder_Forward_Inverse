@@ -25,7 +25,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                               Output Results                                #
 ###############################################################################
-def output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result):
+def output_results(filepaths, hyperp_of_interest_dict, hyperp_opt_result):
 
     ##################################
     #   Display Optimal Parameters   #
@@ -43,10 +43,10 @@ def output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result):
     #   Save Optimization Information   #
     #####################################
     #=== Save .pkl File ===#
-    dump(hyperp_opt_result, file_paths.hyperp_opt_skopt_res_savefile_name, store_objective=False)
+    dump(hyperp_opt_result, filepaths.hyperp_opt_skopt_res_savefile_name, store_objective=False)
 
     #=== Write Optimal Set Hyperparameters ===#
-    with open(file_paths.hyperp_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
+    with open(filepaths.hyperp_opt_optimal_parameters_savefile_name, 'w') as optimal_set_txt:
         optimal_set_txt.write('Optimized Validation Loss: {}\n'.format(hyperp_opt_result.fun))
         optimal_set_txt.write('\n')
         optimal_set_txt.write('Optimized parameters:\n')
@@ -54,7 +54,7 @@ def output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result):
             optimal_set_txt.write(parameter_name + ': {}\n'.format(hyperp_opt_result.x[n]))
 
     #=== Write List of Scenarios Trained ===#
-    with open(file_paths.hyperp_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
+    with open(filepaths.hyperp_opt_scenarios_trained_savefile_name, 'w') as scenarios_trained_txt:
         for scenario in hyperp_opt_result.x_iters:
             scenarios_trained_txt.write("%s\n" % scenario)
 
@@ -62,10 +62,10 @@ def output_results(file_paths, hyperp_of_interest_dict, hyperp_opt_result):
     validation_losses_dict = {}
     validation_losses_dict['validation_losses'] = hyperp_opt_result.func_vals
     df_validation_losses = pd.DataFrame(validation_losses_dict)
-    df_validation_losses.to_csv(file_paths.hyperp_opt_validation_losses_savefile_name, index=False)
+    df_validation_losses.to_csv(filepaths.hyperp_opt_validation_losses_savefile_name, index=False)
 
     #=== Convergence Plot ===#
     plot_convergence(hyperp_opt_result)
-    plt.savefig(file_paths.hyperp_opt_convergence_savefile_name)
+    plt.savefig(filepaths.hyperp_opt_convergence_savefile_name)
 
     print('Outputs Saved')

@@ -15,10 +15,10 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_io.config_io import command_line_json_string_to_dict
-from utils_io.file_paths_ae import FilePathsTraining
+from utils_io.filepaths_ae import FilePathsTraining
 
 # Import Project Utilities
-from utils_project.file_paths_project import FilePathsProject
+from utils_project.filepaths_project import FilePathsProject
 from utils_project.construct_data_dict import construct_data_dict
 from utils_project.construct_prior_dict import construct_prior_dict
 from utils_project.training_routine_custom_ae_model_augmented_autodiff import trainer_custom
@@ -66,19 +66,19 @@ if __name__ == "__main__":
 
     #=== File Paths ===#
     project_paths = FilePathsProject(options)
-    file_paths = FilePathsTraining(hyperp, options, project_paths)
+    filepaths = FilePathsTraining(hyperp, options, project_paths)
 
     #=== Test Gradient ===#
-    # test_gradient(hyperp, options, file_paths)
+    # test_gradient(hyperp, options, filepaths)
 
     #=== Data and Prior Dictionary ===#
-    data_dict = construct_data_dict(hyperp, options, file_paths)
-    prior_dict = construct_prior_dict(hyperp, options, file_paths,
+    data_dict = construct_data_dict(hyperp, options, filepaths)
+    prior_dict = construct_prior_dict(hyperp, options, filepaths,
                                       load_mean = True,
                                       load_covariance = False,
                                       load_covariance_cholesky = False,
                                       load_covariance_cholesky_inverse = True)
 
     #=== Initiate Training ===#
-    trainer_custom(hyperp, options, file_paths,
+    trainer_custom(hyperp, options, filepaths,
                    data_dict, prior_dict)

@@ -5,7 +5,7 @@ from utils_data.data_handler import DataHandler
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def construct_data_dict(hyperp, options, file_paths):
+def construct_data_dict(hyperp, options, filepaths):
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
@@ -14,11 +14,11 @@ def construct_data_dict(hyperp, options, file_paths):
     if options.obs_type == 'obs':
         obs_dimensions = options.num_obs_points
         print('Loading Boundary Indices')
-        df_obs_indices = pd.read_csv(file_paths.project.obs_indices_file_path + '.csv')
+        df_obs_indices = pd.read_csv(filepaths.project.obs_indices_file_path + '.csv')
         obs_indices = df_obs_indices.to_numpy()
 
     #=== Prepare Data ===#
-    data = DataHandler(hyperp, options, file_paths,
+    data = DataHandler(hyperp, options, filepaths,
                        options.parameter_dimensions, obs_dimensions)
     data.load_data_train()
     data.load_data_test()

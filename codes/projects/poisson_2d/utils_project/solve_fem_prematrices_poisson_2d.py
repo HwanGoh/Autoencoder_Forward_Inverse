@@ -8,14 +8,14 @@ from utils_project.integrals_pwl_prestiffness import integrals_pwl_prestiffness
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 class SolveFEMPrematricesPoisson2D:
-    def __init__(self, options, file_paths,
+    def __init__(self, options, filepaths,
                  obs_indices,
                  prestiffness,
                  boundary_matrix, load_vector):
 
         #=== Defining Attributes ===#
         self.options = options
-        self.file_paths = file_paths
+        self.filepaths = filepaths
         self.obs_indices = tf.cast(obs_indices, tf.int32)
         self.prestiffness = prestiffness
         self.boundary_matrix = boundary_matrix

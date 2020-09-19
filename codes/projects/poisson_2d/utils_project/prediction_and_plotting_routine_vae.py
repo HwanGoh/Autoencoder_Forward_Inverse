@@ -27,7 +27,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                              Plot Predictions                               #
 ###############################################################################
-def predict_and_plot(hyperp, options, file_paths):
+def predict_and_plot(hyperp, options, filepaths):
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
@@ -40,7 +40,7 @@ def predict_and_plot(hyperp, options, file_paths):
     latent_dimensions = options.parameter_dimensions
 
     #=== Prepare Data ===#
-    data = DataHandler(hyperp, options, file_paths,
+    data = DataHandler(hyperp, options, filepaths,
                        options.parameter_dimensions, obs_dimensions)
     data.load_data_test()
     parameter_test = data.input_test
@@ -51,7 +51,7 @@ def predict_and_plot(hyperp, options, file_paths):
                     input_dimensions, latent_dimensions,
                     None, None,
                     positivity_constraint_log_exp)
-    NN.load_weights(file_paths.NN_savefile_name)
+    NN.load_weights(filepaths.NN_savefile_name)
 
     #=== Selecting Samples ===#
     sample_number = 105
@@ -69,23 +69,23 @@ def predict_and_plot(hyperp, options, file_paths):
     print('      Plotting Predictions      ')
     print('================================')
     #=== Load Mesh ===#
-    nodes, elements, _, _, _, _, _, _ = load_mesh(file_paths)
+    nodes, elements, _, _, _, _, _, _ = load_mesh(filepaths)
 
     #=== Plot FEM Functions ===#
-    plot_fem_function(file_paths.figures_savefile_name_parameter_test,
+    plot_fem_function(filepaths.figures_savefile_name_parameter_test,
                      'True Parameter', 7.0,
                       nodes, elements,
                       parameter_test_sample)
-    plot_fem_function(file_paths.figures_savefile_name_parameter_pred,
+    plot_fem_function(filepaths.figures_savefile_name_parameter_pred,
                       'Parameter Prediction', 7.0,
                       nodes, elements,
                       parameter_pred_sample)
     if options.obs_type == 'full':
-        plot_fem_function(file_paths.figures_savefile_name_state_test,
+        plot_fem_function(filepaths.figures_savefile_name_state_test,
                           'True State', 2.6,
                           nodes, elements,
                           state_obs_test_sample)
-        plot_fem_function(file_paths.figures_savefile_name_state_pred,
+        plot_fem_function(filepaths.figures_savefile_name_state_pred,
                           'State Prediction', 2.6,
                           nodes, elements,
                           state_obs_pred_sample)
@@ -95,13 +95,13 @@ def predict_and_plot(hyperp, options, file_paths):
 ###############################################################################
 #                                Plot Metrics                                 #
 ###############################################################################
-def plot_and_save_metrics(hyperp, options, file_paths):
+def plot_and_save_metrics(hyperp, options, filepaths):
     print('================================')
     print('        Plotting Metrics        ')
     print('================================')
     #=== Load Metrics ===#
     print('Loading Metrics')
-    df_metrics = pd.read_csv(file_paths.NN_savefile_name + "_metrics" + '.csv')
+    df_metrics = pd.read_csv(filepaths.NN_savefile_name + "_metrics" + '.csv')
     array_metrics = df_metrics.to_numpy()
 
     ####################
@@ -125,7 +125,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
     plt.title('Log-Loss for Training Neural Network')
     plt.xlabel('Epochs')
     plt.ylabel('Log-Loss')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+    figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
             'loss.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
@@ -137,7 +137,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
     plt.title('Log-Loss for VAE')
     plt.xlabel('Epochs')
     plt.ylabel('Log-Loss')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+    figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
             'loss_autoencoder.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
@@ -149,7 +149,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
     plt.title('Log-Loss for Encoder')
     plt.xlabel('Epochs')
     plt.ylabel('Log-Loss')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+    figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
             'loss_encoder.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_loss)
@@ -161,7 +161,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
     plt.title('Relative Error for Autoencoder')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+    figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
             'relative_error_autoencoder.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_accuracy)
@@ -173,7 +173,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
     plt.title('Relative Error for Encoder')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+    figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
             'relative_error_encoder.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_accuracy)
@@ -185,7 +185,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
     plt.title('Relative Error for Decoder')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+    figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
             'relative_error_decoder.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_accuracy)
@@ -197,7 +197,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
     plt.title('Relative Gradient Norm')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
-    figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+    figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
             'relative_error_gradient_norm.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_gradient_norm)
@@ -210,7 +210,7 @@ def plot_and_save_metrics(hyperp, options, file_paths):
         plt.title('Log-loss Forward Model')
         plt.xlabel('Epochs')
         plt.ylabel('Relative Error')
-        figures_savefile_name = file_paths.figures_savefile_directory + '/' +\
+        figures_savefile_name = filepaths.figures_savefile_directory + '/' +\
                 'loss_forward_model.png'
         plt.savefig(figures_savefile_name)
         plt.close(fig_loss)

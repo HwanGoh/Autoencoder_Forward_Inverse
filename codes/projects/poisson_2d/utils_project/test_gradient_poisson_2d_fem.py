@@ -11,7 +11,7 @@ from loss_and_relative_errors import loss_penalized_difference
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def test_gradient(hyperp, options, file_paths):
+def test_gradient(hyperp, options, filepaths):
 ###############################################################################
 #                        Construct Directional Derivative                     #
 ###############################################################################
@@ -23,7 +23,7 @@ def test_gradient(hyperp, options, file_paths):
     #   Load Prior   #
     ##################
     prior_mean, _, prior_covariance_cholesky, _\
-    = load_prior(options, file_paths,
+    = load_prior(options, filepaths,
                  load_mean = 1,
                  load_covariance = 0,
                  load_covariance_cholesky = 1, load_covariance_cholesky_inverse = 0)
@@ -46,17 +46,17 @@ def test_gradient(hyperp, options, file_paths):
     if options.obs_type == 'obs':
         obs_dimensions = options.num_obs_points
         print('Loading Boundary Indices')
-        df_obs_indices = pd.read_csv(file_paths.obs_indices_savefilepath + '.csv')
+        df_obs_indices = pd.read_csv(filepaths.obs_indices_savefilepath + '.csv')
         obs_indices = df_obs_indices.to_numpy()
 
     #=== Load FEM Matrices ===#
     _, prestiffness, boundary_matrix, load_vector =\
-            load_fem_matrices_tf(options, file_paths,
+            load_fem_matrices_tf(options, filepaths,
                                  load_premass = 0,
                                  load_prestiffness = 1)
 
     #=== Construct Forward Model ===#
-    forward_model = FEMPrematricesPoisson2D(options, file_paths,
+    forward_model = FEMPrematricesPoisson2D(options, filepaths,
                                             obs_indices,
                                             prestiffness,
                                             boundary_matrix, load_vector)

@@ -10,7 +10,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                 Standard                                    #
 ###############################################################################
-def solve_PDE_standard(options, file_paths,
+def solve_PDE_standard(options, filepaths,
                        parameters,
                        obs_indices, nodes, elements,
                        boundary_matrix, load_vector):
@@ -32,7 +32,7 @@ def solve_PDE_standard(options, file_paths,
 ###############################################################################
 #                                 Sensitivity                                 #
 ###############################################################################
-def construct_sensitivity(options, file_paths,
+def construct_sensitivity(options, filepaths,
                           parameters, state,
                           obs_indices, nodes, elements,
                           boundary_matrix, load_vector):

@@ -15,10 +15,10 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_io.config_io import command_line_json_string_to_dict
-from utils_io.file_paths_vae import FilePathsTraining
+from utils_io.filepaths_vae import FilePathsTraining
 
 # Import Project Utilities
-from utils_project.file_paths_project import FilePathsProject
+from utils_project.filepaths_project import FilePathsProject
 from utils_project.construct_data_dict import construct_data_dict
 from utils_project.construct_prior_dict import construct_prior_dict
 from utils_project.training_routine_custom_vaeiaf_model_aware import trainer_custom
@@ -67,16 +67,16 @@ if __name__ == "__main__":
 
     #=== File Paths ===#
     project_paths = FilePathsProject(options)
-    file_paths = FilePathsTraining(hyperp, options, project_paths)
+    filepaths = FilePathsTraining(hyperp, options, project_paths)
 
     #=== Data and Prior Dictionary ===#
-    data_dict = construct_data_dict(hyperp, options, file_paths)
-    prior_dict = construct_prior_dict(hyperp, options, file_paths,
+    data_dict = construct_data_dict(hyperp, options, filepaths)
+    prior_dict = construct_prior_dict(hyperp, options, filepaths,
                                       load_mean = True,
                                       load_covariance = False,
                                       load_covariance_cholesky = False,
                                       load_covariance_cholesky_inverse = True)
 
     #=== Initiate training ===#
-    trainer_custom(hyperp, options, file_paths,
+    trainer_custom(hyperp, options, filepaths,
                    data_dict, prior_dict)

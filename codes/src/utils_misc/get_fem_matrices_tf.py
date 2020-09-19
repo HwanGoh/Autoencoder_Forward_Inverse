@@ -6,27 +6,27 @@ from utils_misc.convert_dense_to_sparse_tensor import convert_dense_to_sparse_te
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def load_fem_matrices_tf(options, file_paths,
+def load_fem_matrices_tf(options, filepaths,
                          load_premass = 0,
                          load_prestiffness = 0):
     #=== Premass ===#
     if load_premass == 1:
-        premass = sparse.load_npz(file_paths.project.premass_file_path + '.npz')
+        premass = sparse.load_npz(filepaths.project.premass_file_path + '.npz')
     else:
         premass = 0
 
     #=== Prestiffness ===#
     if load_prestiffness == 1:
-        prestiffness = sparse.load_npz(file_paths.project.prestiffness_file_path + '.npz')
+        prestiffness = sparse.load_npz(filepaths.project.prestiffness_file_path + '.npz')
     else:
         prestiffness = 0
 
     #=== Boundary Matrix ===#
-    boundary_matrix = sparse.load_npz(file_paths.project.boundary_matrix_file_path + '.npz')
+    boundary_matrix = sparse.load_npz(filepaths.project.boundary_matrix_file_path + '.npz')
     boundary_matrix = options.boundary_matrix_constant*boundary_matrix
 
     #=== Load Vector ===#
-    load_vector = sparse.load_npz(file_paths.project.load_vector_file_path + '.npz')
+    load_vector = sparse.load_npz(filepaths.project.load_vector_file_path + '.npz')
     load_vector = -options.load_vector_constant*load_vector
 
     #=== Convert to Tensor ===#

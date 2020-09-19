@@ -17,12 +17,12 @@ import yaml
 from attrdict import AttrDict
 
 # Import src code
-from utils_io.file_paths_ae import FilePathsHyperparameterOptimization
+from utils_io.filepaths_ae import FilePathsHyperparameterOptimization
 from utils_hyperparameter_optimization.hyperparameter_optimization_routine\
         import optimize_hyperparameters
 
 # Import Project Utilities
-from utils_project.file_paths_project import FilePathsProject
+from utils_project.filepaths_project import FilePathsProject
 from utils_project.construct_data_dict import construct_data_dict
 from utils_project.construct_prior_dict import construct_prior_dict
 from utils_project.training_routine_custom_ae_model_augmented_autodiff import\
@@ -95,11 +95,11 @@ if __name__ == "__main__":
 
     #=== File Paths ===#
     project_paths = FilePathsProject(options)
-    file_paths = FilePathsHyperparameterOptimization(hyperp, options, project_paths)
+    filepaths = FilePathsHyperparameterOptimization(hyperp, options, project_paths)
 
     #=== Data and Prior Dictionary ===#
-    data_dict = construct_data_dict(hyperp, options, file_paths)
-    prior_dict = construct_prior_dict(hyperp, options, file_paths,
+    data_dict = construct_data_dict(hyperp, options, filepaths)
+    prior_dict = construct_prior_dict(hyperp, options, filepaths,
                                       load_mean = True,
                                       load_covariance = False,
                                       load_covariance_cholesky = False,
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     ###############################
     #   Optimize Hyperparameters  #
     ###############################
-    optimize_hyperparameters(hyperp, options, file_paths,
+    optimize_hyperparameters(hyperp, options, filepaths,
                              n_calls, space, hyperp_of_interest_dict,
                              data_dict, prior_dict,
                              trainer_custom, 5,
