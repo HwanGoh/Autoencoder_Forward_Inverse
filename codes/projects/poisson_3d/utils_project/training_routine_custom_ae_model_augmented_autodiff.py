@@ -17,7 +17,7 @@ from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import project utilities
 from utils_project.get_fem_matrices_tf import load_fem_matrices_tf
-from utils_project.solve_fem_prematrices_poisson_2d import SolveFEMPrematricesPoisson2D
+from utils_project.solve_fem_prematrices_poisson_3d import SolveFEMPrematricesPoisson3D
 
 ###############################################################################
 #                                  Training                                   #
@@ -64,7 +64,7 @@ def trainer_custom(hyperp, options, filepaths,
                                  load_prestiffness = 1)
 
     #=== Construct Forward Model ===#
-    forward_model = SolveFEMPrematricesPoisson2D(options, filepaths,
+    forward_model = SolveFEMPrematricesPoisson3D(options, filepaths,
                                                  data_dict["obs_indices"],
                                                  prestiffness,
                                                  boundary_matrix, load_vector)

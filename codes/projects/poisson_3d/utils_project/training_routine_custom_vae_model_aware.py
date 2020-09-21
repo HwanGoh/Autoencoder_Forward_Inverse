@@ -11,13 +11,9 @@ from neural_networks.nn_vae_fwd_inv import VAEFwdInv
 from utils_training.loss_and_relative_errors import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
         kld_diagonal_post_cov, relative_error
-from optimize.optimize_custom_vae_model_augmented_autodiff import optimize
-from optimize.optimize_distributed_custom_vae_model_augmented_autodiff import optimize_distributed
+from optimize.optimize_custom_vae_model_aware import optimize
+from optimize.optimize_distributed_custom_vae_model_aware import optimize_distributed
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
-
-# Import project utilities
-from utils_project.get_fem_matrices_tf import load_fem_matrices_tf
-from utils_project.solve_fem_prematrices_poisson_2d import SolveFEMPrematricesPoisson2D
 
 import pdb
 
@@ -47,18 +43,6 @@ def trainer_custom(hyperp, options, filepaths,
     input_dimensions = data_dict["obs_dimensions"]
     latent_dimensions = options.parameter_dimensions
 
-    #=== Load FEM Matrices ===#
-    _, prestiffness, boundary_matrix, load_vector =\
-            load_fem_matrices_tf(options, filepaths,
-                                 load_premass = 0,
-                                 load_prestiffness = 1)
-
-    #=== Construct Forward Model ===#
-    forward_model = SolveFEMPrematricesPoisson2D(options, filepaths,
-                                                 data_dict["obs_indices"],
-                                                 prestiffness,
-                                                 boundary_matrix, load_vector)
-
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
@@ -83,8 +67,7 @@ def trainer_custom(hyperp, options, filepaths,
                  input_dimensions, latent_dimensions, num_batches_train,
                  loss_weighted_penalized_difference,
                  data_dict["noise_regularization_matrix"],
-                 positivity_constraint_log_exp,
-                 forward_model.solve_pde_prematrices_sparse)
+                 positivity_constraint_log_exp)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -93,8 +76,7 @@ def trainer_custom(hyperp, options, filepaths,
             #=== Neural Network ===#
             NN = VAEFwdInv(hyperp, options,
                            input_dimensions, latent_dimensions,
-                           kernel_initializer, bias_initializer,
-                           positivity_constraint_log_exp)
+                           kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
@@ -109,5 +91,4 @@ def trainer_custom(hyperp, options, filepaths,
                 input_dimensions, latent_dimensions, num_batches_train,
                 loss_weighted_penalized_difference,
                 data_dict["noise_regularization_matrix"],
-                positivity_constraint_log_exp,
-                forward_model.solve_pde_prematrices_sparse)
+                positivity_constraint_log_exp)
