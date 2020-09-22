@@ -95,7 +95,7 @@ if __name__ == '__main__':
             print(f'process {key} running on gpu {val}')
 
         # Schedule and run processes
-        schedule_runs_static_gpu(scenarios_list, active_procs, proc_to_gpu_mapping, comm)
+        schedule_runs(scenarios_list, active_procs, proc_to_gpu_mapping, comm)
 
     else:
         # This is the worker processes' action
