@@ -7,6 +7,7 @@ Created on Wed Sep 18 20:53:06 2019
 """
 import subprocess
 from mpi4py import MPI
+import pynvml
 
 import os
 import sys
