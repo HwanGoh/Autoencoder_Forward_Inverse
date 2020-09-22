@@ -30,15 +30,18 @@ class FLAGS:
 ###############################################################################
 def generate_scenarios_list():
     hyperp = {}
-    hyperp['num_hidden_layers'] = [5]
-    hyperp['num_hidden_nodes']  = [500]
-    hyperp['activation']        = ['relu']
-    hyperp['regularization']    = [0]
-    hyperp['penalty_aug']       = [0.000001, 0.00001, 0.0001, 0.001]
-    hyperp['penalty_prior']     = [0.000001, 0.00001, 0.0001, 0.001]
-    hyperp['num_data_train']    = [10000]
-    hyperp['batch_size']        = [100]
-    hyperp['num_epochs']        = [1000]
+    hyperp['num_hidden_layers_encoder'] = [5]
+    hyperp['num_hidden_layers_decoder'] = [2]
+    hyperp['num_hidden_nodes_encoder']  = [500]
+    hyperp['num_hidden_nodes_decoder']  = [500]
+    hyperp['activation']                = ['relu']
+    hyperp['penalty_encoder']           = [10, 50, 100, 1000]
+    hyperp['penalty_decoder']           = [10]
+    hyperp['penalty_aug']               = [10, 50, 100, 1000]
+    hyperp['penalty_prior']             = [0.1]
+    hyperp['num_data_train']            = [10000]
+    hyperp['batch_size']                = [100]
+    hyperp['num_epochs']                = [1000]
 
     return get_hyperparameter_combinations(hyperp)
 
@@ -119,9 +122,9 @@ if __name__ == '__main__':
 
             # convert dictionary to json
             scenario = json.dumps(scenario)
-            # proc = subprocess.Popen(['./training_driver_fc.py',
+            # proc = subprocess.Popen(['./training_driver_ae_model_aware.py',
             #     f'{scenario_json}',f'{scenario["gpu"]}'])
-            proc = subprocess.Popen(['./training_driver_fc_model_augmented_autodiff.py',
+            proc = subprocess.Popen(['./training_driver_ae_model_augmented_autodiff.py',
                 f'{scenario_json}',f'{scenario["gpu"]}'])
             proc.wait()
 
