@@ -46,7 +46,7 @@ def schedule_runs(scenarios, procs, proc_to_gpu_mapping, comm):
         if len(available_processes) > 0 and len(scenarios) > 0:
             curr_process = available_processes.pop(0) # rank of the process to send to
             curr_scenario = scenarios.pop(0)
-            curr_scenario['gpus'] = str(proc_to_gpu_mapping[str(curr_process)]) # which GPUs we want to run the process on.
+            curr_scenario['gpu'] = str(proc_to_gpu_mapping[str(curr_process)]) # which GPUs we want to run the process on.
 
             print('Beginning Training of NN:')
             print()

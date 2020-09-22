@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action
         # get scenarios list
-        scenarios_list = get_training_scenarios()
+        scenarios_list = generate_scenario_list()
 
         # get the info for all processes
         processes = []
@@ -122,7 +122,7 @@ if __name__ == '__main__':
                 break
 
             # convert dictionary to json
-            scenario = json.dumps(scenario)
+            scenario_json = json.dumps(scenario)
             # proc = subprocess.Popen(['./training_driver_ae_model_aware.py',
             #     f'{scenario_json}',f'{scenario["gpu"]}'])
             proc = subprocess.Popen(['./training_driver_ae_model_augmented_autodiff.py',
