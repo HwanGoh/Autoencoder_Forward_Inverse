@@ -14,11 +14,11 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_io.config_io import command_line_json_string_to_dict
-from utils_io.filepaths_ae import FilePathsPredictionAndPlotting
+from utils_io.filepaths_vae import FilePathsPredictionAndPlotting
 
 # Import FilePaths class and plotting routine
 from utils_project.filepaths_project import FilePathsProject
-from utils_project.prediction_and_plotting_routine_ae import predict_and_plot, plot_and_save_metrics
+from utils_project.prediction_and_plotting_routine_vae import predict_and_plot, plot_and_save_metrics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -38,17 +38,19 @@ def add_options(options):
 if __name__ == "__main__":
 
     #=== Hyperparameters ===#
-    with open('../config_files/hyperparameters_ae.yaml') as f:
+    with open('../config_files/hyperparameters_vae.yaml') as f:
         hyperp = yaml.safe_load(f)
     if len(sys.argv) > 1: # if run from scheduler
         hyperp = command_line_json_string_to_dict(sys.argv[1], hyperp)
     hyperp = AttrDict(hyperp)
 
     #=== Options ===#
-    with open('../config_files/options_ae.yaml') as f:
-        options = yaml.safe_load(f)
+    with open('../config_files/options_vae.yaml') as f:
+        options = yaml.load(f, Loader=yaml.FullLoader)
     options = AttrDict(options)
     options = add_options(options)
+    options.posterior_diagonal_covariance = True
+    options.posterior_iaf = False
 
     #=== File Names ===#
     project_paths = FilePathsProject(options)

@@ -14,11 +14,13 @@ from attrdict import AttrDict
 
 # Import src code
 from utils_io.config_io import command_line_json_string_to_dict
-from utils_io.filepaths_ae import FilePathsPredictionAndPlotting
+from utils_io.filepaths_ae import FilePathsTraining
 
-# Import FilePaths class and plotting routine
+# Import Project Utilities
 from utils_project.filepaths_project import FilePathsProject
-from utils_project.prediction_and_plotting_routine_ae import predict_and_plot, plot_and_save_metrics
+from utils_project.construct_data_dict import construct_data_dict
+from utils_project.construct_prior_dict import construct_prior_dict
+from utils_project.training_routine_custom_ae_model_aware import trainer_custom
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -27,13 +29,19 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def add_options(options):
 
-    options.model_aware = False
-    options.model_augmented = True
+    #=== Use Distributed Strategy ===#
+    options.distributed_training = False
+
+    #=== Which GPUs to Use for Distributed Strategy ===#
+    options.dist_which_gpus = '0,1,2,3'
+
+    #=== Which Single GPU to Use ===#
+    options.which_gpu = '2'
 
     return options
 
 ###############################################################################
-#                                   Driver                                    #
+#                                 Driver                                      #
 ###############################################################################
 if __name__ == "__main__":
 
@@ -49,13 +57,23 @@ if __name__ == "__main__":
         options = yaml.safe_load(f)
     options = AttrDict(options)
     options = add_options(options)
+    if len(sys.argv) > 1: # if run from scheduler
+        options.which_gpu = sys.argv[2]
+    options.model_aware = True
+    options.model_augmented = False
 
-    #=== File Names ===#
+    #=== File Paths ===#
     project_paths = FilePathsProject(options)
-    filepaths = FilePathsPredictionAndPlotting(hyperp, options, project_paths)
+    filepaths = FilePathsTraining(hyperp, options, project_paths)
 
-    #=== Predict and Save ===#
-    predict_and_plot(hyperp, options, filepaths)
+    #=== Data and Prior Dictionary ===#
+    data_dict = construct_data_dict(hyperp, options, filepaths)
+    prior_dict = construct_prior_dict(hyperp, options, filepaths,
+                                      load_mean = True,
+                                      load_covariance = False,
+                                      load_covariance_cholesky = False,
+                                      load_covariance_cholesky_inverse = True)
 
-    #=== Plot and Save ===#
-    plot_and_save_metrics(hyperp, options, filepaths)
+    #=== Initiate training ===#
+    trainer_custom(hyperp, options, filepaths,
+                   data_dict, prior_dict)

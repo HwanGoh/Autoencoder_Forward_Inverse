@@ -5,16 +5,24 @@ Created on Wed Sep 18 20:53:06 2019
 
 @author: Jon Wittmer
 """
+import subprocess
+from mpi4py import MPI
 
 import os
 import sys
 sys.path.insert(0, os.path.realpath('../../../src'))
 import json
-import subprocess
 
 from utils_scheduler.get_hyperparameter_combinations import get_hyperparameter_combinations
+from utils_scheduler.schedule_and_run import schedule_runs
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
+class FLAGS:
+    RECEIVED = 1
+    RUN_FINISHED = 2
+    EXIT = 3
+    NEW_RUN = 4
 
 ###############################################################################
 #                           Generate Scenarios List                           #
@@ -41,15 +49,39 @@ def generate_scenarios_list():
 ###############################################################################
 if __name__ == '__main__':
 
-    #=== Get list of dictionaries of all combinations ===#
-    scenarios_list = generate_scenarios_list()
-    print('scenarios_list generated')
+    # To run this code "mpirun -n 5 ./scheduler_training_ae.py" in command line
 
-    #=== Convert dictionary to json string ===#
-    for scenario in scenarios_list:
-        scenario_json = json.dumps(scenario)
-        proc = subprocess.Popen(
-                ['./prediction_and_plotting_driver_ae.py', f'{scenario_json}'])
-        proc.wait()
+    # mpi stuff
+    comm   = MPI.COMM_WORLD
+    nprocs = comm.Get_size()
+    rank   = comm.Get_rank()
+
+    # By running "mpirun -n <number> ./scheduler_", each
+    # process is cycled through by their rank
+    if rank == 0: # This is the master processes' action
+        # Generate scenarios list
+        scenarios_list = generate_scenarios_list()
+
+        # Schedule and run processes
+        schedule_runs(scenarios_list, nprocs, comm)
+
+    else:  # This is the worker processes' action
+        while True:
+            status = MPI.Status()
+            scenario = comm.recv(source=0, status=status)
+
+            if status.tag == FLAGS.EXIT:
+                break
+
+            # Dump scenario to driver code and run
+            scenario_json = json.dumps(scenario)
+            proc = subprocess.Popen(['./training_driver_ae_model_aware.py',
+                f'{scenario_json}',f'{scenario["gpu"]}'])
+            # proc = subprocess.Popen(['./training_driver_ae_model_augmented_autodiff.py',
+                # f'{scenario_json}',f'{scenario["gpu"]}'])
+            proc.wait()
+
+            req = comm.isend([], 0, FLAGS.RUN_FINISHED)
+            req.wait()
 
     print('All scenarios computed')
