@@ -132,12 +132,3 @@ if __name__ == '__main__':
             req.wait()
 
     print('All scenarios computed')
-
-            # Dump scenario to driver code and run
-            scenario_json = json.dumps(scenario)
-            proc.wait()
-
-            req = comm.isend([], 0, FLAGS.RUN_FINISHED)
-            req.wait()
-
-    print('All scenarios computed')
