@@ -139,6 +139,7 @@ def optimize_distributed(dist_strategy,
             metrics.mean_loss_train_autoencoder(unscaled_replica_batch_loss_train_autoencoder)
             metrics.mean_loss_train_encoder(unscaled_replica_batch_loss_train_encoder)
             metrics.mean_loss_train_decoder(unscaled_replica_batch_loss_train_decoder)
+            metrics.mean_loss_train_forward_model(unscaled_replica_batch_loss_train_forward_model)
             return scaled_replica_batch_loss_train
 
         @tf.function
