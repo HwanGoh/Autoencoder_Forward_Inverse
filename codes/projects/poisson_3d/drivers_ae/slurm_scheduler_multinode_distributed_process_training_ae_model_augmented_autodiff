@@ -10,4 +10,4 @@
 #SBATCH --mail-type=all
 
 module load intel/18.0.2 python3/3.7.0 cuda/10.1 cudnn/7.6.5 nccl/2.5.6
-ibrun ./scheduler_multinode_training_ae.py
+ibrun ./scheduler_multinode_distributed_process_training_ae.py
