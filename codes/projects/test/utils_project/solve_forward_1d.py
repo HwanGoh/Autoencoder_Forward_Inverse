@@ -18,10 +18,14 @@ class SolveForward1D:
     def exponential(self, parameters):
 
         #=== Form State Batch ===#
-        state = parameters[0,0]*tf.exp(-parameters[0,1]*self.mesh.flatten())
+        state = tf.expand_dims(
+                parameters[0,0]*tf.exp(-parameters[0,1]*self.mesh.flatten()),
+                axis=0)
         for n in range(1, parameters.shape[0]):
-            solution = parameters[n,0]*tf.exp(-parameters[n,1]*self.mesh.flatten())
-            state = tf.concat([state, tf.transpose(solution)], axis=0)
+            solution = tf.expand_dims(
+                       parameters[n,0]*tf.exp(-parameters[n,1]*self.mesh.flatten()),
+                       axis=0)
+            state = tf.concat([state, solution], axis=0)
 
         #=== Generate Measurement Data ===#
         if self.options.obs_type == 'obs':
