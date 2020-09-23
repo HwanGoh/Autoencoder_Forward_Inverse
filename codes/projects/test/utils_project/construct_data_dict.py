@@ -9,7 +9,7 @@ def construct_data_dict(hyperp, options, filepaths):
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
-        obs_dimensions = options.parameter_dimensions
+        obs_dimensions = options.mesh_dimensions
         obs_indices = []
     if options.obs_type == 'obs':
         obs_dimensions = options.num_obs_points

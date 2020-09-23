@@ -1,6 +1,10 @@
 # Code Structure:
 * Below is a description of the source codes as well as the key codes in my
-  input/output system. However, there is no need to use this system; you can use
+  input/output system.
+* For an illustrative example, see the test case in codes/projects/test. You may
+  have to first generate the training and testing data using
+  codes/projects/test/data_generator/data_generator_1d.py.
+* However, there is no need to use my input/output system; you can use
   your own input/output codes so long as the appropriate calls to the neural
   networks in src/neural_networks and optimization routines in src/optimize are
   implemented.

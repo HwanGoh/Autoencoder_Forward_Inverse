@@ -16,7 +16,7 @@ from optimize.optimize_distributed_custom_vae_model_augmented_autodiff import op
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import project utilities
-from utils_project.solve_forward_1D import SolveForward1D
+from utils_project.solve_forward_1d import SolveForward1D
 
 import pdb
 
@@ -45,12 +45,6 @@ def trainer_custom(hyperp, options, filepaths,
     #=== Data and Latent Dimensions of Autoencoder ===#
     input_dimensions = data_dict["obs_dimensions"]
     latent_dimensions = options.parameter_dimensions
-
-    #=== Load FEM Matrices ===#
-    _, prestiffness, boundary_matrix, load_vector =\
-            load_fem_matrices_tf(options, filepaths,
-                                 load_premass = 0,
-                                 load_prestiffness = 1)
 
     #=== Construct Forward Model ===#
     forward_model = SolveForward1D(options, filepaths, data_dict["obs_indices"])
