@@ -75,7 +75,7 @@ def optimize_distributed(dist_strategy,
                 batch_input_pred_train = NN.decoder(batch_latent_train)
 
                 if options.standard_autoencoder == True:
-                    batch_input_pred_forward_model_train =\
+                    batch_latent_pred_forward_model_train =\
                             solve_forward_model(batch_input_pred_train_AE)
 
                     unscaled_replica_batch_loss_train_autoencoder =\
@@ -95,10 +95,13 @@ def optimize_distributed(dist_strategy,
                             hyperp.penalty_prior)
                     unscaled_replica_batch_loss_train_forward_model =\
                             loss_weighted_penalized_difference(
-                                    batch_latent_train, batch_input_pred_forward_model_train,
+                                    batch_latent_train, batch_latent_pred_forward_model_train,
                                     noise_regularization_matrix, hyperp.penalty_aug)
 
                 if options.reverse_autoencoder == True:
+                    batch_input_pred_forward_model_train =\
+                            solve_forward_model(batch_latent_pred_train)
+
                     unscaled_replica_batch_loss_train_autoencoder =\
                             loss_weighted_penalized_difference(
                                     batch_input_train,
@@ -120,7 +123,7 @@ def optimize_distributed(dist_strategy,
                             hyperp.penalty_prior)
                     unscaled_replica_batch_loss_train_forward_model =\
                             loss_weighted_penalized_difference(
-                                    batch_input_train, batch_latent_pred_forward_model_train,
+                                    batch_input_train, batch_input_pred_forward_model_train,
                                     noise_regularization_matrix, hyperp.penalty_aug)
 
                 unscaled_replica_batch_loss_train =\

@@ -63,7 +63,7 @@ def optimize(hyperp, options, filepaths,
             batch_input_pred_train = NN.decoder(batch_latent_train)
 
             if options.standard_autoencoder == True:
-                batch_input_pred_forward_model_train = solve_forward_model(batch_input_pred_train_AE)
+                batch_latent_pred_forward_model_train = solve_forward_model(batch_input_pred_train_AE)
 
                 batch_loss_train_autoencoder = loss_penalized_difference(
                         batch_input_train, batch_input_pred_train_AE, 1)
@@ -78,11 +78,11 @@ def optimize(hyperp, options, filepaths,
                         prior_mean, prior_covariance_cholesky_inverse,
                         hyperp.penalty_prior)
                 batch_loss_train_forward_model = loss_weighted_penalized_difference(
-                                    batch_latent_train, batch_input_pred_forward_model_train,
+                                    batch_latent_train, batch_latent_pred_forward_model_train,
                                     noise_regularization_matrix, hyperp.penalty_aug)
 
             if options.reverse_autoencoder == True:
-                batch_latent_pred_forward_model_train = solve_forward_model(batch_latent_pred_train)
+                batch_input_pred_forward_model_train = solve_forward_model(batch_latent_pred_train)
 
                 batch_loss_train_autoencoder = loss_weighted_penalized_difference(
                         batch_input_train, batch_input_pred_train_AE,
@@ -98,7 +98,7 @@ def optimize(hyperp, options, filepaths,
                         prior_mean, prior_covariance_cholesky_inverse,
                         hyperp.penalty_prior)
                 batch_loss_train_forward_model = loss_weighted_penalized_difference(
-                                    batch_input_train, batch_latent_pred_forward_model_train,
+                                    batch_input_train, batch_input_pred_forward_model_train,
                                     noise_regularization_matrix, hyperp.penalty_aug)
 
             batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
