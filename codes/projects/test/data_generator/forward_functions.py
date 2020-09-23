@@ -1,19 +1,19 @@
 import numpy as np
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 ###############################################################################
 #                                  Exponential                                #
 ###############################################################################
-def exponential(parameter, measurement_points,
-                parameter_dimensions, num_measurement_points):
+def exponential(parameter, mesh, parameter_dimensions):
 
     #=== Output ===#
-    measurements = parameter[0]*np.exp(-parameter[1]*measurement_points.flatten())
+    state_obs = parameter[0]*np.exp(-parameter[1]*mesh.flatten())
 
     #=== Jacobian ===#
-    Jac_forward = np.zeros((num_measurement_points, parameter_dimensions))
-    for n in range(parameter.shape[0]):
-        Jac_forward[:,0] = np.exp(-parameter[1]*measurement_points.flatten())
-        Jac_forward[:,1] = -parameter[0]*measurement_points.flatten()*\
-                np.exp(-parameter[1]*measurement_points.flatten())
+    Jac_forward = np.zeros((len(mesh), parameter_dimensions))
+    Jac_forward[:,0] = np.exp(-parameter[1]*mesh.flatten())
+    Jac_forward[:,1] = -parameter[0]*mesh.flatten()*\
+            np.exp(-parameter[1]*mesh.flatten())
 
-    return measurements, Jac_forward
+    return state_obs, Jac_forward

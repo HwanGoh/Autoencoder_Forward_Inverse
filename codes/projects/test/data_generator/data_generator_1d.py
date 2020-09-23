@@ -15,10 +15,11 @@ import pandas as pd
 # Import src code
 from utils_io.value_to_string import value_to_string
 
-# Import other codes
+# Import data generator codes
 from filepaths import FilePaths
 from prior_io import save_prior
 from forward_functions import exponential
+from state_io import save_state
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -35,7 +36,7 @@ class Options:
 
     #=== Data Properties ===#
     num_data = 1000
-    mesh_dimensions = 10000
+    mesh_dimensions = 1000
     parameter_dimensions = 2
     num_obs_points = 50
 
@@ -51,6 +52,9 @@ class Options:
     prior_cov_full_11 = 1
     prior_cov_full_12 = 2
     prior_cov_full_22 = 3
+
+    #=== Random Seed ===#
+    random_seed = 4
 
 ###############################################################################
 #                                  Driver                                     #
@@ -69,11 +73,7 @@ if __name__ == "__main__":
     #   Generate and Save Prior   #
     ###############################
     #=== Mesh ===#
-    domain = np.linspace(0, 1, options.mesh_dimensions, endpoint = True)
-    np.random.seed(4)
-    obs_indices = np.sort(
-            np.random.choice(range(0, options.mesh_dimensions),
-                options.num_obs_points, replace = False))
+    mesh = np.linspace(0, 1, options.mesh_dimensions, endpoint = True)
 
     #=== Prior ===#
     if options.prior_type_diag == 1:
@@ -88,25 +88,30 @@ if __name__ == "__main__":
     prior_covariance_cholesky = np.linalg.cholesky(prior_covariance)
     prior_covariance_cholesky_inverse = np.linalg.inv(prior_covariance_cholesky)
 
-    #=== Save prior ===#
+    #=== Save Prior ===#
     save_prior(filepaths, prior_mean, prior_covariance,
             prior_covariance_cholesky, prior_covariance_cholesky_inverse)
 
-    ###############################################################################
-    #                               Generate Data                                 #
-    ###############################################################################
+    ##############################
+    #   Generate and Save Data   #
+    ##############################
     parameter = np.zeros((options.num_data, options.parameter_dimensions))
-    state = np.zeros((options.num_data, options.num_obs_points))
+    state = np.zeros((options.num_data, options.mesh_dimensions))
 
+    #=== Generate State ===#
     for n in range(0, options.num_data):
         epsilon = np.random.normal(0, 1, options.parameter_dimensions)
         parameter[n,:] = np.matmul(prior_covariance_cholesky, epsilon) + prior_mean
-        if exponential == 1:
-            state[n,:], _ = exponential(parameter[n,:], options.obs_points,
-                                        parameter_dimensions, options.num_obs_points)
+        if options.exponential == 1:
+            state[n,:], _ = exponential(parameter[n,:], mesh, options.parameter_dimensions)
 
-    print('Data Generated')
+    #=== Generate Observation Data ===#
+    np.random.seed(options.random_seed)
+    obs_indices = np.sort(
+            np.random.choice(
+                range(0, options.mesh_dimensions), options.num_obs_points, replace = False))
+    state_obs = state[:,obs_indices]
 
-    ###############################################################################
-    #                          Saving Data as Dataframe                           #
-    ###############################################################################
+    #=== Save State ====#
+    save_state(filepaths, obs_indices, state, state_obs)
+    print('Data Generated and Saved')

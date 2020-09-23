@@ -21,10 +21,10 @@ class FilePaths:
         ################
         #=== Defining Filenames ===#
         data_options = 'n%d'%(options.parameter_dimensions)
-        directory_dataset = '../datasets/'
+        directory_dataset = '../Datasets/'
         if options.exponential == 1:
             project_name = 'exponential_1d'
-        directory_dataset = '../datasets/' + project_name + '/' +\
+        directory_dataset = '../../../../../Datasets/Simple_1D/' + project_name + '/' +\
                 data_options + '/'
         if not os.path.exists(directory_dataset):
                 os.makedirs(directory_dataset)
@@ -59,14 +59,14 @@ class FilePaths:
                 'd%d_o%d' %(options.num_data, options.num_obs_points) + prior_string
         #=== State ===#
         self.obs_indices = directory_dataset +\
-                project_name + 'obs_indices_' +\
-                'o%d'%(options.num_obs_points) + data_options
+                project_name + '_obs_indices_' +\
+                'o%d_'%(options.num_obs_points) + data_options
         self.state_full = directory_dataset +\
-                project_name + 'state_full' + train_or_test +\
-                'd%d' %(options.num_data) +\
+                project_name + '_state_full_' + train_or_test +\
+                'd%d_' %(options.num_data) +\
                 data_options + '_' + prior_string
         self.state_obs = directory_dataset +\
-                project_name + 'state_obs_' + train_or_test +\
+                project_name + '_state_obs_' + train_or_test +\
                 'o%d_d%d_'%(options.num_obs_points, options.num_data) +\
                 data_options + '_' + prior_string
 
