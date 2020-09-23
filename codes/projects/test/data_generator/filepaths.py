@@ -21,11 +21,10 @@ class FilePaths:
         ################
         #=== Defining Filenames ===#
         data_options = 'n%d'%(options.parameter_dimensions)
-        directory_dataset = '../Datasets/'
+        directory_dataset = '../../../../../Datasets/Simple_1D/'
         if options.exponential == 1:
             project_name = 'exponential_1d'
-        directory_dataset = '../../../../../Datasets/Simple_1D/' + project_name + '/' +\
-                data_options + '/'
+        directory_dataset += project_name + '/' + data_options + '/'
         if not os.path.exists(directory_dataset):
                 os.makedirs(directory_dataset)
 
@@ -37,26 +36,25 @@ class FilePaths:
 
         #=== Prior Properties ===#
         if options.prior_type_diag == True:
-            prior_string = 'diag_'
             prior_string = self.prior_string_diag('diag',
                     options.prior_mean_diag,
                     options.prior_cov_diag_11,
                     options.prior_cov_diag_22)
         if options.prior_type_full == True:
-            prior_string = 'full_'
             prior_string = self.prior_string_full('full',
-                    options.prior_mean_diag,
-                    options.prior_cov_diag_11,
-                    options.prior_cov_diag_12,
-                    options.prior_cov_diag_22)
+                    options.prior_mean_full,
+                    options.prior_cov_full_11,
+                    options.prior_cov_full_12,
+                    options.prior_cov_full_22)
 
         ################
         #   Datasets   #
         ################
         #=== Parameters ===#
         self.parameter = directory_dataset +\
-                project_name + 'parameter_' + train_or_test +\
-                'd%d_o%d' %(options.num_data, options.num_obs_points) + prior_string
+                project_name + '_parameter_' + train_or_test +\
+                'd%d_' %(options.num_data) + data_options + '_' + prior_string
+
         #=== State ===#
         self.obs_indices = directory_dataset +\
                 project_name + '_obs_indices_' +\

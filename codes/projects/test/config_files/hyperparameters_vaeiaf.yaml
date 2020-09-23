@@ -15,6 +15,6 @@ penalty_iaf               : 1
 penalty_prior             : 1
 
 #=== Data ===#
-num_data_train            : 5000
+num_data_train            : 1000
 batch_size                : 100
-num_epochs                : 2
+num_epochs                : 1000

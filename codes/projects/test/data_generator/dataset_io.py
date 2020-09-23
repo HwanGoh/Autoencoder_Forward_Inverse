@@ -3,8 +3,12 @@ import pandas as pd
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-def save_state(filepaths, obs_indices, state, state_obs):
+def save_parameter(filepaths, parameter):
+    #=== Save parameter ===#
+    df_parameter = pd.DataFrame({'parameter': parameter.flatten()})
+    df_parameter.to_csv(filepaths.parameter + '.csv', index=False)
 
+def save_state(filepaths, obs_indices, state, state_obs):
     #=== Save full state ===#
     df_state = pd.DataFrame({'state': state.flatten()})
     df_state.to_csv(filepaths.state_full + '.csv', index=False)

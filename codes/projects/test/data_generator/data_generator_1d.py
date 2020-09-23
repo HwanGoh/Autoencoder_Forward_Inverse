@@ -19,7 +19,7 @@ from utils_io.value_to_string import value_to_string
 from filepaths import FilePaths
 from prior_io import save_prior
 from forward_functions import exponential
-from state_io import save_state
+from dataset_io import save_parameter, save_state
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -31,11 +31,11 @@ class Options:
     exponential = 1
 
     #=== Select Train or Test Set ===#
-    generate_train_data = 1
-    generate_test_data = 0
+    generate_train_data = 0
+    generate_test_data = 1
 
     #=== Data Properties ===#
-    num_data = 1000
+    num_data = 200
     mesh_dimensions = 1000
     parameter_dimensions = 2
     num_obs_points = 50
@@ -112,6 +112,7 @@ if __name__ == "__main__":
                 range(0, options.mesh_dimensions), options.num_obs_points, replace = False))
     state_obs = state[:,obs_indices]
 
-    #=== Save State ====#
+    #=== Save Dataset ====#
+    save_parameter(filepaths, parameter)
     save_state(filepaths, obs_indices, state, state_obs)
     print('Data Generated and Saved')

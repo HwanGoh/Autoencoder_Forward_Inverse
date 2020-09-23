@@ -8,6 +8,8 @@ Created on Sun May  28 10:16:28 2020
 
 from utils_io.value_to_string import value_to_string
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 ###############################################################################
 #                              Project File Paths                             #
 ###############################################################################
@@ -18,59 +20,81 @@ class FilePathsProject:
         #   Case Name  #
         ################
         #=== Defining Filenames ===#
-        data_options = 'n%d'%(num_domain_points)
-        directory_dataset = '../datasets/'
-        if options.exponential == True:
+        data_options = 'n%d'%(options.parameter_dimensions)
+        directory_dataset = '../../../../../Datasets/Simple_1D/'
+        if options.exponential == 1:
             project_name = 'exponential_1d'
-        directory_dataset = '../datasets/' + project_name + '/' +\
-                data_options + '/'
+        directory_dataset += project_name + '/' + data_options + '/'
+
+        #=== Data Properties ===#
+        if options.obs_type == 'full':
+            obs_string = 'full'
+        if options.obs_type == 'obs':
+            obs_string = 'obs_o%d'%(options.num_obs_points)
+        if options.add_noise == 1:
+            noise_level_string = value_to_string(options.noise_level)
+            noise_string = 'ns%s_%d'%(noise_level_string,options.num_noisy_obs)
+        else:
+            noise_string = 'ns0'
+        data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
-        if options.prior_type_diag == True:
-            prior_string = 'diag_'
-            prior_string = self.prior_string_diag('diag',
-                    options.prior_mean_diag,
-                    options.prior_cov_diag_11,
-                    options.prior_cov_diag_22)
-        if options.prior_type_full == True:
-            prior_string = 'full_'
+        if options.prior_type_diag_train == True:
+            prior_string_train = self.prior_string_diag('diag',
+                    options.prior_mean_diag_train,
+                    options.prior_cov_diag_11_train,
+                    options.prior_cov_diag_22_train)
+        if options.prior_type_diag_test == True:
+            prior_string_test = self.prior_string_diag('diag',
+                    options.prior_mean_diag_test,
+                    options.prior_cov_diag_11_test,
+                    options.prior_cov_diag_22_test)
+
+        if options.prior_type_full_train == True:
             prior_string = self.prior_string_full('full',
-                    options.prior_mean_diag,
-                    options.prior_cov_diag_11,
-                    options.prior_cov_diag_12,
-                    options.prior_cov_diag_22)
+                    options.prior_mean_full_train,
+                    options.prior_cov_full_11_train,
+                    options.prior_cov_full_12_train,
+                    options.prior_cov_full_22_train)
+
+        if options.prior_type_full_test == True:
+            prior_string = self.prior_string_full('full',
+                    options.prior_mean_full_test,
+                    options.prior_cov_full_11_test,
+                    options.prior_cov_full_12_test,
+                    options.prior_cov_full_22_test)
 
         #=== Case String ===#
-        self.case_name = project_name + data_string + prior_string_train
+        self.case_name = project_name + '_' + data_string + prior_string_train
 
         ################
         #   Datasets   #
         ################
         #=== Parameters ===#
         self.obs_indices = directory_dataset +\
-                project_name + 'obs_indices_' +\
+                project_name + '_' + 'obs_indices_' +\
                 'o%d_'%(options.num_obs_points) + data_options
         self.input_train = directory_dataset +\
-                project_name + 'parameter_train_' +\
+                project_name + '_' + 'parameter_train_' +\
                 'd%d_'%(options.num_data_train_load) + data_options + '_' + prior_string_train
         self.input_test = directory_dataset +\
-                project_name + 'parameter_test_' +\
+                project_name + '_' + 'parameter_test_' +\
                 'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
         #=== State ===#
         if options.obs_type == 'full':
             self.output_train = directory_dataset +\
-                    project_name + 'state_' + options.obs_type + '_train_' +\
+                    project_name + '_' + 'state_' + options.obs_type + '_train_' +\
                     'd%d_'%(options.num_data_train_load) + data_options + '_' + prior_string_train
             self.output_test = directory_dataset +\
-                    project_name + 'state_' + options.obs_type + '_test_' +\
+                    project_name + '_' + 'state_' + options.obs_type + '_test_' +\
                     'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
         if options.obs_type == 'obs':
             self.output_train = directory_dataset +\
-                    project_name + 'state_' + options.obs_type + '_train_' +\
+                    project_name + '_' + 'state_' + options.obs_type + '_train_' +\
                     'o%d_d%d_' %(options.num_obs_points, options.num_data_train_load) +\
                     data_options + '_' + prior_string_train
             self.output_test = directory_dataset +\
-                    project_name + 'state_' + options.obs_type + '_test_' +\
+                    project_name + '_' + 'state_' + options.obs_type + '_test_' +\
                     'o%d_d%d_' %(options.num_obs_points, options.num_data_test_load) +\
                     data_options + '_' + prior_string_test
 
