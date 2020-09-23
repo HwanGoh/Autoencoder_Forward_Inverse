@@ -1,7 +1,8 @@
 # Code Structure:
 * Below is a description of the source codes as well as the key codes in my
   input/output system.
-* For an illustrative example, see the test case in codes/projects/test. You may
+* For an illustrative example, see the test case in codes/projects/test. To run
+  this, use any of the training drivers in codes/projects/test/drivers_. You may
   have to first generate the training and testing data using
   codes/projects/test/data_generator/data_generator_1d.py.
 * However, there is no need to use my input/output system; you can use

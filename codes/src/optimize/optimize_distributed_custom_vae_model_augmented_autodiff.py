@@ -209,7 +209,7 @@ def optimize_distributed(dist_strategy,
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
         print('Train Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_mean: %.3e'\
-                %(metrics.mean_loss_train,
+                %(mean_loss_train,
                   metrics.mean_loss_train_VAE.result(),
                   metrics.mean_loss_train_encoder.result(),
                   metrics.mean_loss_train_post_mean.result()))

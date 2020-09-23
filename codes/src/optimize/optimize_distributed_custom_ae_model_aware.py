@@ -303,15 +303,18 @@ def optimize_distributed(dist_strategy,
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
         print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
-                %(metrics.mean_loss_train, metrics.mean_loss_train_autoencoder.result(),
+                %(mean_loss_train,
+                    metrics.mean_loss_train_autoencoder.result(),
                     metrics.mean_loss_train_encoder.result(),
                     metrics.mean_loss_train_decoder.result()))
         print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
-                %(metrics.mean_loss_val.result(), metrics.mean_loss_val_autoencoder.result(),
+                %(metrics.mean_loss_val.result(),
+                    metrics.mean_loss_val_autoencoder.result(),
                     metrics.mean_loss_val_encoder.result(),
                     metrics.mean_loss_val_decoder.result()))
         print('Test Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
-                %(metrics.mean_loss_test.result(), metrics.mean_loss_test_autoencoder.result(),
+                %(metrics.mean_loss_test.result(),
+                    metrics.mean_loss_test_autoencoder.result(),
                     metrics.mean_loss_test_encoder.result(),
                     metrics.mean_loss_test_decoder.result()))
         print('Rel Errors: AE: %.3e, Encoder: %.3e, Decoder: %.3e\n'\
