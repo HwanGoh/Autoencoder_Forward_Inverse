@@ -52,8 +52,8 @@ if __name__ == '__main__':
 
     '''
     description:
-        assigns one process to each cpu node. An alternative to this is multiple
-        processes per cpu node.
+        Distributes the scenarios list with each scenario assigned to an
+        individual CPU
     '''
     # mpi stuff
     comm   = MPI.COMM_WORLD
@@ -75,24 +75,34 @@ if __name__ == '__main__':
 
         # static gpu assignment per process. Currently only a single gpu per process
         nodes = {}
+        proc_to_cpu_mapping = {}
         active_procs = []
         for proc in processes:
             # keep track of the processes already found each node
             if proc['hostname'] not in nodes:
                 nodes[proc['hostname']] = []
-                nodes[proc['hostname']].append(str(proc['rank']))
+            nodes[proc['hostname']].append(str(proc['rank']))
+
+            # only use the process if there are available gpus
+            if len(nodes[proc['hostname']]) <= proc['n_gpus']:
                 active_procs.append(proc['rank'])
+                proc_to_cpu_mapping[str(proc['rank'])] = str(len(nodes[proc['hostname']]) - 1)
+
+        for key, val in proc_to_cpu_mapping.items():
+            print(f'process {key} running on cpu {val}')
 
         # Schedule and run processes
-        schedule_runs(scenarios_list, active_procs, comm)
+        schedule_runs(scenarios_list, active_procs, proc_to_cpu_mapping, comm)
 
     else:
         # This is the worker processes' action
         # First send process info to master process
         # number of gpus in this node
+        n_gpus = 1
         hostname = socket.gethostname()
         proc_info = {'rank': rank,
-                     'hostname': hostname}
+                     'hostname': hostname,
+                     'n_gpus': n_gpus}
         req = comm.isend(proc_info, 0)
         req.wait()
 

@@ -20,7 +20,7 @@ class FLAGS:
 #                            Schedule and Run                                 #
 ###############################################################################
 # call this from process with rank == 0
-def schedule_runs(scenarios, procs, comm):
+def schedule_runs(scenarios, procs, proc_to_cpu_mapping, comm):
     available_processes = procs
 
     scenarios_left = len(scenarios)
@@ -46,6 +46,7 @@ def schedule_runs(scenarios, procs, comm):
         if len(available_processes) > 0 and len(scenarios) > 0:
             curr_process = available_processes.pop(0) # rank of the process to send to
             curr_scenario = scenarios.pop(0)
+            curr_scenario['gpus'] = str(proc_to_cpu_mapping[str(curr_process)]) # which GPUs we want to run the process on.
 
             print('Beginning Training of NN:')
             print()
