@@ -13,6 +13,7 @@ tags
 copy_and_zip
 overwrite_server_runs_branch
 quick_git
+retrieve_Figures
 retrieve_Hyperparameter_Opt
 retrieve_Tensorboard
 retrieve_Tensorboard_Maverick
