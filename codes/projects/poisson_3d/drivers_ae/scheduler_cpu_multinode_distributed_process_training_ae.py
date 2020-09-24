@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.realpath('../../../src'))
 import json
 
 from utils_scheduler.get_hyperparameter_combinations import get_hyperparameter_combinations
-from utils_scheduler.schedule_and_run_cpu import schedule_runs
+from utils_scheduler.schedule_and_run_static import schedule_runs
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -62,6 +62,7 @@ if __name__ == '__main__':
 
     # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action
+        flags = FLAGS()
         # get scenarios list
         scenarios_list = generate_scenarios_list()
 
@@ -75,21 +76,23 @@ if __name__ == '__main__':
 
         # static gpu assignment per process. Currently only a single gpu per process
         nodes = {}
-        proc_to_cpu_mapping = {}
         active_procs = []
-        for proc in processes:
+        for proc_info in processes:
             # keep track of the processes already found each node
-            if proc['hostname'] not in nodes:
-                nodes[proc['hostname']] = []
-            nodes[proc['hostname']].append(str(proc['rank']))
+            if proc_info['hostname'] not in nodes:
+                nodes[proc_info['hostname']] = []
+            nodes[proc_info['hostname']].append(str(proc_info['rank']))
 
             # only use the process if there are available gpus
-            if len(nodes[proc['hostname']]) <= proc['n_gpus']:
-                active_procs.append(proc['rank'])
-                proc_to_cpu_mapping[str(proc['rank'])] = str(len(nodes[proc['hostname']]) - 1)
+            if len(nodes[proc_info['hostname']]) <= 1:
+                active_procs.append(proc_info['rank'])
+                proc_to_cpu_mapping[str(proc_info['rank'])] = 'cpu'
+            else: # terminating the inactive redundant processes
+                req = comm.isend([],proc['rank'],flags.EXIT )
+                req.wait()
 
         for key, val in proc_to_cpu_mapping.items():
-            print(f'process {key} running on cpu {val}')
+            print(f'process {key} running on cpu')
 
         # Schedule and run processes
         schedule_runs(scenarios_list, active_procs, proc_to_cpu_mapping, comm)
@@ -98,11 +101,9 @@ if __name__ == '__main__':
         # This is the worker processes' action
         # First send process info to master process
         # number of gpus in this node
-        n_gpus = 1
         hostname = socket.gethostname()
         proc_info = {'rank': rank,
-                     'hostname': hostname,
-                     'n_gpus': n_gpus}
+                     'hostname': hostname}
         req = comm.isend(proc_info, 0)
         req.wait()
 

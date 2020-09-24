@@ -19,9 +19,8 @@ class FLAGS:
 ###############################################################################
 #                            Schedule and Run                                 #
 ###############################################################################
-# call this from process with rank == 0
-def schedule_runs(scenarios, procs, proc_to_cpu_mapping, comm):
-    available_processes = procs
+def schedule_runs(scenarios, active_procs, proc_to_gpu_mapping, comm):
+    available_processes = active_procs
 
     scenarios_left = len(scenarios)
     print(str(scenarios_left) + ' total runs left')
@@ -46,10 +45,7 @@ def schedule_runs(scenarios, procs, proc_to_cpu_mapping, comm):
         if len(available_processes) > 0 and len(scenarios) > 0:
             curr_process = available_processes.pop(0) # rank of the process to send to
             curr_scenario = scenarios.pop(0)
-            curr_scenario['gpus'] = str(proc_to_cpu_mapping[str(curr_process)]) # which GPUs we want to run the process on.
-
-            print('Beginning Training of NN:')
-            print()
+            curr_scenario['gpu'] = str(proc_to_gpu_mapping[str(curr_process)]) # which GPUs we want to run the process on.
 
             # block here to make sure the process starts before moving on so we don't overwrite buffer
             print('current process: ' + str(curr_process))
@@ -64,4 +60,4 @@ def schedule_runs(scenarios, procs, proc_to_cpu_mapping, comm):
 
         # rest for 7 seconds because there is no need to loop too fast
         # 7 seems like a good number.
-        sleep(7)
+        sleep(20)

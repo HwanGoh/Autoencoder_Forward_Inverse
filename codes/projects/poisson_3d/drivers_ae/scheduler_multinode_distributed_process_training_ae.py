@@ -7,7 +7,6 @@ Created on Wed Sep 18 20:53:06 2019
 """
 import subprocess
 from mpi4py import MPI
-import pynvml
 
 import os
 import sys
@@ -52,7 +51,7 @@ def generate_scenarios_list():
 if __name__ == '__main__':
     '''
     description:
-        uses schedule_and_run to launch multiple ML training routines on
+        uses schedule_and_run to launch a single distributed ML training routines on
         GPUs. Currently this script only supports using a single GPU per
         process, possibly over multiple nodes. Nodes do not necessarily
         need to be of the same type. This script assumes all GPUs on a node
@@ -69,6 +68,7 @@ if __name__ == '__main__':
 
     # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action
+        flags = FLAGS()
         # get scenarios list
         scenarios_list = generate_scenario_list()
 
@@ -82,15 +82,21 @@ if __name__ == '__main__':
 
         # static gpu assignment per process. Currently only a single gpu per process
         nodes = {}
-        proc_to_gpu_mapping = {}
         active_procs = []
-        for proc in processes:
+        proc_to_gpu_mapping = {}
+        for proc_info in processes:
             # keep track of the processes already found each node
-            if proc['hostname'] not in nodes:
-                nodes[proc['hostname']] = []
-                nodes[proc['hostname']].append(str(proc['rank']))
-                active_procs.append(proc['rank'])
-                proc_to_gpu_mapping[str(proc['rank'])] = '0,1,2,3'
+            if proc_info['hostname'] not in nodes:
+                nodes[proc_info['hostname']] = []
+            nodes[proc_info['hostname']].append(str(proc_info['rank']))
+
+            # only use the process if there are available gpus
+            if len(nodes[proc_info['hostname']]) <= 1:
+                active_procs.append(proc_info['rank'])
+                proc_to_gpu_mapping[str(proc_info['rank'])] = '0,1,2,3'
+            else: # terminating the inactive redundant processes
+                req = comm.isend([],proc['rank'],flags.EXIT )
+                req.wait()
 
         for key, val in proc_to_gpu_mapping.items():
             print(f'process {key} running on gpu {val}')
@@ -101,13 +107,9 @@ if __name__ == '__main__':
     else:
         # This is the worker processes' action
         # First send process info to master process
-        # number of gpus in this node
-        pynvml.nvmlInit()
-        n_gpus = pynvml.nvmlDeviceGetCount()
         hostname = socket.gethostname()
         proc_info = {'rank': rank,
-                     'hostname': hostname,
-                     'n_gpus': n_gpus}
+                     'hostname': hostname}
         req = comm.isend(proc_info, 0)
         req.wait()
 

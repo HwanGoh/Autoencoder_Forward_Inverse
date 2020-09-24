@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.realpath('../../../src'))
 import json
 
 from utils_scheduler.get_hyperparameter_combinations import get_hyperparameter_combinations
-from utils_scheduler.schedule_and_run_multinode import schedule_runs
+from utils_scheduler.schedule_and_run_static import schedule_runs
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -69,6 +69,7 @@ if __name__ == '__main__':
 
     # By running "mpirun -n <number> ./scheduler.py", each process is cycled through by their rank
     if rank == 0: # This is the master processes' action
+        flags = FLAGS()
         # get scenarios list
         scenarios_list = generate_scenario_list()
 
@@ -82,18 +83,21 @@ if __name__ == '__main__':
 
         # static gpu assignment per process. Currently only a single gpu per process
         nodes = {}
-        proc_to_gpu_mapping = {}
         active_procs = []
-        for proc in processes:
+        proc_to_gpu_mapping = {}
+        for proc_info in processes:
             # keep track of the processes already found each node
-            if proc['hostname'] not in nodes:
-                nodes[proc['hostname']] = []
-            nodes[proc['hostname']].append(str(proc['rank']))
+            if proc_info['hostname'] not in nodes:
+                nodes[proc_info['hostname']] = []
+            nodes[proc_info['hostname']].append(str(proc_info['rank']))
 
             # only use the process if there are available gpus
-            if len(nodes[proc['hostname']]) <= proc['n_gpus']:
-                active_procs.append(proc['rank'])
-                proc_to_gpu_mapping[str(proc['rank'])] = str(len(nodes[proc['hostname']]) - 1)
+            if len(nodes[proc_info['hostname']]) <= proc_info['n_gpus']:
+                active_procs.append(proc_info['rank'])
+                proc_to_gpu_mapping[str(proc_info['rank'])] = str(len(nodes[proc_info['hostname']]) - 1)
+            else: # terminating the inactive redundant processes
+                req = comm.isend([],proc['rank'],flags.EXIT )
+                req.wait()
 
         for key, val in proc_to_gpu_mapping.items():
             print(f'process {key} running on gpu {val}')

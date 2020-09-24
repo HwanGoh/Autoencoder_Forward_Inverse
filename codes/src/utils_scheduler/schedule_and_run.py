@@ -55,9 +55,6 @@ def schedule_runs(scenarios, nprocs, comm):
             curr_scenario = scenarios.pop(0)
             curr_scenario['gpu'] = str(available_gpus.pop(0)) # which GPU we want to run the process on. Note that the extra "gpu" field is created here as well
 
-            print('Beginning Training of NN:')
-            print()
-
             # block here to make sure the process starts before moving on so we don't overwrite buffer
             print('current process: ' + str(curr_process))
             req = comm.isend(curr_scenario, curr_process, flags.NEW_RUN) # master process sending out new run
