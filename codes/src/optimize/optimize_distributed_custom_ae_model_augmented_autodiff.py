@@ -299,7 +299,7 @@ def optimize_distributed(dist_strategy,
             if batch_counter  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
             batch_counter += 1
-        mean_loss_train = total_loss_train/batch_counter
+        metrics.mean_loss_train = total_loss_train/batch_counter
 
         #=== Computing Validation Metrics ===#
         for batch_input_val, batch_latent_val in dist_input_and_latent_val:
@@ -319,10 +319,10 @@ def optimize_distributed(dist_strategy,
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
         print('Train Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e, Aug: %.3e'\
-                %(mean_loss_train, metrics.mean_loss_train_autoencoder.result(),
-                    metrics.mean_loss_train_encoder.result(),
-                    metrics.mean_loss_train_decoder.result(),
-                    metrics.mean_loss_train_forward_model.result()))
+                %(metrics.mean_loss_train, metrics.mean_loss_train_autoencoder.result(),
+                  metrics.mean_loss_train_encoder.result(),
+                  metrics.mean_loss_train_decoder.result(),
+                  metrics.mean_loss_train_forward_model.result()))
         print('Val AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
                 %(metrics.mean_loss_val_autoencoder.result(),
                     metrics.mean_loss_val_encoder.result(),
