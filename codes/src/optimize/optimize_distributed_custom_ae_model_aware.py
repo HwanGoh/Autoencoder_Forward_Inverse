@@ -308,7 +308,7 @@ def optimize_distributed(dist_strategy,
                   metrics.mean_loss_train_encoder.result(),
                   metrics.mean_loss_train_decoder.result()))
         print('Val Loss: Full: %.3e, AE: %.3e, Encoder: %.3e, Decoder: %.3e'\
-                %(metrics.metrics.mean_loss_val.result(),
+                %(metrics.mean_loss_val.result(),
                   metrics.mean_loss_val_autoencoder.result(),
                   metrics.mean_loss_val_encoder.result(),
                   metrics.mean_loss_val_decoder.result()))
