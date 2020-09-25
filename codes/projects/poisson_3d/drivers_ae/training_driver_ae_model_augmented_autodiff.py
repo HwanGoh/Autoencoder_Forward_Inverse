@@ -32,7 +32,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def add_options(options):
 
     #=== Use Distributed Strategy ===#
-    options.distributed_training = False
+    options.distributed_training = True
 
     #=== Which GPUs to Use for Distributed Strategy ===#
     options.dist_which_gpus = '0,1,2,3'
