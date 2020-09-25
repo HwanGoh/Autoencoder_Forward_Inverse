@@ -77,6 +77,8 @@ if __name__ == '__main__':
         # static gpu assignment per process. Currently only a single gpu per process
         nodes = {}
         active_procs = []
+        proc_to_cpu_mapping = {}
+
         for proc_info in processes:
             # keep track of the processes already found each node
             if proc_info['hostname'] not in nodes:
@@ -88,7 +90,7 @@ if __name__ == '__main__':
                 active_procs.append(proc_info['rank'])
                 proc_to_cpu_mapping[str(proc_info['rank'])] = 'cpu'
             else: # terminating the inactive redundant processes
-                req = comm.isend([],proc['rank'],flags.EXIT )
+                req = comm.isend([],proc_info['rank'],flags.EXIT )
                 req.wait()
 
         for key, val in proc_to_cpu_mapping.items():

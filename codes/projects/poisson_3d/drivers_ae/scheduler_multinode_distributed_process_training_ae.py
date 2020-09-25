@@ -15,7 +15,7 @@ sys.path.insert(0, os.path.realpath('../../../src'))
 import json
 
 from utils_scheduler.get_hyperparameter_combinations import get_hyperparameter_combinations
-from utils_scheduler.schedule_and_run_multinode import schedule_runs
+from utils_scheduler.schedule_and_run_static import schedule_runs
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     if rank == 0: # This is the master processes' action
         flags = FLAGS()
         # get scenarios list
-        scenarios_list = generate_scenario_list()
+        scenarios_list = generate_scenarios_list()
 
         # get the info for all processes
         processes = []
@@ -95,7 +95,7 @@ if __name__ == '__main__':
                 active_procs.append(proc_info['rank'])
                 proc_to_gpu_mapping[str(proc_info['rank'])] = '0,1,2,3'
             else: # terminating the inactive redundant processes
-                req = comm.isend([],proc['rank'],flags.EXIT )
+                req = comm.isend([],proc_info['rank'],flags.EXIT )
                 req.wait()
 
         for key, val in proc_to_gpu_mapping.items():

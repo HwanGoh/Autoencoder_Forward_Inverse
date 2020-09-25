@@ -71,7 +71,7 @@ if __name__ == '__main__':
     if rank == 0: # This is the master processes' action
         flags = FLAGS()
         # get scenarios list
-        scenarios_list = generate_scenario_list()
+        scenarios_list = generate_scenarios_list()
 
         # get the info for all processes
         processes = []
@@ -96,7 +96,7 @@ if __name__ == '__main__':
                 active_procs.append(proc_info['rank'])
                 proc_to_gpu_mapping[str(proc_info['rank'])] = str(len(nodes[proc_info['hostname']]) - 1)
             else: # terminating the inactive redundant processes
-                req = comm.isend([],proc['rank'],flags.EXIT )
+                req = comm.isend([],proc_info['rank'],flags.EXIT )
                 req.wait()
 
         for key, val in proc_to_gpu_mapping.items():
