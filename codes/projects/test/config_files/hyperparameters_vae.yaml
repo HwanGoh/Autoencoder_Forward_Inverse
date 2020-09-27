@@ -13,4 +13,4 @@ penalty_post_mean         : 1
 #=== Data ===#
 num_data_train            : 1000
 batch_size                : 100
-num_epochs                : 2
+num_epochs                : 1000

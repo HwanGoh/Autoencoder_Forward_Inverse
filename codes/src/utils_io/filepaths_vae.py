@@ -148,13 +148,16 @@ class FilePathsPredictionAndPlotting(FilePaths):
         #=== File Path for Saving Figures ===#
         self.directory_figures = '../../../../Figures/' + self.case_and_NN_name
         self.figures = self.directory_figures + '/' + self.NN_name
-        self.figure_parameter_test = self.directory_figures + '/' +\
-                'parameter_test'
-        self.figure_state_test = self.directory_figures+ '/' +\
-                'state_test'
-        self.figure_parameter_pred =\
-                self.directory_figures + '/parameter_pred'
+        self.figure_parameter_test = self.directory_figures + '/parameter_test'
+        self.figure_state_test = self.directory_figures+ '/state_test'
+        self.figure_parameter_pred = self.directory_figures + '/parameter_pred'
         self.figure_state_pred = self.directory_figures + '/state_pred'
+
+        #=== File Path for vtk Files ===#
+        self.figure_vtk_parameter_test = self.directory_figures + '/parameter_test'
+        self.figure_vtk_state_test = self.directory_figures + '/state_test'
+        self.figure_vtk_parameter_pred = self.directory_figures + '/parameter_pred'
+        self.figure_vtk_state_pred = self.directory_figures + '/state_pred'
 
         #=== Creating Directories ===#
         if not os.path.exists(self.directory_figures):

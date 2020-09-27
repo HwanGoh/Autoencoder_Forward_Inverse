@@ -9,9 +9,9 @@ activation                : "relu"
 penalty_encoder           : 1000
 penalty_decoder           : 10
 penalty_aug               : 1000
-penalty_prior             : 0.001
+penalty_prior             : 0.1
 
 #=== Data ===#
-num_data_train            : 5000
+num_data_train            : 10000
 batch_size                : 100
-num_epochs                : 2
+num_epochs                : 1000

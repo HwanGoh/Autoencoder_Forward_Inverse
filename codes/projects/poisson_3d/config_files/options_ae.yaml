@@ -44,5 +44,15 @@ prior_cov_length_test : 0.5
 boundary_matrix_constant : 0.5
 load_vector_constant : -1
 
+#=== Paraview Plotting Properties ===#
+mesh_point_1 : [-1,-1,-1]
+mesh_point_2 : [1,1,1]
+num_nodes_x : 11
+num_nodes_y : 11
+num_nodes_z : 11
+num_obs_points : 728
+order_fe_space : 1
+order_meta_space : 1
+
 #=== Random Seed ===#
 random_seed : 4

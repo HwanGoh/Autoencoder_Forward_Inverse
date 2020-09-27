@@ -8,10 +8,14 @@ Created on Sat Oct 26 21:17:53 2019
 import sys
 sys.path.append('../../../../..')
 
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
+
+# For generating vtk files
+from dolfin import *
 
 # Import src code
 from utils_data.data_handler import DataHandler
@@ -19,8 +23,9 @@ from neural_networks.nn_ae_fwd_inv import AEFwdInv
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import FEM Code
-from Finite_Element_Method.src.load_mesh import load_mesh
-from utils_project.plot_fem_function import plot_fem_function
+from FEniCS_Codes.src.utils_mesh.construct_mesh_rectangular import construct_mesh
+from FEniCS_Codes.src.utils_fenics.convert_array_to_dolfin_function import\
+        convert_array_to_dolfin_function
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -76,29 +81,41 @@ def predict_and_plot(hyperp, options, filepaths):
     print('================================')
     print('      Plotting Predictions      ')
     print('================================')
-    #=== Load Mesh ===#
-    nodes, elements, _, _, _, _, _, _ = load_mesh(filepaths.project)
 
-    #=== Plot FEM Functions ===#
-    plot_fem_function(filepaths.figure_parameter_test,
-                     'True Parameter', 4.0,
-                      nodes, elements,
-                      parameter_test_sample)
-    plot_fem_function(filepaths.figure_parameter_pred,
-                      'Parameter Prediction', 4.0,
-                      nodes, elements,
-                      parameter_pred_sample)
+###############################################################################
+#                                Output VTK Files                             #
+###############################################################################
+    #=== Output vtk files ===#
+    # Note that we use fenics_env to produce the vtk files, but the paraview
+    # module was not installed under fenics. So we use a separate script from
+    # this to produce the paraview plots
+
+    #=== Construct Mesh ===#
+    fe_space, meta_space,\
+    _, _, _ = construct_mesh(options)
+
+    #=== Parameter Test ===#
+    parameter_test_fe = convert_array_to_dolfin_function(meta_space, parameter_test_sample)
+    vtkfile_parameter_test = File(filepaths.figure_vtk_parameter_test + '.pvd')
+    vtkfile_parameter_test << parameter_test_fe
+
+    #=== Parameter Pred ===#
+    parameter_pred_fe = convert_array_to_dolfin_function(meta_space, parameter_pred_sample)
+    vtkfile_parameter_pred = File(filepaths.figure_vtk_parameter_pred + '.pvd')
+    vtkfile_parameter_pred << parameter_pred_fe
+
     if options.obs_type == 'full':
-        plot_fem_function(filepaths.figure_state_test,
-                          'True State', 2.6,
-                          nodes, elements,
-                          state_obs_test_sample)
-        plot_fem_function(filepaths.figure_state_pred,
-                          'State Prediction', 2.6,
-                          nodes, elements,
-                          state_obs_pred_sample)
+        #=== State Test ===#
+        state_test_fe = convert_array_to_dolfin_function(meta_space, state_obs_test_sample)
+        vtkfile_state_test = File(filepaths.figure_vtk_state_test + '.pvd')
+        vtkfile_state_test << state_test_fe
 
-    print('Predictions plotted')
+        #=== State Pred ===#
+        state_pred_fe = convert_array_to_dolfin_function(meta_space, state_obs_pred_sample)
+        vtkfile_state_pred = File(filepaths.figure_vtk_state_pred + '.pvd')
+        vtkfile_state_pred << state_pred_fe
+
+    print('VTK files saved')
 
 ###############################################################################
 #                                Plot Metrics                                 #
@@ -120,10 +137,9 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     storage_array_loss_train_encoder = array_metrics[:,2]
     storage_array_loss_train_decoder = array_metrics[:,3]
     storage_array_loss_train_forward_model = array_metrics[:,4]
-    storage_array_relative_error_input_autoencoder = array_metrics[:,10]
-    storage_array_relative_error_latent_encoder = array_metrics[:,11]
-    storage_array_relative_error_input_decoder = array_metrics[:,12]
-    storage_array_relative_gradient_norm = array_metrics[:,13]
+    storage_array_relative_error_input_autoencoder = array_metrics[:,9]
+    storage_array_relative_error_latent_encoder = array_metrics[:,10]
+    storage_array_relative_error_input_decoder = array_metrics[:,11]
 
     ################
     #   Plotting   #
@@ -211,18 +227,6 @@ def plot_and_save_metrics(hyperp, options, filepaths):
             'relative_error_decoder.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_accuracy)
-
-    #=== Relative Gradient Norm ===#
-    fig_gradient_norm = plt.figure()
-    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
-    plt.plot(x_axis, storage_array_relative_gradient_norm)
-    plt.title('Relative Gradient Norm')
-    plt.xlabel('Epochs')
-    plt.ylabel('Relative Error')
-    figures_savefile_name = filepaths.directory_figures + '/' +\
-            'relative_error_gradient_norm.png'
-    plt.savefig(figures_savefile_name)
-    plt.close(fig_gradient_norm)
 
     if options.model_augmented == 1:
         #=== Relative Error Decoder ===#
