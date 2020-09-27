@@ -1,3 +1,0 @@
-#!/bin/bash
-
-rsync -rP Maverick:/work/06537/hwangoh/lonestar/Autoencoder_Forward_Inverse/Trained_NNs .
