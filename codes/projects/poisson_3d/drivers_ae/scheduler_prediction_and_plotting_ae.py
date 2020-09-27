@@ -28,9 +28,9 @@ def generate_scenarios_list():
     hyperp['activation']                = ['relu']
     hyperp['penalty_encoder']           = [10, 50, 100, 1000]
     hyperp['penalty_decoder']           = [10]
-    hyperp['penalty_aug']               = [10]
+    hyperp['penalty_aug']               = [10, 50, 100, 1000]
     hyperp['penalty_prior']             = [0.1]
-    hyperp['num_data_train']            = [500, 1000, 5000, 10000]
+    hyperp['num_data_train']            = [10000]
     hyperp['batch_size']                = [100]
     hyperp['num_epochs']                = [1000]
 
@@ -48,8 +48,10 @@ if __name__ == '__main__':
     #=== Convert dictionary to json string ===#
     for scenario in scenarios_list:
         scenario_json = json.dumps(scenario)
+        # proc = subprocess.Popen(
+        #         ['./prediction_and_plotting_driver_ae.py', f'{scenario_json}'])
         proc = subprocess.Popen(
-                ['./prediction_and_plotting_driver_ae.py', f'{scenario_json}'])
+                ['./plotting_driver_paraview_ae.py', f'{scenario_json}'])
         proc.wait()
 
     print('All scenarios computed')
