@@ -35,7 +35,7 @@ def schedule_runs(scenarios, active_procs, proc_to_gpu_mapping, comm):
         comm.Iprobe(status=s)
         if s.tag == flags.RUN_FINISHED:
             print('Run ended. Starting new thread.')
-            data = comm.recv()
+            data = comm.recv(source=s.source, tag=s.tag)
             scenarios_left -= 1
             if len(scenarios) == 0:
                 comm.send([], s.source, flags.EXIT)

@@ -70,8 +70,11 @@ if __name__ == '__main__':
         processes = []
         while len(processes) < nprocs - 1:
             status = MPI.Status()
-            proc_info = comm.recv()
-            processes.append(proc_info)
+            comm.Iprobe(status=status)
+            if status.tag == 1:
+                print(f'status:{status.source}', flush=True)
+                proc_info = comm.recv(source=status.source, tag=status.tag)
+                processes.append(proc_info)
         print(processes)
 
         # static gpu assignment per process. Currently only a single gpu per process
