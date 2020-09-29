@@ -118,7 +118,7 @@ if __name__ == '__main__':
         proc_info = {'rank': rank,
                      'hostname': hostname,
                      'n_gpus': n_gpus}
-        req = comm.isend(proc_info, 0)
+        req = comm.isend(proc_info, 0, 1)
         req.wait()
 
         while True:

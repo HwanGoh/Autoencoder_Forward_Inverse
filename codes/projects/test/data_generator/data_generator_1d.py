@@ -31,14 +31,14 @@ class Options:
     exponential = 1
 
     #=== Select Train or Test Set ===#
-    generate_train_data = 0
-    generate_test_data = 1
+    generate_train_data = 1
+    generate_test_data = 0
 
     #=== Data Properties ===#
-    num_data = 200
+    num_data = 1000
     mesh_dimensions = 1000
     parameter_dimensions = 2
-    num_obs_points = 50
+    num_obs_points = 200
 
     #=== Full Prior ===#
     prior_type_diag = True

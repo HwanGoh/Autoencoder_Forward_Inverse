@@ -113,7 +113,7 @@ if __name__ == '__main__':
         hostname = socket.gethostname()
         proc_info = {'rank': rank,
                      'hostname': hostname}
-        req = comm.isend(proc_info, 0)
+        req = comm.isend(proc_info, 0, 1)
         req.wait()
 
         while True:
