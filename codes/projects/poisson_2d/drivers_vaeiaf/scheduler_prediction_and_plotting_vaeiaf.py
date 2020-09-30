@@ -22,7 +22,7 @@ def generate_scenarios_list():
     hyperp = {}
     hyperp['num_hidden_layers_encoder'] = [5]
     hyperp['num_hidden_layers_decoder'] = [2]
-    hyperp['num_hidden_nodes_encoder']  = [1500]
+    hyperp['num_hidden_nodes_encoder']  = [500]
     hyperp['num_hidden_nodes_decoder']  = [500]
     hyperp['activation']                = ['relu']
     hyperp['num_iaf_transforms']        = [10, 20, 30]

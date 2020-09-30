@@ -31,14 +31,12 @@ def generate_scenarios_list():
     hyperp = {}
     hyperp['num_hidden_layers_encoder'] = [5]
     hyperp['num_hidden_layers_decoder'] = [2]
-    hyperp['num_hidden_nodes_encoder']  = [1500]
+    hyperp['num_hidden_nodes_encoder']  = [500]
     hyperp['num_hidden_nodes_decoder']  = [500]
     hyperp['activation']                = ['relu']
-    hyperp['num_iaf_transforms']        = [10, 20, 30]
-    hyperp['num_hidden_nodes_iaf']      = [10]
-    hyperp['activation_iaf']            = [10]
-    hyperp['penalty_iaf']               = [0.001]
-    hyperp['penalty_prior']             = [0.001]
+    hyperp['penalty_kld_incr']          = [0.001, 0.01, 0.1, 1]
+    hyperp['penalty_kld_rate']          = [10, 50, 100, 300]
+    hyperp['penalty_post_mean']         = [1]
     hyperp['num_data_train']            = [10000]
     hyperp['batch_size']                = [100]
     hyperp['num_epochs']                = [1000]
@@ -76,9 +74,9 @@ if __name__ == '__main__':
 
             # Dump scenario to driver code and run
             scenario_json = json.dumps(scenario)
-            proc = subprocess.Popen(['./training_driver_vaeiaf_model_aware.py',
+            proc = subprocess.Popen(['./training_driver_vae_model_aware.py',
                 f'{scenario_json}',f'{scenario["gpu"]}'])
-            # proc = subprocess.Popen(['./training_driver_vaeiaf_model_augmented_autodiff.py',
+            # proc = subprocess.Popen(['./training_driver_vae_model_augmented_autodiff.py',
                 # f'{scenario_json}',f'{scenario["gpu"]}'])
             proc.wait()
 
