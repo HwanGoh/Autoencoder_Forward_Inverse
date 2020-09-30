@@ -6,15 +6,16 @@ num_hidden_nodes_decoder  : 500
 activation                : "relu"
 
 #=== IAF Parameters ===#
-num_iaf_transforms        : 5
-num_hidden_nodes_iaf      : 100
+num_iaf_transforms        : 3
+num_hidden_nodes_iaf      : 500
 activation_iaf            : 'relu'
 
 #=== Penalties ===#
 penalty_iaf               : 1
 penalty_prior             : 1
+penalty_post_draw         : 1
 
 #=== Data ===#
-num_data_train            : 1000
+num_data_train            : 10000
 batch_size                : 100
 num_epochs                : 1000

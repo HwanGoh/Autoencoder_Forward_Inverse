@@ -73,12 +73,17 @@ def optimize(hyperp, options, filepaths,
                                             sample_flag = False,
                                             infer_flag = True)
             batch_loss_train_prior = loss_weighted_penalized_difference(
-                    batch_latent_train, batch_posterior_sample_train,
+                    prior_mean, batch_posterior_sample_train,
                     prior_covariance_cholesky_inverse, hyperp.penalty_prior)
+            batch_loss_train_post_draw = loss_penalized_difference(
+                    batch_latent_train,
+                    batch_posterior_sample_train,
+                    hyperp.penalty_post_draw)
 
             batch_loss_train = -(-batch_loss_train_vae\
                                  -batch_loss_train_iaf_posterior\
-                                 -batch_loss_train_prior)
+                                 -batch_loss_train_prior\
+                                 -batch_loss_train_post_draw)
 
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -108,12 +113,17 @@ def optimize(hyperp, options, filepaths,
                                         sample_flag = False,
                                         infer_flag = True)
         batch_loss_val_prior = loss_weighted_penalized_difference(
-                batch_latent_val, batch_posterior_sample_val,
+                prior_mean, batch_posterior_sample_val,
                 prior_covariance_cholesky_inverse, hyperp.penalty_prior)
+        batch_loss_val_post_draw = loss_penalized_difference(
+                batch_latent_val,
+                batch_posterior_sample_val,
+                hyperp.penalty_post_draw)
 
         batch_loss_val = -(-batch_loss_val_vae\
                            -batch_loss_val_iaf_posterior\
-                           -batch_loss_val_prior)
+                           -batch_loss_val_prior\
+                           -batch_loss_val_post_draw)
 
         metrics.mean_loss_val(batch_loss_val)
         metrics.mean_loss_val_vae(batch_loss_val_vae)
@@ -140,12 +150,17 @@ def optimize(hyperp, options, filepaths,
                                         sample_flag = False,
                                         infer_flag = True)
         batch_loss_test_prior = loss_weighted_penalized_difference(
-                batch_latent_test, batch_posterior_sample_test,
+                prior_mean, batch_posterior_sample_test,
                 prior_covariance_cholesky_inverse, hyperp.penalty_prior)
+        batch_loss_test_post_draw = loss_penalized_difference(
+                batch_latent_test,
+                batch_posterior_sample_test,
+                hyperp.penalty_post_draw)
 
         batch_loss_test = -(-batch_loss_test_vae\
                             -batch_loss_test_iaf_posterior\
-                            -batch_loss_test_prior)
+                            -batch_loss_test_prior\
+                            -batch_loss_test_post_draw)
 
         metrics.mean_loss_test(batch_loss_test)
         metrics.mean_loss_test_vae(batch_loss_test_vae)

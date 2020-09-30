@@ -5,7 +5,6 @@ Created on Fri Feb 21 16:45:14 2020
 
 @author: hwan
 """
-
 import tensorflow as tf
 from tensorflow.keras.layers import Dense, Conv2D, Flatten
 from tensorflow.keras.initializers import RandomNormal
@@ -167,18 +166,18 @@ class IAFChainPosterior(tf.keras.layers.Layer):
         latent_dimensions = input_shape[0][1]
         self.event_shape = [latent_dimensions]
         bijectors_list = []
-        if self.iaf_lstm_update_flag == False:
-            for i in range(0, self.num_iaf_transforms):
-                bijectors_list.append(tfb.Invert(
-                    tfb.MaskedAutoregressiveFlow(
-                        shift_and_log_scale_fn = Made(params=2,
-                                                      event_shape = self.event_shape,
-                                                      hidden_units = self.hidden_units,
-                                                      activation = self.activation,
-                                                      kernel_initializer = self.kernel_initializer,
-                                                      bias_initializer = self.bias_initializer,
-                                                      name = "IAF_W" + str(i)))))
-                bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimensions)))))
+        for i in range(0, self.num_iaf_transforms):
+            bijectors_list.append(tfb.Invert(
+                tfb.MaskedAutoregressiveFlow(
+                    shift_and_log_scale_fn = Made(params=2,
+                                                    event_shape = self.event_shape,
+                                                    hidden_units = self.hidden_units,
+                                                    activation = self.activation,
+                                                    kernel_initializer = self.kernel_initializer,
+                                                    bias_initializer = self.bias_initializer,
+                                                    lstm_flag = self.iaf_lstm_update_flag,
+                                                    name = "IAF_W" + str(i)))))
+            bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimensions)))))
         self.iaf_chain = tfb.Chain(bijectors_list)
 
     def call(self, inputs, sample_flag = True, infer_flag = False):
@@ -210,8 +209,11 @@ class Made(tf.keras.layers.Layer):
                  hidden_units,
                  activation,
                  kernel_initializer, bias_initializer,
+                 lstm_flag,
                  name):
         super(Made, self).__init__(name = name)
+
+        self.lstm_flag = lstm_flag
         self.network = tfb.AutoregressiveNetwork(params = params,
                                                  event_shape = event_shape,
                                                  hidden_units = [hidden_units, hidden_units],
@@ -221,4 +223,9 @@ class Made(tf.keras.layers.Layer):
 
     def call(self, X):
         mean, log_var = tf.unstack(self.network(X), num=2, axis=-1)
-        return mean, log_var
+        if self.lstm_flag == False:
+            return mean, log_var
+        else:
+            s = tf.nn.sigmoid(log_var)
+            mean = mean - tf.multiply(s, mean)
+            return mean, tf.math.log_sigmoid(log_var)

@@ -11,6 +11,6 @@ penalty_kld_rate          : 10
 penalty_post_draw         : 1
 
 #=== Data ===#
-num_data_train            : 1000
+num_data_train            : 10000
 batch_size                : 100
 num_epochs                : 1000

@@ -2,7 +2,7 @@
 resnet : False
 
 #=== IAF Type ===#
-iaf_lstm_update : False
+iaf_lstm_update : True
 
 #=== Data Type ===#
 exponential : 1
@@ -15,14 +15,14 @@ num_data_test : 200
 #=== Data Properties ===#
 mesh_dimensions : 1000
 parameter_dimensions : 2
-obs_type : "full"
-num_obs_points : 50
+obs_type : "obs"
+num_obs_points : 200
 
 #=== Noise Properties ===#
 add_noise : False
 noise_level : 0.05
-num_noisy_obs : 25
-num_noisy_obs_unregularized : 25
+num_noisy_obs : 100
+num_noisy_obs_unregularized : 100
 
 #=== Full Prior ===#
 prior_type_diag_train : True

@@ -44,7 +44,8 @@ def trainer_custom(hyperp, options, filepaths,
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
-    kernel_initializer_iaf = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
+    kernel_initializer_iaf = tf.keras.initializers.RandomNormal(mean=0.05, stddev=0.05)
+    # kernel_initializer_iaf = tf.keras.initializers.RandomUniform(minval=0.0, maxval=0.05)
     bias_initializer_iaf = 'zeros'
 
     #=== Non-distributed Training ===#

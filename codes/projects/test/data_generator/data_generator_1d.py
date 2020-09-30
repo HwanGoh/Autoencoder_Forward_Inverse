@@ -35,7 +35,7 @@ class Options:
     generate_test_data = 0
 
     #=== Data Properties ===#
-    num_data = 1000
+    num_data = 10000
     mesh_dimensions = 1000
     parameter_dimensions = 2
     num_obs_points = 200
