@@ -13,19 +13,19 @@ class Metrics:
         self.mean_loss_train = tf.keras.metrics.Mean()
         self.mean_loss_train_vae = tf.keras.metrics.Mean()
         self.mean_loss_train_encoder = tf.keras.metrics.Mean()
-        self.mean_loss_train_post_mean = tf.keras.metrics.Mean()
+        self.mean_loss_train_post_draw = tf.keras.metrics.Mean()
         self.mean_loss_train_prior = tf.keras.metrics.Mean()
 
         self.mean_loss_val = tf.keras.metrics.Mean()
         self.mean_loss_val_vae = tf.keras.metrics.Mean()
         self.mean_loss_val_encoder = tf.keras.metrics.Mean()
-        self.mean_loss_val_post_mean = tf.keras.metrics.Mean()
+        self.mean_loss_val_post_draw = tf.keras.metrics.Mean()
         self.mean_loss_val_prior = tf.keras.metrics.Mean()
 
         self.mean_loss_test = tf.keras.metrics.Mean()
         self.mean_loss_test_vae = tf.keras.metrics.Mean()
         self.mean_loss_test_encoder = tf.keras.metrics.Mean()
-        self.mean_loss_test_post_mean = tf.keras.metrics.Mean()
+        self.mean_loss_test_post_draw = tf.keras.metrics.Mean()
         self.mean_loss_test_prior = tf.keras.metrics.Mean()
 
         self.mean_relative_error_input_vae = tf.keras.metrics.Mean()
@@ -38,19 +38,19 @@ class Metrics:
         self.storage_array_loss_train = np.array([])
         self.storage_array_loss_train_vae = np.array([])
         self.storage_array_loss_train_encoder = np.array([])
-        self.storage_array_loss_train_post_mean = np.array([])
+        self.storage_array_loss_train_post_draw = np.array([])
         self.storage_array_loss_train_prior = np.array([])
 
         self.storage_array_loss_val = np.array([])
         self.storage_array_loss_val_vae = np.array([])
         self.storage_array_loss_val_encoder = np.array([])
-        self.storage_array_loss_val_post_mean = np.array([])
+        self.storage_array_loss_val_post_draw = np.array([])
         self.storage_array_loss_val_prior = np.array([])
 
         self.storage_array_loss_test = np.array([])
         self.storage_array_loss_test_vae = np.array([])
         self.storage_array_loss_test_encoder = np.array([])
-        self.storage_array_loss_test_post_mean = np.array([])
+        self.storage_array_loss_test_post_draw = np.array([])
         self.storage_array_loss_test_prior = np.array([])
 
         self.storage_array_relative_error_input_vae = np.array([])
@@ -71,8 +71,8 @@ class Metrics:
                     self.mean_loss_train_vae.result(), step=epoch)
             tf.summary.scalar('loss_train_encoder',
                     self.mean_loss_train_encoder.result(), step=epoch)
-            tf.summary.scalar('loss_train_post_mean',
-                    self.mean_loss_train_post_mean.result(), step=epoch)
+            tf.summary.scalar('loss_train_post_draw',
+                    self.mean_loss_train_post_draw.result(), step=epoch)
             tf.summary.scalar('loss_train_prior',
                     self.mean_loss_train_prior.result(), step=epoch)
 
@@ -82,8 +82,8 @@ class Metrics:
                     self.mean_loss_val_vae.result(), step=epoch)
             tf.summary.scalar('loss_val_encoder',
                     self.mean_loss_val_encoder.result(), step=epoch)
-            tf.summary.scalar('loss_val_post_mean',
-                    self.mean_loss_val_post_mean.result(), step=epoch)
+            tf.summary.scalar('loss_val_post_draw',
+                    self.mean_loss_val_post_draw.result(), step=epoch)
             tf.summary.scalar('loss_val_prior',
                     self.mean_loss_val_prior.result(), step=epoch)
 
@@ -93,8 +93,8 @@ class Metrics:
                     self.mean_loss_test_vae.result(), step=epoch)
             tf.summary.scalar('loss_test_encoder',
                     self.mean_loss_test_encoder.result(), step=epoch)
-            tf.summary.scalar('loss_test_post_mean',
-                    self.mean_loss_test_post_mean.result(), step=epoch)
+            tf.summary.scalar('loss_test_post_draw',
+                    self.mean_loss_test_post_draw.result(), step=epoch)
             tf.summary.scalar('loss_test_prior',
                     self.mean_loss_test_prior.result(), step=epoch)
 
@@ -120,9 +120,9 @@ class Metrics:
         self.storage_array_loss_train_encoder =\
                 np.append(self.storage_array_loss_train_encoder,
                         self.mean_loss_train_encoder.result())
-        self.storage_array_loss_train_post_mean =\
-                np.append(self.storage_array_loss_train_post_mean,
-                        self.mean_loss_train_post_mean.result())
+        self.storage_array_loss_train_post_draw =\
+                np.append(self.storage_array_loss_train_post_draw,
+                        self.mean_loss_train_post_draw.result())
         self.storage_array_loss_train_prior =\
                 np.append(self.storage_array_loss_train_prior,
                         self.mean_loss_train_prior.result())
@@ -136,9 +136,9 @@ class Metrics:
         self.storage_array_loss_val_encoder =\
                 np.append(self.storage_array_loss_val_encoder,
                         self.mean_loss_val_encoder.result())
-        self.storage_array_loss_val_post_mean =\
-                np.append(self.storage_array_loss_val_post_mean,
-                        self.mean_loss_val_post_mean.result())
+        self.storage_array_loss_val_post_draw =\
+                np.append(self.storage_array_loss_val_post_draw,
+                        self.mean_loss_val_post_draw.result())
         self.storage_array_loss_val_prior =\
                 np.append(self.storage_array_loss_val_prior,
                         self.mean_loss_val_prior.result())
@@ -152,9 +152,9 @@ class Metrics:
         self.storage_array_loss_test_encoder =\
                 np.append(self.storage_array_loss_test_encoder,
                         self.mean_loss_test_encoder.result())
-        self.storage_array_loss_test_post_mean =\
-                np.append(self.storage_array_loss_test_post_mean,
-                        self.mean_loss_test_post_mean.result())
+        self.storage_array_loss_test_post_draw =\
+                np.append(self.storage_array_loss_test_post_draw,
+                        self.mean_loss_test_post_draw.result())
         self.storage_array_loss_test_prior =\
                 np.append(self.storage_array_loss_test_prior,
                         self.mean_loss_test_prior.result())
@@ -179,19 +179,19 @@ class Metrics:
         self.mean_loss_train.reset_states()
         self.mean_loss_train_vae.reset_states()
         self.mean_loss_train_encoder.reset_states()
-        self.mean_loss_train_post_mean.reset_states()
+        self.mean_loss_train_post_draw.reset_states()
         self.mean_loss_train_prior.reset_states()
 
         self.mean_loss_val.reset_states()
         self.mean_loss_val_vae.reset_states()
         self.mean_loss_val_encoder.reset_states()
-        self.mean_loss_val_post_mean.reset_states()
+        self.mean_loss_val_post_draw.reset_states()
         self.mean_loss_val_prior.reset_states()
 
         self.mean_loss_test.reset_states()
         self.mean_loss_test_vae.reset_states()
         self.mean_loss_test_encoder.reset_states()
-        self.mean_loss_test_post_mean.reset_states()
+        self.mean_loss_test_post_draw.reset_states()
         self.mean_loss_test_prior.reset_states()
 
         self.mean_relative_error_input_vae.reset_states()
@@ -206,13 +206,13 @@ class Metrics:
         metrics_dict['loss_train'] = self.storage_array_loss_train
         metrics_dict['loss_train_vae'] = self.storage_array_loss_train_vae
         metrics_dict['loss_train_encoder'] = self.storage_array_loss_train_encoder
-        metrics_dict['loss_train_post_mean'] = self.storage_array_loss_train_post_mean
+        metrics_dict['loss_train_post_draw'] = self.storage_array_loss_train_post_draw
         metrics_dict['loss_train_prior'] = self.storage_array_loss_train_prior
 
         metrics_dict['loss_val'] = self.storage_array_loss_val
         metrics_dict['loss_val_vae'] = self.storage_array_loss_val_vae
         metrics_dict['loss_val_encoder'] = self.storage_array_loss_val_encoder
-        metrics_dict['loss_val_post_mean'] = self.storage_array_loss_val_post_mean
+        metrics_dict['loss_val_post_draw'] = self.storage_array_loss_val_post_draw
         metrics_dict['loss_val_prior'] = self.storage_array_loss_val_prior
 
         metrics_dict['relative_error_input_vae'] =\
