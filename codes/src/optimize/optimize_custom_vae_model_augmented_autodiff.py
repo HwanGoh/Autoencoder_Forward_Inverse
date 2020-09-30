@@ -77,7 +77,8 @@ def optimize(hyperp, options, filepaths,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
                     penalty_kld)
             batch_loss_train_post_draw = loss_penalized_difference(
-                    batch_latent_train, batch_post_mean_train,
+                    batch_latent_train,
+                    NN.reparameterize(batch_post_mean_train, batch_log_post_var_train),
                     hyperp.penalty_post_draw)
 
             batch_loss_train = -(-batch_loss_train_vae\
@@ -102,7 +103,8 @@ def optimize(hyperp, options, filepaths,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
                 penalty_kld)
         batch_loss_val_post_draw = loss_penalized_difference(
-                batch_latent_val, batch_post_mean_val,
+                batch_latent_val,
+                NN.reparameterize(batch_post_mean_val, batch_log_post_var_val),
                 hyperp.penalty_post_draw)
 
         batch_loss_val = -(-batch_loss_val_kld\
@@ -121,7 +123,8 @@ def optimize(hyperp, options, filepaths,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
                 penalty_kld)
         batch_loss_test_post_draw = loss_penalized_difference(
-                batch_latent_test, batch_post_mean_test,
+                batch_latent_test,
+                NN.reparameterize(batch_post_mean_test, batch_log_post_var_test),
                 hyperp.penalty_post_draw)
 
         batch_loss_test = -(-batch_loss_test_kld\
@@ -132,8 +135,7 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_test_post_draw(batch_loss_test_post_draw)
 
         metrics.mean_relative_error_latent_encoder(relative_error(
-            batch_latent_test,
-            NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
+            batch_latent_test, NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
 
 ###############################################################################
 #                             Train Neural Network                            #

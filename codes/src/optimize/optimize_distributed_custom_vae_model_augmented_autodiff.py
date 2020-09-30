@@ -85,11 +85,12 @@ def optimize_distributed(dist_strategy,
                                 noise_regularization_matrix, 1)
                 unscaled_replica_batch_loss_loss_train_KLD = KLD_loss(
                         batch_post_mean_train, batch_log_post_var_train,
-                        batch_latent_train, prior_cov_inv,
+                        prior_mean, prior_cov_inv,
                         log_det_prior_cov, latent_dimension,
                         penalty_KLD)
                 unscaled_replica_batch_loss_train_post_draw = loss_penalized_difference(
-                        batch_latent_train, batch_post_mean_train,
+                        batch_latent_train,
+                        NN.reparameterize(batch_post_mean_train, batch_log_post_var_train),
                         hyperp.penalty_post_draw)
 
                 unscaled_replica_batch_loss_train =\
@@ -119,11 +120,12 @@ def optimize_distributed(dist_strategy,
 
             unscaled_replica_batch_loss_val_KLD = KLD_loss(
                     batch_post_mean_val, batch_log_post_var_val,
-                    batch_latent_val, prior_cov_inv,
+                    prior_mean, prior_cov_inv,
                     log_det_prior_cov, latent_dimension,
                     penalty_KLD)
             unscaled_replica_batch_loss_val_post_draw = loss_penalized_difference(
-                    batch_latent_val, batch_post_mean_val,
+                    batch_latent_val,
+                    NN.reparameterize(batch_post_mean_val, batch_log_post_var_val),
                     hyperp.penalty_post_draw)
 
             unscaled_replica_batch_loss_val =\
@@ -144,10 +146,12 @@ def optimize_distributed(dist_strategy,
 
             unscaled_replica_batch_loss_test_KLD = KLD_loss(
                     batch_post_mean_test, batch_log_post_var_test,
-                    batch_latent_test, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                    prior_mean, prior_cov_inv,
+                    log_det_prior_cov, latent_dimension,
                     penalty_KLD)
             unscaled_replica_batch_loss_test_post_draw = loss_penalized_difference(
-                    batch_latent_test, batch_post_mean_test,
+                    batch_latent_test,
+                    NN.reparameterize(batch_post_mean_test, batch_log_post_var_test),
                     hyperp.penalty_post_draw)
 
             unscaled_replica_batch_loss_test =\
@@ -159,7 +163,7 @@ def optimize_distributed(dist_strategy,
             metrics.mean_loss_test_post_draw(unscaled_replica_batch_loss_test_post_draw)
 
             metrics.mean_relative_error_latent_encoder(relative_error(
-                batch_latent_test, batch_post_mean_test))
+                batch_latent_test, NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
 
         # @tf.function
         def dist_test_step(batch_input_test, batch_latent_test):

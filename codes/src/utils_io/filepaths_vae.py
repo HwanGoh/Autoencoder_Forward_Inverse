@@ -52,15 +52,15 @@ class FilePaths():
         #=== File Name ===#
         if options.posterior_diagonal_covariance == True:
             penalty_kld_incr_string = value_to_string(hyperp.penalty_kld_incr)
-            penalty_post_mean_string = value_to_string(hyperp.penalty_post_mean)
+            penalty_post_draw_string = value_to_string(hyperp.penalty_post_draw)
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_kli%s_klr%d_pm%s_d%d_b%d_e%d' %(
+                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_kli%s_klr%d_pd%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
                         penalty_kld_incr_string, hyperp.penalty_kld_rate,
-                        penalty_post_mean_string,
+                        penalty_post_draw_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         if options.posterior_iaf == True:
