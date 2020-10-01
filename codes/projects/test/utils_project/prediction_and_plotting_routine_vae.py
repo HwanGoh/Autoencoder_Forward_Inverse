@@ -12,15 +12,15 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 plt.ioff() # Turn interactive plotting off
+import scipy.stats as st
 
 # Import src code
 from utils_data.data_handler import DataHandler
 from neural_networks.nn_vae_fwd_inv import VAEFwdInv
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
-# Import FEM Code
-from Finite_Element_Method.src.load_mesh import load_mesh
-from utils_project.plot_fem_function import plot_fem_function
+# Import project utilities
+from utils_project.solve_forward_1d import SolveForward1D
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -46,12 +46,28 @@ def predict_and_plot(hyperp, options, filepaths):
     parameter_test = data.input_test
     state_obs_test = data.output_test
 
+    #=== Load Observation Indices ===#
+    if options.obs_type == 'full':
+        obs_dimensions = options.mesh_dimensions
+        obs_indices = []
+    if options.obs_type == 'obs':
+        obs_dimensions = options.num_obs_points
+        print('Loading Boundary Indices')
+        df_obs_indices = pd.read_csv(filepaths.project.obs_indices + '.csv')
+        obs_indices = df_obs_indices.to_numpy()
+
     #=== Load Trained Neural Network ===#
     NN = VAEFwdInv(hyperp, options,
-                    input_dimensions, latent_dimensions,
-                    None, None,
-                    positivity_constraint_log_exp)
+                   input_dimensions, latent_dimensions,
+                   None, None,
+                   positivity_constraint_log_exp)
     NN.load_weights(filepaths.trained_NN)
+
+    #=== Construct Forward Model ===#
+    if options.model_augmented == True:
+        forward_model = SolveForward1D(options, filepaths, obs_indices)
+        if options.exponential == True:
+            forward_model_solve = forward_model.exponential
 
     #=== Selecting Samples ===#
     sample_number = 105
@@ -59,36 +75,48 @@ def predict_and_plot(hyperp, options, filepaths):
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
     #=== Predictions ===#
-    parameter_pred_sample, _ = NN.encoder(state_obs_test_sample)
-    state_obs_pred_sample = NN.decoder(parameter_test_sample)
-    parameter_pred_sample = parameter_pred_sample.numpy().flatten()
-    state_obs_pred_sample = state_obs_pred_sample.numpy().flatten()
+    posterior_mean_pred, posterior_cov_pred = NN.encoder(state_obs_test_sample)
+    n_samples = 1000
+    posterior_pred_draws = np.zeros((n_samples, posterior_mean_pred.shape[1]))
+    state_obs_pred_draws = np.zeros((n_samples, state_obs_test_sample.shape[1]))
+    for n in range(0,n_samples):
+        posterior_pred_draws[n,:] = NN.reparameterize(posterior_mean_pred, posterior_cov_pred)
+    if options.model_aware == True:
+        state_obs_pred_draws = NN.decoder(posterior_pred_draws)
+    else:
+        state_obs_pred_draws = forward_model_solve(posterior_pred_draws)
 
     #=== Plotting Prediction ===#
     print('================================')
     print('      Plotting Predictions      ')
     print('================================')
-    #=== Load Mesh ===#
-    nodes, elements, _, _, _, _, _, _ = load_mesh(filepaths.project)
-
-    #=== Plot FEM Functions ===#
-    plot_fem_function(filepaths.figure_parameter_test,
-                     'True Parameter', 7.0,
-                      nodes, elements,
-                      parameter_test_sample)
-    plot_fem_function(filepaths.figure_parameter_pred,
-                      'Parameter Prediction', 7.0,
-                      nodes, elements,
-                      parameter_pred_sample)
-    if options.obs_type == 'full':
-        plot_fem_function(filepaths.figure_state_test,
-                          'True State', 2.6,
-                          nodes, elements,
-                          state_obs_test_sample)
-        plot_fem_function(filepaths.figure_state_pred,
-                          'State Prediction', 2.6,
-                          nodes, elements,
-                          state_obs_pred_sample)
+    n_bins = 20
+    for n in range(0, posterior_mean_pred.shape[1]):
+        #=== Posterior Histogram ===#
+        plt.hist(posterior_pred_draws[:,n], density=True,
+                 bins=n_bins)
+        #=== True Parameter Value ===#
+        plt.axvline(parameter_test_sample[0,n], color='r',
+                linestyle='dashed', linewidth=3,
+                label="True Parameter Value")
+        #=== Predicted Posterior Mean ===#
+        plt.axvline(posterior_mean_pred[0,n], color='b',
+                linestyle='dashed', linewidth=1,
+                label="Predicted Posterior Mean")
+        #=== Probability Density Function ===#
+        mn, mx = plt.xlim()
+        plt.xlim(mn, mx)
+        kde_xs = np.linspace(mn, mx, 301)
+        kde = st.gaussian_kde(posterior_pred_draws[:,n])
+        #=== Title and Labels ===#
+        plt.plot(kde_xs, kde.pdf(kde_xs))
+        plt.legend(loc="upper left")
+        plt.ylabel('Probability')
+        plt.xlabel('Parameter Value')
+        plt.title("Marginal Posterior Parameter_%d"%(n));
+        #=== Save and Close Figure ===#
+        plt.savefig(filepaths.figure_parameter_pred + '_%d'%(n))
+        plt.close()
 
     print('Predictions plotted')
 
@@ -111,7 +139,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     storage_array_loss_train_VAE = array_metrics[:,1]
     storage_array_loss_train_encoder = array_metrics[:,2]
     storage_array_relative_error_input_VAE = array_metrics[:,10]
-    storage_array_relative_error_latent_encoder = array_metrics[:,11]
+    storage_array_relative_error_latent_post_draw = array_metrics[:,11]
     storage_array_relative_error_input_decoder = array_metrics[:,12]
     storage_array_relative_gradient_norm = array_metrics[:,13]
 
@@ -166,15 +194,15 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.savefig(figures_savefile_name)
     plt.close(fig_accuracy)
 
-    #=== Relative Error Encoder ===#
+    #=== Relative Error Posterior Draw ===#
     fig_accuracy = plt.figure()
     x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
-    plt.plot(x_axis, storage_array_relative_error_latent_encoder)
-    plt.title('Relative Error for Encoder')
+    plt.plot(x_axis, storage_array_relative_error_latent_post_draw)
+    plt.title('Relative Error for Posterior Draw')
     plt.xlabel('Epochs')
     plt.ylabel('Relative Error')
     figures_savefile_name = filepaths.directory_figures + '/' +\
-            'relative_error_encoder.png'
+            'relative_error_post_draw.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_accuracy)
 
@@ -201,18 +229,5 @@ def plot_and_save_metrics(hyperp, options, filepaths):
             'relative_error_gradient_norm.png'
     plt.savefig(figures_savefile_name)
     plt.close(fig_gradient_norm)
-
-    if options.model_augmented == 1:
-        #=== Relative Error Decoder ===#
-        fig_loss = plt.figure()
-        x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
-        plt.plot(x_axis, storage_array_loss_train_forward_model)
-        plt.title('Log-loss Forward Model')
-        plt.xlabel('Epochs')
-        plt.ylabel('Relative Error')
-        figures_savefile_name = filepaths.directory_figures + '/' +\
-                'loss_forward_model.png'
-        plt.savefig(figures_savefile_name)
-        plt.close(fig_loss)
 
     print('Plotting complete')

@@ -16,8 +16,12 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
+# Import src code
 from utils_training.metrics_vae import Metrics
 from utils_io.config_io import dump_attrdict_as_yaml
+
+# Import project utilities
+from utils_project.solve_forward_1d import SolveForward1D
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
