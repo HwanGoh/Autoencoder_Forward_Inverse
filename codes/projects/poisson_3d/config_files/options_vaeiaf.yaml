@@ -11,7 +11,7 @@ num_data_test : 200
 
 #=== Data Properties ===#
 parameter_dimensions : 1728
-obs_type : "full"
+obs_type : "obs"
 num_obs_points : 728
 
 #=== Noise Properties ===#
