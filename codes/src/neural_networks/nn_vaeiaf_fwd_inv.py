@@ -224,8 +224,8 @@ class Made(tf.keras.layers.Layer):
     def call(self, X):
         mean, log_var = tf.unstack(self.network(X), num=2, axis=-1)
         if self.lstm_flag == False:
-            return mean, log_var
+            return mean, tf.math.tanh(log_var)
         else:
-            s = tf.nn.sigmoid(log_var)
+            s = tf.math.sigmoid(log_var)
             mean = mean - tf.multiply(s, mean)
             return mean, tf.math.log_sigmoid(log_var)

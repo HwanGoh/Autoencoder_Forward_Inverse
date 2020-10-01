@@ -73,7 +73,7 @@ def optimize_distributed(dist_strategy,
 ###############################################################################
     with dist_strategy.scope():
         #=== Training Step ===#
-        def train_step(batch_input_train, batch_latent_train):
+        def train_step(batch_input_train, batch_latent_train, penalty_kld):
             with tf.GradientTape() as tape:
                 batch_likelihood_train = NN(batch_input_train)
                 batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
@@ -107,14 +107,14 @@ def optimize_distributed(dist_strategy,
 
             return scaled_replica_batch_loss_train
 
-        # @tf.function
-        def dist_train_step(batch_input_train, batch_latent_train):
+        @tf.function
+        def dist_train_step(batch_input_train, batch_latent_train, penalty_kld):
             per_replica_losses = dist_strategy.experimental_run_v2(
-                    train_step, args=(batch_input_train, batch_latent_train))
+                    train_step, args=(batch_input_train, batch_latent_train, penalty_kld))
             return dist_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
 
         #=== Validation Step ===#
-        def val_step(batch_input_val, batch_latent_val):
+        def val_step(batch_input_val, batch_latent_val, penalty_kld):
             batch_likelihood_val = NN(batch_input_val)
             batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
@@ -142,11 +142,12 @@ def optimize_distributed(dist_strategy,
             metrics.mean_loss_val_post_draw(unscaled_replica_batch_loss_val_post_draw)
 
         # @tf.function
-        def dist_val_step(batch_input_val, batch_latent_val):
-            return dist_strategy.experimental_run_v2(val_step, (batch_input_val, batch_latent_val))
+        def dist_val_step(batch_input_val, batch_latent_val, penalty_kld):
+            return dist_strategy.experimental_run_v2(
+                    val_step, (batch_input_val, batch_latent_val, penalty_kld))
 
         #=== Test Step ===#
-        def test_step(batch_input_test, batch_latent_test):
+        def test_step(batch_input_test, batch_latent_test, penalty_kld):
             batch_likelihood_test = NN(batch_input_test)
             batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
             batch_input_pred_test = NN.decoder(batch_latent_test)
@@ -182,9 +183,9 @@ def optimize_distributed(dist_strategy,
                 batch_input_test, batch_input_pred_test))
 
         # @tf.function
-        def dist_test_step(batch_input_test, batch_latent_test):
-            return dist_strategy.experimental_run_v2(test_step, (batch_input_test,
-                batch_latent_test))
+        def dist_test_step(batch_input_test, batch_latent_test, penalty_kld):
+            return dist_strategy.experimental_run_v2(
+                    test_step, (batch_input_test, batch_latent_test, penalty_kld))
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -203,7 +204,8 @@ def optimize_distributed(dist_strategy,
         for batch_input_train, batch_latent_train in dist_input_and_latent_train:
             start_time_batch = time.time()
             #=== Compute Train Step ===#
-            batch_loss_train = dist_train_step(batch_input_train, batch_latent_train)
+            batch_loss_train = dist_train_step(
+                    batch_input_train, batch_latent_train, penalty_kld)
             total_loss_train += batch_loss_train
             elapsed_time_batch = time.time() - start_time_batch
             if batch_counter  == 0:
@@ -213,11 +215,11 @@ def optimize_distributed(dist_strategy,
 
         #=== Computing Validation Metrics ===#
         for batch_input_val, batch_latent_val in dist_input_and_latent_val:
-            dist_val_step(batch_input_val, batch_latent_val)
+            dist_val_step(batch_input_val, batch_latent_val, penalty_kld)
 
         #=== Computing Test Metrics ===#
         for batch_input_test, batch_latent_test in dist_input_and_latent_test:
-            dist_test_step(batch_input_test, batch_latent_test)
+            dist_test_step(batch_input_test, batch_latent_test, penalty_kld)
 
         #=== Tensorboard Tracking Training Metrics, Weights and Gradients ===#
         metrics.update_tensorboard(summary_writer, epoch)

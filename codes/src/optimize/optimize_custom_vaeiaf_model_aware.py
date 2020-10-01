@@ -50,12 +50,15 @@ def optimize(hyperp, options, filepaths,
     NN.build((hyperp.batch_size, input_dimensions))
     NN.summary()
 
+    #=== Setting Initial IAF Penalty to be Incremented ===#
+    penalty_iaf = 0
+
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
     @tf.function
-    def train_step(batch_input_train, batch_latent_train):
+    def train_step(batch_input_train, batch_latent_train, penalty_iaf):
         with tf.GradientTape() as tape:
             batch_likelihood_train = NN(batch_input_train)
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
@@ -67,7 +70,7 @@ def optimize(hyperp, options, filepaths,
             batch_loss_train_vae = loss_weighted_penalized_difference(
                     batch_input_train, batch_likelihood_train,
                     noise_regularization_matrix, 1)
-            batch_loss_train_iaf_posterior = hyperp.penalty_iaf*\
+            batch_loss_train_iaf_posterior = penalty_iaf*\
                     NN.iaf_chain_posterior((batch_post_mean_train,
                                             batch_log_post_var_train),
                                             sample_flag = False,
@@ -96,7 +99,7 @@ def optimize(hyperp, options, filepaths,
 
     #=== Validation Step ===#
     @tf.function
-    def val_step(batch_input_val, batch_latent_val):
+    def val_step(batch_input_val, batch_latent_val, penalty_iaf):
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
         batch_posterior_sample_val = NN.iaf_chain_posterior((batch_post_mean_val,
@@ -107,7 +110,7 @@ def optimize(hyperp, options, filepaths,
         batch_loss_val_vae = loss_weighted_penalized_difference(
                 batch_input_val, batch_likelihood_val,
                 noise_regularization_matrix, 1)
-        batch_loss_val_iaf_posterior = hyperp.penalty_iaf*\
+        batch_loss_val_iaf_posterior = penalty_iaf*\
                 NN.iaf_chain_posterior((batch_post_mean_val,
                                         batch_log_post_var_val),
                                         sample_flag = False,
@@ -132,7 +135,7 @@ def optimize(hyperp, options, filepaths,
 
     #=== Test Step ===#
     @tf.function
-    def test_step(batch_input_test, batch_latent_test):
+    def test_step(batch_input_test, batch_latent_test, penalty_iaf):
         batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
         batch_posterior_sample_test = NN.iaf_chain_posterior((batch_post_mean_test,
@@ -144,7 +147,7 @@ def optimize(hyperp, options, filepaths,
         batch_loss_test_vae = loss_weighted_penalized_difference(
                 batch_input_test, batch_likelihood_test,
                 noise_regularization_matrix, 1)
-        batch_loss_test_iaf_posterior = hyperp.penalty_iaf*\
+        batch_loss_test_iaf_posterior = penalty_iaf*\
                 NN.iaf_chain_posterior((batch_post_mean_test,
                                         batch_log_post_var_test),
                                         sample_flag = False,
@@ -189,18 +192,18 @@ def optimize(hyperp, options, filepaths,
         for batch_num, (batch_input_train, batch_latent_train) in input_and_latent_train.enumerate():
             start_time_batch = time.time()
             #=== Computing Train Step ===#
-            gradients = train_step(batch_input_train, batch_latent_train)
+            gradients = train_step(batch_input_train, batch_latent_train, penalty_iaf)
             elapsed_time_batch = time.time() - start_time_batch
             if batch_num  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
 
         #=== Computing Relative Errors Validation ===#
         for batch_input_val, batch_latent_val in input_and_latent_val:
-            val_step(batch_input_val, batch_latent_val)
+            val_step(batch_input_val, batch_latent_val, penalty_iaf)
 
         #=== Computing Relative Errors Test ===#
         for batch_input_test, batch_latent_test in input_and_latent_test:
-            test_step(batch_input_test, batch_latent_test)
+            test_step(batch_input_test, batch_latent_test, penalty_iaf)
 
         #=== Update Current Relative Gradient Norm ===#
         with summary_writer.as_default():
@@ -262,6 +265,10 @@ def optimize(hyperp, options, filepaths,
         if metrics.relative_gradient_norm < 1e-6:
             print('Gradient norm tolerance reached, breaking training loop')
             break
+
+        #=== Increase KLD Penalty ===#
+        if epoch %hyperp.penalty_iaf_rate == 0 and epoch != 0:
+            penalty_iaf += hyperp.penalty_iaf_incr
 
     #=== Save Final Model ===#
     NN.save_weights(filepaths.trained_NN)

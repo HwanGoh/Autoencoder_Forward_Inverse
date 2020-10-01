@@ -8,7 +8,7 @@ iaf_lstm_update : True
 exponential : 1
 
 #=== Load Dataset Size ===#
-num_data_train_load : 1000
+num_data_train_load : 10000
 num_data_test_load : 200
 num_data_test : 200
 

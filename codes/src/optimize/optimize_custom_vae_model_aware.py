@@ -62,8 +62,8 @@ def optimize(hyperp, options, filepaths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    # @tf.function
-    def train_step(batch_input_train, batch_latent_train):
+    @tf.function
+    def train_step(batch_input_train, batch_latent_train, penalty_kld):
         with tf.GradientTape() as tape:
             batch_likelihood_train = NN(batch_input_train)
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
@@ -93,8 +93,8 @@ def optimize(hyperp, options, filepaths,
         return gradients
 
     #=== Validation Step ===#
-    # @tf.function
-    def val_step(batch_input_val, batch_latent_val):
+    @tf.function
+    def val_step(batch_input_val, batch_latent_val, penalty_kld):
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
@@ -120,8 +120,8 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_val_post_draw(batch_loss_val_post_draw)
 
     #=== Test Step ===#
-    # @tf.function
-    def test_step(batch_input_test, batch_latent_test):
+    @tf.function
+    def test_step(batch_input_test, batch_latent_test, penalty_kld):
         batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
         batch_input_pred_test = NN.decoder(batch_latent_test)
@@ -169,18 +169,18 @@ def optimize(hyperp, options, filepaths,
         for batch_num, (batch_input_train, batch_latent_train) in input_and_latent_train.enumerate():
             start_time_batch = time.time()
             #=== Computing Train Step ===#
-            gradients = train_step(batch_input_train, batch_latent_train)
+            gradients = train_step(batch_input_train, batch_latent_train, penalty_kld)
             elapsed_time_batch = time.time() - start_time_batch
             if batch_num  == 0:
                 print('Time per Batch: %.4f' %(elapsed_time_batch))
 
         #=== Computing Relative Errors Validation ===#
         for batch_input_val, batch_latent_val in input_and_latent_val:
-            val_step(batch_input_val, batch_latent_val)
+            val_step(batch_input_val, batch_latent_val, penalty_kld)
 
         #=== Computing Relative Errors Test ===#
         for batch_input_test, batch_latent_test in input_and_latent_test:
-            test_step(batch_input_test, batch_latent_test)
+            test_step(batch_input_test, batch_latent_test, penalty_kld)
 
         #=== Update Current Relative Gradient Norm ===#
         with summary_writer.as_default():
