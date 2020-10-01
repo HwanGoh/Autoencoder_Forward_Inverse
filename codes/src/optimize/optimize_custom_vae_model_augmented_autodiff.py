@@ -134,7 +134,7 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_test_encoder(batch_loss_test_kld)
         metrics.mean_loss_test_post_draw(batch_loss_test_post_draw)
 
-        metrics.mean_relative_error_latent_encoder(relative_error(
+        metrics.mean_relative_error_latent_post_draw(relative_error(
             batch_latent_test, NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
 
 ###############################################################################
@@ -201,8 +201,8 @@ def optimize(hyperp, options, filepaths,
                 %(metrics.mean_loss_test.result(),
                   metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_test_post_draw.result()))
-        print('Rel Errors: Encoder: %.3e\n'\
-                %(metrics.mean_relative_error_latent_encoder.result()))
+        print('Rel Errors: Post Draw: %.3e\n'\
+                %(metrics.mean_relative_error_latent_post_draw.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()
 

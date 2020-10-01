@@ -28,7 +28,7 @@ def generate_scenarios_list():
     hyperp['activation']                = ['relu']
     hyperp['penalty_kld_incr']          = [0.001, 0.01, 0.1, 1]
     hyperp['penalty_kld_rate']          = [10, 50, 100, 300]
-    hyperp['penalty_post_mean']         = [1]
+    hyperp['penalty_post_draw']         = [1]
     hyperp['num_data_train']            = [10000]
     hyperp['batch_size']                = [100]
     hyperp['num_epochs']                = [1000]

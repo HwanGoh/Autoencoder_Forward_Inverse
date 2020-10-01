@@ -149,7 +149,7 @@ def optimize(hyperp, options, filepaths,
 
         metrics.mean_relative_error_input_vae(relative_error(
             batch_input_test, batch_likelihood_test))
-        metrics.mean_relative_error_latent_encoder(relative_error(
+        metrics.mean_relative_error_latent_post_draw(relative_error(
             batch_latent_test, NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
         metrics.mean_relative_error_input_decoder(relative_error(
             batch_input_test, batch_input_pred_test))
@@ -220,9 +220,9 @@ def optimize(hyperp, options, filepaths,
                   metrics.mean_loss_test_vae.result(),
                   metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_test_post_draw.result()))
-        print('Rel Errors: VAE: %.3e, Encoder: %.3e, Decoder: %.3e\n'\
+        print('Rel Errors: VAE: %.3e, Post Draw: %.3e, Decoder: %.3e\n'\
                 %(metrics.mean_relative_error_input_vae.result(),
-                  metrics.mean_relative_error_latent_encoder.result(),
+                  metrics.mean_relative_error_latent_post_draw.result(),
                   metrics.mean_relative_error_input_decoder.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()

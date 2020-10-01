@@ -94,6 +94,7 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_train_vae(batch_loss_train_vae)
         metrics.mean_loss_train_encoder(batch_loss_train_iaf_posterior)
         metrics.mean_loss_train_prior(batch_loss_train_prior)
+        metrics.mean_loss_train_post_draw(batch_loss_train_post_draw)
 
         return gradients
 
@@ -132,6 +133,7 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_val_vae(batch_loss_val_vae)
         metrics.mean_loss_val_encoder(batch_loss_val_iaf_posterior)
         metrics.mean_loss_val_prior(batch_loss_val_prior)
+        metrics.mean_loss_val_post_draw(batch_loss_val_post_draw)
 
     #=== Test Step ===#
     @tf.function
@@ -169,10 +171,11 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_test_vae(batch_loss_test_vae)
         metrics.mean_loss_test_encoder(batch_loss_test_iaf_posterior)
         metrics.mean_loss_test_prior(batch_loss_test_prior)
+        metrics.mean_loss_test_post_draw(batch_loss_test_post_draw)
 
         metrics.mean_relative_error_input_vae(relative_error(
             batch_input_test, batch_likelihood_test))
-        metrics.mean_relative_error_latent_encoder(relative_error(
+        metrics.mean_relative_error_latent_post_draw(relative_error(
             batch_latent_test, batch_posterior_sample_test))
         metrics.mean_relative_error_input_decoder(relative_error(
             batch_input_test, batch_input_pred_test))
@@ -243,9 +246,9 @@ def optimize(hyperp, options, filepaths,
                   metrics.mean_loss_test_vae.result(),
                   metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_test_prior.result()))
-        print('Rel Errors: VAE: %.3e, Encoder: %.3e, Decoder: %.3e\n'\
+        print('Rel Errors: VAE: %.3e, Post Draw: %.3e, Decoder: %.3e\n'\
                 %(metrics.mean_relative_error_input_vae.result(),
-                  metrics.mean_relative_error_latent_encoder.result(),
+                  metrics.mean_relative_error_latent_post_draw.result(),
                   metrics.mean_relative_error_input_decoder.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()
@@ -266,7 +269,7 @@ def optimize(hyperp, options, filepaths,
             print('Gradient norm tolerance reached, breaking training loop')
             break
 
-        #=== Increase KLD Penalty ===#
+        #=== Increase IAF Penalty ===#
         if epoch %hyperp.penalty_iaf_rate == 0 and epoch != 0:
             penalty_iaf += hyperp.penalty_iaf_incr
 

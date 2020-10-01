@@ -53,7 +53,7 @@ class Metrics:
         self.storage_array_loss_test_prior = np.array([])
 
         self.storage_array_relative_error_input_vae = np.array([])
-        self.storage_array_relative_error_latent_encoder = np.array([])
+        self.storage_array_relative_error_latent_post_draw = np.array([])
         self.storage_array_relative_error_input_decoder = np.array([])
 
 ###############################################################################
@@ -97,8 +97,8 @@ class Metrics:
 
             tf.summary.scalar('relative_error_input_vae',
                     self.mean_relative_error_input_vae.result(), step=epoch)
-            tf.summary.scalar('relative_error_latent_encoder',
-                    self.mean_relative_error_latent_encoder.result(), step=epoch)
+            tf.summary.scalar('relative_error_latent_post_draw',
+                    self.mean_relative_error_latent_post_draw.result(), step=epoch)
             tf.summary.scalar('relative_error_input_decoder',
                     self.mean_relative_error_input_decoder.result(), step=epoch)
 
@@ -157,9 +157,9 @@ class Metrics:
         self.storage_array_relative_error_input_vae =\
                 np.append(self.storage_array_relative_error_input_vae,
                         self.mean_relative_error_input_vae.result())
-        self.storage_array_relative_error_latent_encoder =\
-                np.append(self.storage_array_relative_error_latent_encoder,
-                        self.mean_relative_error_latent_encoder.result())
+        self.storage_array_relative_error_latent_post_draw =\
+                np.append(self.storage_array_relative_error_latent_post_draw,
+                        self.mean_relative_error_latent_post_draw.result())
         self.storage_array_relative_error_input_decoder =\
                 np.append(self.storage_array_relative_error_input_decoder,
                         self.mean_relative_error_input_decoder.result())
@@ -186,7 +186,7 @@ class Metrics:
         self.mean_loss_test_prior.reset_states()
 
         self.mean_relative_error_input_vae.reset_states()
-        self.mean_relative_error_latent_encoder.reset_states()
+        self.mean_relative_error_latent_post_draw.reset_states()
         self.mean_relative_error_input_decoder.reset_states()
 
 ###############################################################################
@@ -208,8 +208,8 @@ class Metrics:
 
         metrics_dict['relative_error_input_vae'] =\
                 self.storage_array_relative_error_input_vae
-        metrics_dict['relative_error_latent_encoder'] =\
-                self.storage_array_relative_error_latent_encoder
+        metrics_dict['relative_error_latent_post_draw'] =\
+                self.storage_array_relative_error_latent_post_draw
         metrics_dict['relative_error_input_decoder'] =\
                 self.storage_array_relative_error_input_decoder
 
