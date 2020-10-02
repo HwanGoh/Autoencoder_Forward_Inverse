@@ -59,10 +59,11 @@ def predict_and_plot(hyperp, options, filepaths):
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
     #=== Predictions ===#
-    parameter_pred_sample, _ = NN.encoder(state_obs_test_sample)
-    state_obs_pred_sample = NN.decoder(parameter_test_sample)
-    parameter_pred_sample = parameter_pred_sample.numpy().flatten()
-    state_obs_pred_sample = state_obs_pred_sample.numpy().flatten()
+    posterior_mean_pred, posterior_cov_pred = NN.encoder(state_obs_test_sample)
+    posterior_pred_draw = NN.reparameterize(posterior_mean_pred, posterior_cov_pred)
+    state_obs_pred_draw = NN.decoder(posterior_pred_draw)
+    posterior_pred_draw = posterior_pred_draw.numpy().flatten()
+    state_obs_pred_draw = state_obs_pred_draw.numpy().flatten()
 
     #=== Plotting Prediction ===#
     print('================================')
@@ -79,7 +80,7 @@ def predict_and_plot(hyperp, options, filepaths):
     plot_fem_function(filepaths.figure_parameter_pred,
                       'Parameter Prediction', 7.0,
                       nodes, elements,
-                      parameter_pred_sample)
+                      posterior_pred_draw)
     if options.obs_type == 'full':
         plot_fem_function(filepaths.figure_state_test,
                           'True State', 2.6,
@@ -88,7 +89,7 @@ def predict_and_plot(hyperp, options, filepaths):
         plot_fem_function(filepaths.figure_state_pred,
                           'State Prediction', 2.6,
                           nodes, elements,
-                          state_obs_pred_sample)
+                          state_obs_pred_draw)
 
     print('Predictions plotted')
 

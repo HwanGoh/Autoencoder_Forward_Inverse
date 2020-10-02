@@ -90,11 +90,11 @@ def predict_and_plot(hyperp, options, filepaths):
     print('================================')
     print('      Plotting Predictions      ')
     print('================================')
-    n_bins = 20
+    n_bins = 100
     for n in range(0, posterior_mean_pred.shape[1]):
         #=== Posterior Histogram ===#
         plt.hist(posterior_pred_draws[:,n], density=True,
-                 bins=n_bins)
+                 range=[-1,4], bins=n_bins)
         #=== True Parameter Value ===#
         plt.axvline(parameter_test_sample[0,n], color='r',
                 linestyle='dashed', linewidth=3,
