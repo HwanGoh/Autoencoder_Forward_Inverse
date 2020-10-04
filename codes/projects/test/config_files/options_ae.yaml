@@ -16,7 +16,7 @@ num_data_test : 200
 #=== Data Properties ===#
 mesh_dimensions : 1000
 parameter_dimensions : 2
-obs_type : "full"
+obs_type : "obs"
 num_obs_points : 50
 
 #=== Noise Properties ===#

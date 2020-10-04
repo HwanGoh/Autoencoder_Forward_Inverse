@@ -61,9 +61,12 @@ def predict_and_plot(hyperp, options, filepaths):
     #=== Predictions ===#
     posterior_mean_pred, posterior_cov_pred = NN.encoder(state_obs_test_sample)
     posterior_pred_draw = NN.reparameterize(posterior_mean_pred, posterior_cov_pred)
-    state_obs_pred_draw = NN.decoder(posterior_pred_draw)
+    posterior_mean_pred = posterior_mean_pred.numpy().flatten()
     posterior_pred_draw = posterior_pred_draw.numpy().flatten()
-    state_obs_pred_draw = state_obs_pred_draw.numpy().flatten()
+
+    if options.model_aware == 1:
+        state_obs_pred_draw = NN.decoder(posterior_pred_draw)
+        state_obs_pred_draw = state_obs_pred_draw.numpy().flatten()
 
     #=== Plotting Prediction ===#
     print('================================')
@@ -81,6 +84,10 @@ def predict_and_plot(hyperp, options, filepaths):
                       'Parameter Prediction', 7.0,
                       nodes, elements,
                       posterior_pred_draw)
+    plot_fem_function(filepaths.figure_posterior_mean,
+                      'Parameter Prediction', 7.0,
+                      nodes, elements,
+                      posterior_mean_pred)
     if options.obs_type == 'full':
         plot_fem_function(filepaths.figure_state_test,
                           'True State', 2.6,
@@ -203,17 +210,17 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.savefig(figures_savefile_name)
     plt.close(fig_gradient_norm)
 
-    if options.model_augmented == 1:
-        #=== Relative Error Decoder ===#
-        fig_loss = plt.figure()
-        x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
-        plt.plot(x_axis, storage_array_loss_train_forward_model)
-        plt.title('Log-loss Forward Model')
-        plt.xlabel('Epochs')
-        plt.ylabel('Relative Error')
-        figures_savefile_name = filepaths.directory_figures + '/' +\
-                'loss_forward_model.png'
-        plt.savefig(figures_savefile_name)
-        plt.close(fig_loss)
+    #if options.model_augmented == 1:
+    #    #=== Relative Error Decoder ===#
+    #    fig_loss = plt.figure()
+    #    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
+    #    plt.plot(x_axis, storage_array_loss_train_forward_model)
+    #    plt.title('Log-loss Forward Model')
+    #    plt.xlabel('Epochs')
+    #    plt.ylabel('Relative Error')
+    #    figures_savefile_name = filepaths.directory_figures + '/' +\
+    #            'loss_forward_model.png'
+    #    plt.savefig(figures_savefile_name)
+    #    plt.close(fig_loss)
 
     print('Plotting complete')

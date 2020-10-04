@@ -5,7 +5,7 @@ resnet : False
 iaf_lstm_update : False
 
 #=== Load Dataset Size ===#
-num_data_train_load : 5000
+num_data_train_load : 10000
 num_data_test_load : 200
 num_data_test : 200
 
@@ -18,7 +18,7 @@ num_obs_points : 43
 add_noise : False
 noise_level : 0.05
 num_noisy_obs : 20
-num_noisy_obs_unregularized : 20
+num_noisy_obs_unregularized : 23
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_AC_train : True

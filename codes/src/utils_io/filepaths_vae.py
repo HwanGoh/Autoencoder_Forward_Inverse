@@ -154,6 +154,7 @@ class FilePathsPredictionAndPlotting(FilePaths):
         self.figure_state_test = self.directory_figures+ '/state_test'
         self.figure_parameter_pred = self.directory_figures + '/parameter_pred'
         self.figure_state_pred = self.directory_figures + '/state_pred'
+        self.figure_posterior_mean = self.directory_figures + '/posterior_mean'
 
         #=== File Path for vtk Files ===#
         self.figure_vtk_parameter_test = self.directory_figures + '/parameter_test'

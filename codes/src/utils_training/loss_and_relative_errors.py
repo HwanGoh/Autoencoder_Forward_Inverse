@@ -13,10 +13,10 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                                   Loss                                      #
 ###############################################################################
 def loss_penalized_difference(true, pred, penalty):
-    return penalty*tf.keras.losses.mean_squared_error(true, pred)
+    return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(true, pred)
 
 def loss_weighted_penalized_difference(true, pred, weight_matrix, penalty):
-    return penalty*tf.keras.losses.mean_squared_error(
+    return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
             tf.linalg.matmul(true, tf.transpose(weight_matrix)),
             tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
 
@@ -35,7 +35,7 @@ def loss_forward_model(hyperp, options,
                        penalty):
     forward_model_state_pred = forward_model(parameter_pred)
     forward_model_state_pred = tf.cast(forward_model_state_pred, dtype=tf.float32)
-    return penalty*tf.keras.losses.mean_squared_error(state_obs_true,
+    return penalty*state_obs_true.shape[1]*tf.keras.losses.mean_squared_error(state_obs_true,
             forward_model_state_pred)
 
 def kld_diagonal_post_cov(post_mean, log_post_var,

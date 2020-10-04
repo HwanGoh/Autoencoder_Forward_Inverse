@@ -6,10 +6,10 @@ num_hidden_nodes_decoder  : 500
 activation                : "relu"
 
 #=== Penalties ===#
-penalty_encoder           : 1000
-penalty_decoder           : 10
-penalty_aug               : 1000
-penalty_prior             : 0.001
+penalty_encoder           : 1
+penalty_decoder           : 1
+penalty_aug               : 1
+penalty_prior             : 1
 
 #=== Data ===#
 num_data_train            : 5000

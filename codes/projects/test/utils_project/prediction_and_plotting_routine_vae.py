@@ -31,9 +31,13 @@ def predict_and_plot(hyperp, options, filepaths):
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
-        obs_dimensions = options.parameter_dimensions
+        obs_dimensions = options.mesh_dimensions
+        obs_indices = []
     if options.obs_type == 'obs':
         obs_dimensions = options.num_obs_points
+        print('Loading Boundary Indices')
+        df_obs_indices = pd.read_csv(filepaths.project.obs_indices + '.csv')
+        obs_indices = df_obs_indices.to_numpy()
 
     #=== Data and Latent Dimensions of Autoencoder ===#
     input_dimensions = obs_dimensions
@@ -45,16 +49,6 @@ def predict_and_plot(hyperp, options, filepaths):
     data.load_data_test()
     parameter_test = data.input_test
     state_obs_test = data.output_test
-
-    #=== Load Observation Indices ===#
-    if options.obs_type == 'full':
-        obs_dimensions = options.mesh_dimensions
-        obs_indices = []
-    if options.obs_type == 'obs':
-        obs_dimensions = options.num_obs_points
-        print('Loading Boundary Indices')
-        df_obs_indices = pd.read_csv(filepaths.project.obs_indices + '.csv')
-        obs_indices = df_obs_indices.to_numpy()
 
     #=== Load Trained Neural Network ===#
     NN = VAEFwdInv(hyperp, options,
