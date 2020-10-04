@@ -51,7 +51,6 @@ class FilePaths():
 
         #=== File Name ===#
         if options.posterior_diagonal_covariance == True:
-            penalty_kld_incr_string = value_to_string(hyperp.penalty_kld_incr)
             penalty_post_draw_string = value_to_string(hyperp.penalty_post_draw)
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_klr%d_pd%s_d%d_b%d_e%d' %(
@@ -68,7 +67,6 @@ class FilePaths():
                 iaf_type_string = 'IAFLSTM_'
             else:
                 iaf_type_string = 'IAF_'
-            penalty_iaf_incr_string = value_to_string(hyperp.penalty_iaf_incr)
             penalty_prior_string = value_to_string(hyperp.penalty_prior)
             penalty_post_draw_string = value_to_string(hyperp.penalty_post_draw)
             self.NN_name = autoencoder_type + iaf_type_string + forward_model_type + resnet +\
