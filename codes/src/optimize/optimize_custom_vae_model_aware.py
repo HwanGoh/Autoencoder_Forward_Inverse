@@ -57,6 +57,7 @@ def optimize(hyperp, options, filepaths,
 
     #=== Setting Initial KLD Penalty to be Incremented ===#
     penalty_kld = 0
+    penalty_kld_incr = 1/hyperp.penalty_kld_rate
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -245,7 +246,7 @@ def optimize(hyperp, options, filepaths,
 
         #=== Increase KLD Penalty ===#
         if epoch %hyperp.penalty_kld_rate == 0 and epoch != 0:
-            penalty_kld += hyperp.penalty_kld_incr
+            penalty_kld += penalty_kld_incr
 
     #=== Save Final Model ===#
     NN.save_weights(filepaths.trained_NN)

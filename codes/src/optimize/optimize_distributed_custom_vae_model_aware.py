@@ -67,6 +67,7 @@ def optimize_distributed(dist_strategy,
 
     #=== Setting Initial kld Penalty to be Incremented ===#
     penalty_kld = 0
+    penalty_kld_incr = 1/hyperp.penalty_kld_rate
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -264,7 +265,7 @@ def optimize_distributed(dist_strategy,
 
         #=== Increase kld Penalty ===#
         if epoch %hyperp.penalty_kld_rate == 0 and epoch != 0:
-            penalty_kld += hyperp.penalty_kld_incr
+            penalty_kld += penalty_kld_incr
 
     #=== Save Final Model ===#
     NN.save_weights(filepaths.trained_NN)

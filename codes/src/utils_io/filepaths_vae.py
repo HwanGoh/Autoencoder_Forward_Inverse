@@ -54,12 +54,12 @@ class FilePaths():
             penalty_kld_incr_string = value_to_string(hyperp.penalty_kld_incr)
             penalty_post_draw_string = value_to_string(hyperp.penalty_post_draw)
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_kli%s_klr%d_pd%s_d%d_b%d_e%d' %(
+                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_klr%d_pd%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
-                        penalty_kld_incr_string, hyperp.penalty_kld_rate,
+                        hyperp.penalty_kld_rate,
                         penalty_post_draw_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
@@ -72,14 +72,14 @@ class FilePaths():
             penalty_prior_string = value_to_string(hyperp.penalty_prior)
             penalty_post_draw_string = value_to_string(hyperp.penalty_post_draw)
             self.NN_name = autoencoder_type + iaf_type_string + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pii%s_pir%d_pr%s_pd%s_d%d_b%d_e%d'\
+                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pir%d_pr%s_pd%s_d%d_b%d_e%d'\
                 %(options.num_noisy_obs_unregularized,
                   hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                   hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                   hyperp.activation,
                   hyperp.num_iaf_transforms, hyperp.num_hidden_nodes_iaf,
                   hyperp.activation_iaf,
-                  penalty_iaf_incr_string, hyperp.penalty_iaf_rate,
+                  hyperp.penalty_iaf_rate,
                   penalty_prior_string,
                   penalty_post_draw_string,
                   hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
