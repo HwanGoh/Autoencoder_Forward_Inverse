@@ -76,21 +76,23 @@ def optimize(hyperp, options, filepaths,
             batch_loss_train_kld = kld_loss(batch_post_mean_train, batch_log_post_var_train,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
                     penalty_kld)
-            batch_loss_train_post_draw = loss_diag_weighted_penalized_difference(
+            batch_loss_train_posterior =\
+                tf.reduce_sum(batch_log_post_var_train,axis=1) +\
+                loss_diag_weighted_penalized_difference(
                     batch_latent_train,
-                    NN.reparameterize(batch_post_mean_train, batch_log_post_var_train),
-                    hyperp.penalty_post_draw)
+                    batch_post_mean_train,
+                    1/tf.math.exp(batch_log_post_var_train/2), 1)
 
             batch_loss_train = -(-batch_loss_train_vae\
                                  -batch_loss_train_kld\
-                                 -batch_loss_train_post_draw)
+                                 -batch_loss_train_posterior)
 
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
         metrics.mean_loss_train(batch_loss_train)
+        metrics.mean_loss_train_posterior(batch_loss_train_posterior)
         metrics.mean_loss_train_vae(batch_loss_train_vae)
         metrics.mean_loss_train_encoder(batch_loss_train_kld)
-        metrics.mean_loss_train_post_draw(batch_loss_train_post_draw)
 
         return gradients
 
@@ -100,26 +102,27 @@ def optimize(hyperp, options, filepaths,
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
-
         batch_loss_val_vae = loss_weighted_penalized_difference(
                 batch_input_val, batch_likelihood_val,
                 noise_regularization_matrix, 1)
         batch_loss_val_kld = kld_loss(batch_post_mean_val, batch_log_post_var_val,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
                 penalty_kld)
-        batch_loss_val_post_draw = loss_diag_weighted_penalized_difference(
+        batch_loss_val_posterior =\
+            tf.reduce_sum(batch_log_post_var_val,axis=1) +\
+            loss_diag_weighted_penalized_difference(
                 batch_latent_val,
-                NN.reparameterize(batch_post_mean_val, batch_log_post_var_val),
-                hyperp.penalty_post_draw)
+                batch_post_mean_val,
+                1/tf.math.exp(batch_log_post_var_val/2), 1)
 
         batch_loss_val = -(-batch_loss_val_vae\
                            -batch_loss_val_kld\
-                           -batch_loss_val_post_draw)
+                           -batch_loss_val_posterior)
 
         metrics.mean_loss_val(batch_loss_val)
+        metrics.mean_loss_val_posterior(batch_loss_val_posterior)
         metrics.mean_loss_val_vae(batch_loss_val_vae)
         metrics.mean_loss_val_encoder(batch_loss_val_kld)
-        metrics.mean_loss_val_post_draw(batch_loss_val_post_draw)
 
     #=== Test Step ===#
     @tf.function
@@ -128,30 +131,31 @@ def optimize(hyperp, options, filepaths,
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
         batch_input_pred_test = NN.decoder(batch_latent_test)
 
-
         batch_loss_test_vae = loss_weighted_penalized_difference(
                 batch_input_test, batch_likelihood_test,
                 noise_regularization_matrix, 1)
         batch_loss_test_kld = kld_loss(batch_post_mean_test, batch_log_post_var_test,
                 prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
                 penalty_kld)
-        batch_loss_test_post_draw = loss_diag_weighted_penalized_difference(
+        batch_loss_test_posterior =\
+            tf.reduce_sum(batch_log_post_var_test,axis=1) +\
+            loss_diag_weighted_penalized_difference(
                 batch_latent_test,
-                NN.reparameterize(batch_post_mean_test, batch_log_post_var_test),
-                hyperp.penalty_post_draw)
+                batch_post_mean_test,
+                1/tf.math.exp(batch_log_post_var_test/2), 1)
 
         batch_loss_test = -(-batch_loss_test_vae\
                             -batch_loss_test_kld\
-                            -batch_loss_test_post_draw)
+                            -batch_loss_test_posterior)
 
         metrics.mean_loss_test(batch_loss_test)
         metrics.mean_loss_test_vae(batch_loss_test_vae)
         metrics.mean_loss_test_encoder(batch_loss_test_kld)
-        metrics.mean_loss_test_post_draw(batch_loss_test_post_draw)
+        metrics.mean_loss_test_posterior(batch_loss_test_posterior)
 
         metrics.mean_relative_error_input_vae(relative_error(
             batch_input_test, batch_likelihood_test))
-        metrics.mean_relative_error_latent_post_draw(relative_error(
+        metrics.mean_relative_error_latent_posterior(relative_error(
             batch_latent_test, NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
         metrics.mean_relative_error_input_decoder(relative_error(
             batch_input_test, batch_input_pred_test))
@@ -207,24 +211,24 @@ def optimize(hyperp, options, filepaths,
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
-        print('Train Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_draw: %.3e'\
+        print('Train Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, Posterior: %.3e'\
                 %(metrics.mean_loss_train.result(),
                   metrics.mean_loss_train_vae.result(),
                   metrics.mean_loss_train_encoder.result(),
-                  metrics.mean_loss_train_post_draw.result()))
-        print('Val Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_draw: %.3e'\
+                  metrics.mean_loss_train_posterior.result()))
+        print('Val Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, Posterior: %.3e'\
                 %(metrics.mean_loss_val.result(),
                   metrics.mean_loss_val_vae.result(),
                   metrics.mean_loss_val_encoder.result(),
-                  metrics.mean_loss_val_post_draw.result()))
-        print('Test Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, post_draw: %.3e'\
+                  metrics.mean_loss_val_posterior.result()))
+        print('Test Loss: Full: %.3e, VAE: %.3e, KLD: %.3e, Posterior: %.3e'\
                 %(metrics.mean_loss_test.result(),
                   metrics.mean_loss_test_vae.result(),
                   metrics.mean_loss_test_encoder.result(),
-                  metrics.mean_loss_test_post_draw.result()))
+                  metrics.mean_loss_test_posterior.result()))
         print('Rel Errors: VAE: %.3e, Post Draw: %.3e, Decoder: %.3e\n'\
                 %(metrics.mean_relative_error_input_vae.result(),
-                  metrics.mean_relative_error_latent_post_draw.result(),
+                  metrics.mean_relative_error_latent_posterior.result(),
                   metrics.mean_relative_error_input_decoder.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()

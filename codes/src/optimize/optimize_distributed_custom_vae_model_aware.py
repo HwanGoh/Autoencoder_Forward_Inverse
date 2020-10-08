@@ -66,9 +66,9 @@ def optimize_distributed(dist_strategy,
         NN.build((hyperp.batch_size, input_dimensions))
         NN.summary()
 
-    #=== Setting Initial kld Penalty to be Incremented ===#
-    penalty_kld = 0
-    penalty_kld_incr = 1/hyperp.penalty_kld_rate
+    #=== Setting Initial KLD Penalty to be Incremented ===#
+    penalty_kld = hyperp.penalty_kld_initial
+    penalty_kld_incr = (1-penalty_kld)/hyperp.penalty_kld_rate
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -89,15 +89,17 @@ def optimize_distributed(dist_strategy,
                         prior_mean, prior_cov_inv,
                         log_det_prior_cov, latent_dimension,
                         penalty_kld)
-                unscaled_replica_batch_loss_train_post_draw = loss_diag_weighted_penalized_difference(
+                unscaled_replica_batch_loss_train_posterior =\
+                    tf.reduce_sum(batch_log_post_var_train,axis=1) +\
+                    loss_diag_weighted_penalized_difference(
                         batch_latent_train,
-                        NN.reparameterize(batch_post_mean_train, batch_log_post_var_train),
-                        hyperp.penalty_post_draw)
+                        batch_post_mean_train,
+                        1/tf.math.exp(batch_log_post_var_train/2), 1)
 
                 unscaled_replica_batch_loss_train =\
                         -(-unscaled_replica_batch_loss_train_vae\
                           -unscaled_replica_batch_loss_train_kld\
-                          -unscaled_replica_batch_loss_train_post_draw)
+                          -unscaled_replica_batch_loss_train_posterior)
                 scaled_replica_batch_loss_train = tf.reduce_sum(
                         unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
 
@@ -105,7 +107,7 @@ def optimize_distributed(dist_strategy,
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
             metrics.mean_loss_train_vae(unscaled_replica_batch_loss_train_vae)
             metrics.mean_loss_train_encoder(unscaled_replica_batch_loss_train_kld)
-            metrics.mean_loss_train_post_draw(unscaled_replica_batch_loss_train_post_draw)
+            metrics.mean_loss_train_posterior(unscaled_replica_batch_loss_train_posterior)
 
             return scaled_replica_batch_loss_train
 
@@ -128,20 +130,22 @@ def optimize_distributed(dist_strategy,
                     prior_mean, prior_cov_inv,
                     log_det_prior_cov, latent_dimension,
                     penalty_kld)
-            unscaled_replica_batch_loss_val_post_draw = loss_diag_weighted_penalized_difference(
+            unscaled_replica_batch_loss_val_posterior =\
+                tf.reduce_sum(batch_log_post_var_val,axis=1) +\
+                loss_diag_weighted_penalized_difference(
                     batch_latent_val,
-                    NN.reparameterize(batch_post_mean_val, batch_log_post_var_val),
-                    hyperp.penalty_post_draw)
+                    batch_post_mean_val,
+                    1/tf.math.exp(batch_log_post_var_val/2), 1)
 
             unscaled_replica_batch_loss_val =\
                     -(-unscaled_replica_batch_loss_val_vae\
                       -unscaled_replica_batch_loss_val_kld\
-                      -unscaled_replica_batch_loss_val_post_draw)
+                      -unscaled_replica_batch_loss_val_posterior)
 
             metrics.mean_loss_val(unscaled_replica_batch_loss_val)
             metrics.mean_loss_val_vae(unscaled_replica_batch_loss_val_vae)
             metrics.mean_loss_val_encoder(unscaled_replica_batch_loss_val_kld)
-            metrics.mean_loss_val_post_draw(unscaled_replica_batch_loss_val_post_draw)
+            metrics.mean_loss_val_posterior(unscaled_replica_batch_loss_val_posterior)
 
         # @tf.function
         def dist_val_step(batch_input_val, batch_latent_val, penalty_kld):
@@ -162,24 +166,26 @@ def optimize_distributed(dist_strategy,
                     batch_post_mean_test, batch_log_post_var_test,
                     prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
                     penalty_kld)
-            unscaled_replica_batch_loss_test_post_draw = loss_diag_weighted_penalized_difference(
+            unscaled_replica_batch_loss_test_posterior =\
+                tf.reduce_sum(batch_log_post_var_test,axis=1) +\
+                loss_diag_weighted_penalized_difference(
                     batch_latent_test,
-                    NN.reparameterize(batch_post_mean_test, batch_log_post_var_test),
-                    hyperp.penalty_post_draw)
+                    batch_post_mean_test,
+                    1/tf.math.exp(batch_log_post_var_test/2), 1)
 
             unscaled_replica_batch_loss_test =\
                     -(-unscaled_replica_batch_loss_test_vae\
                       -unscaled_replica_batch_loss_test_kld\
-                      -unscaled_replica_batch_loss_val_post_draw)
+                      -unscaled_replica_batch_loss_val_posterior)
 
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
             metrics.mean_loss_test_vae(unscaled_replica_batch_loss_test_vae)
             metrics.mean_loss_test_encoder(unscaled_replica_batch_loss_test_kld)
-            metrics.mean_loss_test_post_draw(unscaled_replica_batch_loss_test_post_draw)
+            metrics.mean_loss_test_posterior(unscaled_replica_batch_loss_test_posterior)
 
             metrics.mean_relative_error_input_vae(relative_error(
                 batch_input_test, batch_input_likelihood_test))
-            metrics.mean_relative_error_latent_post_draw(relative_error(
+            metrics.mean_relative_error_latent_posterior(relative_error(
                 batch_latent_test, NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
             metrics.mean_relative_error_input_decoder(relative_error(
                 batch_input_test, batch_input_pred_test))
@@ -232,24 +238,24 @@ def optimize_distributed(dist_strategy,
         #=== Display Epoch Iteration Information ===#
         elapsed_time_epoch = time.time() - start_time_epoch
         print('Time per Epoch: %.4f\n' %(elapsed_time_epoch))
-        print('Train Loss: Full: %.3e, VAE: %.3e, kld: %.3e, post_draw: %.3e'\
+        print('Train Loss: Full: %.3e, VAE: %.3e, kld: %.3e, Posterior: %.3e'\
                 %(metrics.mean_loss_train,
                   metrics.mean_loss_train_vae.result(),
                   metrics.mean_loss_train_encoder.result(),
-                  metrics.mean_loss_train_post_draw.result()))
-        print('Val Loss: Full: %.3e, VAE: %.3e, kld: %.3e, post_draw: %.3e'\
+                  metrics.mean_loss_train_posterior.result()))
+        print('Val Loss: Full: %.3e, VAE: %.3e, kld: %.3e, Posterior: %.3e'\
                 %(metrics.mean_loss_val.result(),
                   metrics.mean_loss_val_vae.result(),
                   metrics.mean_loss_val_encoder.result(),
-                  metrics.mean_loss_val_post_draw.result()))
-        print('Test Loss: Full: %.3e, VAE: %.3e, kld: %.3e, post_draw: %.3e'\
+                  metrics.mean_loss_val_posterior.result()))
+        print('Test Loss: Full: %.3e, VAE: %.3e, kld: %.3e, Posterior: %.3e'\
                 %(metrics.mean_loss_test.result(),
                   metrics.mean_loss_test_vae.result(),
                   metrics.mean_loss_test_encoder.result(),
-                  metrics.mean_loss_val_post_draw.result()))
+                  metrics.mean_loss_val_posterior.result()))
         print('Rel Errors: VAE: %.3e, Post Draw: %.3e, Decoder: %.3e\n'\
                 %(metrics.mean_relative_error_input_vae.result(),
-                  metrics.mean_relative_error_latent_post_draw.result(),
+                  metrics.mean_relative_error_latent_posterior.result(),
                   metrics.mean_relative_error_input_decoder.result()))
         start_time_epoch = time.time()
 

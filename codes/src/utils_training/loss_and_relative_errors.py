@@ -17,10 +17,10 @@ def loss_penalized_difference(true, pred, penalty):
 
 def loss_weighted_penalized_difference(true, pred, weight_diag, penalty):
     return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
-            tf.multiply(weight_diag, true)),
-            tf.multiply(weight_diag, pred)))
+            tf.multiply(weight_diag, true),
+            tf.multiply(weight_diag, pred))
 
-def loss_diag_weighted_penalized_difference(true, pred, diag, penalty):
+def loss_diag_weighted_penalized_difference(true, pred, weight_matrix, penalty):
     return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
             tf.linalg.matmul(true, tf.transpose(weight_matrix)),
             tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
@@ -56,7 +56,7 @@ def kld_diagonal_post_cov(post_mean, log_post_var,
             axis = 0)
     log_det_prior_cov_divide_det_cov_post =\
             log_det_prior_cov - tf.math.reduce_sum(log_post_var, axis=1)
-    return penalty*0.5*(trace_prior_cov_inv_times_cov_post +
+    return penalty*(trace_prior_cov_inv_times_cov_post +
             prior_weighted_prior_mean_minus_post_mean -
             latent_dimension + log_det_prior_cov_divide_det_cov_post)
 

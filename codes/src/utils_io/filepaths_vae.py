@@ -51,14 +51,14 @@ class FilePaths():
 
         #=== File Name ===#
         if options.posterior_diagonal_covariance == True:
-            penalty_kld_ini_string = value_to_string(hyperp.penalty_kld_ini)
+            penalty_kld_initial_string = value_to_string(hyperp.penalty_kld_initial)
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_kli%s_klr%d_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
-                        penalty_kld_ini_string,
+                        penalty_kld_initial_string,
                         hyperp.penalty_kld_rate,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
@@ -67,7 +67,7 @@ class FilePaths():
                 iaf_type_string = 'IAFLSTM_'
             else:
                 iaf_type_string = 'IAF_'
-            penalty_iaf_ini_string = value_to_string(hyperp.penalty_iaf_ini)
+            penalty_iaf_initial_string = value_to_string(hyperp.penalty_iaf_initial)
             self.NN_name = autoencoder_type + iaf_type_string + forward_model_type + resnet +\
                 'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pii%s_pir%d_d%d_b%d_e%d'\
                 %(options.num_noisy_obs_unregularized,
@@ -76,7 +76,7 @@ class FilePaths():
                   hyperp.activation,
                   hyperp.num_iaf_transforms, hyperp.num_hidden_nodes_iaf,
                   hyperp.activation_iaf,
-                  penalty_iaf_ini_string,
+                  penalty_iaf_initial_string,
                   hyperp.penalty_iaf_rate,
                   hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
