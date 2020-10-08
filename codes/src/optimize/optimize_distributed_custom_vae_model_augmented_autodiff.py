@@ -26,12 +26,13 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def optimize_distributed(dist_strategy,
         hyperp, options, filepaths,
         NN, optimizer,
-        loss_penalized_difference, kld_loss, relative_error,
-        prior_mean, prior_covariance,
+        loss_diag_weighted_penalized_difference,
+        loss_weighted_penalized_difference, noise_regularization_matrix,
+        kld_loss, prior_mean, prior_covariance,
+        relative_error,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, latent_dimension,
         num_batches_train,
-        loss_weighted_penalized_difference, noise_regularization_matrix,
         positivity_constraint):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
@@ -89,7 +90,7 @@ def optimize_distributed(dist_strategy,
                         prior_mean, prior_cov_inv,
                         log_det_prior_cov, latent_dimension,
                         penalty_kld)
-                unscaled_replica_batch_loss_train_post_draw = loss_penalized_difference(
+                unscaled_replica_batch_loss_train_post_draw = loss_diag_weighted_penalized_difference(
                         batch_latent_train,
                         NN.reparameterize(batch_post_mean_train, batch_log_post_var_train),
                         hyperp.penalty_post_draw)
@@ -125,7 +126,7 @@ def optimize_distributed(dist_strategy,
                     prior_mean, prior_cov_inv,
                     log_det_prior_cov, latent_dimension,
                     penalty_kld)
-            unscaled_replica_batch_loss_val_post_draw = loss_penalized_difference(
+            unscaled_replica_batch_loss_val_post_draw = loss_diag_weighted_penalized_difference(
                     batch_latent_val,
                     NN.reparameterize(batch_post_mean_val, batch_log_post_var_val),
                     hyperp.penalty_post_draw)
@@ -152,7 +153,7 @@ def optimize_distributed(dist_strategy,
                     prior_mean, prior_cov_inv,
                     log_det_prior_cov, latent_dimension,
                     penalty_kld)
-            unscaled_replica_batch_loss_test_post_draw = loss_penalized_difference(
+            unscaled_replica_batch_loss_test_post_draw = loss_diag_weighted_penalized_difference(
                     batch_latent_test,
                     NN.reparameterize(batch_post_mean_test, batch_log_post_var_test),
                     hyperp.penalty_post_draw)

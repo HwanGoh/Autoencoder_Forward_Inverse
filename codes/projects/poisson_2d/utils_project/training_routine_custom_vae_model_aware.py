@@ -9,7 +9,7 @@ import pandas as pd
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
 from neural_networks.nn_vae_fwd_inv import VAEFwdInv
 from utils_training.loss_and_relative_errors import\
-        loss_penalized_difference, loss_weighted_penalized_difference,\
+        loss_diag_weighted_penalized_difference, loss_weighted_penalized_difference,\
         kld_diagonal_post_cov, relative_error
 from optimize.optimize_custom_vae_model_aware import optimize
 from optimize.optimize_distributed_custom_vae_model_aware import optimize_distributed
@@ -61,12 +61,12 @@ def trainer_custom(hyperp, options, filepaths,
         #=== Training ===#
         optimize(hyperp, options, filepaths,
                  NN, optimizer,
-                 loss_penalized_difference, kld_diagonal_post_cov, relative_error,
-                 prior_dict["prior_mean"], prior_dict["prior_covariance"],
+                 loss_diag_weighted_penalized_difference,
+                 loss_weighted_penalized_difference, data_dict["noise_regularization_matrix"],
+                 kld_diagonal_post_cov, prior_dict["prior_mean"], prior_dict["prior_covariance"],
+                 relative_error,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
                  input_dimensions, latent_dimensions, num_batches_train,
-                 loss_weighted_penalized_difference,
-                 data_dict["noise_regularization_matrix"],
                  positivity_constraint_log_exp)
 
     #=== Distributed Training ===#
@@ -85,10 +85,10 @@ def trainer_custom(hyperp, options, filepaths,
         optimize_distributed(dist_strategy,
                 hyperp, options, filepaths,
                 NN, optimizer,
-                loss_penalized_difference, kld_diagonal_post_cov, relative_error,
-                prior_dict["prior_mean"], prior_dict["prior_covariance"],
+                loss_diag_weighted_penalized_difference,
+                loss_weighted_penalized_difference, data_dict["noise_regularization_matrix"],
+                kld_diagonal_post_cov, prior_dict["prior_mean"], prior_dict["prior_covariance"],
+                relative_error,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, latent_dimensions, num_batches_train,
-                loss_weighted_penalized_difference,
-                data_dict["noise_regularization_matrix"],
                 positivity_constraint_log_exp)

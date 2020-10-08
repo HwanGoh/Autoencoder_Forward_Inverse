@@ -15,10 +15,10 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def loss_penalized_difference(true, pred, penalty):
     return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(true, pred)
 
-def loss_weighted_penalized_difference(true, pred, weight_matrix, penalty):
+def loss_weighted_penalized_difference(true, pred, weight_diag, penalty):
     return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
-            tf.linalg.matmul(true, tf.transpose(weight_matrix)),
-            tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
+            tf.multiply(weight_diag, true)),
+            tf.multiply(weight_diag, pred)))
 
 def loss_diag_weighted_penalized_difference(true, pred, diag, penalty):
     return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
