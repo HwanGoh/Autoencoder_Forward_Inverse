@@ -20,6 +20,11 @@ def loss_weighted_penalized_difference(true, pred, weight_matrix, penalty):
             tf.linalg.matmul(true, tf.transpose(weight_matrix)),
             tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
 
+def loss_diag_weighted_penalized_difference(true, pred, diag, penalty):
+    return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
+            tf.linalg.matmul(true, tf.transpose(weight_matrix)),
+            tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
+
 def reg_prior(parameter, prior_mean, prior_covariance_cholesky_inverse, penalty):
     if penalty != 0:
         return penalty*tf.math.square(tf.norm(

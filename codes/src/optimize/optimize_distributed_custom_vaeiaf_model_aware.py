@@ -61,8 +61,8 @@ def optimize_distributed(dist_strategy,
         NN.summary()
 
     #=== Setting Initial IAF Penalty to be Incremented ===#
-    penalty_iaf = 0
-    penalty_iaf_incr = 1/hyperp.penalty_iaf_rate
+    penalty_iaf = penalty_iaf_initial
+    penalty_iaf_incr = (1-penalty_iaf_initial)/hyperp.penalty_iaf_rate
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #

@@ -11,15 +11,17 @@ num_data_test_load : 200
 num_data_test : 200
 
 #=== Data Properties ===#
-parameter_dimensions : 1728
+parameter_dimensions : 225
 obs_type : "obs"
-num_obs_points : 728
+num_obs_points : 43
+normalize_input : 0
+normalize_output : 0
 
 #=== Noise Properties ===#
 add_noise : True
 noise_level : 0.05
-num_noisy_obs : 364
-num_noisy_obs_unregularized : 364
+num_noisy_obs : 20
+num_noisy_obs_unregularized : 23
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_AC_train : True
@@ -43,16 +45,6 @@ prior_cov_length_test : 0.5
 
 boundary_matrix_constant : 0.5
 load_vector_constant : -1
-
-#=== Paraview Plotting Properties ===#
-mesh_point_1 : [-1,-1,-1]
-mesh_point_2 : [1,1,1]
-num_nodes_x : 11
-num_nodes_y : 11
-num_nodes_z : 11
-num_obs_points : 728
-order_fe_space : 1
-order_meta_space : 1
 
 #=== Random Seed ===#
 random_seed : 4

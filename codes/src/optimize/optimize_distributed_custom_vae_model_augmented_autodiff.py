@@ -66,8 +66,8 @@ def optimize_distributed(dist_strategy,
         NN.summary()
 
     #=== Setting Initial KLD Penalty to be Incremented ===#
-    penalty_kld = 0
-    penalty_kld_incr = 1/hyperp.penalty_kld_rate
+    penalty_kld = hyperp.penalty_kld_initial
+    penalty_kld_incr = (1-penalty_kld)/hyperp.penalty_kld_rate
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
