@@ -46,7 +46,7 @@ def generate_scenarios_list():
 ###############################################################################
 if __name__ == '__main__':
 
-    # To run this code "mpirun -n 5 ./scheduler_training_ae.py" in command line
+    # To run this code "mpirun -n 5 ./scheduler_training_vae.py" in command line
 
     # mpi stuff
     comm   = MPI.COMM_WORLD
