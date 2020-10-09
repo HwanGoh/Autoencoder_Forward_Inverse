@@ -71,7 +71,7 @@ def optimize_distributed(dist_strategy,
         penalty_kld = 1
     else:
         penalty_kld = 0
-        penalty_kld_incr = 1/hyperp.penalty_kld_rate
+        penalty_kld_incr = hyperp.penalty_kld_rate/hyperp.num_epochs
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #

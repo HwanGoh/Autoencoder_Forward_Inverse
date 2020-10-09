@@ -65,7 +65,7 @@ def optimize_distributed(dist_strategy,
         penalty_iaf = 1
     else:
         penalty_iaf = 0
-        penalty_iaf_incr = 1/hyperp.penalty_iaf_rate
+        penalty_iaf_incr = hyperp.penalty_iaf_rate/hyperp.num_epochs
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #

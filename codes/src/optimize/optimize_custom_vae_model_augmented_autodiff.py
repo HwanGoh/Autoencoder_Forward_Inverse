@@ -27,12 +27,13 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize(hyperp, options, filepaths,
         NN, optimizer,
-        loss_diag_weighted_penalized_difference, kld_loss, relative_error,
-        prior_mean, prior_covariance,
+        loss_diag_weighted_penalized_difference,
+        loss_weighted_penalized_difference, noise_regularization_matrix,
+        kld_loss, prior_mean, prior_covariance,
+        relative_error,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, latent_dimension,
         num_batches_train,
-        loss_weighted_penalized_difference, noise_regularization_matrix,
         positivity_constraint,
         solve_forward_model):
 
@@ -62,7 +63,7 @@ def optimize(hyperp, options, filepaths,
         penalty_kld = 1
     else:
         penalty_kld = 0
-        penalty_kld_incr = 1/hyperp.penalty_kld_rate
+        penalty_kld_incr = hyperp.penalty_kld_rate/hyperp.num_epochs
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
