@@ -2,9 +2,9 @@
 
 #SBATCH -J scheduler_training_vae_model_augmented_autodiff
 #SBATCH -p normal
-#SBATCH -N 16
+#SBATCH -N 4
 #SBATCH --ntasks-per-node=2
-#SBATCH -t 48:00:00
+#SBATCH -t 5:00:00
 #SBATCH -o scheduler_training_vae_model_augmented_autodiff.out
 #SBATCH --mail-user=Hwan.Goh@gmail.com
 #SBATCH --mail-type=all

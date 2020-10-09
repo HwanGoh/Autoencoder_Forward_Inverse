@@ -6,21 +6,21 @@ Created on Sat Oct 26 21:17:53 2019
 @author: hwan
 """
 import sys
-sys.path.append('../../../../..')
+import os
+
+sys.path.insert(0, os.path.realpath('../../../../../FEniCS_Codes/src'))
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-plt.ioff() # Turn interactive plotting off
 
 # Import src code
 from utils_data.data_handler import DataHandler
 from neural_networks.nn_vae_fwd_inv import VAEFwdInv
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
-# Import FEM Code
-from Finite_Element_Method.src.load_mesh import load_mesh
-from utils_project.plot_fem_function import plot_fem_function
+# Import FEniCS Code
+from utils_mesh.construct_mesh_rectangular import construct_mesh
+from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -28,6 +28,20 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 #                              Plot Predictions                               #
 ###############################################################################
 def predict_and_plot(hyperp, options, filepaths):
+
+    #=== Mesh Properties ===#
+    options.mesh_point_1 = [-1,-1]
+    options.mesh_point_2 = [1,1]
+    options.num_nodes_x = 15
+    options.num_nodes_y = 15
+    options.num_obs_points = 58
+    options.order_fe_space = 1
+    options.order_meta_space = 1
+    options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)
+
+    #=== Construct Mesh ===#
+    fe_space, meta_space,\
+    nodes, dof_fe, dof_meta = construct_mesh(options)
 
     #=== Load Observation Indices ===#
     if options.obs_type == 'full':
@@ -72,30 +86,28 @@ def predict_and_plot(hyperp, options, filepaths):
     print('================================')
     print('      Plotting Predictions      ')
     print('================================')
-    #=== Load Mesh ===#
-    nodes, elements, _, _, _, _, _, _ = load_mesh(filepaths.project)
 
     #=== Plot FEM Functions ===#
-    plot_fem_function(filepaths.figure_parameter_test,
-                     'True Parameter', 6.0,
-                      nodes, elements,
-                      parameter_test_sample)
-    plot_fem_function(filepaths.figure_parameter_pred,
-                      'Parameter Prediction', 6.0,
-                      nodes, elements,
-                      posterior_pred_draw)
-    plot_fem_function(filepaths.figure_posterior_mean,
-                      'Parameter Prediction', 6.0,
-                      nodes, elements,
-                      posterior_mean_pred)
+    plot_fem_function_fenics_2d(meta_space, parameter_test_sample,
+                                'True Parameter',
+                                filepaths.figure_parameter_test + '.png',
+                                (5,5))
+    plot_fem_function_fenics_2d(meta_space, posterior_mean_pred,
+                                'Posterior Mean',
+                                filepaths.figure_posterior_mean + '.png',
+                                (5,5))
+    plot_fem_function_fenics_2d(meta_space, posterior_pred_draw,
+                                'Posterior Draw',
+                                filepaths.figure_parameter_pred + '.png',
+                                (5,5))
     if options.obs_type == 'full':
-        plot_fem_function(filepaths.figure_state_test,
-                          'True State', 2.6,
-                          nodes, elements,
-                          state_obs_test_sample)
-        plot_fem_function(filepaths.figure_state_pred,
-                          'State Prediction', 2.6,
-                          nodes, elements,
-                          state_obs_pred_draw)
+        plot_fem_function_fenics_2d(meta_space, state_obs_test_sample,
+                                    'True State',
+                                    filepaths.figure_state_test + '.png',
+                                    (5,5))
+        plot_fem_function_fenics_2d(meta_space, state_obs_pred_draw,
+                                    'State Prediction',
+                                    filepaths.figure_state_pred + '.png',
+                                    (5,5))
 
     print('Predictions plotted')
