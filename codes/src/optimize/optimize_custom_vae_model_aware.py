@@ -85,7 +85,6 @@ def optimize(hyperp, options, filepaths,
                     batch_latent_train,
                     batch_post_mean_train,
                     1/tf.math.exp(batch_log_post_var_train/2), 1)
-
             batch_loss_train = -(-batch_loss_train_vae\
                                  -batch_loss_train_kld\
                                  -batch_loss_train_posterior)
