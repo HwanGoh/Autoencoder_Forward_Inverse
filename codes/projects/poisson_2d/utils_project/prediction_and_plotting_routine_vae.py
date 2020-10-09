@@ -54,7 +54,7 @@ def predict_and_plot(hyperp, options, filepaths):
     NN.load_weights(filepaths.trained_NN)
 
     #=== Selecting Samples ===#
-    sample_number = 105
+    sample_number = 1
     parameter_test_sample = np.expand_dims(parameter_test[sample_number,:], 0)
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
@@ -65,7 +65,7 @@ def predict_and_plot(hyperp, options, filepaths):
     posterior_pred_draw = posterior_pred_draw.numpy().flatten()
 
     if options.model_aware == 1:
-        state_obs_pred_draw = NN.decoder(posterior_pred_draw)
+        state_obs_pred_draw = NN.decoder(np.expand_dims(posterior_pred_draw, 0))
         state_obs_pred_draw = state_obs_pred_draw.numpy().flatten()
 
     #=== Plotting Prediction ===#
@@ -77,15 +77,15 @@ def predict_and_plot(hyperp, options, filepaths):
 
     #=== Plot FEM Functions ===#
     plot_fem_function(filepaths.figure_parameter_test,
-                     'True Parameter', 7.0,
+                     'True Parameter', 6.0,
                       nodes, elements,
                       parameter_test_sample)
     plot_fem_function(filepaths.figure_parameter_pred,
-                      'Parameter Prediction', 7.0,
+                      'Parameter Prediction', 6.0,
                       nodes, elements,
                       posterior_pred_draw)
     plot_fem_function(filepaths.figure_posterior_mean,
-                      'Parameter Prediction', 7.0,
+                      'Parameter Prediction', 6.0,
                       nodes, elements,
                       posterior_mean_pred)
     if options.obs_type == 'full':
