@@ -34,7 +34,7 @@ def generate_scenarios_list():
     hyperp['num_hidden_nodes_encoder']  = [500]
     hyperp['num_hidden_nodes_decoder']  = [500]
     hyperp['activation']                = ['relu']
-    hyperp['penalty_kld_rate']          = [10, 50, 100, 250]
+    hyperp['penalty_kld_rate']          = [0, 10, 100, 250]
     hyperp['num_data_train']            = [10000]
     hyperp['batch_size']                = [100]
     hyperp['num_epochs']                = [1000]
@@ -46,7 +46,7 @@ def generate_scenarios_list():
 ###############################################################################
 if __name__ == '__main__':
 
-    # To run this code "mpirun -n 5 ./scheduler_training_ae.py" in command line
+    # To run this code "mpirun -n 5 ./scheduler_training_vae.py" in command line
 
     # mpi stuff
     comm   = MPI.COMM_WORLD

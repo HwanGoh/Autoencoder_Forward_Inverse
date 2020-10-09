@@ -36,7 +36,7 @@ def generate_scenarios_list():
     hyperp['num_hidden_nodes_encoder']  = [500]
     hyperp['num_hidden_nodes_decoder']  = [500]
     hyperp['activation']                = ['relu']
-    hyperp['penalty_kld_rate']          = [10, 50, 100, 250]
+    hyperp['penalty_kld_rate']          = [0, 10, 100, 250]
     hyperp['num_data_train']            = [10000]
     hyperp['batch_size']                = [100]
     hyperp['num_epochs']                = [1000]
