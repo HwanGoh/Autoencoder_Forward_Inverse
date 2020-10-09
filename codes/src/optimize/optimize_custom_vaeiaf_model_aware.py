@@ -51,8 +51,11 @@ def optimize(hyperp, options, filepaths,
     NN.summary()
 
     #=== Setting Initial IAF Penalty to be Incremented ===#
-    penalty_iaf = penalty_iaf_initial
-    penalty_iaf_incr = (1-penalty_iaf_initial)/hyperp.penalty_iaf_rate
+    if hyperp.penalty_iaf_rate == 0:
+        penalty_iaf = 1
+    else:
+        penalty_iaf = 0
+        penalty_iaf_incr = 1/hyperp.penalty_iaf_rate
 
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
@@ -271,8 +274,9 @@ def optimize(hyperp, options, filepaths,
             break
 
         #=== Increase IAF Penalty ===#
-        if epoch %hyperp.penalty_iaf_rate == 0 and epoch != 0:
-            penalty_iaf += penalty_iaf_incr
+        if hyperp.penalty_iaf_rate != 0:
+            if epoch %hyperp.penalty_iaf_rate == 0 and epoch != 0:
+                penalty_iaf += penalty_iaf_incr
 
     #=== Save Final Model ===#
     NN.save_weights(filepaths.trained_NN)

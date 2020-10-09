@@ -37,7 +37,6 @@ def generate_scenarios_list():
     hyperp['num_iaf_transforms']        = [10]
     hyperp['num_hidden_nodes_iaf']      = [100]
     hyperp['activation_iaf']            = [10]
-    hyperp['penalty_iaf_initial']       = [0, 0.25, 0.75, 1]
     hyperp['penalty_iaf_rate']          = [10, 50, 100, 250]
     hyperp['num_data_train']            = [10000]
     hyperp['batch_size']                = [100]
