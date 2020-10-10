@@ -20,6 +20,7 @@ from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import project utilities
 from utils_project.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+from utils_project.plot_cross_section import plot_cross_section
 
 # Import FEniCS code
 from utils_mesh.construct_mesh_rectangular import construct_mesh
@@ -90,26 +91,38 @@ def predict_and_plot(hyperp, options, filepaths):
     print('================================')
 
     #=== Plot FEM Functions ===#
+    cross_section_y = 0.75
     plot_fem_function_fenics_2d(meta_space, parameter_test_sample,
+                                cross_section_y,
                                 'True Parameter',
                                 filepaths.figure_parameter_test + '.png',
                                 (5,5), (0,6))
     plot_fem_function_fenics_2d(meta_space, posterior_mean_pred,
+                                cross_section_y,
                                 'Posterior Mean',
                                 filepaths.figure_posterior_mean + '.png',
                                 (5,5), (0,6))
     plot_fem_function_fenics_2d(meta_space, posterior_pred_draw,
+                                cross_section_y,
                                 'Posterior Draw',
                                 filepaths.figure_parameter_pred + '.png',
                                 (5,5), (0,6))
     if options.obs_type == 'full':
         plot_fem_function_fenics_2d(meta_space, state_obs_test_sample,
+                                    cross_section_y,
                                     'True State',
                                     filepaths.figure_state_test + '.png',
                                     (5,5))
         plot_fem_function_fenics_2d(meta_space, state_obs_pred_draw,
+                                    cross_section_y,
                                     'State Prediction',
                                     filepaths.figure_state_pred + '.png',
                                     (5,5))
+
+    #=== Plot Cross-Section with Error Bounds ===#
+    plot_cross_section(meta_space,
+                       parameter_test_sample, posterior_mean_pred, posterior_cov_pred,
+                       (-1,1), cross_section_y,
+                       filepaths.figure_parameter_cross_section + '.png')
 
     print('Predictions plotted')
