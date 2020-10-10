@@ -11,4 +11,4 @@ penalty_kld_rate          : 0
 #=== Data ===#
 num_data_train            : 10000
 batch_size                : 100
-num_epochs                : 1000
+num_epochs                : 2

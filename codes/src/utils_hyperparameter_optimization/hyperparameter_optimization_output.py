@@ -42,6 +42,10 @@ def output_results(filepaths, hyperp_of_interest_dict, hyperp_opt_result):
     #####################################
     #   Save Optimization Information   #
     #####################################
+    #=== Creating Directory for Outputs ===#
+    if not os.path.exists(filepaths.directory_hyperp_opt_outputs):
+        os.makedirs(filepaths.directory_hyperp_opt_outputs)
+
     #=== Save .pkl File ===#
     dump(hyperp_opt_result, filepaths.hyperp_opt_skopt_res, store_objective=False)
 

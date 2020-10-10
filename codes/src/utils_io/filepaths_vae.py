@@ -96,22 +96,18 @@ class FilePathsHyperparameterOptimization(FilePaths):
         super(FilePathsHyperparameterOptimization, self).__init__(*args, **kwargs)
 
         #=== Parent Directory ===#
-        self.directory_hyperp_opt_outputs = 'Hyperparameter_Optimization'
+        self.directory_hyperp_opt = '../../../../Hyperparameter_Optimization'
 
         #=== Saving Trained Neural Network and Tensorboard ===#
-        self.directory_trained_NN = self.directory_hyperp_opt_outputs + '/Trained_NNs/' +\
+        self.directory_trained_NN = self.directory_hyperp_opt + '/Trained_NNs/' +\
                 self.case_and_NN_name
         self.trained_NN = self.directory_trained_NN + '/' + self.NN_name
-        self.directory_tensorboard = self.directory_hyperp_opt_outputs + '/Tensorboard/' +\
+        self.directory_tensorboard = self.directory_hyperp_opt + '/Tensorboard/' +\
                 self.case_and_NN_name
 
-        #=== For Deleting Suboptimal Networks ===#
-        self.directory_hyperp_opt_trained_NN_case = self.directory_hyperp_opt_outputs +\
-                '/Trained_NNs/' + self.case_name
-        self.directory_hyperp_opt_tensorboard_case = self.directory_hyperp_opt_outputs +\
-                '/Tensorboard/' + self.case_name
-
         #=== Saving Hyperparameter Optimization Outputs  ===#
+        self.directory_hyperp_opt_outputs = self.directory_hyperp_opt + '/Outputs/' +\
+                self.case_name
         self.hyperp_opt_skopt_res = self.directory_hyperp_opt_outputs +\
                 '/hyperp_opt_result.pkl'
         self.hyperp_opt_optimal_parameters = self.directory_hyperp_opt_outputs +\
@@ -122,6 +118,12 @@ class FilePathsHyperparameterOptimization(FilePaths):
                 '/validation_losses.csv'
         self.hyperp_opt_convergence = self.directory_hyperp_opt_outputs +\
                 '/convergence.png'
+
+        #=== For Deleting Suboptimal Networks ===#
+        self.directory_hyperp_opt_trained_NN_case = self.directory_hyperp_opt +\
+                '/Trained_NNs/' + self.case_name
+        self.directory_hyperp_opt_tensorboard_case = self.directory_hyperp_opt +\
+                '/Tensorboard/' + self.case_name
 
 class FilePathsPredictionAndPlotting(FilePaths):
     def __init__(self, *args, **kwargs):
