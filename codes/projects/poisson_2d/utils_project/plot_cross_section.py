@@ -20,6 +20,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def plot_cross_section(function_space,
                        parameter, mean, cov,
                        x_axis_limits, cross_section_y,
+                       title,
                        filepath):
 
     #=== Convert array to dolfin function ===#
@@ -34,14 +35,29 @@ def plot_cross_section(function_space,
     triangulation = tri.Triangulation(coords[:, 0], coords[:, 1], elements)
 
     #=== Linear Interpolators ===#
-    interp_parameter = tri.LinearTriInterpolator(triangulation, parameter)
-    interp_mean = tri.LinearTriInterpolator(triangulation, mean)
-    interp_cov = tri.LinearTriInterpolator(triangulation, cov)
+    interp_parameter = tri.LinearTriInterpolator(triangulation, parameter.flatten())
+    interp_mean = tri.LinearTriInterpolator(triangulation, mean.flatten())
+    interp_cov = tri.LinearTriInterpolator(triangulation, cov.flatten())
 
     #=== Interpolate values of cross section ===#
-    x_axis = np.linspace(x_axis_limits[0], x_axis_limits[1], 100, endpoint=True)
-    for i in range(0,len(xaxis)):
-        parameter_cross = interp_parameter(x_axis[i], cross_section_y)
-        mean_cross = interp_mean(x_axis[i], cross_section_y)
-        cov_cross = interp_cov(x_axis[i], cross_section_y)
-    pdb.set_trace()
+    x = np.linspace(x_axis_limits[0], x_axis_limits[1], 100, endpoint=True)
+    parameter_cross = np.zeros(len(x))
+    mean_cross = np.zeros(len(x))
+    std_cross = np.zeros(len(x))
+    for i in range(0,len(x)):
+        parameter_cross[i] = interp_parameter(x[i], cross_section_y)
+        mean_cross[i] = interp_mean(x[i], cross_section_y)
+        std_cross[i] = np.sqrt(np.exp(interp_cov(x[i], cross_section_y)))
+
+    #=== Plotting ===#
+    plt.plot(x, parameter_cross, 'r-', label='True Parameter')
+    plt.plot(x, mean_cross, 'k-', label='Posterior Mean')
+    plt.fill_between(x, mean_cross - 3*std_cross, mean_cross + 3*std_cross)
+    plt.title(title)
+    plt.legend(loc="upper left")
+    plt.xlabel('x-coordinate')
+    plt.ylabel('Parameter Value')
+
+    #=== Save Figure ===#
+    plt.savefig(filepath)
+    plt.close()

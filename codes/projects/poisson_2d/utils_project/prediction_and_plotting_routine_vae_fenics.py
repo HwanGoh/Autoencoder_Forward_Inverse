@@ -78,7 +78,9 @@ def predict_and_plot(hyperp, options, filepaths):
     #=== Predictions ===#
     posterior_mean_pred, posterior_cov_pred = NN.encoder(state_obs_test_sample)
     posterior_pred_draw = NN.reparameterize(posterior_mean_pred, posterior_cov_pred)
+
     posterior_mean_pred = posterior_mean_pred.numpy().flatten()
+    posterior_cov_pred = posterior_cov_pred.numpy().flatten()
     posterior_pred_draw = posterior_pred_draw.numpy().flatten()
 
     if options.model_aware == 1:
@@ -91,7 +93,7 @@ def predict_and_plot(hyperp, options, filepaths):
     print('================================')
 
     #=== Plot FEM Functions ===#
-    cross_section_y = 0.75
+    cross_section_y = 0.5
     plot_fem_function_fenics_2d(meta_space, parameter_test_sample,
                                 cross_section_y,
                                 'True Parameter',
@@ -123,6 +125,7 @@ def predict_and_plot(hyperp, options, filepaths):
     plot_cross_section(meta_space,
                        parameter_test_sample, posterior_mean_pred, posterior_cov_pred,
                        (-1,1), cross_section_y,
+                       'Cross-Section with Posterior Error Bounds',
                        filepaths.figure_parameter_cross_section + '.png')
 
     print('Predictions plotted')
