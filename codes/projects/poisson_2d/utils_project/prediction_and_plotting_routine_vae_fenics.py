@@ -18,9 +18,11 @@ from utils_data.data_handler import DataHandler
 from neural_networks.nn_vae_fwd_inv import VAEFwdInv
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
-# Import FEniCS Code
+# Import project utilities
+from utils_project.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
+
+# Import FEniCS code
 from utils_mesh.construct_mesh_rectangular import construct_mesh
-from utils_fenics.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -91,15 +93,15 @@ def predict_and_plot(hyperp, options, filepaths):
     plot_fem_function_fenics_2d(meta_space, parameter_test_sample,
                                 'True Parameter',
                                 filepaths.figure_parameter_test + '.png',
-                                (5,5))
+                                (5,5), (0,6))
     plot_fem_function_fenics_2d(meta_space, posterior_mean_pred,
                                 'Posterior Mean',
                                 filepaths.figure_posterior_mean + '.png',
-                                (5,5))
+                                (5,5), (0,6))
     plot_fem_function_fenics_2d(meta_space, posterior_pred_draw,
                                 'Posterior Draw',
                                 filepaths.figure_parameter_pred + '.png',
-                                (5,5))
+                                (5,5), (0,6))
     if options.obs_type == 'full':
         plot_fem_function_fenics_2d(meta_space, state_obs_test_sample,
                                     'True State',
