@@ -8,7 +8,7 @@ import pandas as pd
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
 from neural_networks.nn_vaeiaf_fwd_inv import VAEIAFFwdInv
-from utils_training.loss_and_relative_errors import\
+from utils_training.functionals import\
         loss_penalized_difference, loss_weighted_penalized_difference, relative_error
 from optimize.optimize_custom_vaeiaf_model_aware import optimize
 from optimize.optimize_distributed_custom_vaeiaf_model_aware import optimize_distributed

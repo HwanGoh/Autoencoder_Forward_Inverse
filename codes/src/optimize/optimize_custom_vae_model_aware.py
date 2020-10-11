@@ -28,7 +28,6 @@ def optimize(hyperp, options, filepaths,
              NN, optimizer,
              loss_weighted_penalized_difference, noise_regularization_matrix,
              kld_loss, prior_mean, prior_covariance,
-             loss_diag_weighted_penalized_difference,
              relative_error,
              input_and_latent_train, input_and_latent_val, input_and_latent_test,
              input_dimensions, latent_dimension,
@@ -67,7 +66,7 @@ def optimize(hyperp, options, filepaths,
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     #=== Train Step ===#
-    @tf.function
+    # @tf.function
     def train_step(batch_input_train, batch_latent_train, penalty_kld):
         with tf.GradientTape() as tape:
             batch_likelihood_train = NN(batch_input_train)
@@ -81,10 +80,11 @@ def optimize(hyperp, options, filepaths,
                     penalty_kld)
             batch_loss_train_posterior =\
                 tf.reduce_sum(batch_log_post_var_train,axis=1) +\
-                loss_diag_weighted_penalized_difference(
+                loss_weighted_penalized_difference(
                     batch_latent_train,
                     batch_post_mean_train,
                     1/tf.math.exp(batch_log_post_var_train/2), 1)
+
             batch_loss_train = -(-batch_loss_train_vae\
                                  -batch_loss_train_kld\
                                  -batch_loss_train_posterior)
@@ -99,7 +99,7 @@ def optimize(hyperp, options, filepaths,
         return gradients
 
     #=== Validation Step ===#
-    @tf.function
+    # @tf.function
     def val_step(batch_input_val, batch_latent_val, penalty_kld):
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
@@ -112,7 +112,7 @@ def optimize(hyperp, options, filepaths,
                 penalty_kld)
         batch_loss_val_posterior =\
             tf.reduce_sum(batch_log_post_var_val,axis=1) +\
-            loss_diag_weighted_penalized_difference(
+            loss_weighted_penalized_difference(
                 batch_latent_val,
                 batch_post_mean_val,
                 1/tf.math.exp(batch_log_post_var_val/2), 1)
@@ -127,7 +127,7 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_val_encoder(batch_loss_val_kld)
 
     #=== Test Step ===#
-    @tf.function
+    # @tf.function
     def test_step(batch_input_test, batch_latent_test, penalty_kld):
         batch_likelihood_test = NN(batch_input_test)
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
@@ -141,7 +141,7 @@ def optimize(hyperp, options, filepaths,
                 penalty_kld)
         batch_loss_test_posterior =\
             tf.reduce_sum(batch_log_post_var_test,axis=1) +\
-            loss_diag_weighted_penalized_difference(
+            loss_weighted_penalized_difference(
                 batch_latent_test,
                 batch_post_mean_test,
                 1/tf.math.exp(batch_log_post_var_test/2), 1)

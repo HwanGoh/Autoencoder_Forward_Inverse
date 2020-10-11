@@ -15,24 +15,15 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def loss_penalized_difference(true, pred, penalty):
     return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(true, pred)
 
-def loss_diag_weighted_penalized_difference(true, pred, weight_diag, penalty):
-    return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
-            tf.multiply(weight_diag, true),
-            tf.multiply(weight_diag, pred))
-
 def loss_weighted_penalized_difference(true, pred, weight_matrix, penalty):
-    return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
-            tf.linalg.matmul(true, tf.transpose(weight_matrix)),
-            tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
-
-def reg_prior(parameter, prior_mean, prior_covariance_cholesky_inverse, penalty):
-    if penalty != 0:
-        return penalty*tf.math.square(tf.norm(
-            tf.linalg.matmul(
-                tf.subtract(parameter, prior_mean),
-                tf.transpose(prior_covariance_cholesky_inverse)), 2, axis = 1))
-    else:
-        return 0
+    if len(weight_matrix.shape) == 2:
+        return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
+                tf.linalg.matmul(true, tf.transpose(weight_matrix)),
+                tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
+    if len(weight_matrix.shape) == 1:
+        return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
+                tf.multiply(weight_diag, true),
+                tf.multiply(weight_diag, pred))
 
 def loss_forward_model(hyperp, options,
                        forward_model,

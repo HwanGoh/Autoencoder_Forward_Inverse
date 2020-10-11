@@ -8,9 +8,9 @@ import pandas as pd
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
 from neural_networks.nn_ae_fwd_inv import AEFwdInv
-from utils_training.loss_and_relative_errors import\
+from utils_training.functionals import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
-        relative_error, reg_prior
+        relative_error
 from optimize.optimize_custom_ae_model_augmented_autodiff import optimize
 from optimize.optimize_distributed_custom_ae_model_augmented_autodiff import optimize_distributed
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
@@ -79,12 +79,11 @@ def trainer_custom(hyperp, options, filepaths,
         #=== Training ===#
         optimize(hyperp, options, filepaths,
                  NN, optimizer,
-                 loss_penalized_difference, relative_error,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
                  input_dimensions, num_batches_train,
-                 loss_weighted_penalized_difference,
+                 loss_penalized_difference, loss_weighted_penalized_difference,
+                 relative_error,
                  data_dict["noise_regularization_matrix"],
-                 reg_prior,
                  prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
                  positivity_constraint_log_exp,
                  forward_model_solve)
@@ -106,12 +105,11 @@ def trainer_custom(hyperp, options, filepaths,
         optimize_distributed(dist_strategy,
                              hyperp, options, filepaths,
                              NN, optimizer,
-                             loss_penalized_difference, relative_error,
                              input_and_latent_train, input_and_latent_val, input_and_latent_test,
                              input_dimensions, num_batches_train,
-                             loss_weighted_penalized_difference,
+                             loss_penalized_difference, loss_weighted_penalized_difference,
+                             relative_error,
                              data_dict["noise_regularization_matrix"],
-                             reg_prior,
                              prior_dict["prior_mean"],
                              prior_dict["prior_covariance_cholesky_inverse"],
                              positivity_constraint_log_exp,

@@ -26,11 +26,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def optimize_distributed(dist_strategy,
         hyperp, options, filepaths,
         NN, optimizer,
-        loss_penalized_difference, relative_error,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, num_batches_train,
-        reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-        loss_weighted_penalized_difference, noise_regularization_matrix,
+        loss_penalized_difference, loss_weighted_penalized_difference,
+        relative_error,
+        noise_regularization_matrix,
+        prior_mean, prior_covariance_cholesky_inverse,
         positivity_constraint):
 
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
@@ -84,10 +85,11 @@ def optimize_distributed(dist_strategy,
                             loss_penalized_difference(
                                     batch_input_train, batch_input_pred_train,
                                     hyperp.penalty_decoder)
-                    unscaled_replica_batch_reg_train_prior = reg_prior(
-                            batch_input_pred_train_AE,
-                            prior_mean, prior_covariance_cholesky_inverse,
-                            hyperp.penalty_prior)
+                    unscaled_replica_batch_reg_train_prior =\
+                            loss_weighted_penalized_difference(
+                                batch_input_pred_train_AE, prior_mean,
+                                prior_covariance_cholesky_inverse,
+                                hyperp.penalty_prior)
 
                 if options.reverse_autoencoder == True:
                     unscaled_replica_batch_loss_train_autoencoder =\
@@ -105,7 +107,7 @@ def optimize_distributed(dist_strategy,
                                     batch_input_train, batch_input_pred_train,
                                     noise_regularization_matrix,
                                     hyperp.penalty_decoder)
-                    unscaled_replica_batch_reg_train_prior = reg_prior(
+                    unscaled_replica_batch_reg_train_prior = loss_weighted_penalized_difference(
                             batch_latent_pred_train,
                             prior_mean, prior_covariance_cholesky_inverse,
                             hyperp.penalty_prior)
@@ -115,8 +117,8 @@ def optimize_distributed(dist_strategy,
                         unscaled_replica_batch_loss_train_encoder +\
                         unscaled_replica_batch_loss_train_decoder +\
                         unscaled_replica_batch_reg_train_prior
-                scaled_replica_batch_loss_train = tf.reduce_sum(
-                        unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
+                scaled_replica_batch_loss_train =\
+                        tf.reduce_sum(unscaled_replica_batch_loss_train * (1./hyperp.batch_size))
 
             gradients = tape.gradient(scaled_replica_batch_loss_train, NN.trainable_variables)
             optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -149,10 +151,11 @@ def optimize_distributed(dist_strategy,
                         loss_penalized_difference(
                                 batch_input_val, batch_input_pred_val,
                                 hyperp.penalty_decoder)
-                unscaled_replica_batch_reg_val_prior = reg_prior(
-                        batch_input_pred_val_AE,
-                        prior_mean, prior_covariance_cholesky_inverse,
-                        hyperp.penalty_prior)
+                unscaled_replica_batch_reg_val_prior =\
+                        loss_weighted_penalized_difference(
+                                batch_input_pred_val_AE, prior_mean,
+                                prior_covariance_cholesky_inverse,
+                                hyperp.penalty_prior)
 
             if options.reverse_autoencoder == True:
                 unscaled_replica_batch_loss_val_autoencoder =\
@@ -170,18 +173,19 @@ def optimize_distributed(dist_strategy,
                                 batch_input_val, batch_input_pred_val,
                                 noise_regularization_matrix,
                                 hyperp.penalty_decoder)
-                unscaled_replica_batch_reg_val_prior = reg_prior(
-                        batch_latent_pred_val,
-                        prior_mean, prior_covariance_cholesky_inverse,
-                        hyperp.penalty_prior)
+                unscaled_replica_batch_reg_val_prior =\
+                        loss_weighted_penalized_difference(
+                                batch_latent_pred_val, prior_mean,
+                                prior_covariance_cholesky_inverse,
+                                hyperp.penalty_prior)
 
                 unscaled_replica_batch_loss_val =\
                         unscaled_replica_batch_loss_val_autoencoder +\
                         unscaled_replica_batch_loss_val_encoder +\
                         unscaled_replica_batch_loss_val_decoder +\
                         unscaled_replica_batch_reg_val_prior
-                scaled_replica_batch_loss_val = tf.reduce_sum(
-                        unscaled_replica_batch_loss_val * (1./hyperp.batch_size))
+                scaled_replica_batch_loss_val =\
+                        tf.reduce_sum(unscaled_replica_batch_loss_val * (1./hyperp.batch_size))
 
             metrics.mean_loss_val(unscaled_replica_batch_loss_val)
             metrics.mean_loss_val_autoencoder(unscaled_replica_batch_loss_val_autoencoder)
@@ -210,10 +214,11 @@ def optimize_distributed(dist_strategy,
                         loss_penalized_difference(
                                 batch_input_test, batch_input_pred_test,
                                 hyperp.penalty_decoder)
-                unscaled_replica_batch_reg_test_prior = reg_prior(
-                        batch_input_pred_test_AE,
-                        prior_mean, prior_covariance_cholesky_inverse,
-                        hyperp.penalty_prior)
+                unscaled_replica_batch_reg_test_prior =\
+                        loss_weighted_penalized_difference(
+                                batch_input_pred_test_AE, prior_mean,
+                                prior_covariance_cholesky_inverse,
+                                hyperp.penalty_prior)
 
             if options.reverse_autoencoder == True:
                 unscaled_replica_batch_loss_test_autoencoder =\
@@ -231,18 +236,19 @@ def optimize_distributed(dist_strategy,
                                 batch_input_test, batch_input_pred_test,
                                 noise_regularization_matrix,
                                 hyperp.penalty_decoder)
-                unscaled_replica_batch_reg_test_prior = reg_prior(
-                        batch_latent_pred_test,
-                        prior_mean, prior_covariance_cholesky_inverse,
-                        hyperp.penalty_prior)
+                unscaled_replica_batch_reg_test_prior =\
+                        loss_weighted_penalized_difference(
+                                batch_latent_pred_test, prior_mean,
+                                prior_covariance_cholesky_inverse,
+                                hyperp.penalty_prior)
 
                 unscaled_replica_batch_loss_test =\
                         unscaled_replica_batch_loss_test_autoencoder +\
                         unscaled_replica_batch_loss_test_encoder +\
                         unscaled_replica_batch_loss_test_decoder +\
                         unscaled_replica_batch_reg_test_prior
-                scaled_replica_batch_loss_test = tf.reduce_sum(
-                        unscaled_replica_batch_loss_test * (1./hyperp.batch_size))
+                scaled_replica_batch_loss_test =\
+                        tf.reduce_sum(unscaled_replica_batch_loss_test * (1./hyperp.batch_size))
 
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
             metrics.mean_loss_test_autoencoder(unscaled_replica_batch_loss_test_autoencoder)

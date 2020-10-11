@@ -8,8 +8,7 @@ import pandas as pd
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
 from neural_networks.nn_vae_fwd_inv import VAEFwdInv
-from utils_training.loss_and_relative_errors import\
-        loss_diag_weighted_penalized_difference,\
+from utils_training.functionals import\
         loss_weighted_penalized_difference,\
         kld_diagonal_post_cov, relative_error
 from optimize.optimize_custom_vae_model_augmented_autodiff import optimize
@@ -72,7 +71,6 @@ def trainer_custom(hyperp, options, filepaths,
                  NN, optimizer,
                  loss_weighted_penalized_difference, data_dict["noise_regularization_matrix"],
                  kld_diagonal_post_cov, prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                 loss_diag_weighted_penalized_difference,
                  relative_error,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
                  input_dimensions, latent_dimensions, num_batches_train,
@@ -98,7 +96,6 @@ def trainer_custom(hyperp, options, filepaths,
                 NN, optimizer,
                 loss_weighted_penalized_difference, data_dict["noise_regularization_matrix"],
                 kld_diagonal_post_cov, prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                loss_diag_weighted_penalized_difference,
                 relative_error,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, latent_dimensions, num_batches_train,

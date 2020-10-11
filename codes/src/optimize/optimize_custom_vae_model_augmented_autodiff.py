@@ -29,7 +29,6 @@ def optimize(hyperp, options, filepaths,
         NN, optimizer,
         loss_weighted_penalized_difference, noise_regularization_matrix,
         kld_loss, prior_mean, prior_covariance,
-        loss_diag_weighted_penalized_difference,
         relative_error,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, latent_dimension,
@@ -84,7 +83,7 @@ def optimize(hyperp, options, filepaths,
                     penalty_kld)
             batch_loss_train_posterior =\
                 tf.reduce_sum(batch_log_post_var_train,axis=1) +\
-                loss_diag_weighted_penalized_difference(
+                loss_weighted_penalized_difference(
                     batch_latent_train,
                     batch_post_mean_train,
                     1/tf.math.exp(batch_log_post_var_train/2), 1)
@@ -112,7 +111,7 @@ def optimize(hyperp, options, filepaths,
                 penalty_kld)
         batch_loss_val_posterior =\
             tf.reduce_sum(batch_log_post_var_val,axis=1) +\
-            loss_diag_weighted_penalized_difference(
+            loss_weighted_penalized_difference(
                 batch_latent_val,
                 batch_post_mean_val,
                 1/tf.math.exp(batch_log_post_var_val/2), 1)
@@ -134,7 +133,7 @@ def optimize(hyperp, options, filepaths,
                 penalty_kld)
         batch_loss_test_posterior =\
             tf.reduce_sum(batch_log_post_var_test,axis=1) +\
-            loss_diag_weighted_penalized_difference(
+            loss_weighted_penalized_difference(
                 batch_latent_test,
                 batch_post_mean_test,
                 1/tf.math.exp(batch_log_post_var_test/2), 1)

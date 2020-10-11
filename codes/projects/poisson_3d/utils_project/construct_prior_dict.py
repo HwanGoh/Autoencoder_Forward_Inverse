@@ -18,7 +18,7 @@ def construct_prior_dict(hyperp, options, filepaths,
     #=== Prior Mean ===#
     if load_mean == True:
         prior_mean = prior.load_prior_mean()
-        prior_dict["prior_mean"] = prior_mean
+        prior_dict["prior_mean"] = np.expand_dims(prior_mean, axis=0)
 
     #=== Prior Covariance ===#
     if load_covariance == True:

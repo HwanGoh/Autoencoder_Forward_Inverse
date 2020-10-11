@@ -26,11 +26,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize(hyperp, options, filepaths,
              NN, optimizer,
-             loss_penalized_difference, relative_error,
              input_and_latent_train, input_and_latent_val, input_and_latent_test,
              input_dimensions, num_batches_train,
-             reg_prior, prior_mean, prior_covariance_cholesky_inverse,
-             loss_weighted_penalized_difference, noise_regularization_matrix,
+             loss_penalized_difference, loss_weighted_penalized_difference,
+             relative_error,
+             noise_regularization_matrix,
+             prior_mean, prior_covariance_cholesky_inverse,
              positivity_constraint):
 
     #=== Define Metrics ===#
@@ -61,36 +62,50 @@ def optimize(hyperp, options, filepaths,
             batch_input_pred_train = NN.decoder(batch_latent_train)
 
             if options.standard_autoencoder == True:
-                batch_loss_train_autoencoder = loss_penalized_difference(
-                        batch_input_train, batch_input_pred_train_AE, 1)
-                batch_loss_train_encoder = loss_weighted_penalized_difference(
-                        batch_latent_train, batch_latent_pred_train,
-                        noise_regularization_matrix, hyperp.penalty_encoder)
-                batch_loss_train_decoder = loss_penalized_difference(
-                        batch_input_train, batch_input_pred_train,
-                        hyperp.penalty_decoder)
-                batch_reg_train_prior = reg_prior(
-                        batch_input_pred_train_AE,
-                        prior_mean, prior_covariance_cholesky_inverse,
-                        hyperp.penalty_prior)
+                batch_loss_train_autoencoder =\
+                        loss_penalized_difference(
+                            batch_input_train, batch_input_pred_train_AE,
+                            1)
+                batch_loss_train_encoder =\
+                        loss_weighted_penalized_difference(
+                            batch_latent_train, batch_latent_pred_train,
+                            noise_regularization_matrix,
+                            hyperp.penalty_encoder)
+                batch_loss_train_decoder =\
+                        loss_penalized_difference(
+                            batch_input_train, batch_input_pred_train,
+                            hyperp.penalty_decoder)
+                batch_reg_train_prior =\
+                        loss_weighted_penalized_difference(
+                            batch_input_pred_train_AE, prior_mean,
+                            prior_covariance_cholesky_inverse,
+                            hyperp.penalty_prior)
 
             if options.reverse_autoencoder == True:
-                batch_loss_train_autoencoder = loss_weighted_penalized_difference(
-                        batch_input_train, batch_input_pred_train_AE,
-                        noise_regularization_matrix, 1)
-                batch_loss_train_encoder = loss_penalized_difference(
-                        batch_latent_train, batch_latent_pred_train,
-                        hyperp.penalty_encoder)
-                batch_loss_train_decoder = loss_weighted_penalized_difference(
-                        batch_input_train, batch_input_pred_train,
-                        noise_regularization_matrix, hyperp.penalty_decoder)
-                batch_reg_train_prior = reg_prior(
-                        batch_latent_pred_train,
-                        prior_mean, prior_covariance_cholesky_inverse,
-                        hyperp.penalty_prior)
+                batch_loss_train_autoencoder =\
+                        loss_weighted_penalized_difference(
+                            batch_input_train, batch_input_pred_train_AE,
+                            noise_regularization_matrix,
+                            1)
+                batch_loss_train_encoder =\
+                        loss_penalized_difference(
+                            batch_latent_train, batch_latent_pred_train,
+                            hyperp.penalty_encoder)
+                batch_loss_train_decoder =\
+                        loss_weighted_penalized_difference(
+                            batch_input_train, batch_input_pred_train,
+                            noise_regularization_matrix,
+                            hyperp.penalty_decoder)
+                batch_reg_train_prior =\
+                        loss_weighted_penalized_difference(
+                            batch_latent_pred_train, prior_mean,
+                            prior_covariance_cholesky_inverse,
+                            hyperp.penalty_prior)
 
-            batch_loss_train = batch_loss_train_autoencoder + batch_loss_train_encoder +\
-                    batch_loss_train_decoder + batch_reg_train_prior
+            batch_loss_train = batch_loss_train_autoencoder +\
+                               batch_loss_train_encoder +\
+                               batch_loss_train_decoder +\
+                               batch_reg_train_prior
 
         gradients = tape.gradient(batch_loss_train, NN.trainable_variables)
         optimizer.apply_gradients(zip(gradients, NN.trainable_variables))
@@ -108,36 +123,50 @@ def optimize(hyperp, options, filepaths,
         batch_input_pred_val = NN.decoder(batch_latent_val)
 
         if options.standard_autoencoder == True:
-            batch_loss_val_autoencoder = loss_penalized_difference(
-                    batch_input_val, batch_input_pred_val_AE, 1)
-            batch_loss_val_encoder = loss_weighted_penalized_difference(
-                    batch_latent_val, batch_latent_pred_val,
-                    noise_regularization_matrix, hyperp.penalty_encoder)
-            batch_loss_val_decoder = loss_penalized_difference(
-                    batch_input_val, batch_input_pred_val,
-                    hyperp.penalty_decoder)
-            batch_reg_val_prior = reg_prior(
-                    batch_input_pred_val_AE,
-                    prior_mean, prior_covariance_cholesky_inverse,
-                    hyperp.penalty_prior)
+            batch_loss_val_autoencoder =\
+                    loss_penalized_difference(
+                        batch_input_val, batch_input_pred_val_AE,
+                        1)
+            batch_loss_val_encoder =\
+                    loss_weighted_penalized_difference(
+                        batch_latent_val, batch_latent_pred_val,
+                        noise_regularization_matrix,
+                        hyperp.penalty_encoder)
+            batch_loss_val_decoder =\
+                    loss_penalized_difference(
+                        batch_input_val, batch_input_pred_val,
+                        hyperp.penalty_decoder)
+            batch_reg_val_prior =\
+                    loss_weighted_penalized_difference(
+                        batch_input_pred_val_AE, prior_mean,
+                        prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
         if options.reverse_autoencoder == True:
-            batch_loss_val_autoencoder = loss_weighted_penalized_difference(
-                    batch_input_val, batch_input_pred_val_AE,
-                    noise_regularization_matrix, 1)
-            batch_loss_val_encoder = loss_penalized_difference(
-                    batch_latent_val, batch_latent_pred_val,
-                    hyperp.penalty_encoder)
-            batch_loss_val_decoder = loss_weighted_penalized_difference(
-                    batch_input_val, batch_input_pred_val,
-                    noise_regularization_matrix, hyperp.penalty_decoder)
-            batch_reg_val_prior = reg_prior(
-                    batch_latent_pred_val,
-                    prior_mean, prior_covariance_cholesky_inverse,
-                    hyperp.penalty_prior)
+            batch_loss_val_autoencoder =\
+                    loss_weighted_penalized_difference(
+                        batch_input_val, batch_input_pred_val_AE,
+                        noise_regularization_matrix,
+                        1)
+            batch_loss_val_encoder =\
+                    loss_penalized_difference(
+                        batch_latent_val, batch_latent_pred_val,
+                        hyperp.penalty_encoder)
+            batch_loss_val_decoder =\
+                    loss_weighted_penalized_difference(
+                        batch_input_val, batch_input_pred_val,
+                        noise_regularization_matrix,
+                        hyperp.penalty_decoder)
+            batch_reg_val_prior =\
+                    loss_weighted_penalized_difference(
+                        batch_latent_pred_val, prior_mean,
+                        prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
-        batch_loss_val = batch_loss_val_autoencoder + batch_loss_val_encoder +\
-                batch_loss_val_decoder + batch_reg_val_prior
+        batch_loss_val = batch_loss_val_autoencoder +\
+                         batch_loss_val_encoder +\
+                         batch_loss_val_decoder +\
+                         batch_reg_val_prior
 
         metrics.mean_loss_val(batch_loss_val)
         metrics.mean_loss_val_autoencoder(batch_loss_val_autoencoder)
@@ -152,36 +181,50 @@ def optimize(hyperp, options, filepaths,
         batch_input_pred_test = NN.decoder(batch_latent_test)
 
         if options.standard_autoencoder == True:
-            batch_loss_test_autoencoder = loss_penalized_difference(
-                    batch_input_test, batch_input_pred_test_AE, 1)
-            batch_loss_test_encoder = loss_weighted_penalized_difference(
-                    batch_latent_test, batch_latent_pred_test,
-                    noise_regularization_matrix, hyperp.penalty_encoder)
-            batch_loss_test_decoder = loss_penalized_difference(
-                    batch_input_test, batch_input_pred_test,
-                    hyperp.penalty_decoder)
-            batch_reg_test_prior = reg_prior(
-                    batch_input_pred_test_AE,
-                    prior_mean, prior_covariance_cholesky_inverse,
-                    hyperp.penalty_prior)
+            batch_loss_test_autoencoder =\
+                    loss_penalized_difference(
+                        batch_input_test, batch_input_pred_test_AE,
+                        1)
+            batch_loss_test_encoder =\
+                    loss_weighted_penalized_difference(
+                        batch_latent_test, batch_latent_pred_test,
+                        noise_regularization_matrix,
+                        hyperp.penalty_encoder)
+            batch_loss_test_decoder =\
+                    loss_penalized_difference(
+                        batch_input_test, batch_input_pred_test,
+                        hyperp.penalty_decoder)
+            batch_reg_test_prior =\
+                    loss_weighted_penalized_difference(
+                        batch_input_pred_test_AE, prior_mean,
+                        prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
         if options.reverse_autoencoder == True:
-            batch_loss_test_autoencoder = loss_weighted_penalized_difference(
-                    batch_input_test, batch_input_pred_test_AE,
-                    noise_regularization_matrix, 1)
-            batch_loss_test_encoder = loss_penalized_difference(
-                    batch_latent_test, batch_latent_pred_test,
-                    hyperp.penalty_encoder)
-            batch_loss_test_decoder = loss_weighted_penalized_difference(
-                    batch_input_test, batch_input_pred_test,
-                    noise_regularization_matrix, hyperp.penalty_decoder)
-            batch_reg_test_prior = reg_prior(
-                    batch_latent_pred_test,
-                    prior_mean, prior_covariance_cholesky_inverse,
-                    hyperp.penalty_prior)
+            batch_loss_test_autoencoder =\
+                    loss_weighted_penalized_difference(
+                        batch_input_test, batch_input_pred_test_AE,
+                        noise_regularization_matrix,
+                        1)
+            batch_loss_test_encoder =\
+                    loss_penalized_difference(
+                        batch_latent_test, batch_latent_pred_test,
+                        hyperp.penalty_encoder)
+            batch_loss_test_decoder =\
+                    loss_weighted_penalized_difference(
+                        batch_input_test, batch_input_pred_test,
+                        noise_regularization_matrix,
+                        hyperp.penalty_decoder)
+            batch_reg_test_prior =\
+                    loss_weighted_penalized_difference(
+                        batch_latent_pred_test, prior_mean,
+                        prior_covariance_cholesky_inverse,
+                        hyperp.penalty_prior)
 
-        batch_loss_test = batch_loss_test_autoencoder + batch_loss_test_encoder +\
-                batch_loss_test_decoder + batch_reg_test_prior
+        batch_loss_test = batch_loss_test_autoencoder +\
+                          batch_loss_test_encoder +\
+                          batch_loss_test_decoder +\
+                          batch_reg_test_prior
 
         metrics.mean_loss_test(batch_loss_test)
         metrics.mean_loss_test_autoencoder(batch_loss_test_autoencoder)
