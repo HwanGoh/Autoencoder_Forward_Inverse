@@ -26,12 +26,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def optimize(hyperp, options, filepaths,
              NN, optimizer,
-             loss_weighted_penalized_difference, noise_regularization_matrix,
-             kld_loss, prior_mean, prior_covariance,
-             relative_error,
              input_and_latent_train, input_and_latent_val, input_and_latent_test,
-             input_dimensions, latent_dimension,
-             num_batches_train,
+             input_dimensions, latent_dimension, num_batches_train,
+             loss_weighted_penalized_difference, loss_kld,
+             relative_error,
+             noise_regularization_matrix,
+             prior_mean, prior_covariance,
              positivity_constraint):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
@@ -72,18 +72,22 @@ def optimize(hyperp, options, filepaths,
             batch_likelihood_train = NN(batch_input_train)
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
 
-            batch_loss_train_vae = loss_weighted_penalized_difference(
-                    batch_input_train, batch_likelihood_train,
-                    noise_regularization_matrix, 1)
-            batch_loss_train_kld = kld_loss(batch_post_mean_train, batch_log_post_var_train,
-                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
-                    penalty_kld)
+            batch_loss_train_vae =\
+                    loss_weighted_penalized_difference(
+                        batch_input_train, batch_likelihood_train,
+                        noise_regularization_matrix,
+                        1)
+            batch_loss_train_kld =\
+                    loss_kld(
+                        batch_post_mean_train, batch_log_post_var_train,
+                        prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                        penalty_kld)
             batch_loss_train_posterior =\
-                tf.reduce_sum(batch_log_post_var_train,axis=1) +\
-                loss_weighted_penalized_difference(
-                    batch_latent_train,
-                    batch_post_mean_train,
-                    1/tf.math.exp(batch_log_post_var_train/2), 1)
+                    tf.reduce_sum(batch_log_post_var_train,axis=1) +\
+                    loss_weighted_penalized_difference(
+                        batch_latent_train, batch_post_mean_train,
+                        1/tf.math.exp(batch_log_post_var_train/2),
+                        1)
 
             batch_loss_train = -(-batch_loss_train_vae\
                                  -batch_loss_train_kld\
@@ -104,18 +108,22 @@ def optimize(hyperp, options, filepaths,
         batch_likelihood_val = NN(batch_input_val)
         batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
-        batch_loss_val_vae = loss_weighted_penalized_difference(
-                batch_input_val, batch_likelihood_val,
-                noise_regularization_matrix, 1)
-        batch_loss_val_kld = kld_loss(batch_post_mean_val, batch_log_post_var_val,
-                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
-                penalty_kld)
+        batch_loss_val_vae =\
+                loss_weighted_penalized_difference(
+                    batch_input_val, batch_likelihood_val,
+                    noise_regularization_matrix,
+                    1)
+        batch_loss_val_kld =\
+                loss_kld(
+                    batch_post_mean_val, batch_log_post_var_val,
+                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                    penalty_kld)
         batch_loss_val_posterior =\
-            tf.reduce_sum(batch_log_post_var_val,axis=1) +\
-            loss_weighted_penalized_difference(
-                batch_latent_val,
-                batch_post_mean_val,
-                1/tf.math.exp(batch_log_post_var_val/2), 1)
+                tf.reduce_sum(batch_log_post_var_val,axis=1) +\
+                loss_weighted_penalized_difference(
+                    batch_latent_val, batch_post_mean_val,
+                    1/tf.math.exp(batch_log_post_var_val/2),
+                    1)
 
         batch_loss_val = -(-batch_loss_val_vae\
                            -batch_loss_val_kld\
@@ -133,18 +141,22 @@ def optimize(hyperp, options, filepaths,
         batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
         batch_input_pred_test = NN.decoder(batch_latent_test)
 
-        batch_loss_test_vae = loss_weighted_penalized_difference(
-                batch_input_test, batch_likelihood_test,
-                noise_regularization_matrix, 1)
-        batch_loss_test_kld = kld_loss(batch_post_mean_test, batch_log_post_var_test,
-                prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
-                penalty_kld)
+        batch_loss_test_vae =\
+                loss_weighted_penalized_difference(
+                    batch_input_test, batch_likelihood_test,
+                    noise_regularization_matrix,
+                    1)
+        batch_loss_test_kld =\
+                loss_kld(
+                    batch_post_mean_test, batch_log_post_var_test,
+                    prior_mean, prior_cov_inv, log_det_prior_cov, latent_dimension,
+                    penalty_kld)
         batch_loss_test_posterior =\
-            tf.reduce_sum(batch_log_post_var_test,axis=1) +\
-            loss_weighted_penalized_difference(
-                batch_latent_test,
-                batch_post_mean_test,
-                1/tf.math.exp(batch_log_post_var_test/2), 1)
+                tf.reduce_sum(batch_log_post_var_test,axis=1) +\
+                loss_weighted_penalized_difference(
+                    batch_latent_test, batch_post_mean_test,
+                    1/tf.math.exp(batch_log_post_var_test/2),
+                    1)
 
         batch_loss_test = -(-batch_loss_test_vae\
                             -batch_loss_test_kld\

@@ -34,10 +34,10 @@ def loss_forward_model(hyperp, options,
     return penalty*state_obs_true.shape[1]*tf.keras.losses.mean_squared_error(state_obs_true,
             forward_model_state_pred)
 
-def kld_diagonal_post_cov(post_mean, log_post_var,
-                          prior_mean, prior_cov_inv,
-                          log_det_prior_cov, latent_dimension,
-                          penalty):
+def loss_kld(post_mean, log_post_var,
+             prior_mean, prior_cov_inv,
+             log_det_prior_cov, latent_dimension,
+             penalty):
     trace_prior_cov_inv_times_cov_post = tf.reduce_sum(
             tf.multiply(tf.linalg.diag_part(prior_cov_inv), tf.math.exp(log_post_var)),
             axis=1)
