@@ -16,14 +16,14 @@ def loss_penalized_difference(true, pred, penalty):
     return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(true, pred)
 
 def loss_weighted_penalized_difference(true, pred, weight_matrix, penalty):
-    if len(weight_matrix.shape) == 2:
+    if weight_matrix.shape[0] == weight_matrix.shape[1]: # If matrix is square
         return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
                 tf.linalg.matmul(true, tf.transpose(weight_matrix)),
                 tf.linalg.matmul(pred, tf.transpose(weight_matrix)))
-    if len(weight_matrix.shape) == 1:
+    else: # Diagonal weight matrices with diagonals stored as rows
         return penalty*true.shape[1]*tf.keras.losses.mean_squared_error(
-                tf.multiply(weight_diag, true),
-                tf.multiply(weight_diag, pred))
+                tf.multiply(weight_matrix, true),
+                tf.multiply(weight_matrix, pred))
 
 def loss_forward_model(hyperp, options,
                        forward_model,

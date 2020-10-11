@@ -105,9 +105,8 @@ class DataHandler:
             diagonal[non_noisy_obs[0:self.num_noisy_obs_unregularized]] =\
                     (1/self.dampening_scalar)*\
                     diagonal[non_noisy_obs[0:self.num_noisy_obs_unregularized]]
-        noise_regularization_matrix = np.diag(diagonal).astype(np.float32)
 
-        return noise_regularization_matrix
+        return diagonal.astype(np.float32)
 
 ###############################################################################
 #                               Normalize Data                                #
