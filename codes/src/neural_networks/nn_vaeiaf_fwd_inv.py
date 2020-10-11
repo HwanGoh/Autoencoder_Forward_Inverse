@@ -46,11 +46,11 @@ class VAEIAFFwdInv(tf.keras.Model):
                                hyperp.num_hidden_layers_encoder + 1,
                                self.architecture, self.activations,
                                kernel_initializer, bias_initializer)
-        self.iaf_chain_posterior = IAFChainPosterior(options.iaf_lstm_update,
-                                                     hyperp.num_iaf_transforms,
-                                                     hyperp.num_hidden_nodes_iaf,
-                                                     hyperp.activation_iaf,
-                                                     kernel_initializer_iaf, bias_initializer_iaf)
+        self.iaf_chain_encoder = IAFChainEncoder(options.iaf_lstm_update,
+                                                 hyperp.num_iaf_transforms,
+                                                 hyperp.num_hidden_nodes_iaf,
+                                                 hyperp.activation_iaf,
+                                                 kernel_initializer_iaf, bias_initializer_iaf)
         if self.options.model_aware == True:
             self.decoder = Decoder(options,
                                    hyperp.num_hidden_layers_encoder + 1,
@@ -60,7 +60,7 @@ class VAEIAFFwdInv(tf.keras.Model):
 
     #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
-        return self.iaf_chain_posterior((mean, log_var),
+        return self.iaf_chain_encoder((mean, log_var),
                                         sample_flag = True, infer_flag = False)
 
     def call(self, X):
@@ -145,7 +145,7 @@ class Decoder(tf.keras.layers.Layer):
 ###############################################################################
 #                    Chain of Inverse Autoregressive Flow                     #
 ###############################################################################
-class IAFChainPosterior(tf.keras.layers.Layer):
+class IAFChainEncoder(tf.keras.layers.Layer):
     def __init__(self, iaf_lstm_update_flag,
                  num_iaf_transforms,
                  hidden_units,
@@ -170,13 +170,13 @@ class IAFChainPosterior(tf.keras.layers.Layer):
             bijectors_list.append(tfb.Invert(
                 tfb.MaskedAutoregressiveFlow(
                     shift_and_log_scale_fn = Made(params=2,
-                                                    event_shape = self.event_shape,
-                                                    hidden_units = self.hidden_units,
-                                                    activation = self.activation,
-                                                    kernel_initializer = self.kernel_initializer,
-                                                    bias_initializer = self.bias_initializer,
-                                                    lstm_flag = self.iaf_lstm_update_flag,
-                                                    name = "IAF_W" + str(i)))))
+                                                  event_shape = self.event_shape,
+                                                  hidden_units = self.hidden_units,
+                                                  activation = self.activation,
+                                                  kernel_initializer = self.kernel_initializer,
+                                                  bias_initializer = self.bias_initializer,
+                                                  lstm_flag = self.iaf_lstm_update_flag,
+                                                  name = "IAF_W" + str(i)))))
             bijectors_list.append(tfb.Permute(list(reversed(range(latent_dimensions)))))
         self.iaf_chain = tfb.Chain(bijectors_list)
 

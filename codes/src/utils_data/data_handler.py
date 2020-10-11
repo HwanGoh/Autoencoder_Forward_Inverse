@@ -113,13 +113,13 @@ class DataHandler:
 #                               Normalize Data                                #
 ###############################################################################
     def normalize_data_input_train(self):
-        self.input_train = normalize_data(self.input_train)
+        self.input_train = self.normalize_data(self.input_train)
     def normalize_data_output_train(self):
-        self.output_train = normalize_data(self.output_train)
+        self.output_train = self.normalize_data(self.output_train)
     def normalize_data_input_test(self):
-        self.input_test = normalize_data(self.input_test)
+        self.input_test = self.normalize_data(self.input_test)
     def normalize_data_output_test(self):
-        self.output_test = normalize_data(self.output_test)
+        self.output_test = self.normalize_data(self.output_test)
 
     def normalize_data(self, data):
         data = data/np.expand_dims(np.linalg.norm(data, ord = 2, axis = 1), 1)
