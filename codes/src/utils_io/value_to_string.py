@@ -5,6 +5,7 @@ Created on Sun May  28 10:16:28 2020
 
 @author: hwan
 """
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def value_to_string(value):
     if value >= 1:
@@ -13,15 +14,19 @@ def value_to_string(value):
     else:
         value_decimal_form = '%.9f'%(value)
         string = 'pt'
-        nonzero_value_flag = 0
+
+        found_nonzero_value_flag = 0
         for n in range(2,9):
+            if found_nonzero_value_flag == 1:
+                if value_decimal_form[n] == '0': # If found a zero
+                    break
             if value_decimal_form[n] == '0':
                 string += '0'
             else:
                 string += value_decimal_form[n]
-                nonzero_value_flag = 1
-                break
-        if nonzero_value_flag != 1:
+                found_nonzero_value_flag = 1
+
+        if found_nonzero_value_flag != 1: # If no nonzeros found
             string = '0'
 
     return string
