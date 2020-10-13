@@ -89,7 +89,7 @@ def optimize_distributed(dist_strategy,
                                 log_det_prior_cov, latent_dimension,
                                 1)
                 unscaled_replica_batch_loss_train_posterior =\
-                        (1-hyperp.penalty_js)/hyperp.penalty_js) *\
+                        (1-hyperp.penalty_js)/hyperp.penalty_js *\
                         tf.reduce_sum(batch_log_post_var_train,axis=1) +\
                         loss_weighted_penalized_difference(
                                 batch_latent_train, batch_post_mean_train,
@@ -129,7 +129,7 @@ def optimize_distributed(dist_strategy,
                             log_det_prior_cov, latent_dimension,
                             1)
             unscaled_replica_batch_loss_val_posterior =\
-                    (1-hyperp.penalty_js)/hyperp.penalty_js) *\
+                    (1-hyperp.penalty_js)/hyperp.penalty_js *\
                     tf.reduce_sum(batch_log_post_var_val,axis=1) +\
                     loss_weighted_penalized_difference(
                             batch_latent_val, batch_post_mean_val,
@@ -160,7 +160,7 @@ def optimize_distributed(dist_strategy,
                             log_det_prior_cov, latent_dimension,
                             1)
             unscaled_replica_batch_loss_test_posterior =\
-                    (1-hyperp.penalty_js)/hyperp.penalty_js) *\
+                    (1-hyperp.penalty_js)/hyperp.penalty_js *\
                     tf.reduce_sum(batch_log_post_var_test,axis=1) +\
                     loss_weighted_penalized_difference(
                             batch_latent_test, batch_post_mean_test,

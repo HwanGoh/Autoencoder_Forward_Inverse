@@ -29,7 +29,7 @@ def optimize(hyperp, options, filepaths,
         NN, optimizer,
         input_and_latent_train, input_and_latent_val, input_and_latent_test,
         input_dimensions, latent_dimension, num_batches_train,
-        loss_weighted_penalized_difference, loss_kld
+        loss_weighted_penalized_difference, loss_kld,
         relative_error,
         noise_regularization_matrix,
         prior_mean, prior_covariance,
