@@ -65,19 +65,12 @@ def optimize_distributed(dist_strategy,
         NN.build((hyperp.batch_size, input_dimensions))
         NN.summary()
 
-    #=== Setting Initial KLD Penalty to be Incremented ===#
-    if hyperp.penalty_kld_rate == 0:
-        penalty_kld = 1
-    else:
-        penalty_kld = 0
-        penalty_kld_incr = hyperp.penalty_kld_rate/hyperp.num_epochs
-
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     with dist_strategy.scope():
         #=== Training Step ===#
-        def train_step(batch_input_train, batch_latent_train, penalty_kld):
+        def train_step(batch_input_train, batch_latent_train):
             with tf.GradientTape() as tape:
                 batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
                 batch_input_pred_forward_model_train =\
@@ -86,21 +79,22 @@ def optimize_distributed(dist_strategy,
 
                 unscaled_replica_batch_loss_train_vae =\
                         loss_weighted_penalized_difference(
-                            batch_input_train, batch_input_pred_forward_model_train,
-                            noise_regularization_matrix,
-                            1)
+                                batch_input_train, batch_input_pred_forward_model_train,
+                                noise_regularization_matrix,
+                                1)
                 unscaled_replica_batch_loss_train_kld =\
                         loss_kld(
-                            batch_post_mean_train, batch_log_post_var_train,
-                            prior_mean, prior_cov_inv,
-                            log_det_prior_cov, latent_dimension,
-                            penalty_kld)
+                                batch_post_mean_train, batch_log_post_var_train,
+                                prior_mean, prior_cov_inv,
+                                log_det_prior_cov, latent_dimension,
+                                1)
                 unscaled_replica_batch_loss_train_posterior =\
+                        (1-hyperp.penalty_js)/hyperp.penalty_js) *\
                         tf.reduce_sum(batch_log_post_var_train,axis=1) +\
                         loss_weighted_penalized_difference(
-                            batch_latent_train, batch_post_mean_train,
-                            1/tf.math.exp(batch_log_post_var_train/2),
-                            1)
+                                batch_latent_train, batch_post_mean_train,
+                                1/tf.math.exp(batch_log_post_var_train/2),
+                                (1-hyperp.penalty_js)/hyperp.penalty_js)
 
                 unscaled_replica_batch_loss_train =\
                         -(-unscaled_replica_batch_loss_train_vae\
@@ -118,27 +112,29 @@ def optimize_distributed(dist_strategy,
             return scaled_replica_batch_loss_train
 
         @tf.function
-        def dist_train_step(batch_input_train, batch_latent_train, penalty_kld):
+        def dist_train_step(batch_input_train, batch_latent_train):
             per_replica_losses = dist_strategy.experimental_run_v2(
                     train_step, args=(
-                        batch_input_train, batch_latent_train, penalty_kld))
+                        batch_input_train, batch_latent_train))
             return dist_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
 
         #=== Validation Step ===#
-        def val_step(batch_input_val, batch_latent_val, penalty_kld):
+        def val_step(batch_input_val, batch_latent_val):
             batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
 
-            unscaled_replica_batch_loss_val_kld = loss_kld(
-                    batch_post_mean_val, batch_log_post_var_val,
-                    prior_mean, prior_cov_inv,
-                    log_det_prior_cov, latent_dimension,
-                    penalty_kld)
+            unscaled_replica_batch_loss_val_kld =\
+                    loss_kld(
+                            batch_post_mean_val, batch_log_post_var_val,
+                            prior_mean, prior_cov_inv,
+                            log_det_prior_cov, latent_dimension,
+                            1)
             unscaled_replica_batch_loss_val_posterior =\
-                tf.reduce_sum(batch_log_post_var_val,axis=1) +\
-                loss_weighted_penalized_difference(
-                    batch_latent_val, batch_post_mean_val,
-                    1/tf.math.exp(batch_log_post_var_val/2),
-                    1)
+                    (1-hyperp.penalty_js)/hyperp.penalty_js) *\
+                    tf.reduce_sum(batch_log_post_var_val,axis=1) +\
+                    loss_weighted_penalized_difference(
+                            batch_latent_val, batch_post_mean_val,
+                            1/tf.math.exp(batch_log_post_var_val/2),
+                            (1-hyperp.penalty_js)/hyperp.penalty_js)
 
             unscaled_replica_batch_loss_val =\
                     -(-unscaled_replica_batch_loss_val_kld\
@@ -149,26 +145,27 @@ def optimize_distributed(dist_strategy,
             metrics.mean_loss_val_posterior(unscaled_replica_batch_loss_val_posterior)
 
         # @tf.function
-        def dist_val_step(batch_input_val, batch_latent_val, penalty_kld):
+        def dist_val_step(batch_input_val, batch_latent_val):
             return dist_strategy.experimental_run_v2(
-                    val_step, (batch_input_val, batch_latent_val, penalty_kld))
+                    val_step, (batch_input_val, batch_latent_val))
 
         #=== Test Step ===#
-        def test_step(batch_input_test, batch_latent_test, penalty_kld):
+        def test_step(batch_input_test, batch_latent_test):
             batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
 
             unscaled_replica_batch_loss_test_kld =\
                     loss_kld(
-                        batch_post_mean_test, batch_log_post_var_test,
-                        prior_mean, prior_cov_inv,
-                        log_det_prior_cov, latent_dimension,
-                        penalty_kld)
+                            batch_post_mean_test, batch_log_post_var_test,
+                            prior_mean, prior_cov_inv,
+                            log_det_prior_cov, latent_dimension,
+                            1)
             unscaled_replica_batch_loss_test_posterior =\
+                    (1-hyperp.penalty_js)/hyperp.penalty_js) *\
                     tf.reduce_sum(batch_log_post_var_test,axis=1) +\
                     loss_weighted_penalized_difference(
-                        batch_latent_test, batch_post_mean_test,
-                        1/tf.math.exp(batch_log_post_var_test/2),
-                        1)
+                            batch_latent_test, batch_post_mean_test,
+                            1/tf.math.exp(batch_log_post_var_test/2),
+                            (1-hyperp.penalty_js)/hyperp.penalty_js)
 
             unscaled_replica_batch_loss_test =\
                     -(-unscaled_replica_batch_loss_test_kld\
@@ -184,7 +181,7 @@ def optimize_distributed(dist_strategy,
         # @tf.function
         def dist_test_step(batch_input_test, batch_latent_test):
             return dist_strategy.experimental_run_v2(
-                    test_step, (batch_input_test, batch_latent_test, penalty_kld))
+                    test_step, (batch_input_test, batch_latent_test))
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -203,7 +200,7 @@ def optimize_distributed(dist_strategy,
         for batch_input_train, batch_latent_train in dist_input_and_latent_train:
             start_time_batch = time.time()
             #=== Compute Train Step ===#
-            batch_loss_train = dist_train_step(batch_input_train, batch_latent_train, penalty_kld)
+            batch_loss_train = dist_train_step(batch_input_train, batch_latent_train)
             total_loss_train += batch_loss_train
             elapsed_time_batch = time.time() - start_time_batch
             if batch_counter  == 0:
@@ -213,11 +210,11 @@ def optimize_distributed(dist_strategy,
 
         #=== Computing Validation Metrics ===#
         for batch_input_val, batch_latent_val in dist_input_and_latent_val:
-            dist_val_step(batch_input_val, batch_latent_val, penalty_kld)
+            dist_val_step(batch_input_val, batch_latent_val)
 
         #=== Computing Test Metrics ===#
         for batch_input_test, batch_latent_test in dist_input_and_latent_test:
-            dist_test_step(batch_input_test, batch_latent_test, penalty_kld)
+            dist_test_step(batch_input_test, batch_latent_test)
 
         #=== Tensorboard Tracking Training Metrics, Weights and Gradients ===#
         metrics.update_tensorboard(summary_writer, epoch)
@@ -255,11 +252,6 @@ def optimize_distributed(dist_strategy,
             dump_attrdict_as_yaml(hyperp, filepaths.directory_trained_NN, 'hyperp')
             dump_attrdict_as_yaml(options, filepaths.directory_trained_NN, 'options')
             print('Current Model and Metrics Saved')
-
-        #=== Increase KLD Penalty ===#
-        if hyperp.penalty_kld_rate != 0:
-            if epoch %hyperp.penalty_kld_rate == 0 and epoch != 0:
-                penalty_kld += penalty_kld_incr
 
     #=== Save Final Model ===#
     NN.save_weights(filepaths.trained_NN)

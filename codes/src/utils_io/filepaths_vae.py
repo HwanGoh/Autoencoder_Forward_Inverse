@@ -50,14 +50,15 @@ class FilePaths():
             forward_model_type = 'maug_'
 
         #=== File Name ===#
+        penalty_js_string = value_to_string(hyperp.penalty_js)
         if options.posterior_diagonal_covariance == True:
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_klr%d_d%d_b%d_e%d' %(
+                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_js%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                         hyperp.activation,
-                        hyperp.penalty_kld_rate,
+                        penalty_js_string,
                         hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         if options.posterior_iaf == True:
@@ -66,14 +67,14 @@ class FilePaths():
             else:
                 iaf_type_string = 'IAF_'
             self.NN_name = autoencoder_type + iaf_type_string + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pir%d_d%d_b%d_e%d'\
+                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_js%s_d%d_b%d_e%d'\
                 %(options.num_noisy_obs_unregularized,
                   hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                   hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
                   hyperp.activation,
                   hyperp.num_iaf_transforms, hyperp.num_hidden_nodes_iaf,
                   hyperp.activation_iaf,
-                  hyperp.penalty_iaf_rate,
+                  penalty_js_string,
                   hyperp.num_data_train, hyperp.batch_size, hyperp.num_epochs)
 
         #=== Filename ===#

@@ -47,7 +47,7 @@ def plot_cross_section(function_space,
     for i in range(0,len(x)):
         parameter_cross[i] = interp_parameter(x[i], cross_section_y)
         mean_cross[i] = interp_mean(x[i], cross_section_y)
-        std_cross[i] = np.sqrt(np.exp(interp_cov(x[i], cross_section_y)))
+        std_cross[i] = np.exp(interp_cov(x[i], cross_section_y)/2)
 
     #=== Plotting ===#
     plt.plot(x, parameter_cross, 'r-', label='True Parameter')

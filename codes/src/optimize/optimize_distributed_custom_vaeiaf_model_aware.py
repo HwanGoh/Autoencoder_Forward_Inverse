@@ -60,19 +60,12 @@ def optimize_distributed(dist_strategy,
         NN.build((hyperp.batch_size, input_dimensions))
         NN.summary()
 
-    #=== Setting Initial IAF Penalty to be Incremented ===#
-    if hyperp.penalty_iaf_rate == 0:
-        penalty_iaf = 1
-    else:
-        penalty_iaf = 0
-        penalty_iaf_incr = hyperp.penalty_iaf_rate/hyperp.num_epochs
-
 ###############################################################################
 #                   Training, Validation and Testing Step                     #
 ###############################################################################
     with dist_strategy.scope():
         #=== Training Step ===#
-        def train_step(batch_input_train, batch_latent_train, penalty_iaf):
+        def train_step(batch_input_train, batch_latent_train):
             with tf.GradientTape() as tape:
                 batch_likelihood_train = NN(batch_input_train)
                 batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
@@ -85,18 +78,20 @@ def optimize_distributed(dist_strategy,
                         loss_weighted_penalized_difference(
                                 batch_input_train, batch_likelihood_train,
                                 noise_regularization_matrix, 1)
-                unscaled_replica_batch_loss_train_iaf_posterior = penalty_iaf*\
+                unscaled_replica_batch_loss_train_iaf_posterior =\
                         NN.iaf_chain_posterior((batch_post_mean_train,
                                                 batch_log_post_var_train,
                                                 sample_flag = False,
                                                 infer_flag = True)
-                unscaled_replica_batch_loss_train_prior = loss_weighted_penalized_difference(
-                        prior_mean, batch_posterior_sample_train,
-                        prior_covariance_cholesky_inverse, hyperp.penalty_prior)
-                unscaled_replica_batch_loss_train_post_draw = loss_penalized_difference(
-                        batch_latent_train,
-                        batch_posterior_sample_train,
-                        hyperp.penalty_post_draw)
+                unscaled_replica_batch_loss_train_prior =\
+                        loss_weighted_penalized_difference(
+                            prior_mean, batch_posterior_sample_train,
+                            prior_covariance_cholesky_inverse,
+                            1)
+                unscaled_replica_batch_loss_train_post_draw =\
+                        loss_penalized_difference(
+                            batch_latent_train, batch_posterior_sample_train,
+                            1)
 
                 unscaled_replica_batch_loss_train =\
                         -(-unscaled_replica_batch_loss_train_vae\
@@ -116,13 +111,13 @@ def optimize_distributed(dist_strategy,
             return scaled_replica_batch_loss_train
 
         @tf.function
-        def dist_train_step(batch_input_train, batch_latent_train, penalty_iaf):
+        def dist_train_step(batch_input_train, batch_latent_train):
             per_replica_losses = dist_strategy.experimental_run_v2(
-                    train_step, args=(batch_input_train, batch_latent_train, penalty_iaf))
+                    train_step, args=(batch_input_train, batch_latent_train))
             return dist_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses, axis=None)
 
         #=== Validation Step ===#
-        def val_step(batch_input_val, batch_latent_val, penalty_iaf):
+        def val_step(batch_input_val, batch_latent_val):
             batch_likelihood_val = NN(batch_input_val)
             batch_post_mean_val, batch_log_post_var_val = NN.encoder(batch_input_val)
             batch_posterior_sample_val = NN.iaf_chain_posterior((batch_post_mean_val,
@@ -133,18 +128,18 @@ def optimize_distributed(dist_strategy,
             unscaled_replica_batch_loss_val_vae = loss_weighted_penalized_difference(
                     batch_input_val, batch_likelihood_val,
                     noise_regularization_matrix, 1)
-            unscaled_replica_batch_loss_val_iaf_posterior = penalty_iaf*\
+            unscaled_replica_batch_loss_val_iaf_posterior =\
                     NN.iaf_chain_posterior((batch_post_mean_val,
                                             batch_log_post_var_val,
                                             sample_flag = False,
                                             infer_flag = True)
             unscaled_replica_batch_loss_val_prior = loss_weighted_penalized_difference(
                     prior_mean, batch_posterior_sample_val,
-                    prior_covariance_cholesky_inverse, hyperp.penalty_prior)
+                    prior_covariance_cholesky_inverse,
+                    1)
             unscaled_replica_batch_loss_val_post_draw = loss_penalized_difference(
-                    batch_latent_val,
-                    batch_posterior_sample_val,
-                    hyperp.penalty_post_draw)
+                    batch_latent_val, batch_posterior_sample_val,
+                    1)
 
             metrics.mean_loss_val(unscaled_replica_batch_loss_val)
             metrics.mean_loss_val_vae(unscaled_replica_batch_loss_val_vae)
@@ -153,12 +148,12 @@ def optimize_distributed(dist_strategy,
             metrics.mean_loss_val_post_draw(unscaled_replica_batch_loss_val_post_draw)
 
         # @tf.function
-        def dist_val_step(batch_input_val, batch_latent_val, penalty_iaf):
+        def dist_val_step(batch_input_val, batch_latent_val):
             return dist_strategy.experimental_run_v2(
-                    val_step, (batch_input_val, batch_latent_val, penalty_iaf))
+                    val_step, (batch_input_val, batch_latent_val))
 
         #=== Test Step ===#
-        def test_step(batch_input_test, batch_latent_test, penalty_iaf):
+        def test_step(batch_input_test, batch_latent_test):
             batch_likelihood_test = NN(batch_input_test)
             batch_post_mean_test, batch_log_post_var_test = NN.encoder(batch_input_test)
             batch_posterior_sample_test = NN.iaf_chain_posterior((batch_post_mean_test,
@@ -169,18 +164,18 @@ def optimize_distributed(dist_strategy,
             unscaled_replica_batch_loss_test_vae = loss_weighted_penalized_difference(
                     batch_input_test, batch_likelihood_test,
                     noise_regularization_matrix, 1)
-            unscaled_replica_batch_loss_test_iaf_posterior = penalty_iaf*\
+            unscaled_replica_batch_loss_test_iaf_posterior =\
                     NN.iaf_chain_posterior((batch_post_mean_test,
                                             batch_log_post_var_test,
                                             sample_flag = False,
                                             infer_flag = True)
             unscaled_replica_batch_loss_test_prior = loss_weighted_penalized_difference(
                     prior_mean, batch_posterior_sample_test,
-                    prior_covariance_cholesky_inverse, hyperp.penalty_prior)
+                    prior_covariance_cholesky_inverse,
+                    1)
             unscaled_replica_batch_loss_test_post_draw = loss_penalized_difference(
-                    batch_latent_test,
-                    batch_posterior_sample_test,
-                    hyperp.penalty_post_draw)
+                    batch_latent_test, batch_posterior_sample_test,
+                    1)
 
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
             metrics.mean_loss_test_vae(unscaled_replica_batch_loss_test_vae)
@@ -196,9 +191,9 @@ def optimize_distributed(dist_strategy,
                 batch_input_test, batch_input_pred_test))
 
         # @tf.function
-        def dist_test_step(batch_input_test, batch_latent_test, penalty_iaf):
+        def dist_test_step(batch_input_test, batch_latent_test):
             return dist_strategy.experimental_run_v2(
-                    test_step, (batch_input_test, batch_latent_test, penalty_iaf))
+                    test_step, (batch_input_test, batch_latent_test))
 
 ###############################################################################
 #                             Train Neural Network                            #
@@ -218,7 +213,7 @@ def optimize_distributed(dist_strategy,
             start_time_batch = time.time()
             #=== Compute Train Step ===#
             batch_loss_train = dist_train_step(
-                    batch_input_train, batch_latent_train, penalty_iaf)
+                    batch_input_train, batch_latent_train)
             total_loss_train += batch_loss_train
             elapsed_time_batch = time.time() - start_time_batch
             if batch_counter  == 0:
@@ -228,11 +223,11 @@ def optimize_distributed(dist_strategy,
 
         #=== Computing Validation Metrics ===#
         for batch_input_val, batch_latent_val in dist_input_and_latent_val:
-            dist_val_step(batch_input_val, batch_latent_val, penalty_iaf)
+            dist_val_step(batch_input_val, batch_latent_val)
 
         #=== Computing Test Metrics ===#
         for batch_input_test, batch_latent_test in dist_input_and_latent_test:
-            dist_test_step(batch_input_test, batch_latent_test, penalty_iaf)
+            dist_test_step(batch_input_test, batch_latent_test)
 
         #=== Tensorboard Tracking Training Metrics, Weights and Gradients ===#
         metrics.update_tensorboard(summary_writer, epoch)
@@ -274,11 +269,6 @@ def optimize_distributed(dist_strategy,
             dump_attrdict_as_yaml(hyperp, filepaths.directory_trained_NN, 'hyperp')
             dump_attrdict_as_yaml(options, filepaths.directory_trained_NN, 'options')
             print('Current Model and Metrics Saved')
-
-        #=== Increase IAF Penalty ===#
-        if hyperp.penalty_iaf_rate != 0:
-            if epoch %hyperp.penalty_iaf_rate == 0 and epoch != 0:
-                penalty_iaf += penalty_iaf_incr
 
     #=== Save Final Model ===#
     NN.save_weights(filepaths.trained_NN)

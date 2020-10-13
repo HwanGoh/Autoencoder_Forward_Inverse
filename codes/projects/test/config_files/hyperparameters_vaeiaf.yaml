@@ -11,7 +11,7 @@ num_hidden_nodes_iaf      : 100
 activation_iaf            : 'relu'
 
 #=== Penalties ===#
-penalty_iaf_rate          : 0
+penalty_js                : 0.5
 
 #=== Data ===#
 num_data_train            : 10000
