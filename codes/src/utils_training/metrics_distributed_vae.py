@@ -30,7 +30,7 @@ class Metrics:
             self.mean_loss_test_prior = tf.keras.metrics.Mean()
 
             self.mean_relative_error_input_vae = tf.keras.metrics.Mean()
-            self.mean_relative_error_latent_encoder = tf.keras.metrics.Mean()
+            self.mean_relative_error_latent_posterior = tf.keras.metrics.Mean()
             self.mean_relative_error_input_decoder = tf.keras.metrics.Mean()
 
         #=== Initialize Metric Storage Arrays ===#
