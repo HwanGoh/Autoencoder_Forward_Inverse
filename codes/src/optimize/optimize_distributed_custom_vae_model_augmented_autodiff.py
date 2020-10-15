@@ -32,7 +32,8 @@ def optimize_distributed(dist_strategy,
         relative_error,
         noise_regularization_matrix,
         prior_mean, prior_covariance,
-        positivity_constraint):
+        positivity_constraint,
+        solve_forward_model):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     prior_cov_inv = np.linalg.inv(prior_covariance)
@@ -169,7 +170,7 @@ def optimize_distributed(dist_strategy,
 
             unscaled_replica_batch_loss_test =\
                     -(-unscaled_replica_batch_loss_test_kld\
-                      -unscaled_replica_batch_loss_val_posterior)
+                      -unscaled_replica_batch_loss_test_posterior)
 
             metrics.mean_loss_test(unscaled_replica_batch_loss_test)
             metrics.mean_loss_test_encoder(unscaled_replica_batch_loss_test_kld)

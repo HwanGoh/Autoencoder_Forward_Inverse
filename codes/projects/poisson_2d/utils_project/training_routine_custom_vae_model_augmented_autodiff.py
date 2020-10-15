@@ -108,6 +108,6 @@ def trainer_custom(hyperp, options, filepaths,
                 loss_weighted_penalized_difference, loss_kld,
                 relative_error,
                 data_dict["noise_regularization_matrix"],
-                loss_kld, prior_dict["prior_mean"], prior_dict["prior_covariance"],
+                prior_dict["prior_mean"], prior_dict["prior_covariance"],
                 positivity_constraint_log_exp,
                 forward_model.solve_pde_prematrices_sparse)
