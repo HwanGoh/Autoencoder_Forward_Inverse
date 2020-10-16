@@ -21,7 +21,8 @@ def plot_cross_section(function_space,
                        parameter, mean, cov,
                        x_axis_limits, cross_section_y,
                        title,
-                       filepath):
+                       filepath,
+                       y_axis_limits):
 
     #=== Convert array to dolfin function ===#
     parameter_fe = convert_array_to_dolfin_function(function_space, parameter)
@@ -53,11 +54,12 @@ def plot_cross_section(function_space,
     plt.plot(x, parameter_cross, 'r-', label='True Parameter')
     plt.plot(x, mean_cross, 'k-', label='Posterior Mean')
     plt.fill_between(x, mean_cross - 3*std_cross, mean_cross + 3*std_cross)
+    plt.ylim(y_axis_limits)
     plt.title(title)
     plt.legend(loc="upper left")
     plt.xlabel('x-coordinate')
     plt.ylabel('Parameter Value')
 
     #=== Save Figure ===#
-    plt.savefig(filepath)
+    plt.savefig(filepath, dpi=300, bbox_inches = 'tight', pad_inches = 0)
     plt.close()

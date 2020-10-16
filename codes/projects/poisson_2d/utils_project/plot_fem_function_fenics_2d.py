@@ -35,12 +35,17 @@ def plot_fem_function_fenics_2d(function_space, nodal_values,
     #=== Plot figure ===#
     nodal_values = nodal_values_fe.compute_vertex_values(mesh)
     v = np.linspace(colorbar_limits[0], colorbar_limits[1], 40, endpoint=True)
-    plt.tricontourf(triangulation, nodal_values, v)
-    plt.colorbar()
-    plt.axis('equal')
+
+    plt.figure(figsize = fig_size)
+    ax = plt.gca()
     plt.title(title)
+    figure = ax.tricontourf(triangulation, nodal_values, v)
     if plot_hline_flag == True:
         plt.axhline(cross_section_y, color='r', linestyle='dashed', linewidth=3)
+
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.05)
+    plt.colorbar(figure, cax = cax)
 
     #=== Save figure ===#
     plt.savefig(filepath, dpi=300, bbox_inches = 'tight', pad_inches = 0)
