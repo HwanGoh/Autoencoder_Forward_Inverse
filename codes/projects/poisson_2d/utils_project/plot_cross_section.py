@@ -54,6 +54,7 @@ def plot_cross_section(function_space,
     plt.plot(x, parameter_cross, 'r-', label='True Parameter')
     plt.plot(x, mean_cross, 'k-', label='Posterior Mean')
     plt.fill_between(x, mean_cross - 3*std_cross, mean_cross + 3*std_cross)
+    plt.xlim(x_axis_limits)
     plt.ylim(y_axis_limits)
     plt.title(title)
     plt.legend(loc="upper left")

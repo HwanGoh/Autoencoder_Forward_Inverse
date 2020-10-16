@@ -131,6 +131,6 @@ def predict_and_plot(hyperp, options, filepaths):
                        (-1,1), cross_section_y,
                        '',
                        filepaths.figure_parameter_cross_section + filename_extension,
-                       (1.5,5))
+                       (1.5,5.5))
 
     print('Predictions plotted')
