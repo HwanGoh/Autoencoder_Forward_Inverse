@@ -20,7 +20,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 def plot_fem_function_fenics_2d(function_space, nodal_values,
                                 cross_section_y,
                                 title, filepath,
-                                fig_size, colorbar_limits):
+                                fig_size, colorbar_limits,
+                                plot_hline_flag):
 
     #=== Convert array to dolfin function ===#
     nodal_values_fe = convert_array_to_dolfin_function(function_space, nodal_values)
@@ -38,7 +39,8 @@ def plot_fem_function_fenics_2d(function_space, nodal_values,
     plt.colorbar()
     plt.axis('equal')
     plt.title(title)
-    plt.axhline(cross_section_y, color='r', linestyle='dashed', linewidth=3)
+    if plot_hline_flag == True:
+        plt.axhline(cross_section_y, color='r', linestyle='dashed', linewidth=3)
 
     #=== Save figure ===#
     plt.savefig(filepath, dpi=300, bbox_inches = 'tight', pad_inches = 0)

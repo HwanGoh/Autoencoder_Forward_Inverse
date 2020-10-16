@@ -96,19 +96,22 @@ def predict_and_plot(hyperp, options, filepaths):
     cross_section_y = 0.5
     plot_fem_function_fenics_2d(meta_space, parameter_test_sample,
                                 cross_section_y,
-                                'True Parameter',
+                                '',
                                 filepaths.figure_parameter_test + '.png',
-                                (5,5), (0,6))
+                                (5,5), (0,6),
+                                False)
     plot_fem_function_fenics_2d(meta_space, posterior_mean_pred,
                                 cross_section_y,
-                                'Posterior Mean',
+                                '',
                                 filepaths.figure_posterior_mean + '.png',
-                                (5,5), (0,6))
+                                (5,5), (0,6),
+                                True)
     plot_fem_function_fenics_2d(meta_space, posterior_pred_draw,
                                 cross_section_y,
-                                'Posterior Draw',
+                                '',
                                 filepaths.figure_parameter_pred + '.png',
-                                (5,5), (0,6))
+                                (5,5), (0,6),
+                                True)
     if options.obs_type == 'full':
         plot_fem_function_fenics_2d(meta_space, state_obs_test_sample,
                                     cross_section_y,
@@ -125,7 +128,7 @@ def predict_and_plot(hyperp, options, filepaths):
     plot_cross_section(meta_space,
                        parameter_test_sample, posterior_mean_pred, posterior_cov_pred,
                        (-1,1), cross_section_y,
-                       'Cross-Section with Posterior Error Bounds',
+                       '',
                        filepaths.figure_parameter_cross_section + '.png')
 
     print('Predictions plotted')
