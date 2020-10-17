@@ -7,7 +7,7 @@ import pandas as pd
 
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
-from neural_networks.nn_vaeiaf_fwd_inv import VAEIAFFwdInv
+from neural_networks.nn_vaeiaf import VAEIAF
 from utils_training.functionals import\
         loss_penalized_difference, loss_weighted_penalized_difference, relative_error
 from optimize.optimize_custom_vaeiaf_model_aware import optimize
@@ -51,11 +51,11 @@ def trainer_custom(hyperp, options, filepaths,
     #=== Non-distributed Training ===#
     if options.distributed_training == 0:
         #=== Neural Network ===#
-        NN = VAEIAFFwdInv(hyperp, options,
-                          input_dimensions, latent_dimensions,
-                          kernel_initializer, bias_initializer,
-                          kernel_initializer_iaf, bias_initializer_iaf,
-                          positivity_constraint_log_exp)
+        NN = VAEIAF(hyperp, options,
+                    input_dimensions, latent_dimensions,
+                    kernel_initializer, bias_initializer,
+                    kernel_initializer_iaf, bias_initializer_iaf,
+                    positivity_constraint_log_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -76,9 +76,9 @@ def trainer_custom(hyperp, options, filepaths,
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = VAEIAFFwdInv(hyperp, options,
-                              input_dimensions, latent_dimensions,
-                              kernel_initializer, bias_initializer)
+            NN = VAEIAF(hyperp, options,
+                        input_dimensions, latent_dimensions,
+                        kernel_initializer, bias_initializer)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()

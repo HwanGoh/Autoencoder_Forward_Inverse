@@ -13,12 +13,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                  Autoencoder                                #
 ###############################################################################
-class AEFwdInv(tf.keras.Model):
+class AE(tf.keras.Model):
     def __init__(self, hyperp, options,
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,
                  positivity_constraint):
-        super(AEFwdInv, self).__init__()
+        super(AE, self).__init__()
 
         #=== Define Architecture and Create Layer Storage ===#
         self.architecture = [input_dimensions] +\

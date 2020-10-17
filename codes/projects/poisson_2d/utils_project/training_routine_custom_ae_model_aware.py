@@ -5,7 +5,7 @@ import tensorflow as tf
 
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
-from neural_networks.nn_ae_fwd_inv import AEFwdInv
+from neural_networks.nn_ae import AE
 from utils_training.functionals import\
         loss_penalized_difference, loss_weighted_penalized_difference,\
         relative_error
@@ -60,10 +60,10 @@ def trainer_custom(hyperp, options, filepaths,
     #=== Non-distributed Training ===#
     if options.distributed_training == 0:
         #=== Neural Network ===#
-        NN = AEFwdInv(hyperp, options,
-                      input_dimensions, latent_dimensions,
-                      kernel_initializer, bias_initializer,
-                      positivity_constraint_log_exp)
+        NN = AE(hyperp, options,
+                input_dimensions, latent_dimensions,
+                kernel_initializer, bias_initializer,
+                positivity_constraint_log_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -83,10 +83,10 @@ def trainer_custom(hyperp, options, filepaths,
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = AEFwdInv(hyperp, options,
-                          input_dimensions, latent_dimensions,
-                          kernel_initializer, bias_initializer,
-                          positivity_constraint_log_exp)
+            NN = AE(hyperp, options,
+                    input_dimensions, latent_dimensions,
+                    kernel_initializer, bias_initializer,
+                    positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()

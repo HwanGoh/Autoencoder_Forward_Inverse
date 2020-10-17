@@ -15,7 +15,7 @@ plt.ioff() # Turn interactive plotting off
 
 # Import src code
 from utils_data.data_handler import DataHandler
-from neural_networks.nn_ae_fwd_inv import AEFwdInv
+from neural_networks.nn_ae import AE
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import FEM Code
@@ -51,10 +51,10 @@ def predict_and_plot(hyperp, options, filepaths):
     state_obs_test = data.output_test
 
     #=== Load Trained Neural Network ===#
-    NN = AEFwdInv(hyperp, options,
-                  input_dimensions, latent_dimensions,
-                  None, None,
-                  positivity_constraint_log_exp)
+    NN = AE(hyperp, options,
+            input_dimensions, latent_dimensions,
+            None, None,
+            positivity_constraint_log_exp)
     NN.load_weights(filepaths.trained_NN)
 
     #=== Selecting Samples ===#

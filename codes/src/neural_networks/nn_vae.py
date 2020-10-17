@@ -14,12 +14,12 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                           Variational Autoencoder                           #
 ###############################################################################
-class VAEFwdInv(tf.keras.Model):
+class VAE(tf.keras.Model):
     def __init__(self, hyperp, options,
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,
                  positivity_constraint):
-        super(VAEFwdInv, self).__init__()
+        super(VAE, self).__init__()
 
         #=== Define Architecture and Create Layer Storage ===#
         self.architecture = [input_dimensions] +\

@@ -16,7 +16,7 @@ import scipy.stats as st
 
 # Import src code
 from utils_data.data_handler import DataHandler
-from neural_networks.nn_vae_fwd_inv import VAEFwdInv
+from neural_networks.nn_vae import VAE
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import project utilities
@@ -51,10 +51,10 @@ def predict_and_plot(hyperp, options, filepaths):
     state_obs_test = data.output_test
 
     #=== Load Trained Neural Network ===#
-    NN = VAEFwdInv(hyperp, options,
-                   input_dimensions, latent_dimensions,
-                   None, None,
-                   positivity_constraint_log_exp)
+    NN = VAE(hyperp, options,
+             input_dimensions, latent_dimensions,
+             None, None,
+             positivity_constraint_log_exp)
     NN.load_weights(filepaths.trained_NN)
 
     #=== Construct Forward Model ===#
