@@ -75,9 +75,9 @@ if __name__ == '__main__':
 
             # Dump scenario to driver code and run
             scenario_json = json.dumps(scenario)
-            proc = subprocess.Popen(['./training_driver_ae_model_aware.py',
+            proc = subprocess.Popen(['./training_ae_model_aware.py',
                 f'{scenario_json}',f'{scenario["gpu"]}'])
-            # proc = subprocess.Popen(['./training_driver_ae_model_augmented_autodiff.py',
+            # proc = subprocess.Popen(['./training_ae_model_augmented_autodiff.py',
                 # f'{scenario_json}',f'{scenario["gpu"]}'])
             proc.wait()
 

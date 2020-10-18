@@ -20,7 +20,7 @@ class FilePathsProject:
         #=== Key Strings ===#
         project_name = 'poisson_2D_'
         data_options = 'n%d' %(options.parameter_dimensions)
-        dataset_directory = '../../../../../Datasets/FEniCS/poisson_2d/' +\
+        dataset_directory = '../../../../../datasets/fenics/poisson_2d/' +\
                 'n%d/'%(options.parameter_dimensions)
 
         #=== Data Type ===#

@@ -21,7 +21,7 @@ class FilePathsProject:
         ################
         #=== Defining Filenames ===#
         data_options = 'n%d'%(options.parameter_dimensions)
-        directory_dataset = '../../../../../Datasets/Simple_1D/'
+        directory_dataset = '../../../../../datasets/simple_1d/'
         if options.exponential == 1:
             project_name = 'exponential_1d'
         directory_dataset += project_name + '/' + data_options + '/'

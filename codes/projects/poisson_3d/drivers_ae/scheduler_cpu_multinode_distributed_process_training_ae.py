@@ -121,9 +121,9 @@ if __name__ == '__main__':
 
             # convert dictionary to json
             scenario_json = json.dumps(scenario)
-            # proc = subprocess.Popen(['./training_driver_ae.py',
+            # proc = subprocess.Popen(['./training_ae.py',
             #     f'{scenario_json}',f'{"cpu"}'])
-            proc = subprocess.Popen(['./training_driver_ae_model_augmented_autodiff.py',
+            proc = subprocess.Popen(['./training_ae_model_augmented_autodiff.py',
                 f'{scenario_json}',f'{"cpu"}'])
             proc.wait()
 
