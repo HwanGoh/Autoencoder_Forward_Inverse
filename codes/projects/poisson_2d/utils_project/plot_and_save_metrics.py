@@ -31,7 +31,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     storage_array_relative_error_input_VAE = array_metrics[:,10]
     storage_array_relative_error_latent_encoder = array_metrics[:,11]
     storage_array_relative_error_input_decoder = array_metrics[:,12]
-    storage_array_relative_gradient_norm = array_metrics[:,13]
+    # storage_array_relative_gradient_norm = array_metrics[:,13]
 
     ################
     #   Plotting   #
@@ -109,16 +109,16 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.close(fig_accuracy)
 
     #=== Relative Gradient Norm ===#
-    fig_gradient_norm = plt.figure()
-    x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
-    plt.plot(x_axis, storage_array_relative_gradient_norm)
-    plt.title('Relative Gradient Norm')
-    plt.xlabel('Epochs')
-    plt.ylabel('Relative Error')
-    figures_savefile_name = filepaths.directory_figures + '/' +\
-            'relative_error_gradient_norm.png'
-    plt.savefig(figures_savefile_name)
-    plt.close(fig_gradient_norm)
+    # fig_gradient_norm = plt.figure()
+    # x_axis = np.linspace(1,hyperp.num_epochs, hyperp.num_epochs, endpoint = True)
+    # plt.plot(x_axis, storage_array_relative_gradient_norm)
+    # plt.title('Relative Gradient Norm')
+    # plt.xlabel('Epochs')
+    # plt.ylabel('Relative Error')
+    # figures_savefile_name = filepaths.directory_figures + '/' +\
+    #         'relative_error_gradient_norm.png'
+    # plt.savefig(figures_savefile_name)
+    # plt.close(fig_gradient_norm)
 
     #if options.model_augmented == 1:
     #    #=== Relative Error Decoder ===#

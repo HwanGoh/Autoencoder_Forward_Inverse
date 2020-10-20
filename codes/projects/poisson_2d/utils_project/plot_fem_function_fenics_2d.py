@@ -39,7 +39,7 @@ def plot_fem_function_fenics_2d(function_space, nodal_values,
     plt.figure(figsize = fig_size)
     ax = plt.gca()
     plt.title(title)
-    figure = ax.tricontourf(triangulation, nodal_values, v)
+    figure = ax.tricontourf(triangulation, nodal_values, v, extend='max')
     if plot_hline_flag == True:
         plt.axhline(cross_section_y, color='k', linestyle='dashed', linewidth=3)
 

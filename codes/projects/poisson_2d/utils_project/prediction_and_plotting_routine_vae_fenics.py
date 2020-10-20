@@ -8,7 +8,7 @@ Created on Sat Oct 26 21:17:53 2019
 import sys
 import os
 
-sys.path.insert(0, os.path.realpath('../../../../../FEniCS_Codes/src'))
+sys.path.insert(0, os.path.realpath('../../../../../fenics-simulations/src'))
 
 import numpy as np
 import pandas as pd
@@ -41,6 +41,15 @@ def predict_and_plot(hyperp, options, filepaths):
     options.order_fe_space = 1
     options.order_meta_space = 1
     options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)
+
+    # options.mesh_point_1 = [-1,-1]
+    # options.mesh_point_2 = [1,1]
+    # options.num_nodes_x = 30
+    # options.num_nodes_y = 30
+    # options.num_obs_points = 118
+    # options.order_fe_space = 1
+    # options.order_meta_space = 1
+    # options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)
 
     #=== Construct Mesh ===#
     fe_space, meta_space,\
