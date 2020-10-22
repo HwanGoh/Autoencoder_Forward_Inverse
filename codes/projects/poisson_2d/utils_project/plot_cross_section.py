@@ -62,5 +62,5 @@ def plot_cross_section(function_space,
     plt.ylabel('Parameter Value')
 
     #=== Save Figure ===#
-    plt.savefig(filepath, dpi=300, bbox_inches = 'tight', pad_inches = 0)
+    plt.savefig(filepath, dpi=100, bbox_inches = 'tight', pad_inches = 0)
     plt.close()

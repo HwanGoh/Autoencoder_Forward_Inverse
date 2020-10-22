@@ -37,7 +37,7 @@ def predict_and_plot(hyperp, options, filepaths):
     options.mesh_point_2 = [1,1]
     options.num_nodes_x = 15
     options.num_nodes_y = 15
-    options.num_obs_points = 58
+    options.num_obs_points = 10
     options.order_fe_space = 1
     options.order_meta_space = 1
     options.num_nodes = (options.num_nodes_x + 1) * (options.num_nodes_y + 1)

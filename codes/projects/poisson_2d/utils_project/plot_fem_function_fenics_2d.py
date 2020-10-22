@@ -48,5 +48,5 @@ def plot_fem_function_fenics_2d(function_space, nodal_values,
     plt.colorbar(figure, cax = cax)
 
     #=== Save figure ===#
-    plt.savefig(filepath, dpi=300, bbox_inches = 'tight', pad_inches = 0)
+    plt.savefig(filepath, dpi=100, bbox_inches = 'tight', pad_inches = 0)
     plt.close()

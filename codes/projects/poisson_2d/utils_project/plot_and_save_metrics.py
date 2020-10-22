@@ -17,6 +17,9 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     print('================================')
     print('        Plotting Metrics        ')
     print('================================')
+
+    dpi=100
+
     #=== Load Metrics ===#
     print('Loading Metrics')
     df_metrics = pd.read_csv(filepaths.trained_NN + "_metrics" + '.csv')
@@ -45,7 +48,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.ylabel('Log-Loss')
     figures_savefile_name = filepaths.directory_figures + '/' +\
             'loss.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, dpi=dpi)
     plt.close(fig_loss)
 
     #=== Loss Autoencoder ===#
@@ -57,7 +60,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.ylabel('Log-Loss')
     figures_savefile_name = filepaths.directory_figures + '/' +\
             'loss_autoencoder.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, dpi=dpi)
     plt.close(fig_loss)
 
     #=== Loss Encoder ===#
@@ -69,7 +72,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.ylabel('Log-Loss')
     figures_savefile_name = filepaths.directory_figures + '/' +\
             'loss_encoder.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, dpi=dpi)
     plt.close(fig_loss)
 
     #=== Relative Error Autoencoder ===#
@@ -81,7 +84,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.ylabel('Relative Error')
     figures_savefile_name = filepaths.directory_figures + '/' +\
             'relative_error_autoencoder.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, dpi=dpi)
     plt.close(fig_accuracy)
 
     #=== Relative Error Encoder ===#
@@ -93,7 +96,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.ylabel('Relative Error')
     figures_savefile_name = filepaths.directory_figures + '/' +\
             'relative_error_encoder.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, dpi=dpi)
     plt.close(fig_accuracy)
 
     #=== Relative Error Decoder ===#
@@ -105,7 +108,7 @@ def plot_and_save_metrics(hyperp, options, filepaths):
     plt.ylabel('Relative Error')
     figures_savefile_name = filepaths.directory_figures + '/' +\
             'relative_error_decoder.png'
-    plt.savefig(figures_savefile_name)
+    plt.savefig(figures_savefile_name, dpi=dpi)
     plt.close(fig_accuracy)
 
     #=== Relative Gradient Norm ===#
