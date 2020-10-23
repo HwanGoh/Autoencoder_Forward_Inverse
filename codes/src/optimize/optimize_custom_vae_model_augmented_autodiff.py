@@ -151,7 +151,7 @@ def optimize(hyperp, options, filepaths,
         metrics.mean_loss_test_posterior(batch_loss_test_posterior)
 
         metrics.mean_relative_error_latent_posterior(relative_error(
-            batch_latent_test, NN.reparameterize(batch_post_mean_test, batch_log_post_var_test)))
+            batch_latent_test, batch_post_mean_test))
 
 ###############################################################################
 #                             Train Neural Network                            #

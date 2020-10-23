@@ -35,8 +35,8 @@ def generate_scenarios_list():
     hyperp['num_hidden_nodes_encoder']  = [500]
     hyperp['num_hidden_nodes_decoder']  = [500]
     hyperp['activation']                = ['relu']
-    hyperp['penalty_js']                = [0.05, 0.25, 0.5, 0.75, 0.95]
-    hyperp['num_data_train']            = [10000]
+    hyperp['penalty_js']                = [0.00001, 0.0001, 0.001, 0.01, 0.1]
+    hyperp['num_data_train']            = [500, 1000, 2500, 5000]
     hyperp['batch_size']                = [100]
     hyperp['num_epochs']                = [1000]
 
@@ -122,10 +122,10 @@ if __name__ == '__main__':
 
             # convert dictionary to json
             scenario_json = json.dumps(scenario)
-            # proc = subprocess.Popen(['./training_vae_model_aware.py',
-            #     f'{scenario_json}',f'{scenario["gpu"]}'])
-            proc = subprocess.Popen(['./training_vae_model_augmented_autodiff.py',
+            proc = subprocess.Popen(['./training_vae_model_aware.py',
                 f'{scenario_json}',f'{scenario["gpu"]}'])
+            # proc = subprocess.Popen(['./training_vae_model_augmented_autodiff.py',
+            #     f'{scenario_json}',f'{scenario["gpu"]}'])
             proc.wait()
 
             req = comm.isend([], 0, FLAGS.RUN_FINISHED)
