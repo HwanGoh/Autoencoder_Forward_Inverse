@@ -258,7 +258,7 @@ def optimize_distributed(dist_strategy,
                   metrics.mean_loss_test_vae.result(),
                   metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_val_posterior.result()))
-        print('Rel Errors: VAE: %.3e, Post Draw: %.3e, Decoder: %.3e\n'\
+        print('Rel Errors: VAE: %.3e, Posterior Mean: %.3e, Decoder: %.3e\n'\
                 %(metrics.mean_relative_error_input_vae.result(),
                   metrics.mean_relative_error_latent_posterior.result(),
                   metrics.mean_relative_error_input_decoder.result()))

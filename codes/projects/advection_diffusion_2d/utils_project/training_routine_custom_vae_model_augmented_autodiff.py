@@ -16,7 +16,7 @@ from optimize.optimize_distributed_custom_vae_model_augmented_autodiff import op
 from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import project utilities
-from utils_project.get_fem_matrices_tf import load_fem_matrices_tf
+from utils_project.load_fem_operators import load_fem_operators
 from utils_project.solve_fem_advection_diffusion_2d import SolveFEMAdvectionDiffusion2D
 
 import pdb
@@ -47,17 +47,17 @@ def trainer_custom(hyperp, options, filepaths,
     input_dimensions = data_dict["obs_dimensions"]
     latent_dimensions = options.parameter_dimensions
 
-    #=== Load FEM Matrices ===#
-    _, prestiffness, boundary_matrix, load_vector =\
-            load_fem_matrices_tf(options, filepaths,
-                                 load_premass = 0,
-                                 load_prestiffness = 1)
+    #=== Load FEM Operators ===#
+    fem_operator_spatial,\
+    fem_operator_implicit_ts, fem_operator_implicit_ts_rhs =\
+            load_fem_operators(options, filepaths)
 
     #=== Construct Forward Model ===#
-    forward_model = SolveFEMAdvectionDiffusion2D(options, filepaths,
-                                                 data_dict["obs_indices"],
-                                                 prestiffness,
-                                                 boundary_matrix, load_vector)
+    forward_model = SolveFEMAdvectionDiffusion2D(
+                                    options, filepaths,
+                                    data_dict["obs_indices"],
+                                    fem_operator_spatial,
+                                    fem_operator_implicit_ts, fem_operator_implicit_ts_rhs)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
@@ -84,7 +84,7 @@ def trainer_custom(hyperp, options, filepaths,
                  data_dict["noise_regularization_matrix"],
                  prior_dict["prior_mean"], prior_dict["prior_covariance"],
                  positivity_constraint_log_exp,
-                 forward_model.solve_pde_prematrices_sparse)
+                 forward_model.solve_pde)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -110,4 +110,4 @@ def trainer_custom(hyperp, options, filepaths,
                 data_dict["noise_regularization_matrix"],
                 prior_dict["prior_mean"], prior_dict["prior_covariance"],
                 positivity_constraint_log_exp,
-                forward_model.solve_pde_prematrices_sparse)
+                forward_model.solve_pde)

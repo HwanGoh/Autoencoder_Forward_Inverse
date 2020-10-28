@@ -239,7 +239,7 @@ def optimize_distributed(dist_strategy,
                 %(metrics.mean_loss_test.result(),
                   metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_val_posterior.result()))
-        print('Rel Errors: Post Draw: %.3e\n'\
+        print('Rel Errors: Posterior Mean: %.3e\n'\
                 %(metrics.mean_relative_error_latent_posterior.result()))
         start_time_epoch = time.time()
 

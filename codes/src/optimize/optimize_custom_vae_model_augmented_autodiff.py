@@ -217,7 +217,7 @@ def optimize(hyperp, options, filepaths,
                 %(metrics.mean_loss_test.result(),
                   metrics.mean_loss_test_encoder.result(),
                   metrics.mean_loss_test_posterior.result()))
-        print('Rel Errors: Post Draw: %.3e\n'\
+        print('Rel Errors: Posterior Mean : %.3e\n'\
                 %(metrics.mean_relative_error_latent_posterior.result()))
         print('Relative Gradient Norm: %.4f\n' %(metrics.relative_gradient_norm))
         start_time_epoch = time.time()

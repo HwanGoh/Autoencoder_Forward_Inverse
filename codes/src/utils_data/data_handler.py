@@ -49,13 +49,16 @@ class DataHandler:
         start_time_load_data = time.time()
 
         df_input_data = pd.read_csv(filepath_input_data + '.csv')
-        df_output_data = pd.read_csv(filepath_output_data + '.csv')
         input_data = df_input_data.to_numpy()
-        output_data = df_output_data.to_numpy()
         input_data = input_data.reshape((-1,self.input_dimensions))
-        output_data = output_data.reshape((-1,self.output_dimensions))
         input_data = input_data[0:num_data,:]
+        input_data = input_data.astype(np.float32)
+
+        df_output_data = pd.read_csv(filepath_output_data + '.csv')
+        output_data = df_output_data.to_numpy()
+        output_data = output_data.reshape((-1,self.output_dimensions))
         output_data = output_data[0:num_data,:]
+        output_data = output_data.astype(np.float32)
 
         elapsed_time_load_data = time.time() - start_time_load_data
         print('Time taken to load data: %.4f' %(elapsed_time_load_data))

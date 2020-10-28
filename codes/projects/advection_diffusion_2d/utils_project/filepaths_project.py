@@ -29,11 +29,11 @@ class FilePathsProject:
             time_stepping_string = 'lserk4'
         if options.time_stepping_implicit == True:
             time_stepping_string = 'imp'
-        num_nodes_string = 'n%d'%(options.num_nodes)
+        num_nodes_string = 'n%d'%(options.parameter_dimensions)
         data_options = num_nodes_string + '_' +\
                        flow_string + '_' +\
                        time_stepping_string
-        self.directory_dataset = '../../../datasets/fenics/advection_diffusion_2d/' +\
+        directory_dataset = '../../../../../datasets/fenics/advection_diffusion_2d/' +\
             num_nodes_string + '/' + flow_string + '_' + time_stepping_string + '/'
 
         #=== Data Type ===#
@@ -49,10 +49,15 @@ class FilePathsProject:
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
-        prior_string = prior_string_blp('blp',
-                                        options.prior_mean,
-                                        options.prior_gamma,
-                                        options.prior_delta)
+        prior_string_train = prior_string_blp('blp',
+                                              options.prior_mean_train,
+                                              options.prior_gamma_train,
+                                              options.prior_delta_train)
+
+        prior_string_test = prior_string_blp('blp',
+                                             options.prior_mean_test,
+                                             options.prior_gamma_test,
+                                             options.prior_delta_test)
 
         #=== Case String ===#
         self.case_name = project_name + data_string + prior_string_train
@@ -63,15 +68,15 @@ class FilePathsProject:
         #=== Parameters ===#
         self.obs_indices = directory_dataset +\
                 project_name + 'obs_indices_' +\
-                'o%d_'%(options.num_obs_points) + data_options
+                'o%d_'%(options.num_obs_points) + num_nodes_string
         self.input_train = directory_dataset +\
                 project_name +\
                 'parameter_train_' +\
-                'd%d_'%(options.num_data_train_load) + data_options + '_' + prior_string_train
+                'd%d_'%(options.num_data_train_load) + num_nodes_string + '_' + prior_string_train
         self.input_test = directory_dataset +\
                 project_name +\
                 'parameter_test_' +\
-                'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
+                'd%d_'%(options.num_data_test_load) + num_nodes_string + '_' + prior_string_test
         if options.obs_type == 'full':
             self.output_train = directory_dataset +\
                     project_name +\
@@ -97,24 +102,24 @@ class FilePathsProject:
         #   Prior   #
         #############
         #=== Prior ===#
-        self.prior_mean = self.directory_dataset +\
+        self.prior_mean = directory_dataset +\
                 'prior_mean_' + num_nodes_string + '_' + prior_string_train
-        self.prior_covariance = self.directory_dataset +\
+        self.prior_covariance = directory_dataset +\
                 'prior_covariance_' + num_nodes_string + '_' + prior_string_train
-        self.prior_covariance_cholesky = self.directory_dataset +\
+        self.prior_covariance_cholesky = directory_dataset +\
                 'prior_covariance_cholesky_' + num_nodes_string + '_' + prior_string_train
-        self.prior_covariance_cholesky_inverse = self.directory_dataset +\
+        self.prior_covariance_cholesky_inverse = directory_dataset +\
                 'prior_covariance_cholesky_inverse_' + num_nodes_string + '_' + prior_string_train
 
         ###################
         #   FEM Objects   #
         ###################
         #=== FEM Operators ===#
-        self.fem_operator_spatial = self.directory_dataset +\
+        self.fem_operator_spatial = directory_dataset +\
                 'fem_operator_spatial_' + num_nodes_string
-        self.fem_operator_implicit_ts = self.directory_dataset +\
+        self.fem_operator_implicit_ts = directory_dataset +\
                 'fem_operator_implicit_ts_' + num_nodes_string
-        self.fem_operator_implicit_ts_rhs = self.directory_dataset +\
+        self.fem_operator_implicit_ts_rhs = directory_dataset +\
                 'fem_operator_implicit_ts_rhs_' + num_nodes_string
 
 ###############################################################################

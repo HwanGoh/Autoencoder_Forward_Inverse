@@ -2,7 +2,7 @@
 resnet : False
 
 #=== Load Dataset Size ===#
-num_data_train_load : 10000
+num_data_train_load : 5000
 num_data_test_load : 200
 num_data_test : 200
 
@@ -18,11 +18,17 @@ num_noisy_obs : 10
 num_noisy_obs_unregularized : 0
 
 #=== BiLaplacian Prior Properties ===#
-prior_mean : 0.25
-prior_gamma : 1
-prior_delta : 8
+prior_mean_train : 0.25
+prior_gamma_train : 1
+prior_delta_train : 8
+
+prior_mean_test : 0.25
+prior_gamma_test : 1
+prior_delta_test : 8
 
 #=== PDE Properties ===#
+flow_navier_stokes : True
+flow_darcy : False
 kappa : 0.001
 
 #=== Time Properties ===#
@@ -34,7 +40,7 @@ time_final : 4
 time_1 : 1
 time_dt : 0.1
 time_obs : 0.2
-time_num_time_steps : 41
+num_time_steps : 41
 
 #=== Random Seed ===#
 random_seed : 4

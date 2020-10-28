@@ -12,7 +12,7 @@ def construct_data_dict(hyperp, options, filepaths):
         obs_dimensions = options.parameter_dimensions
         obs_indices = []
     if options.obs_type == 'obs':
-        obs_dimensions = options.num_obs_points
+        obs_dimensions = options.num_obs_points*options.num_time_steps
         print('Loading Boundary Indices')
         df_obs_indices = pd.read_csv(filepaths.project.obs_indices + '.csv')
         obs_indices = df_obs_indices.to_numpy()
