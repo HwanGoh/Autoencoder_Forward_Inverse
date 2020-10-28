@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Sun May  28 10:16:28 2020
-
 @author: hwan
 """
 
@@ -20,7 +19,7 @@ class FilePathsProject:
         #=== Key Strings ===#
         project_name = 'poisson_2D_'
         data_options = 'n%d' %(options.parameter_dimensions)
-        dataset_directory = '../../../../../datasets/fenics/poisson_2d/' +\
+        directory_dataset = '../../../../../datasets/fenics/poisson_2d/' +\
                 'n%d/'%(options.parameter_dimensions)
 
         #=== Data Type ===#
@@ -63,33 +62,33 @@ class FilePathsProject:
         #   Datasets   #
         ################
         #=== Parameters ===#
-        self.obs_indices = dataset_directory +\
+        self.obs_indices = directory_dataset +\
                 project_name + 'obs_indices_' +\
                 'o%d_'%(options.num_obs_points) + data_options
-        self.input_train = dataset_directory +\
+        self.input_train = directory_dataset +\
                 project_name +\
                 'parameter_train_' +\
                 'd%d_'%(options.num_data_train_load) + data_options + '_' + prior_string_train
-        self.input_test = dataset_directory +\
+        self.input_test = directory_dataset +\
                 project_name +\
                 'parameter_test_' +\
                 'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
         if options.obs_type == 'full':
-            self.output_train = dataset_directory +\
+            self.output_train = directory_dataset +\
                     project_name +\
                     'state_' + options.obs_type + '_train_' +\
                     'd%d_'%(options.num_data_train_load) + data_options + '_' + prior_string_train
-            self.output_test = dataset_directory +\
+            self.output_test = directory_dataset +\
                     project_name +\
                     'state_' + options.obs_type + '_test_' +\
                     'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
         if options.obs_type == 'obs':
-            self.output_train = dataset_directory +\
+            self.output_train = directory_dataset +\
                     project_name +\
                     'state_' + options.obs_type + '_train_' +\
                     'o%d_d%d_' %(options.num_obs_points, options.num_data_train_load) +\
                     data_options + '_' + prior_string_train
-            self.output_test = dataset_directory +\
+            self.output_test = directory_dataset +\
                     project_name +\
                     'state_' + options.obs_type + '_test_' +\
                     'o%d_d%d_' %(options.num_obs_points, options.num_data_test_load) +\
@@ -99,26 +98,26 @@ class FilePathsProject:
         #   Prior   #
         #############
         #=== Prior ===#
-        self.prior_mean = dataset_directory +\
+        self.prior_mean = directory_dataset +\
                 'prior_mean_' + data_options + '_' + prior_string_train
-        self.prior_covariance = dataset_directory +\
+        self.prior_covariance = directory_dataset +\
                 'prior_covariance_' + data_options + '_' + prior_string_train
-        self.prior_covariance_cholesky = dataset_directory +\
+        self.prior_covariance_cholesky = directory_dataset +\
                 'prior_covariance_cholesky_' + data_options + '_' + prior_string_train
-        self.prior_covariance_cholesky_inverse = dataset_directory +\
+        self.prior_covariance_cholesky_inverse = directory_dataset +\
                 'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string_train
 
         ###################
         #   FEM Objects   #
         ###################
         #=== Pre-Matrices ===#
-        self.premass = dataset_directory +\
+        self.premass = directory_dataset +\
                 'premass_' + data_options
-        self.prestiffness = dataset_directory +\
+        self.prestiffness = directory_dataset +\
                 'prestiffness_' + data_options
-        self.boundary_matrix = dataset_directory +\
+        self.boundary_matrix = directory_dataset +\
                 'boundary_matrix_' + data_options
-        self.load_vector = dataset_directory +\
+        self.load_vector = directory_dataset +\
                 'load_vector_' + data_options
 
         #=== Mesh ===# For plotting FEM function
