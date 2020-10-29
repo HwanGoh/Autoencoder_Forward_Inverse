@@ -26,8 +26,10 @@ class FilePaths():
         #=== Datasets ===#
         self.input_train = project_paths.input_train
         self.input_test = project_paths.input_test
+        self.input_specific = project_paths.input_specific
         self.output_train = project_paths.output_train
         self.output_test = project_paths.output_test
+        self.output_specific = project_paths.output_specific
 
         #=== Prior ===#
         self.prior_mean = project_paths.prior_mean

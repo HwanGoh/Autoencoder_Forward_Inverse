@@ -6,10 +6,12 @@ Created on Sun Nov 17 11:47:02 2019
 @author: hwan
 """
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+plt.ioff() # Turn interactive plotting off
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-plt.ioff() # Turn interactive plotting off
 import matplotlib.tri as tri
 
 from utils_fenics.convert_array_to_dolfin_function import\

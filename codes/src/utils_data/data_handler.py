@@ -3,28 +3,37 @@ import time
 import numpy as np
 import pandas as pd
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 class DataHandler:
     def __init__(self,hyperp, options, filepaths,
                  input_dimensions, output_dimensions):
 
+        #=== Filepaths ===#
         self.filepath_input_train = filepaths.input_train
-        self.filepath_output_train = filepaths.output_train
         self.filepath_input_test = filepaths.input_test
-        self.filepath_output_test = filepaths.output_test
+        self.filepath_input_specific = filepaths.input_specific
 
+        self.filepath_output_train = filepaths.output_train
+        self.filepath_output_test = filepaths.output_test
+        self.filepath_output_specific = filepaths.output_specific
+
+        #=== Dimensions ===#
         self.input_dimensions = input_dimensions
         self.output_dimensions = output_dimensions
 
+        #=== Dataset Sizes ===#
         self.num_data_train = hyperp.num_data_train
         self.num_data_test = options.num_data_test
 
+        #=== Noise Options ===#
         self.noise_level = options.noise_level
         self.num_obs_points = options.num_obs_points
         self.num_noisy_obs = options.num_noisy_obs
         self.num_noisy_obs_unregularized = options.num_noisy_obs_unregularized
-
         self.dampening_scalar = 0.001
 
+        #=== Random Seed ===#
         self.random_seed = options.random_seed
 
 ###############################################################################
@@ -42,6 +51,13 @@ class DataHandler:
                 self.filepath_input_test,
                 self.filepath_output_test,
                 self.num_data_test)
+
+    def load_data_specific(self):
+        print('Loading Training Data')
+        self.input_specific, self.output_specific = self.load_data(
+                self.filepath_input_specific,
+                self.filepath_output_specific,
+                1)
 
     def load_data(self, filepath_input_data, filepath_output_data,
                   num_data):
@@ -74,6 +90,9 @@ class DataHandler:
     def add_noise_output_test(self):
         self.output_test_max = np.max(self.output_test)
         self.output_test = self.add_noise(self.output_test, self.output_test_max)
+    def add_noise_output_specific(self):
+        self.output_specific_max = np.max(self.output_specific)
+        self.output_specific = self.add_noise(self.output_specific, self.output_specific_max)
 
     def add_noise(self, data, data_max):
         #=== Add Noise ===#

@@ -80,6 +80,7 @@ class FilePathsProject:
         self.input_test = directory_dataset +\
                 project_name + '_' + 'parameter_test_' +\
                 'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
+        self.input_specific = ''
         #=== State ===#
         if options.obs_type == 'full':
             self.output_train = directory_dataset +\
@@ -88,6 +89,7 @@ class FilePathsProject:
             self.output_test = directory_dataset +\
                     project_name + '_' + 'state_' + options.obs_type + '_test_' +\
                     'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
+            self.output_specific = ''
         if options.obs_type == 'obs':
             self.output_train = directory_dataset +\
                     project_name + '_' + 'state_' + options.obs_type + '_train_' +\
@@ -97,6 +99,7 @@ class FilePathsProject:
                     project_name + '_' + 'state_' + options.obs_type + '_test_' +\
                     'o%d_d%d_' %(options.num_obs_points, options.num_data_test_load) +\
                     data_options + '_' + prior_string_test
+            self.output_specific = ''
 
         #############
         #   Prior   #
