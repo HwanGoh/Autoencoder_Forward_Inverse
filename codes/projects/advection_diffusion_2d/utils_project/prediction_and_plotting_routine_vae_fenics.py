@@ -57,7 +57,8 @@ def predict_and_plot(hyperp, options, filepaths):
     data = DataHandler(hyperp, options, filepaths,
                        options.parameter_dimensions, obs_dimensions)
     data.load_data_specific()
-    data.add_noise_output_specific()
+    if options.add_noise == 1:
+        data.add_noise_output_specific()
     parameter_test = data.input_specific
     state_obs_test = data.output_specific
 

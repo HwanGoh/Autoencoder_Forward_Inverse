@@ -42,10 +42,11 @@ def predict_and_plot(hyperp, options, filepaths):
     #=== Prepare Data ===#
     data = DataHandler(hyperp, options, filepaths,
                        options.parameter_dimensions, obs_dimensions)
-    data.load_data_test()
-    data.add_noise_output_test()
-    parameter_test = data.input_test
-    state_obs_test = data.output_test
+    data.load_data_specific()
+    if options.add_noise == 1:
+        data.add_noise_output_specific()
+    parameter_test = data.input_specific
+    state_obs_test = data.output_specific
 
     #=== Load Trained Neural Network ===#
     NN = VAEIAF(hyperp, options,

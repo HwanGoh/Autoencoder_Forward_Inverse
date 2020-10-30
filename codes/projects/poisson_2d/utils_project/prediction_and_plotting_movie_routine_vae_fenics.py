@@ -70,7 +70,8 @@ def predict_and_plot(hyperp, options, filepaths):
     data = DataHandler(hyperp, options, filepaths,
                        options.parameter_dimensions, obs_dimensions)
     data.load_data_test()
-    # data.add_noise_output_test()
+    if options.add_noise == 1:
+        data.add_noise_output_test()
     parameter_test = data.input_test
     state_obs_test = data.output_test
 
@@ -155,9 +156,9 @@ def predict_and_plot(hyperp, options, filepaths):
     make_movie(filepaths.figure_posterior_mean + '_%d'%(sample_number),
                filepaths.directory_movie,
                'posterior_mean',
-               20, 0, len(epoch_list))
+               5, 0, len(epoch_list))
 
     make_movie(filepaths.figure_parameter_cross_section + '_%d'%(sample_number),
                filepaths.directory_movie,
                'parameter_cross_section',
-               20, 0, len(epoch_list))
+               5, 0, len(epoch_list))
