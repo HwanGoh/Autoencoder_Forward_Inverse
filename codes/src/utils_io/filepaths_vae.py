@@ -160,6 +160,13 @@ class FilePathsPredictionAndPlotting(FilePaths):
         self.figure_vtk_parameter_pred = self.directory_figures + '/parameter_pred'
         self.figure_vtk_state_pred = self.directory_figures + '/state_pred'
 
+        #=== File Path for Movie ===#
+        self.directory_movie = '../../../../Movies/' + self.case_and_NN_name
+        self.figure_posterior_mean_movie = self.directory_movie +\
+                '/posterior_mean_movie'
+        self.figure_parameter_cross_section_movie = self.directory_movie +\
+                '/parameter_cross_section_movie'
+
         #=== Creating Directories ===#
         if not os.path.exists(self.directory_figures):
             os.makedirs(self.directory_figures)

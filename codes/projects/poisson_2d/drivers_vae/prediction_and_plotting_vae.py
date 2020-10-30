@@ -20,6 +20,7 @@ from utils_io.filepaths_vae import FilePathsPredictionAndPlotting
 from utils_project.filepaths_project import FilePathsProject
 # from utils_project.prediction_and_plotting_routine_vae import predict_and_plot
 from utils_project.prediction_and_plotting_routine_vae_fenics import predict_and_plot
+# from utils_project.prediction_and_plotting_movie_routine_vae_fenics import predict_and_plot
 from utils_project.plot_and_save_metrics import plot_and_save_metrics
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -29,8 +30,8 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 def add_options(options):
 
-    options.model_aware = False
-    options.model_augmented = True
+    options.model_aware = True
+    options.model_augmented = False
 
     return options
 
