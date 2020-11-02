@@ -69,7 +69,7 @@ def predict_and_plot(hyperp, options, filepaths):
     data = DataHandler(hyperp, options, filepaths,
                        options.parameter_dimensions, obs_dimensions)
     data.load_data_test()
-    if options.add_noise == 1:
+    if options.add_noise == True:
         data.add_noise_output_test()
     parameter_test = data.input_test
     state_obs_test = data.output_test
@@ -143,5 +143,13 @@ def predict_and_plot(hyperp, options, filepaths):
                        '',
                        filepaths.figure_parameter_cross_section + filename_extension,
                        (1.5,5.5))
+
+    #=== Plot Variation ===#
+    plot_fem_function_fenics_2d(meta_space, np.exp(posterior_cov_pred),
+                                cross_section_y,
+                                '',
+                                filepaths.figure_posterior_covariance + filename_extension,
+                                (5,5), (0,0.25),
+                                False)
 
     print('Predictions plotted')

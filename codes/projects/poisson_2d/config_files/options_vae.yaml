@@ -12,7 +12,7 @@ obs_type : "obs"
 num_obs_points : 10
 
 #=== Noise Properties ===#
-add_noise : True
+add_noise : False
 noise_level : 0.01
 num_noisy_obs : 10
 num_noisy_obs_unregularized : 0
