@@ -49,15 +49,26 @@ class FilePathsProject:
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
-        prior_string_train = prior_string_blp('blp',
-                                              options.prior_mean_train,
-                                              options.prior_gamma_train,
-                                              options.prior_delta_train)
-
-        prior_string_test = prior_string_blp('blp',
-                                             options.prior_mean_test,
-                                             options.prior_gamma_test,
-                                             options.prior_delta_test)
+        if options.prior_type_ac_train == True:
+            prior_string_train = self.prior_string_ac('ac',
+                                                      options.prior_mean_ac_train,
+                                                      options.prior_variance_ac_train,
+                                                      options.prior_corr_ac_train)
+        if options.prior_type_ac_test == True:
+            prior_string_test = self.prior_string_ac('ac',
+                                                     options.prior_mean_ac_test,
+                                                     options.prior_variance_ac_test,
+                                                     options.prior_corr_ac_test)
+        if options.prior_type_blp_train == True:
+            prior_string_train = self.prior_string_blp('blp',
+                                                        options.prior_mean_blp_train,
+                                                        options.prior_gamma_blp_train,
+                                                        options.prior_delta_blp_train)
+        if options.prior_type_blp_test == True:
+            prior_string_test = self.prior_string_blp('blp',
+                                                       options.prior_mean_blp_test,
+                                                       options.prior_gamma_blp_test,
+                                                       options.prior_delta_blp_test)
 
         #=== Case String ===#
         self.case_name = project_name + data_string + prior_string_train
@@ -135,9 +146,16 @@ class FilePathsProject:
 ###############################################################################
 #                               Prior Strings                                 #
 ###############################################################################
-def prior_string_blp(prior_type, mean, gamma, delta):
-    mean_string = value_to_string(mean)
-    gamma_string = value_to_string(gamma)
-    delta_string = value_to_string(delta)
+    def prior_string_blp(prior_type, mean, gamma, delta):
+        mean_string = value_to_string(mean)
+        gamma_string = value_to_string(gamma)
+        delta_string = value_to_string(delta)
 
-    return '%s_%s_%s_%s'%(prior_type, mean_string, gamma_string, delta_string)
+        return '%s_%s_%s_%s'%(prior_type, mean_string, gamma_string, delta_string)
+
+    def prior_string_ac(self, prior_type, mean, variance, corr):
+        mean_string = value_to_string(mean)
+        variance_string = value_to_string(variance)
+        corr_string = value_to_string(corr)
+
+        return '%s_%s_%s_%s'%(prior_type, mean_string, variance_string, corr_string)

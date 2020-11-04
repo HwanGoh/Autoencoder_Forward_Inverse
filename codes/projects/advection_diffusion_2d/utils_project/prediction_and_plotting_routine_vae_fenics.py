@@ -56,11 +56,17 @@ def predict_and_plot(hyperp, options, filepaths):
     #=== Prepare Data ===#
     data = DataHandler(hyperp, options, filepaths,
                        options.parameter_dimensions, obs_dimensions)
-    data.load_data_specific()
-    if options.add_noise == 1:
-        data.add_noise_output_specific()
-    parameter_test = data.input_specific
-    state_obs_test = data.output_specific
+    # data.load_data_specific()
+    # if options.add_noise == 1:
+    #     data.add_noise_output_specific()
+    # parameter_test = data.input_specific
+    # state_obs_test = data.output_specific
+
+    data.load_data_test()
+    if options.add_noise == True:
+        data.add_noise_output_test()
+    parameter_test = data.input_test
+    state_obs_test = data.output_test
 
     #=== Load Trained Neural Network ===#
     NN = VAE(hyperp, options,
@@ -70,7 +76,7 @@ def predict_and_plot(hyperp, options, filepaths):
     NN.load_weights(filepaths.trained_NN)
 
     #=== Selecting Samples ===#
-    sample_number = 0
+    sample_number = 15
     parameter_test_sample = np.expand_dims(parameter_test[sample_number,:], 0)
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
