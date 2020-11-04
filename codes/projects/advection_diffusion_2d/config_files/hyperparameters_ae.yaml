@@ -13,5 +13,5 @@ penalty_prior             : 1
 
 #=== Data ===#
 num_data_train            : 5000
-batch_size                : 100
+batch_size                : 5
 num_epochs                : 1000
