@@ -19,14 +19,14 @@ num_noisy_obs_unregularized : 0
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_ac_train : True
-prior_mean_ac_train : 2
+prior_mean_ac_train : 0
 prior_variance_ac_train : 2.0
-prior_corr_ac_train : 0.5
+prior_corr_ac_train : 0.2
 
 prior_type_ac_test : True
-prior_mean_ac_test : 2
+prior_mean_ac_test : 0
 prior_variance_ac_test : 2.0
-prior_corr_ac_test : 0.5
+prior_corr_ac_test : 0.2
 
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp_train : False
