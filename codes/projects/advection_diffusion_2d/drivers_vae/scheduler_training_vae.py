@@ -36,7 +36,7 @@ def generate_scenarios_list():
     hyperp['activation']                = ['relu']
     hyperp['penalty_js']                = [0.00001, 0.001, 0.1, 0.5, 0.99]
     hyperp['num_data_train']            = [500, 1000, 2500, 5000]
-    hyperp['batch_size']                = [100]
+    hyperp['batch_size']                = [5]
     hyperp['num_epochs']                = [1000]
 
     return get_hyperparameter_combinations(hyperp)
