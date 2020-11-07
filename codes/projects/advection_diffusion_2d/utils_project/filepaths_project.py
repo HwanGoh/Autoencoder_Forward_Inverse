@@ -49,26 +49,37 @@ class FilePathsProject:
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
-        if options.prior_type_ac_train == True:
-            prior_string_train = self.prior_string_ac('ac',
-                                                      options.prior_mean_ac_train,
-                                                      options.prior_variance_ac_train,
-                                                      options.prior_corr_ac_train)
-        if options.prior_type_ac_test == True:
-            prior_string_test = self.prior_string_ac('ac',
-                                                     options.prior_mean_ac_test,
-                                                     options.prior_variance_ac_test,
-                                                     options.prior_corr_ac_test)
+        if options.prior_type_blp_reg == True:
+            prior_string_reg = self.prior_string_blp('blp',
+                                    options.prior_mean_blp_reg,
+                                    options.prior_gamma_blp_reg,
+                                    options.prior_delta_blp_reg)
         if options.prior_type_blp_train == True:
             prior_string_train = self.prior_string_blp('blp',
-                                                       options.prior_mean_blp_train,
-                                                       options.prior_gamma_blp_train,
-                                                       options.prior_delta_blp_train)
+                                    options.prior_mean_blp_train,
+                                    options.prior_gamma_blp_train,
+                                    options.prior_delta_blp_train)
         if options.prior_type_blp_test == True:
             prior_string_test = self.prior_string_blp('blp',
-                                                      options.prior_mean_blp_test,
-                                                      options.prior_gamma_blp_test,
-                                                      options.prior_delta_blp_test)
+                                    options.prior_mean_blp_test,
+                                    options.prior_gamma_blp_test,
+                                    options.prior_delta_blp_test)
+
+        if options.prior_type_ac_reg == True:
+            prior_string_reg = self.prior_string_ac('ac',
+                                    options.prior_mean_ac_reg,
+                                    options.prior_variance_ac_reg,
+                                    options.prior_corr_ac_reg)
+        if options.prior_type_ac_train == True:
+            prior_string_train = self.prior_string_ac('ac',
+                                    options.prior_mean_ac_train,
+                                    options.prior_variance_ac_train,
+                                    options.prior_corr_ac_train)
+        if options.prior_type_ac_test == True:
+            prior_string_test = self.prior_string_ac('ac',
+                                    options.prior_mean_ac_test,
+                                    options.prior_variance_ac_test,
+                                    options.prior_corr_ac_test)
 
         #=== Case String ===#
         self.case_name = project_name + data_string + prior_string_train
@@ -123,14 +134,15 @@ class FilePathsProject:
         #   Prior   #
         #############
         #=== Prior ===#
+        self.prior_string_reg = prior_string_reg
         self.prior_mean = directory_dataset +\
-                'prior_mean_' + num_nodes_string + '_' + prior_string_train
+                'prior_mean_' + num_nodes_string + '_' + prior_string_reg
         self.prior_covariance = directory_dataset +\
-                'prior_covariance_' + num_nodes_string + '_' + prior_string_train
+                'prior_covariance_' + num_nodes_string + '_' + prior_string_reg
         self.prior_covariance_cholesky = directory_dataset +\
-                'prior_covariance_cholesky_' + num_nodes_string + '_' + prior_string_train
+                'prior_covariance_cholesky_' + num_nodes_string + '_' + prior_string_reg
         self.prior_covariance_cholesky_inverse = directory_dataset +\
-                'prior_covariance_cholesky_inverse_' + num_nodes_string + '_' + prior_string_train
+                'prior_covariance_cholesky_inverse_' + num_nodes_string + '_' + prior_string_reg
 
         ###################
         #   FEM Objects   #
@@ -146,7 +158,7 @@ class FilePathsProject:
 ###############################################################################
 #                               Prior Strings                                 #
 ###############################################################################
-    def prior_string_blp(prior_type, mean, gamma, delta):
+    def prior_string_blp(self, prior_type, mean, gamma, delta):
         mean_string = value_to_string(mean)
         gamma_string = value_to_string(gamma)
         delta_string = value_to_string(delta)

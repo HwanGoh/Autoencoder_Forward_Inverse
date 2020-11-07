@@ -149,7 +149,7 @@ def predict_and_plot(hyperp, options, filepaths):
                                 cross_section_y,
                                 '',
                                 filepaths.figure_posterior_covariance + filename_extension,
-                                (5,5), (0,0.25),
+                                (5,5), (0,0.5),
                                 False)
 
     print('Predictions plotted')
