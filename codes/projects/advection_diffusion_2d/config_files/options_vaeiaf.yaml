@@ -21,6 +21,11 @@ num_noisy_obs : 10
 num_noisy_obs_unregularized : 0
 
 #=== Autocorrelation Prior Properties ===#
+prior_type_ac_reg : True
+prior_mean_ac_reg : 0
+prior_variance_ac_reg : 2.0
+prior_corr_ac_reg : 0.2
+
 prior_type_ac_train : True
 prior_mean_ac_train : 0
 prior_variance_ac_train : 2.0
@@ -32,6 +37,11 @@ prior_variance_ac_test : 2.0
 prior_corr_ac_test : 0.2
 
 #=== BiLaplacian Prior Properties ===#
+prior_type_blp_reg : False
+prior_mean_blp_reg : 0.25
+prior_gamma_blp_reg : 1
+prior_delta_blp_reg : 8
+
 prior_type_blp_train : False
 prior_mean_blp_train : 0.25
 prior_gamma_blp_train : 1

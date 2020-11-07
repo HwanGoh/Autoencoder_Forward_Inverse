@@ -32,6 +32,7 @@ class FilePaths():
         self.output_specific = project_paths.output_specific
 
         #=== Prior ===#
+        self.prior_string_reg = project_paths.prior_string_reg
         self.prior_mean = project_paths.prior_mean
         self.prior_covariance = project_paths.prior_covariance
         self.prior_covariance_cholesky = project_paths.prior_covariance_cholesky
@@ -67,7 +68,8 @@ class FilePaths():
         #=== Neural Network String ===#
         if options.model_aware == True:
             self.NN_name = autoencoder_type + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
+                self.prior_string_reg +\
+                '_urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_pr%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
@@ -77,7 +79,8 @@ class FilePaths():
 
         if options.model_augmented == True:
             self.NN_name = autoencoder_type + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
+                self.prior_string_reg +\
+                '_urg%d_hle%d_hld%d_hne%d_hnd%d_%s_en%s_de%s_aug%s_pr%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,

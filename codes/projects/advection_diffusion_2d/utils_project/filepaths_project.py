@@ -61,14 +61,14 @@ class FilePathsProject:
                                                      options.prior_corr_ac_test)
         if options.prior_type_blp_train == True:
             prior_string_train = self.prior_string_blp('blp',
-                                                        options.prior_mean_blp_train,
-                                                        options.prior_gamma_blp_train,
-                                                        options.prior_delta_blp_train)
+                                                       options.prior_mean_blp_train,
+                                                       options.prior_gamma_blp_train,
+                                                       options.prior_delta_blp_train)
         if options.prior_type_blp_test == True:
             prior_string_test = self.prior_string_blp('blp',
-                                                       options.prior_mean_blp_test,
-                                                       options.prior_gamma_blp_test,
-                                                       options.prior_delta_blp_test)
+                                                      options.prior_mean_blp_test,
+                                                      options.prior_gamma_blp_test,
+                                                      options.prior_delta_blp_test)
 
         #=== Case String ===#
         self.case_name = project_name + data_string + prior_string_train

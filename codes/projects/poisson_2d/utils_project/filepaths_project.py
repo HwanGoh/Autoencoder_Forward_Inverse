@@ -7,6 +7,8 @@ Created on Sun May  28 10:16:28 2020
 
 from utils_io.value_to_string import value_to_string
 
+import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
+
 ###############################################################################
 #                              Project File Paths                             #
 ###############################################################################
@@ -35,6 +37,27 @@ class FilePathsProject:
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
+        if options.prior_type_blp_reg == True:
+            prior_string_reg = self.prior_string_blp('blp',
+                    options.prior_mean_blp_reg,
+                    options.prior_gamma_blp_reg,
+                    options.prior_delta_blp_reg)
+        if options.prior_type_blp_train == True:
+            prior_string_train = self.prior_string_blp('blp',
+                    options.prior_mean_blp_train,
+                    options.prior_gamma_blp_train,
+                    options.prior_delta_blp_train)
+        if options.prior_type_blp_test == True:
+            prior_string_test = self.prior_string_blp('blp',
+                    options.prior_mean_blp_test,
+                    options.prior_gamma_blp_test,
+                    options.prior_delta_blp_test)
+
+        if options.prior_type_AC_reg == True:
+            prior_string_reg = self.prior_string_AC('AC',
+                    options.prior_mean_AC_reg,
+                    options.prior_variance_AC_reg,
+                    options.prior_corr_AC_reg)
         if options.prior_type_AC_train == True:
             prior_string_train = self.prior_string_AC('AC',
                     options.prior_mean_AC_train,
@@ -46,6 +69,10 @@ class FilePathsProject:
                     options.prior_variance_AC_test,
                     options.prior_corr_AC_test)
 
+        if options.prior_type_matern_reg == True:
+            prior_string_reg = prior_string_matern('matern',
+                    options.prior_kern_type_reg,
+                    options.prior_cov_length_reg)
         if options.prior_type_matern_train == True:
             prior_string_train = prior_string_matern('matern',
                     options.prior_kern_type_train,
@@ -107,14 +134,15 @@ class FilePathsProject:
         #   Prior   #
         #############
         #=== Prior ===#
+        self.prior_string_reg = prior_string_reg
         self.prior_mean = directory_dataset +\
-                'prior_mean_' + data_options + '_' + prior_string_train
+                'prior_mean_' + data_options + '_' + prior_string_reg
         self.prior_covariance = directory_dataset +\
-                'prior_covariance_' + data_options + '_' + prior_string_train
+                'prior_covariance_' + data_options + '_' + prior_string_reg
         self.prior_covariance_cholesky = directory_dataset +\
-                'prior_covariance_cholesky_' + data_options + '_' + prior_string_train
+                'prior_covariance_cholesky_' + data_options + '_' + prior_string_reg
         self.prior_covariance_cholesky_inverse = directory_dataset +\
-                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string_train
+                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string_reg
 
         ###################
         #   FEM Objects   #
@@ -134,22 +162,17 @@ class FilePathsProject:
         mesh_directory = '../../../../../Datasets/Mesh/' + mesh_name + '/'
         self.mesh_nodes = mesh_directory + mesh_name + '_nodes.csv'
         self.mesh_elements = mesh_directory + mesh_name + '_elements.csv'
-        self.mesh_boundary_indices_edges = mesh_directory + mesh_name +\
-                '_boundary_indices_edges.csv'
-        self.mesh_boundary_indices = mesh_directory + mesh_name +\
-                '_boundary_indices.csv'
-        self.mesh_boundary_indices_bottom = mesh_directory + mesh_name +\
-                '_boundary_indices_bottom.csv'
-        self.mesh_boundary_indices_left = mesh_directory + mesh_name +\
-                '_boundary_indices_left.csv'
-        self.mesh_boundary_indices_right = mesh_directory + mesh_name +\
-                '_boundary_indices_right.csv'
-        self.mesh_boundary_indices_top = mesh_directory + mesh_name +\
-                '_boundary_indices_top.csv'
 
 ###############################################################################
 #                               Prior Strings                                 #
 ###############################################################################
+    def prior_string_blp(self, prior_type, mean, gamma, delta):
+        mean_string = value_to_string(mean)
+        gamma_string = value_to_string(gamma)
+        delta_string = value_to_string(delta)
+
+        return '%s_%s_%s_%s'%(prior_type, mean_string, gamma_string, delta_string)
+
     def prior_string_AC(self, prior_type, mean, variance, corr):
         mean_string = value_to_string(mean)
         variance_string = value_to_string(variance)

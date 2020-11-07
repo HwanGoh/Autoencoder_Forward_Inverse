@@ -32,6 +32,7 @@ class FilePaths():
         self.output_specific = project_paths.output_specific
 
         #=== Prior ===#
+        self.prior_string_reg = project_paths.prior_string_reg
         self.prior_mean = project_paths.prior_mean
         self.prior_covariance = project_paths.prior_covariance
         self.prior_covariance_cholesky = project_paths.prior_covariance_cholesky
@@ -55,7 +56,8 @@ class FilePaths():
         penalty_js_string = value_to_string(hyperp.penalty_js)
         if options.posterior_diagonal_covariance == True:
             self.NN_name = autoencoder_type + '_' + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_pjs%s_d%d_b%d_e%d' %(
+                self.prior_string_reg +\
+                '_urg%d_hle%d_hld%d_hne%d_hnd%d_%s_pjs%s_d%d_b%d_e%d' %(
                         options.num_noisy_obs_unregularized,
                         hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                         hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
@@ -69,7 +71,8 @@ class FilePaths():
             else:
                 iaf_type_string = 'IAF_'
             self.NN_name = autoencoder_type + iaf_type_string + forward_model_type + resnet +\
-                'urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pjs%s_d%d_b%d_e%d'\
+                self.prior_string_reg +\
+                '_urg%d_hle%d_hld%d_hne%d_hnd%d_%s_hli%d_hni%d_%s_pjs%s_d%d_b%d_e%d'\
                 %(options.num_noisy_obs_unregularized,
                   hyperp.num_hidden_layers_encoder, hyperp.num_hidden_layers_decoder,
                   hyperp.num_hidden_nodes_encoder, hyperp.num_hidden_nodes_decoder,
