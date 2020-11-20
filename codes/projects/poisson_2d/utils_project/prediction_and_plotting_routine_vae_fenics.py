@@ -74,7 +74,7 @@ def predict_and_plot(hyperp, options, filepaths):
     parameter_test = data.input_test
     state_obs_test = data.output_test
 
-    #=== Load Trained Neural Network ===#
+    ##=== Load Trained Neural Network ===#
     NN = VAE(hyperp, options,
              input_dimensions, latent_dimensions,
              None, None,
@@ -85,6 +85,12 @@ def predict_and_plot(hyperp, options, filepaths):
     sample_number = 1
     parameter_test_sample = np.expand_dims(parameter_test[sample_number,:], 0)
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
+
+    #=== Saving Specific Sample ===#
+    df_input_specific = pd.DataFrame({'input_specific': parameter_test_sample.flatten()})
+    df_input_specific.to_csv(filepaths.input_specific + '.csv', index=False)
+    df_output_specific = pd.DataFrame({'output_specific': state_obs_test_sample.flatten()})
+    df_output_specific.to_csv(filepaths.output_specific + '.csv', index=False)
 
     #=== Predictions ===#
     posterior_mean_pred, posterior_cov_pred = NN.encoder(state_obs_test_sample)
@@ -111,7 +117,7 @@ def predict_and_plot(hyperp, options, filepaths):
                                 '',
                                 filepaths.figure_parameter_test + filename_extension,
                                 (5,5), (0,6),
-                                False)
+                                True)
     plot_fem_function_fenics_2d(meta_space, posterior_mean_pred,
                                 cross_section_y,
                                 '',
