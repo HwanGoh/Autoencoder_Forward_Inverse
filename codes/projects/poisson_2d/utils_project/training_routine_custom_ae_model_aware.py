@@ -11,7 +11,8 @@ from utils_training.functionals import\
         relative_error
 from optimize.optimize_custom_ae_model_aware import optimize
 from optimize.optimize_distributed_custom_ae_model_aware import optimize_distributed
-from utils_misc.positivity_constraints import positivity_constraint_log_exp
+from utils_misc.positivity_constraints import positivity_constraint_exp,\
+                                              positivity_constraint_log_exp
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -63,7 +64,7 @@ def trainer_custom(hyperp, options, filepaths,
         NN = AE(hyperp, options,
                 input_dimensions, latent_dimensions,
                 kernel_initializer, bias_initializer,
-                positivity_constraint_log_exp)
+                positivity_constraint_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -76,7 +77,7 @@ def trainer_custom(hyperp, options, filepaths,
                  loss_penalized_difference, loss_weighted_penalized_difference, relative_error,
                  data_dict["noise_regularization_matrix"],
                  prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
-                 positivity_constraint_log_exp)
+                 positivity_constraint_exp)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -86,7 +87,7 @@ def trainer_custom(hyperp, options, filepaths,
             NN = AE(hyperp, options,
                     input_dimensions, latent_dimensions,
                     kernel_initializer, bias_initializer,
-                    positivity_constraint_log_exp)
+                    positivity_constraint_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
@@ -100,4 +101,4 @@ def trainer_custom(hyperp, options, filepaths,
                 loss_penalized_difference, loss_weighted_penalized_difference, relative_error,
                 data_dict["noise_regularization_matrix"],
                 prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
-                positivity_constraint_log_exp)
+                positivity_constraint_exp)
