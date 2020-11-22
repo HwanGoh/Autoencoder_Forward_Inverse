@@ -47,7 +47,7 @@ def plot_fem_function_fenics_2d(function_space, nodal_values,
         figure = ax.tricontourf(triangulation, nodal_values, v, extend='max')
 
     if plot_hline_flag == True:
-        plt.axhline(cross_section_y, color='k', linestyle='dashed', linewidth=3)
+        plt.axhline(cross_section_y, color='r', linestyle='dashed', linewidth=3)
 
     divider = make_axes_locatable(ax)
     cax = divider.append_axes("right", size="5%", pad=0.05)

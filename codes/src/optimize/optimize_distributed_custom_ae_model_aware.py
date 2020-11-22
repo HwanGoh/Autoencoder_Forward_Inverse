@@ -31,8 +31,7 @@ def optimize_distributed(dist_strategy,
         loss_penalized_difference, loss_weighted_penalized_difference,
         relative_error,
         noise_regularization_matrix,
-        prior_mean, prior_covariance_cholesky_inverse,
-        positivity_constraint):
+        prior_mean, prior_covariance_cholesky_inverse):
 
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#
     print('Number of Replicas in Sync: %d' %(dist_strategy.num_replicas_in_sync))

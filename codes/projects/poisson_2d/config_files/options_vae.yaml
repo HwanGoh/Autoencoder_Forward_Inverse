@@ -12,16 +12,16 @@ obs_type : "obs"
 num_obs_points : 10
 
 #=== Noise Properties ===#
-add_noise : True
-noise_level : 0.05
+add_noise : False
+noise_level : 0.01
 num_noisy_obs : 10
 num_noisy_obs_unregularized : 0
 
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp_reg : True
 prior_mean_blp_reg : 4
-prior_gamma_blp_reg : 0.1
-prior_delta_blp_reg : 0.5
+prior_gamma_blp_reg : 1
+prior_delta_blp_reg : 5
 
 prior_type_blp_train : True
 prior_mean_blp_train : 4

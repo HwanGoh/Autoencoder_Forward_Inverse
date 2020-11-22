@@ -22,7 +22,7 @@ class VAEIAF(tf.keras.Model):
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,
                  kernel_initializer_iaf, bias_initializer_iaf,
-                 positivity_constraint):
+                 positivity_constraint_flag):
         super(VAEIAF, self).__init__()
 
         #=== Define Architecture and Create Layer Storage ===#
@@ -34,10 +34,13 @@ class VAEIAF(tf.keras.Model):
 
         #=== Define Other Attributes ===#
         self.options = options
-        self.positivity_constraint = positivity_constraint
+        if positivity_constraint_flag == 1:
+            activation_encoder_output = 'elu'
+        else:
+            activation_encoder_output = 'linear'
         self.activations = ['not required'] +\
                 [hyperp.activation]*hyperp.num_hidden_layers_encoder +\
-                ['linear'] +\
+                [activation_encoder_output] +\
                 [hyperp.activation]*hyperp.num_hidden_layers_decoder +\
                 ['linear']
 
@@ -80,12 +83,14 @@ class Encoder(tf.keras.layers.Layer):
                  truncation_layer,
                  architecture,
                  activations,
-                 kernel_initializer, bias_initializer):
+                 kernel_initializer, bias_initializer,
+                 positivity_constraint_flag):
         super(Encoder, self).__init__()
 
         self.options = options
         self.truncation_layer = truncation_layer
         self.hidden_layers_encoder = []
+        self.positivity_constraint_flag = positivity_constraint_flag
 
         for l in range(1, truncation_layer+1):
             hidden_layer_encoder = tf.keras.layers.Dense(units = architecture[l],
@@ -104,6 +109,8 @@ class Encoder(tf.keras.layers.Layer):
             else:
                 X = hidden_layer[1](X)
         post_mean, log_post_var = tf.split(X, num_or_size_splits=2, axis=1)
+        if self.positivity_constraint_flag == 1:
+            post_mean += 1
         return post_mean, log_post_var
 
 ###############################################################################

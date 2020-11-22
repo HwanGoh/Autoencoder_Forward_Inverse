@@ -13,8 +13,6 @@ from utils_training.functionals import\
         relative_error
 from optimize.optimize_custom_ae_model_augmented_autodiff import optimize
 from optimize.optimize_distributed_custom_ae_model_augmented_autodiff import optimize_distributed
-from utils_misc.positivity_constraints import positivity_constraint_exp,\
-                                              positivity_constraint_log_exp
 
 # Import project utilities
 from utils_project.get_fem_matrices_tf import load_fem_matrices_tf

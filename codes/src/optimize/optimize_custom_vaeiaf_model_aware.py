@@ -32,8 +32,7 @@ def optimize(hyperp, options, filepaths,
              relative_error,
              input_and_latent_train, input_and_latent_val, input_and_latent_test,
              input_dimensions, latent_dimension,
-             num_batches_train,
-             positivity_constraint):
+             num_batches_train):
 
     #=== Define Metrics ===#
     metrics = Metrics()

@@ -31,8 +31,7 @@ def optimize(hyperp, options, filepaths,
              loss_weighted_penalized_difference, loss_kld,
              relative_error,
              noise_regularization_matrix,
-             prior_mean, prior_covariance,
-             positivity_constraint):
+             prior_mean, prior_covariance):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
     prior_cov_inv = np.linalg.inv(prior_covariance)

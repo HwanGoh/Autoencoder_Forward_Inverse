@@ -31,8 +31,7 @@ def optimize(hyperp, options, filepaths,
              loss_penalized_difference, loss_weighted_penalized_difference,
              relative_error,
              noise_regularization_matrix,
-             prior_mean, prior_covariance_cholesky_inverse,
-             positivity_constraint):
+             prior_mean, prior_covariance_cholesky_inverse):
 
     #=== Define Metrics ===#
     metrics = Metrics()

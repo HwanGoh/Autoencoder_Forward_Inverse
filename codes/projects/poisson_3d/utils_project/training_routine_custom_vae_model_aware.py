@@ -53,7 +53,7 @@ def trainer_custom(hyperp, options, filepaths,
         NN = VAE(hyperp, options,
                  input_dimensions, latent_dimensions,
                  kernel_initializer, bias_initializer,
-                 tf.identity)
+                 True)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -66,8 +66,7 @@ def trainer_custom(hyperp, options, filepaths,
                  loss_weighted_penalized_difference, loss_kld,
                  relative_error,
                  data_dict["noise_regularization_matrix"],
-                 prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                 tf.identity)
+                 prior_dict["prior_mean"], prior_dict["prior_covariance"])
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -90,5 +89,4 @@ def trainer_custom(hyperp, options, filepaths,
                 loss_weighted_penalized_difference, loss_kld,
                 relative_error,
                 data_dict["noise_regularization_matrix"],
-                prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                tf.identity)
+                prior_dict["prior_mean"], prior_dict["prior_covariance"])

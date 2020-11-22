@@ -55,7 +55,7 @@ def trainer_custom(hyperp, options, filepaths,
                     input_dimensions, latent_dimensions,
                     kernel_initializer, bias_initializer,
                     kernel_initializer_iaf, bias_initializer_iaf,
-                    tf.identity)
+                    True)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -68,8 +68,7 @@ def trainer_custom(hyperp, options, filepaths,
                  loss_penalized_difference,
                  relative_error,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
-                 input_dimensions, latent_dimensions, num_batches_train,
-                 tf.identity)
+                 input_dimensions, latent_dimensions, num_batches_train)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -78,7 +77,8 @@ def trainer_custom(hyperp, options, filepaths,
             #=== Neural Network ===#
             NN = VAEIAF(hyperp, options,
                         input_dimensions, latent_dimensions,
-                        kernel_initializer, bias_initializer)
+                        kernel_initializer, bias_initializer,
+                        True)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
@@ -92,5 +92,4 @@ def trainer_custom(hyperp, options, filepaths,
                 loss_penalized_difference,
                 relative_error,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
-                input_dimensions, latent_dimensions, num_batches_train,
-                tf.identity)
+                input_dimensions, latent_dimensions, num_batches_train)

@@ -32,7 +32,6 @@ def optimize_distributed(dist_strategy,
         relative_error,
         noise_regularization_matrix,
         prior_mean, prior_covariance_cholesky_inverse,
-        positivity_constraint,
         solve_forward_model):
 
     #=== Check Number of Parallel Computations and Set Global Batch Size ===#

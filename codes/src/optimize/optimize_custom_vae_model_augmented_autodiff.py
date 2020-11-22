@@ -33,7 +33,6 @@ def optimize(hyperp, options, filepaths,
         relative_error,
         noise_regularization_matrix,
         prior_mean, prior_covariance,
-        positivity_constraint,
         solve_forward_model):
 
     #=== Matrix Determinants and Inverse of Prior Covariance ===#
@@ -66,8 +65,8 @@ def optimize(hyperp, options, filepaths,
         with tf.GradientTape() as tape:
             batch_post_mean_train, batch_log_post_var_train = NN.encoder(batch_input_train)
             batch_input_pred_forward_model_train =\
-                    solve_forward_model(positivity_constraint(
-                        NN.reparameterize(batch_post_mean_train, batch_log_post_var_train)))
+                    solve_forward_model(
+                        NN.reparameterize(batch_post_mean_train, batch_log_post_var_train))
 
             batch_loss_train_vae =\
                     loss_weighted_penalized_difference(

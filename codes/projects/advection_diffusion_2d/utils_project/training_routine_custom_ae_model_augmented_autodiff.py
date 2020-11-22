@@ -13,7 +13,6 @@ from utils_training.functionals import\
         relative_error
 from optimize.optimize_custom_ae_model_augmented_autodiff import optimize
 from optimize.optimize_distributed_custom_ae_model_augmented_autodiff import optimize_distributed
-from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 # Import project utilities
 from utils_project.get_fem_matrices_tf import load_fem_matrices_tf
@@ -79,7 +78,7 @@ def trainer_custom(hyperp, options, filepaths,
         NN = AE(hyperp, options,
                 input_dimensions, latent_dimensions,
                 kernel_initializer, bias_initializer,
-                tf.identity)
+                True)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -93,7 +92,6 @@ def trainer_custom(hyperp, options, filepaths,
                  relative_error,
                  data_dict["noise_regularization_matrix"],
                  prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
-                 tf.identity,
                  forward_model.solve_pde_prematrices_sparse)
 
     #=== Distributed Training ===#
@@ -104,7 +102,7 @@ def trainer_custom(hyperp, options, filepaths,
             NN = AE(hyperp, options,
                     input_dimensions, latent_dimensions,
                     kernel_initializer, bias_initializer,
-                    tf.identity)
+                    True)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
@@ -120,5 +118,4 @@ def trainer_custom(hyperp, options, filepaths,
                              data_dict["noise_regularization_matrix"],
                              prior_dict["prior_mean"],
                              prior_dict["prior_covariance_cholesky_inverse"],
-                             tf.identity,
                              forward_model.solve_pde_prematrices_sparse)

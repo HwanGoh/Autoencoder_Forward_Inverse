@@ -11,7 +11,6 @@ from utils_training.functionals import\
         relative_error
 from optimize.optimize_custom_ae_model_aware import optimize
 from optimize.optimize_distributed_custom_ae_model_aware import optimize_distributed
-from utils_misc.positivity_constraints import positivity_constraint_log_exp
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
@@ -63,7 +62,7 @@ def trainer_custom(hyperp, options, filepaths,
         NN = AE(hyperp, options,
                 input_dimensions, latent_dimensions,
                 kernel_initializer, bias_initializer,
-                tf.identity)
+                True)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -75,8 +74,7 @@ def trainer_custom(hyperp, options, filepaths,
                  input_dimensions, num_batches_train,
                  loss_penalized_difference, loss_weighted_penalized_difference, relative_error,
                  data_dict["noise_regularization_matrix"],
-                 prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
-                 tf.identity)
+                 prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"])
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -86,7 +84,7 @@ def trainer_custom(hyperp, options, filepaths,
             NN = AE(hyperp, options,
                     input_dimensions, latent_dimensions,
                     kernel_initializer, bias_initializer,
-                    tf.identity)
+                    True)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
@@ -99,5 +97,4 @@ def trainer_custom(hyperp, options, filepaths,
                 input_dimensions, num_batches_train,
                 loss_penalized_difference, loss_weighted_penalized_difference, relative_error,
                 data_dict["noise_regularization_matrix"],
-                prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
-                tf.identity)
+                prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"])
