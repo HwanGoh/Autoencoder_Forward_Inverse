@@ -24,18 +24,18 @@ num_noisy_obs_unregularized : 0
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp_reg : True
 prior_mean_blp_reg : 4
-prior_gamma_blp_reg : 0.04
-prior_delta_blp_reg : 1
+prior_gamma_blp_reg : 0.1
+prior_delta_blp_reg : 0.5
 
 prior_type_blp_train : True
 prior_mean_blp_train : 4
-prior_gamma_blp_train : 0.04
-prior_delta_blp_train : 1
+prior_gamma_blp_train : 0.1
+prior_delta_blp_train : 0.5
 
 prior_type_blp_test : True
 prior_mean_blp_test : 4
-prior_gamma_blp_test : 0.04
-prior_delta_blp_test : 1
+prior_gamma_blp_test : 0.1
+prior_delta_blp_test : 0.5
 
 #=== Autocorrelation Prior Properties ===#
 prior_type_AC_reg : False

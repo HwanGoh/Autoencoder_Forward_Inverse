@@ -68,7 +68,7 @@ def trainer_custom(hyperp, options, filepaths,
                  relative_error,
                  data_dict["noise_regularization_matrix"],
                  prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                 positivity_constraint_log_exp)
+                 tf.identity)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -92,4 +92,4 @@ def trainer_custom(hyperp, options, filepaths,
                 relative_error,
                 data_dict["noise_regularization_matrix"],
                 prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                positivity_constraint_log_exp)
+                tf.identity)

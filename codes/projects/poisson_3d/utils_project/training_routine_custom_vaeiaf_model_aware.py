@@ -54,7 +54,7 @@ def trainer_custom(hyperp, options, filepaths,
                     input_dimensions, latent_dimensions,
                     kernel_initializer, bias_initializer,
                     kernel_initializer_iaf, bias_initializer_iaf,
-                    positivity_constraint_log_exp)
+                    tf.identity)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -68,7 +68,7 @@ def trainer_custom(hyperp, options, filepaths,
                  relative_error,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
                  input_dimensions, latent_dimensions, num_batches_train,
-                 positivity_constraint_log_exp)
+                 tf.identity)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -92,4 +92,4 @@ def trainer_custom(hyperp, options, filepaths,
                 relative_error,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, latent_dimensions, num_batches_train,
-                positivity_constraint_log_exp)
+                tf.identity)

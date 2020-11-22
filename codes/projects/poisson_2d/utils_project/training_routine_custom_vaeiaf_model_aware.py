@@ -69,7 +69,7 @@ def trainer_custom(hyperp, options, filepaths,
                  relative_error,
                  input_and_latent_train, input_and_latent_val, input_and_latent_test,
                  input_dimensions, latent_dimensions, num_batches_train,
-                 positivity_constraint_log_exp)
+                 tf.identity)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -93,4 +93,4 @@ def trainer_custom(hyperp, options, filepaths,
                 relative_error,
                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
                 input_dimensions, latent_dimensions, num_batches_train,
-                positivity_constraint_log_exp)
+                tf.identity)
