@@ -30,13 +30,10 @@ class VAE(tf.keras.Model):
 
         #=== Define Other Attributes ===#
         self.options = options
-        if positivity_constraint_flag == 1:
-            activation_encoder_output = 'elu'
-        else:
-            activation_encoder_output = 'linear'
+        self.positivity_constraint_flag = positivity_constraint_flag
         self.activations = ['not required'] +\
                 [hyperp.activation]*hyperp.num_hidden_layers_encoder +\
-                [activation_encoder_output] +\
+                ['linear'] +\
                 [hyperp.activation]*hyperp.num_hidden_layers_decoder +\
                 ['linear']
 
@@ -56,7 +53,10 @@ class VAE(tf.keras.Model):
     #=== Variational Autoencoder Propagation ===#
     def reparameterize(self, mean, log_var):
         eps = tf.random.normal(shape=mean.shape)
-        return mean + eps*tf.exp(log_var*0.5)
+        if self.positivity_constraint_flag == True:
+            return tf.nn.elu(mean + eps*tf.exp(log_var*0.5)) + 1
+        else:
+            return mean + eps*tf.exp(log_var*0.5)
 
     def call(self, X):
         post_mean, log_post_var = self.encoder(X)

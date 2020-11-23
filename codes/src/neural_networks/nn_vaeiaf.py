@@ -34,13 +34,10 @@ class VAEIAF(tf.keras.Model):
 
         #=== Define Other Attributes ===#
         self.options = options
-        if positivity_constraint_flag == 1:
-            activation_encoder_output = 'elu'
-        else:
-            activation_encoder_output = 'linear'
+        self.positivity_constraint_flag = positivity_constraint_flag
         self.activations = ['not required'] +\
                 [hyperp.activation]*hyperp.num_hidden_layers_encoder +\
-                [activation_encoder_output] +\
+                ['linear'] +\
                 [hyperp.activation]*hyperp.num_hidden_layers_decoder +\
                 ['linear']
 
