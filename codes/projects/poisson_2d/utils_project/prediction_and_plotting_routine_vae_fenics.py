@@ -8,17 +8,17 @@ Created on Sat Oct 26 21:17:53 2019
 import sys
 import os
 
-sys.path.insert(0, os.path.realpath('../../../../../fenics-simulations/src'))
-
 import numpy as np
 import pandas as pd
 
 # Import src code
 from utils_data.data_handler import DataHandler
 from neural_networks.nn_vae import VAE
-from utils_misc.positivity_constraints import positivity_constraint_log_exp
+from utils_misc.positivity_constraints import positivity_constraint_exp,\
+                                              positivity_constraint_log_exp
 
 # Import project utilities
+sys.path.insert(0, os.path.realpath('../../../../../fenics-simulations/src'))
 from utils_project.plot_fem_function_fenics_2d import plot_fem_function_fenics_2d
 from utils_project.plot_cross_section import plot_cross_section
 
@@ -74,7 +74,7 @@ def predict_and_plot(hyperp, options, filepaths):
     parameter_test = data.input_test
     state_obs_test = data.output_test
 
-    ##=== Load Trained Neural Network ===#
+    #=== Load Trained Neural Network ===#
     NN = VAE(hyperp, options,
              input_dimensions, latent_dimensions,
              None, None,

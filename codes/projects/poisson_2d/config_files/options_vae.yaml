@@ -20,8 +20,8 @@ num_noisy_obs_unregularized : 0
 #=== BiLaplacian Prior Properties ===#
 prior_type_blp_reg : True
 prior_mean_blp_reg : 4
-prior_gamma_blp_reg : 0.1
-prior_delta_blp_reg : 0.5
+prior_gamma_blp_reg : 0.05
+prior_delta_blp_reg : 0.25
 
 prior_type_blp_train : True
 prior_mean_blp_train : 4
