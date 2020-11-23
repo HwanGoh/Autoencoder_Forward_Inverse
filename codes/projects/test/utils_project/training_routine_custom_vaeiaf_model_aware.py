@@ -12,6 +12,8 @@ from utils_training.functionals import\
         loss_penalized_difference, loss_weighted_penalized_difference, relative_error
 from optimize.optimize_custom_vaeiaf_model_aware import optimize
 from optimize.optimize_distributed_custom_vaeiaf_model_aware import optimize_distributed
+from utils_misc.positivity_constraints import positivity_constraint_exp,\
+                                              positivity_constraint_log_exp
 
 import pdb
 
@@ -54,7 +56,7 @@ def trainer_custom(hyperp, options, filepaths,
                     input_dimensions, latent_dimensions,
                     kernel_initializer, bias_initializer,
                     kernel_initializer_iaf, bias_initializer_iaf,
-                    True)
+                    positivity_constraint_log_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -77,7 +79,7 @@ def trainer_custom(hyperp, options, filepaths,
             NN = VAEIAF(hyperp, options,
                         input_dimensions, latent_dimensions,
                         kernel_initializer, bias_initializer,
-                        True)
+                        positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()

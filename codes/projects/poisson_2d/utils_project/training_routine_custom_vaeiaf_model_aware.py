@@ -55,7 +55,7 @@ def trainer_custom(hyperp, options, filepaths,
                     input_dimensions, latent_dimensions,
                     kernel_initializer, bias_initializer,
                     kernel_initializer_iaf, bias_initializer_iaf,
-                    True)
+                    positivity_constraint_log_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -78,7 +78,7 @@ def trainer_custom(hyperp, options, filepaths,
             NN = VAEIAF(hyperp, options,
                         input_dimensions, latent_dimensions,
                         kernel_initializer, bias_initializer,
-                        True)
+                        positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
