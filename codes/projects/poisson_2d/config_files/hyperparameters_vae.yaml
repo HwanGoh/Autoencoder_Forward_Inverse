@@ -3,7 +3,7 @@ num_hidden_layers_encoder : 5
 num_hidden_layers_decoder : 2
 num_hidden_nodes_encoder  : 500
 num_hidden_nodes_decoder  : 500
-activation                : "relu"
+activation                : "tanh"
 
 #=== Penalties ===#
 penalty_js                : 0.00001
