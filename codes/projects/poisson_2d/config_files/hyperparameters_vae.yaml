@@ -9,6 +9,6 @@ activation                : "tanh"
 penalty_js                : 0.001
 
 #=== Data ===#
-num_data_train            : 5000
+num_data_train            : 2500
 batch_size                : 100
 num_epochs                : 1000

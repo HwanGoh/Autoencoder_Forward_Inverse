@@ -82,7 +82,7 @@ def predict_and_plot(hyperp, options, filepaths):
     NN.load_weights(filepaths.trained_NN)
 
     #=== Selecting Samples ===#
-    sample_number = 2
+    sample_number = 1
     parameter_test_sample = np.expand_dims(parameter_test[sample_number,:], 0)
     state_obs_test_sample = np.expand_dims(state_obs_test[sample_number,:], 0)
 
@@ -111,10 +111,10 @@ def predict_and_plot(hyperp, options, filepaths):
 
     #=== Plot FEM Functions ===#
     cross_section_y = 0.5
-    plot_parameter_min = 1.5
-    plot_parameter_max = 8
+    plot_parameter_min = 0
+    plot_parameter_max = 6
     plot_variance_min = 0
-    plot_variance_max = 1.
+    plot_variance_max = 0.5
     filename_extension = '_%d.png'%(sample_number)
     plot_fem_function_fenics_2d(meta_space, parameter_test_sample,
                                 cross_section_y,
