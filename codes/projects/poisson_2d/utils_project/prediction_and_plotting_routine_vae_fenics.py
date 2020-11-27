@@ -7,6 +7,7 @@ Created on Sat Oct 26 21:17:53 2019
 """
 import sys
 import os
+import time
 
 import numpy as np
 import pandas as pd
@@ -93,7 +94,10 @@ def predict_and_plot(hyperp, options, filepaths):
     df_output_specific.to_csv(filepaths.output_specific + '.csv', index=False)
 
     #=== Predictions ===#
+    start_time_NN = time.time()
     posterior_mean_pred, posterior_cov_pred = NN.encoder(state_obs_test_sample)
+    elapsed_time_NN = time.time() - start_time_NN
+    print('Time taken for neural network inference: %.4f' %(elapsed_time_NN))
     posterior_pred_draw = NN.reparameterize(posterior_mean_pred, posterior_cov_pred)
 
     posterior_mean_pred = posterior_mean_pred.numpy().flatten()
