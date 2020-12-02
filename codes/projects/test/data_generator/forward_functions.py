@@ -2,10 +2,10 @@ import numpy as np
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-###############################################################################
-#                                  Exponential                                #
-###############################################################################
-def exponential(parameter, mesh, parameter_dimensions):
+def continuous_linear(parameter, forward_vector):
+    return np.dot(parameter, forward_vector)
+
+def discrete_exponential(parameter, mesh, parameter_dimensions):
 
     #=== Output ===#
     state = parameter[0]*np.exp(-parameter[1]*mesh.flatten())

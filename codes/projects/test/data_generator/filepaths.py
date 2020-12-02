@@ -21,9 +21,11 @@ class FilePaths:
         ################
         #=== Defining Filenames ===#
         data_options = 'n%d'%(options.parameter_dimensions)
-        directory_dataset = '../../../../../Datasets/Simple_1D/'
-        if options.exponential == 1:
-            project_name = 'exponential_1d'
+        directory_dataset = '../../../../../datasets/simple_1d/'
+        if hasattr(options, 'continuous_linear') and options.continuous_linear == 1:
+            project_name = 'continuous_linear_1d'
+        if hasattr(options, 'discrete_exponential') and options.discrete_exponential == 1:
+            project_name = 'discrete_exponential_1d'
         directory_dataset += project_name + '/' + data_options + '/'
         if not os.path.exists(directory_dataset):
                 os.makedirs(directory_dataset)
@@ -35,12 +37,18 @@ class FilePaths:
             train_or_test = 'test_'
 
         #=== Prior Properties ===#
-        if options.prior_type_diag == True:
+        if hasattr(options, 'prior_type_identity') and options.prior_type_identity == 1:
+            prior_string = self.prior_string('identiy',
+                    options.prior_mean_identity)
+        if hasattr(options, 'prior_type_laplacian') and options.prior_type_laplacian == 1:
+            prior_string = self.prior_string('laplacian',
+                    options.prior_mean_laplacian)
+        if hasattr(options, 'prior_type_diag') and options.prior_type_diag == 1:
             prior_string = self.prior_string_diag('diag',
                     options.prior_mean_diag,
                     options.prior_cov_diag_11,
                     options.prior_cov_diag_22)
-        if options.prior_type_full == True:
+        if hasattr(options, 'prior_type_full') and options.prior_type_full == 1:
             prior_string = self.prior_string_full('full',
                     options.prior_mean_full,
                     options.prior_cov_full_11,
@@ -56,6 +64,10 @@ class FilePaths:
                 'd%d_' %(options.num_data) + data_options + '_' + prior_string
 
         #=== State ===#
+        if hasattr(options, 'continuous_linear') and options.continuous_linear == 1:
+            self.forward_vector = directory_dataset +\
+                    project_name + '_forward_vec_' +\
+                    data_options
         self.obs_indices = directory_dataset +\
                 project_name + '_obs_indices_' +\
                 'o%d_'%(options.num_obs_points) + data_options
@@ -84,6 +96,11 @@ class FilePaths:
 ###############################################################################
 #                               Prior Strings                                 #
 ###############################################################################
+    def prior_string(self, prior_type, mean):
+        mean_string = value_to_string(mean)
+
+        return '%s_%s'%(prior_type, mean_string)
+
     def prior_string_diag(self, prior_type, mean, cov_11, cov_22):
         mean_string = value_to_string(mean)
         cov_11_string = value_to_string(cov_11)

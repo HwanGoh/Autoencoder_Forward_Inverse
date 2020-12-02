@@ -18,7 +18,7 @@ from utils_io.value_to_string import value_to_string
 # Import data generator codes
 from filepaths import FilePaths
 from prior_io import save_prior
-from forward_functions import exponential
+from forward_functions import discrete_exponential
 from dataset_io import save_parameter, save_state
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
@@ -28,7 +28,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 class Options:
     #=== Data Type ===#
-    exponential = 1
+    discrete_exponential = 1
 
     #=== Select Train or Test Set ===#
     generate_train_data = 1
@@ -103,7 +103,7 @@ if __name__ == "__main__":
         epsilon = np.random.normal(0, 1, options.parameter_dimensions)
         parameter[n,:] = np.matmul(prior_covariance_cholesky, epsilon) + prior_mean
         if options.exponential == 1:
-            state[n,:], _ = exponential(parameter[n,:], mesh, options.parameter_dimensions)
+            state[n,:], _ = discrete_exponential(parameter[n,:], mesh, options.parameter_dimensions)
 
     #=== Generate Observation Data ===#
     np.random.seed(options.random_seed)

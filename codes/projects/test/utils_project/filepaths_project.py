@@ -22,8 +22,10 @@ class FilePathsProject:
         #=== Defining Filenames ===#
         data_options = 'n%d'%(options.parameter_dimensions)
         directory_dataset = '../../../../../datasets/simple_1d/'
-        if options.exponential == 1:
-            project_name = 'exponential_1d'
+        if hasattr(options, 'continuous_linear') and options.continuous_linear == 1:
+            project_name = 'continuous_linear_1d'
+        if hasattr(options, 'discrete_exponential') and options.discrete_exponential == 1:
+            project_name = 'discrete_exponential_1d'
         directory_dataset += project_name + '/' + data_options + '/'
 
         #=== Data Properties ===#
@@ -39,6 +41,13 @@ class FilePathsProject:
         data_string = data_options + '_' + obs_string + '_' + noise_string + '_'
 
         #=== Prior Properties ===#
+        if options.prior_type_identity_train == True:
+            prior_string_train = self.prior_string('identity',
+                    options.prior_mean_identity_train)
+        if options.prior_type_identity_test == True:
+            prior_string_test = self.prior_string('identity',
+                    options.prior_mean_identity_test)
+
         if options.prior_type_diag_train == True:
             prior_string_train = self.prior_string_diag('diag',
                     options.prior_mean_diag_train,
@@ -82,6 +91,10 @@ class FilePathsProject:
                 'd%d_'%(options.num_data_test_load) + data_options + '_' + prior_string_test
         self.input_specific = ''
         #=== State ===#
+        if hasattr(options, 'continuous_linear') and options.continuous_linear == 1:
+            self.forward_vector = directory_dataset +\
+                    project_name + '_forward_vec_' +\
+                    data_options
         if options.obs_type == 'full':
             self.output_train = directory_dataset +\
                     project_name + '_' + 'state_' + options.obs_type + '_train_' +\
@@ -117,6 +130,11 @@ class FilePathsProject:
 ###############################################################################
 #                               Prior Strings                                 #
 ###############################################################################
+    def prior_string(self, prior_type, mean):
+        mean_string = value_to_string(mean)
+
+        return '%s_%s'%(prior_type, mean_string)
+
     def prior_string_diag(self, prior_type, mean, cov_11, cov_22):
         mean_string = value_to_string(mean)
         cov_11_string = value_to_string(cov_11)

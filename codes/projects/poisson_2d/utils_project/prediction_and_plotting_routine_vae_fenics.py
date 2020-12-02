@@ -118,7 +118,7 @@ def predict_and_plot(hyperp, options, filepaths):
     plot_parameter_min = 0
     plot_parameter_max = 6
     plot_variance_min = 0
-    plot_variance_max = 0.5
+    plot_variance_max = 1.3
     filename_extension = '_%d.png'%(sample_number)
     plot_fem_function_fenics_2d(meta_space, parameter_test_sample,
                                 cross_section_y,

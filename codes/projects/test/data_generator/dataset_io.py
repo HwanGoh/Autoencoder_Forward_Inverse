@@ -3,6 +3,11 @@ import pandas as pd
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
+def save_forward_vector(filepaths, forward_vector):
+    #=== Save forward vector ===#
+    df_forward_vector = pd.DataFrame({'forward_vector': forward_vector.flatten()})
+    df_forward_vector.to_csv(filepaths.forward_vector + '.csv', index=False)
+
 def save_parameter(filepaths, parameter):
     #=== Save parameter ===#
     df_parameter = pd.DataFrame({'parameter': parameter.flatten()})
