@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
 Created on Wed Sep 18 20:53:06 2019
-
 @author: Jon Wittmer
 """
 
@@ -26,8 +25,11 @@ def generate_scenarios_list():
     hyperp['num_hidden_nodes_encoder']  = [500]
     hyperp['num_hidden_nodes_decoder']  = [500]
     hyperp['activation']                = ['relu']
-    hyperp['penalty_js']                = [0.00001, 0.001, 0.1, 0.5]
-    hyperp['num_data_train']            = [5000]
+    hyperp['num_iaf_transforms']        = [10]
+    hyperp['num_hidden_nodes_iaf']      = [100]
+    hyperp['activation_iaf']            = ['relu']
+    hyperp['penalty_js']                = [0.00001, 0.001, 0.1, 0.5, 0.75]
+    hyperp['num_data_train']            = [500, 1000, 2500, 5000]
     hyperp['batch_size']                = [100]
     hyperp['num_epochs']                = [400]
 
@@ -46,7 +48,7 @@ if __name__ == '__main__':
     for scenario in scenarios_list:
         scenario_json = json.dumps(scenario)
         proc = subprocess.Popen(
-                ['./prediction_and_plotting_vae.py', f'{scenario_json}'])
+                ['./prediction_and_plotting_vaeiaf.py', f'{scenario_json}'])
         proc.wait()
 
     print('All scenarios computed')
