@@ -47,13 +47,12 @@ def trainer_custom(hyperp, options, filepaths,
     latent_dimensions = options.parameter_dimensions
 
     #=== Load FEM Matrices ===#
-    forward_operator, mass_matrix = load_fem_matrices_tf(options, filepaths)
+    forward_matrix, mass_matrix = load_fem_matrices_tf(options, filepaths)
 
     #=== Construct Forward Model ===#
-    forward_model = SolveFEMPrematricesPoisson2D(options, filepaths,
-                                                 data_dict["obs_indices"],
-                                                 prestiffness,
-                                                 boundary_matrix, load_vector)
+    forward_model = SolveFEMEllipticLinear1D(options, filepaths,
+                                             data_dict["obs_indices"],
+                                             forward_matrix, mass_matrix)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
@@ -79,7 +78,7 @@ def trainer_custom(hyperp, options, filepaths,
                  relative_error,
                  data_dict["noise_regularization_matrix"],
                  prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                 forward_model.solve_pde_prematrices_sparse)
+                 forward_model.solve_pde)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
@@ -104,4 +103,4 @@ def trainer_custom(hyperp, options, filepaths,
                 relative_error,
                 data_dict["noise_regularization_matrix"],
                 prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                forward_model.solve_pde_prematrices_sparse)
+                forward_model.solve_pde)

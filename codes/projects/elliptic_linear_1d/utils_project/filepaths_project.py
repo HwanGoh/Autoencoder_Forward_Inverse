@@ -119,8 +119,8 @@ class FilePathsProject:
         #   FEM Objects   #
         ###################
         #=== Forward Operator ===#
-        self.forward_operator = directory_dataset +\
-                'forward_operator_' + data_options
+        self.forward_matrix = directory_dataset +\
+                'forward_matrix_' + data_options
         self.mass_matrix = directory_dataset +\
                 'mass_matrix_' + data_options
 
