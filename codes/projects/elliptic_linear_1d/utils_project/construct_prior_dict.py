@@ -35,4 +35,13 @@ def construct_prior_dict(hyperp, options, filepaths,
         prior_covariance_cholesky_inverse = prior.load_prior_covariance_cholesky_inverse()
         prior_dict["prior_covariance_cholesky_inverse"] = prior_covariance_cholesky_inverse
 
+    #=== Identity Prior ===#
+    if options.prior_type_identity_reg == True:
+        prior_dict["prior_covariance"] = np.identity(
+                options.parameter_dimensions, dtype = np.float32)
+        prior_dict["prior_covariance_cholesky"] = np.identity(
+                options.parameter_dimensions, dtype = np.float32)
+        prior_dict["prior_covariance_cholesky_inverse"] = np.identity(
+                options.parameter_dimensions, dtype = np.float32)
+
     return prior_dict

@@ -105,7 +105,10 @@ class FilePathsProject:
         #   Prior   #
         #############
         #=== Prior ===#
-        self.prior_string_reg = prior_string_reg
+        if options.prior_type_identity_reg == True:
+            self.prior_string_reg = 'identity'
+        else:
+            self.prior_string_reg = prior_string_reg
         self.prior_mean = directory_dataset +\
                 'prior_mean_' + data_options + '_' + prior_string_reg
         self.prior_covariance = directory_dataset +\
