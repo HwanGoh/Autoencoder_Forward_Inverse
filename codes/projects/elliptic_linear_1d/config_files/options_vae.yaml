@@ -2,7 +2,7 @@
 resnet : False
 
 #=== Load Dataset Size ===#
-num_data_train_load : 5000
+num_data_train_load : 10000
 num_data_test_load : 200
 num_data_test : 200
 
@@ -35,6 +35,10 @@ prior_type_lp_test : True
 prior_mean_lp_test : 0
 prior_gamma_lp_test : 0.1
 prior_delta_lp_test : 1.0
+
+#=== Boundary Conditions ===#
+boundary_conditions_dirichlet : False
+boundary_conditions_neumann : True
 
 #=== Random Seed ===#
 random_seed : 4

@@ -5,7 +5,10 @@ import time
 
 import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
-class SolveFEMEllipticLinear1D:
+###############################################################################
+#                                 Dirichlet                                   #
+###############################################################################
+class SolveFEMEllipticLinearDirichlet1D:
     def __init__(self, options, filepaths,
                  obs_indices,
                  forward_matrix, mass_matrix):
@@ -26,9 +29,6 @@ class SolveFEMEllipticLinear1D:
         self.dirichlet_add_vec[-1] = 1
         self.dirichlet_add_vec = tf.cast(self.dirichlet_add_vec, tf.float32)
 
-###############################################################################
-#                                 PDE Solvers                                 #
-###############################################################################
     def solve_pde(self, parameters):
         #=== Solving PDE ===#
         rhs = tf.linalg.matmul(
@@ -41,6 +41,42 @@ class SolveFEMEllipticLinear1D:
                     tf.expand_dims(parameters[n,:], axis=0), tf.transpose(self.mass_matrix))
             rhs = tf.math.multiply(self.dirichlet_mult_vec, rhs)
             rhs = tf.math.add(self.dirichlet_add_vec, rhs)
+            solution = tf.linalg.matmul(rhs, tf.transpose(self.forward_matrix))
+            state = tf.concat([state, solution], axis=0)
+
+        #=== Generate Measurement Data ===#
+        if self.options.obs_type == 'obs':
+            state_obs = tf.gather(state, self.obs_indices, axis=1)
+            return tf.squeeze(state_obs)
+        else:
+            return state
+
+###############################################################################
+#                                   Neumann                                   #
+###############################################################################
+class SolveFEMEllipticLinearNeumann1D:
+    def __init__(self, options, filepaths,
+                 obs_indices,
+                 forward_matrix, mass_matrix):
+
+        #=== Defining Attributes ===#
+        self.options = options
+        self.filepaths = filepaths
+        self.obs_indices = tf.cast(obs_indices, tf.int32)
+        self.forward_matrix = forward_matrix
+        self.mass_matrix = mass_matrix
+
+###############################################################################
+#                                 PDE Solvers                                 #
+###############################################################################
+    def solve_pde(self, parameters):
+        #=== Solving PDE ===#
+        rhs = tf.linalg.matmul(
+                tf.expand_dims(parameters[0,:], axis=0), tf.transpose(self.mass_matrix))
+        state = tf.linalg.matmul(rhs, tf.transpose(self.forward_matrix))
+        for n in range(1, parameters.shape[0]):
+            rhs = tf.linalg.matmul(
+                    tf.expand_dims(parameters[n,:], axis=0), tf.transpose(self.mass_matrix))
             solution = tf.linalg.matmul(rhs, tf.transpose(self.forward_matrix))
             state = tf.concat([state, solution], axis=0)
 

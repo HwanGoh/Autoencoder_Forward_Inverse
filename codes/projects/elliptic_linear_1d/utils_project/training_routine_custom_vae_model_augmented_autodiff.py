@@ -16,7 +16,8 @@ from optimize.optimize_distributed_custom_vae_model_augmented_autodiff import op
 
 # Import project utilities
 from utils_project.get_fem_matrices_tf import load_fem_matrices_tf
-from utils_project.solve_fem_elliptic_linear_1d import SolveFEMEllipticLinear1D
+from utils_project.solve_fem_elliptic_linear_1d import\
+        SolveFEMEllipticLinearDirichlet1D, SolveFEMEllipticLinearNeumann1D
 
 import pdb
 
@@ -50,9 +51,14 @@ def trainer_custom(hyperp, options, filepaths,
     forward_matrix, mass_matrix = load_fem_matrices_tf(options, filepaths)
 
     #=== Construct Forward Model ===#
-    forward_model = SolveFEMEllipticLinear1D(options, filepaths,
-                                             data_dict["obs_indices"],
-                                             forward_matrix, mass_matrix)
+    if options.boundary_conditions_dirichlet == True:
+        forward_model = SolveFEMEllipticLinearDirichlet1D(options, filepaths,
+                                                          data_dict["obs_indices"],
+                                                          forward_matrix, mass_matrix)
+    if options.boundary_conditions_neumann == True:
+        forward_model = SolveFEMEllipticLinearNeumann1D(options, filepaths,
+                                                        data_dict["obs_indices"],
+                                                        forward_matrix, mass_matrix)
 
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
