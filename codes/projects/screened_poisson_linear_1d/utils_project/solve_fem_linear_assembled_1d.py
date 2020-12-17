@@ -8,7 +8,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 ###############################################################################
 #                                 Dirichlet                                   #
 ###############################################################################
-class SolveFEMEllipticLinearDirichlet1D:
+class SolveFEMLinearDirichlet1D:
     def __init__(self, options, filepaths,
                  obs_indices,
                  forward_matrix, mass_matrix):
@@ -54,7 +54,7 @@ class SolveFEMEllipticLinearDirichlet1D:
 ###############################################################################
 #                                   Neumann                                   #
 ###############################################################################
-class SolveFEMEllipticLinearNeumann1D:
+class SolveFEMLinearNeumann:
     def __init__(self, options, filepaths,
                  obs_indices,
                  forward_matrix, mass_matrix):
@@ -66,9 +66,6 @@ class SolveFEMEllipticLinearNeumann1D:
         self.forward_matrix = forward_matrix
         self.mass_matrix = mass_matrix
 
-###############################################################################
-#                                 PDE Solvers                                 #
-###############################################################################
     def solve_pde(self, parameters):
         #=== Solving PDE ===#
         rhs = tf.linalg.matmul(

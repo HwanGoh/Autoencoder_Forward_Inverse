@@ -18,21 +18,21 @@ num_noisy_obs : 10
 num_noisy_obs_unregularized : 0
 
 #=== Identity Prior Properties ===#
-prior_type_identity_reg : True
+prior_type_identity_reg : False
 
 #=== Laplacian Prior Properties ===#
 prior_type_lp_reg : True
-prior_mean_lp_reg : 0
+prior_mean_lp_reg : 4
 prior_gamma_lp_reg : 0.1
 prior_delta_lp_reg : 1.0
 
 prior_type_lp_train : True
-prior_mean_lp_train : 0
+prior_mean_lp_train : 4
 prior_gamma_lp_train : 0.1
 prior_delta_lp_train : 1.0
 
 prior_type_lp_test : True
-prior_mean_lp_test : 0
+prior_mean_lp_test : 4
 prior_gamma_lp_test : 0.1
 prior_delta_lp_test : 1.0
 

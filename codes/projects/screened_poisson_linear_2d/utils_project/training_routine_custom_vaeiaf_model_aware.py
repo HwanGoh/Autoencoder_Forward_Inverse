@@ -7,17 +7,13 @@ import pandas as pd
 
 # Import src code
 from utils_training.form_train_val_test import form_train_val_test_tf_batches
-from neural_networks.nn_vae import VAE
+from neural_networks.nn_vaeiaf import VAEIAF
 from utils_training.functionals import\
-        loss_weighted_penalized_difference, loss_kld,\
-        relative_error
-from optimize.optimize_custom_vae_model_augmented_autodiff import optimize
-from optimize.optimize_distributed_custom_vae_model_augmented_autodiff import optimize_distributed
-
-# Import project utilities
-from utils_project.get_fem_matrices_tf import load_fem_matrices_tf
-from utils_project.solve_fem_elliptic_linear_1d import\
-        SolveFEMEllipticLinearDirichlet1D, SolveFEMEllipticLinearNeumann1D
+        loss_penalized_difference, loss_weighted_penalized_difference, relative_error
+from optimize.optimize_custom_vaeiaf_model_aware import optimize
+from optimize.optimize_distributed_custom_vaeiaf_model_aware import optimize_distributed
+from utils_misc.positivity_constraints import positivity_constraint_exp,\
+                                              positivity_constraint_log_exp
 
 import pdb
 
@@ -26,7 +22,6 @@ import pdb
 ###############################################################################
 def trainer_custom(hyperp, options, filepaths,
                    data_dict, prior_dict):
-
     #=== GPU Settings ===#
     os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
     if options.distributed_training == 0:
@@ -47,30 +42,20 @@ def trainer_custom(hyperp, options, filepaths,
     input_dimensions = data_dict["obs_dimensions"]
     latent_dimensions = options.parameter_dimensions
 
-    #=== Load FEM Matrices ===#
-    forward_matrix, mass_matrix = load_fem_matrices_tf(options, filepaths)
-
-    #=== Construct Forward Model ===#
-    if options.boundary_conditions_dirichlet == True:
-        forward_model = SolveFEMEllipticLinearDirichlet1D(options, filepaths,
-                                                          data_dict["obs_indices"],
-                                                          forward_matrix, mass_matrix)
-    if options.boundary_conditions_neumann == True:
-        forward_model = SolveFEMEllipticLinearNeumann1D(options, filepaths,
-                                                        data_dict["obs_indices"],
-                                                        forward_matrix, mass_matrix)
-
     #=== Neural Network Regularizers ===#
     kernel_initializer = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
     bias_initializer = 'zeros'
+    kernel_initializer_iaf = tf.keras.initializers.RandomNormal(mean=0.0, stddev=0.05)
+    bias_initializer_iaf = 'zeros'
 
     #=== Non-distributed Training ===#
     if options.distributed_training == 0:
         #=== Neural Network ===#
-        NN = VAE(hyperp, options,
-                 input_dimensions, latent_dimensions,
-                 kernel_initializer, bias_initializer,
-                 tf.identity)
+        NN = VAEIAF(hyperp, options,
+                    input_dimensions, latent_dimensions,
+                    kernel_initializer, bias_initializer,
+                    kernel_initializer_iaf, bias_initializer_iaf,
+                    positivity_constraint_log_exp)
 
         #=== Optimizer ===#
         optimizer = tf.keras.optimizers.Adam()
@@ -78,23 +63,22 @@ def trainer_custom(hyperp, options, filepaths,
         #=== Training ===#
         optimize(hyperp, options, filepaths,
                  NN, optimizer,
-                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
-                 input_dimensions, latent_dimensions, num_batches_train,
-                 loss_weighted_penalized_difference, loss_kld,
+                 loss_weighted_penalized_difference, data_dict["noise_regularization_matrix"],
+                 prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
+                 loss_penalized_difference,
                  relative_error,
-                 data_dict["noise_regularization_matrix"],
-                 prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                 forward_model.solve_pde)
+                 input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                 input_dimensions, latent_dimensions, num_batches_train)
 
     #=== Distributed Training ===#
     if options.distributed_training == 1:
         dist_strategy = tf.distribute.MirroredStrategy()
         with dist_strategy.scope():
             #=== Neural Network ===#
-            NN = VAE(hyperp, options,
-                     input_dimensions, latent_dimensions,
-                     kernel_initializer, bias_initializer,
-                     tf.identity)
+            NN = VAEIAF(hyperp, options,
+                        input_dimensions, latent_dimensions,
+                        kernel_initializer, bias_initializer,
+                        positivity_constraint_log_exp)
 
             #=== Optimizer ===#
             optimizer = tf.keras.optimizers.Adam()
@@ -103,10 +87,9 @@ def trainer_custom(hyperp, options, filepaths,
         optimize_distributed(dist_strategy,
                 hyperp, options, filepaths,
                 NN, optimizer,
-                input_and_latent_train, input_and_latent_val, input_and_latent_test,
-                input_dimensions, latent_dimensions, num_batches_train,
-                loss_weighted_penalized_difference, loss_kld,
+                loss_weighted_penalized_difference, data_dict["noise_regularization_matrix"],
+                prior_dict["prior_mean"], prior_dict["prior_covariance_cholesky_inverse"],
+                loss_penalized_difference,
                 relative_error,
-                data_dict["noise_regularization_matrix"],
-                prior_dict["prior_mean"], prior_dict["prior_covariance"],
-                forward_model.solve_pde)
+                input_and_latent_train, input_and_latent_val, input_and_latent_test,
+                input_dimensions, latent_dimensions, num_batches_train)

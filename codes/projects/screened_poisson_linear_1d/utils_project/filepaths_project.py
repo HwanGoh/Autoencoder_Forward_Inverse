@@ -19,15 +19,17 @@ class FilePathsProject:
         #   Case Name  #
         ################
         #=== Key Strings ===#
-        project_name = 'elliptic_linear_1d_'
+        data_options = 'n%d'%(options.parameter_dimensions)
         if options.boundary_conditions_dirichlet == True:
-            bc_string = 'dirichlet'
+            project_name = 'screened_poisson_linear_dirichlet_1d_'
+            directory_dataset =\
+                    '../../../../../datasets/fenics/screened_poisson_linear_dirichlet_1d/' +\
+                    data_options + '/'
         if options.boundary_conditions_neumann == True:
-            bc_string = 'neumann'
-        parameter_dims_string = 'n%d'%(options.parameter_dimensions)
-        data_options = '%s_%s'%(bc_string, parameter_dims_string)
-        directory_dataset = '../../../../../datasets/fenics/elliptic_linear_1d/' +\
-                parameter_dims_string + '/'
+            project_name = 'screened_poisson_linear_neumann_1d_'
+            directory_dataset =\
+                    '../../../../../datasets/fenics/screened_poisson_linear_neumann_1d/' +\
+                    data_options + '/'
 
         #=== Data Type ===#
         if options.obs_type == 'full':
@@ -115,13 +117,13 @@ class FilePathsProject:
         else:
             self.prior_string_reg = prior_string_reg
         self.prior_mean = directory_dataset +\
-                'prior_mean_' + parameter_dims_string + '_' + prior_string_reg
+                'prior_mean_' + data_options + '_' + prior_string_reg
         self.prior_covariance = directory_dataset +\
-                'prior_covariance_' + parameter_dims_string + '_' + prior_string_reg
+                'prior_covariance_' + data_options + '_' + prior_string_reg
         self.prior_covariance_cholesky = directory_dataset +\
-                'prior_covariance_cholesky_' + parameter_dims_string + '_' + prior_string_reg
+                'prior_covariance_cholesky_' + data_options + '_' + prior_string_reg
         self.prior_covariance_cholesky_inverse = directory_dataset +\
-                'prior_covariance_cholesky_inverse_' + parameter_dims_string + '_' + prior_string_reg
+                'prior_covariance_cholesky_inverse_' + data_options + '_' + prior_string_reg
 
         ###################
         #   FEM Objects   #
