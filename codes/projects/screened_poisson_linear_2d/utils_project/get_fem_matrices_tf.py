@@ -5,7 +5,7 @@ import pdb #Equivalent of keyboard in MATLAB, just add "pdb.set_trace()"
 
 def load_fem_matrices_tf(options, filepaths):
 
-    #=== Load Spatial Operator ===#
+    #=== Forward Matrix and Mass Matrix ===#
     df_forward_matrix = pd.read_csv(filepaths.project.forward_matrix + '.csv')
     forward_matrix = df_forward_matrix.to_numpy()
     df_mass_matrix = pd.read_csv(filepaths.project.mass_matrix + '.csv')
